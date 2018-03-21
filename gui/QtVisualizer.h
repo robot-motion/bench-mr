@@ -66,6 +66,8 @@ public:
 
     static void drawTrajectory(std::vector<GNode> nodes, const QColor &color = Qt::white,
                                float penWidth = 1.f, Qt::PenStyle penStyle = Qt::PenStyle::SolidLine);
+    static void drawTrajectory(const GNode &a, const GNode &b, const QColor &color = Qt::white,
+                               float penWidth = 1.f, Qt::PenStyle penStyle = Qt::PenStyle::SolidLine);
     static void drawPath(std::vector<GNode> nodes, const QColor &color = Qt::white,
                          float penWidth = 1.f, Qt::PenStyle penStyle = Qt::PenStyle::SolidLine);
     static void drawPath(std::vector<Tpoint> nodes, QColor color = Qt::white,
@@ -90,6 +92,9 @@ public:
     static void savePng(const QString &fileName);
     static void saveSvg(const QString &fileName);
 
+    static void saveScene();
+    static void restoreScene();
+
     virtual ~QtVisualizer();
 
 private:
@@ -104,4 +109,6 @@ private:
     static std::vector<LegendEntry> _legend;
 
     static bool _showStartGoal;
+
+    static std::list<QGraphicsItem*> _storedItems;
 };

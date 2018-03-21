@@ -42,6 +42,8 @@ DAMAGE.
 
 
 #include <unistd.h>
+#include <ompl/util/Console.h>
+#include <gui/QtVisualizer.h>
 
 using namespace std;
 
@@ -52,12 +54,10 @@ using namespace std;
 // occurs in stl headers
 #pragma warning( disable : 4786 )
 
-template<class T>
-class ThetaStarState;
 
 // UserState is the users state space type
 template<class UserState>
-class ThetaStarSearch
+class SmoothThetaStarSearch : public ThetaStarSearch<UserState>
 {
 public: // data
 
@@ -128,7 +128,7 @@ public:
 public: // methods
 
     // constructor just initialises private data
-    ThetaStarSearch() : m_AllocateNodeCount(0), m_State(SEARCH_STATE_NOT_INITIALISED), m_CurrentSolutionNode(NULL),
+    SmoothThetaStarSearch() : m_AllocateNodeCount(0), m_State(SEARCH_STATE_NOT_INITIALISED), m_CurrentSolutionNode(NULL),
                         m_CancelRequest(false)
     {
         m_useAstar = false;
@@ -136,7 +136,7 @@ public: // methods
     }
 
     // constructor just initialises private data
-    ThetaStarSearch(bool euclideanCostChoice) : m_AllocateNodeCount(0), m_State(SEARCH_STATE_NOT_INITIALISED),
+    SmoothThetaStarSearch(bool euclideanCostChoice) : m_AllocateNodeCount(0), m_State(SEARCH_STATE_NOT_INITIALISED),
                                                 m_CurrentSolutionNode(NULL), m_CancelRequest(false)
     {
         m_euclideanCost = euclideanCostChoice;
@@ -144,7 +144,7 @@ public: // methods
         m_connectGrandParent = false;
     }
 
-    ThetaStarSearch(int MaxNodes) : m_AllocateNodeCount(0), m_State(SEARCH_STATE_NOT_INITIALISED),
+    SmoothThetaStarSearch(int MaxNodes) : m_AllocateNodeCount(0), m_State(SEARCH_STATE_NOT_INITIALISED),
                                     m_CurrentSolutionNode(NULL), m_CancelRequest(false)
     {
         m_useAstar = false;
@@ -203,7 +203,7 @@ public: // methods
     }
 
     // Advances search one step
-    virtual unsigned int SearchStep()
+    unsigned int SearchStep()
     {
         // Firstly break if the user has not initialised the search
         assert((m_State > SEARCH_STATE_NOT_INITIALISED) && (m_State < SEARCH_STATE_INVALID));
@@ -384,7 +384,7 @@ public: // methods
         return m_State; // Succeeded bool is false at this point.
     }
 
-    virtual bool UpdateVertex(Node *n, Node *successor)
+    bool UpdateVertex(Node *n, Node *successor)
     {
         typename vector<Node *>::iterator closedlist_result;
         typename vector<Node *>::iterator openlist_result;
@@ -417,6 +417,8 @@ public: // methods
 
                 // Update cost and Parent
                 double h_succ = (successor)->m_UserState.GoalDistanceEstimate(m_Goal->m_UserState);
+
+                std::cout << "Updating vertex..." << std::endl;
 
                 (successor)->parent = n->parent;
                 (successor)->yaw = (successor)->m_UserState.theta;
@@ -514,10 +516,12 @@ public: // methods
         return true;
     }
 
-    virtual bool UpdateVertexGrandParent(Node *n, Node *successor)
+    bool UpdateVertexGrandParent(Node *n, Node *successor)
     {
         typename vector<Node *>::iterator closedlist_result;
         typename vector<Node *>::iterator openlist_result;
+
+        std::cout << "Smooth Theta* Updates vertex grand parent" << std::endl;
 
         double tcost = 0;
 
@@ -536,15 +540,15 @@ public: // methods
                 if (n->parent->parent == n && n->parent->parent != m_Start)
                 {
 
-#ifdef DEBUG
-                    n->parent->parent->m_UserState.PrintNodeInfo();
-#endif
-
-#ifdef DEBUG
-                    n->m_UserState.PrintNodeInfo();
-                    (successor)->m_UserState.PrintNodeInfo();
-                    #endif
-                    cout << endl;
+//#ifdef DEBUG
+//                    n->parent->parent->m_UserState.PrintNodeInfo();
+//#endif
+//
+//#ifdef DEBUG
+//                    n->m_UserState.PrintNodeInfo();
+//                    (successor)->m_UserState.PrintNodeInfo();
+//                    #endif
+//                    cout << endl;
                 }
 
                 // Update cost and Parent
@@ -556,6 +560,8 @@ public: // methods
                 (successor)->h = (float) h_succ;
                 (successor)->f = (float) (tcost + h_succ);
                 (successor)->m_UserState.setType(1);
+//                QtVisualizer::drawTrajectory(n->parent->parent->m_UserState, (successor)->m_UserState, Qt::red);
+//                QtVisualizer::drawNode(successor->m_UserState);
 
 
                 // check if successor is in open list
@@ -597,15 +603,16 @@ public: // methods
             {
                 if (n->parent == n && n->parent != m_Start)
                 {
-#ifdef DEBUG
-                    n->parent->m_UserState.PrintNodeInfo();
-                    n->m_UserState.PrintNodeInfo();
-                    #endif
-#ifdef DEBUG
-                    (successor)->m_UserState.PrintNodeInfo();
-                    #endif
-                    cout << endl;
+//#ifdef DEBUG
+//                    n->parent->m_UserState.PrintNodeInfo();
+//                    n->m_UserState.PrintNodeInfo();
+//                    #endif
+//#ifdef DEBUG
+//                    (successor)->m_UserState.PrintNodeInfo();
+//                    #endif
+//                    cout << endl;
                 }
+
 
                 // Update cost and Parent
                 double h_succ = (successor)->m_UserState.GoalDistanceEstimate(m_Goal->m_UserState);
@@ -616,6 +623,8 @@ public: // methods
                 (successor)->h = (float) h_succ;
                 (successor)->f = (float) (tcost + h_succ);
                 (successor)->m_UserState.setType(1);
+//                QtVisualizer::drawTrajectory(n->parent->m_UserState, (successor)->m_UserState, Qt::darkGreen);
+//                QtVisualizer::drawNode(successor->m_UserState, Qt::darkGreen);
 
 
                 // check if successor is in open list
@@ -714,7 +723,7 @@ public: // methods
 
     // User calls this to add a successor to a list of successors
     // when expanding the search frontier
-    virtual bool AddSuccessor(UserState &State)
+    bool AddSuccessor(UserState &State)
     {
         Node *node = AllocateNode();
 
@@ -733,7 +742,7 @@ public: // methods
     // Free the solution nodes
     // This is done to clean up all used Node memory when you are done with the
     // search
-    virtual void FreeSolutionNodes()
+    void FreeSolutionNodes()
     {
         Node *n = m_Start;
 
@@ -1051,25 +1060,4 @@ private:
     int m_AllocateNodeCount;
 
     bool m_CancelRequest;
-};
-
-
-/// Template Class to use as state during the Search
-template<class T>
-class ThetaStarState
-{
-public:
-    virtual ~ThetaStarState()
-    {}
-
-    virtual float
-    GoalDistanceEstimate(T &nodeGoal) = 0; // Heuristic function which computes the estimated cost to the goal node
-    virtual bool IsGoal(T &nodeGoal) = 0; // Returns true if this node is the goal node
-    virtual bool GetSuccessors(ThetaStarSearch<T> *thetastarsearch,
-                               T *parent_node) = 0; // Retrieves all successors to this node and adds them via thetastarsearch.addSuccessor()
-    virtual float GetCost(T &successor) = 0; // Computes the cost of travelling from this node to the successor node
-    virtual bool IsSameState(T &rhs) = 0; // Returns true if this node is the same as the rhs node
-    virtual bool lineofsight(T *successor, T *parent_node)=0;
-
-    int OPTM_ORIENTATIONS;
 };
