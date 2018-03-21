@@ -24,6 +24,7 @@ VisualizationView *QtVisualizer::_view = nullptr;
 QGraphicsScene *QtVisualizer::_scene = nullptr;
 
 std::vector<LegendEntry> QtVisualizer::_legend;
+std::list<QGraphicsItem*> QtVisualizer::_storedItems;
 
 int QtVisualizer::_statsTextTop = -2;
 
@@ -172,6 +173,14 @@ void QtVisualizer::drawTrajectory(std::vector<GNode> nodes, const QColor &color,
         path.insert(path.end(), tpath.begin(), tpath.end());
         delete traj;
     }
+    drawPath(path, color, penWidth, penStyle);
+}
+
+void QtVisualizer::drawTrajectory(const GNode &a, const GNode &b, const QColor &color, float penWidth, Qt::PenStyle penStyle)
+{
+    auto *traj = new Trajectory();
+    PlannerSettings::steering->Steer(&a, &b, traj);
+    auto path = traj->getPath();
     drawPath(path, color, penWidth, penStyle);
 }
 
@@ -365,7 +374,7 @@ void QtVisualizer::savePng(const QString &fileName)
 
     QImage image(_scene->sceneRect().size().toSize().scaled(2000, 2000, Qt::KeepAspectRatio),
                  QImage::Format_ARGB32);
-    image.fill(Qt::transparent);
+    image.fill(Qt::white);
 
     QPainter painter(&image);
     _scene->render(&painter);
@@ -399,6 +408,34 @@ void QtVisualizer::saveSvg(const QString &fileName)
     painter.end();
 
     std::cout << "Saved SVG at " << fileName.toStdString() << std::endl;
+}
+
+void QtVisualizer::saveScene()
+{
+    _storedItems.clear();
+    for (auto *item : _scene->items().toStdList())
+    {
+        _storedItems.push_back(item);
+    }
+}
+
+void QtVisualizer::restoreScene()
+{
+    for (auto *sceneItem : _scene->items().toStdList())
+    {
+        bool found = false;
+        for (auto *item : _storedItems)
+        {
+            if (item == sceneItem)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+            _scene->removeItem(sceneItem);
+    }
+    _storedItems.clear();
 }
 
 VisualizationView::VisualizationView(QGraphicsScene *scene, QWidget *parent)

@@ -265,79 +265,79 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label, 
     stats.planningTime = planningTime;
 //    auto begin_time = ros::WallTime::now().toSec();
     std::vector<GNode> smoothed(trajectory);
-    OMPL_INFORM("Running our smoothing method on %s ...", label.c_str());
-    PostSmoothing::smooth(smoothed, path);
-    auto postsmoothing_time = planningTime + PostSmoothing::smoothingTime;
-    auto smoothedTrajPoints = PlannerUtils::toSteeredTrajectoryPoints(smoothed);
-    auto *smoothedTraj = new Trajectory(smoothedTrajPoints);
-    double smoothedPathLength = PathLengthMetric::evaluate(smoothedTraj);
-    double smoothedCurvature = CurvatureMetric::evaluateMetric(smoothedTraj, 0, false);
+//    OMPL_INFORM("Running our smoothing method on %s ...", label.c_str());
+//    PostSmoothing::smooth(smoothed, path);
+//    auto postsmoothing_time = planningTime + PostSmoothing::smoothingTime;
+//    auto smoothedTrajPoints = PlannerUtils::toSteeredTrajectoryPoints(smoothed);
+//    auto *smoothedTraj = new Trajectory(smoothedTrajPoints);
+//    double smoothedPathLength = PathLengthMetric::evaluate(smoothedTraj);
+//    double smoothedCurvature = CurvatureMetric::evaluateMetric(smoothedTraj, 0, false);
 //        QtVisualizer::drawNodes(smoothedTrajPoints, QColor(255, 150, 0), .03f);
 //        QtVisualizer::drawNodes(smoothed, false, Qt::red, .03f);
 //        QtVisualizer::drawNodes(smoothed, false, Qt::red, .03f);
 
-    QPen oPen(color, 1., Qt::PenStyle::DashLine);
+    QPen oPen(color, 1.5);
     QtVisualizer::addLegendEntry(LegendEntry(label, oPen));
 //        QtVisualizer::drawNodes(path, color, .03f);
     QtVisualizer::drawPath(path, oPen);
 
-    QPen ourPen(color, 1.5f);
+//    QPen ourPen(color, 1.5f);
+//
+//    auto *lines = new QLineSeries;
+//    lines->setColor(color);
+//    lines->setName(QString::fromStdString(label));
+//    lines->setPen(oPen);
+//
+//    _labels << QString::fromStdString(label);
 
-    auto *lines = new QLineSeries;
-    lines->setColor(color);
-    lines->setName(QString::fromStdString(label));
-    lines->setPen(oPen);
-
-    _labels << QString::fromStdString(label);
-
-    std::vector<double> distances = computeObstacleDistances(path);
-    stats.pathCollides = false;
-    for (unsigned int i = 0; i < distances.size(); ++i)
-    {
-        lines->append((i + 1.f) / distances.size(), distances[i]);
-        if (distances[i] <= 0.0f)
-            stats.pathCollides = true;
-    }
-
-    _distances->addSeries(lines);
-
-    auto *smoothedLines = new QLineSeries;
-    smoothedLines->setName(QString::fromStdString(label) + " smoothed");
-    smoothedLines->setColor(color);
-
-    std::vector<double> smoothedDistances = computeObstacleDistances(smoothedTrajPoints);
+//    std::vector<double> distances = computeObstacleDistances(path);
+//    stats.pathCollides = false;
+//    for (unsigned int i = 0; i < distances.size(); ++i)
+//    {
+//        lines->append((i + 1.f) / distances.size(), distances[i]);
+//        if (distances[i] <= 0.0f)
+//            stats.pathCollides = true;
+//    }
+//
+//    _distances->addSeries(lines);
+//
+//    auto *smoothedLines = new QLineSeries;
+//    smoothedLines->setName(QString::fromStdString(label) + " smoothed");
+//    smoothedLines->setColor(color);
+//
+//    std::vector<double> smoothedDistances = computeObstacleDistances(smoothedTrajPoints);
     stats.ourSmoothingCollides = false;
-    for (unsigned int i = 0; i < smoothedDistances.size(); ++i)
-    {
-        smoothedLines->append((i + 1.f) / smoothedDistances.size(), smoothedDistances[i]);
-        if (smoothedDistances[i] <= 0.f)
-        {
-            _smoothCollides = true;
-            stats.ourSmoothingCollides = true;
-        }
-    }
-    stats.ourSmoothingCollides = PlannerUtils::collides(smoothedTrajPoints);
-    if (stats.ourSmoothingCollides)
-        OMPL_WARN("%s collides with our smoothing!", label.c_str());
-
-    if (stats.exactGoalPath && !stats.ourSmoothingCollides)
-    {
-        stats.ourSmoothingTime = postsmoothing_time;
-        stats.ourSmoothingPathLength = smoothedPathLength;
-        stats.ourSmoothingCurvature = smoothedCurvature;
-        QtVisualizer::addLegendEntry(LegendEntry(label + " - Our Smoothing", ourPen));
-        QtVisualizer::drawPath(smoothedTrajPoints, ourPen);
-    }
-
-    _distances->addSeries(smoothedLines);
-
-    QBoxSet *box = computeBox(distances, label);
-    box->setBrush(QBrush(color, Qt::BrushStyle::BDiagPattern));
-    _boxSeries->append(box);
-
-    QBoxSet *boxSmoothed = computeBox(smoothedDistances, label + " smoothed");
-    boxSmoothed->setBrush(QBrush(color));
-    _boxSeries->append(boxSmoothed);
+//    for (unsigned int i = 0; i < smoothedDistances.size(); ++i)
+//    {
+//        smoothedLines->append((i + 1.f) / smoothedDistances.size(), smoothedDistances[i]);
+//        if (smoothedDistances[i] <= 0.f)
+//        {
+//            _smoothCollides = true;
+//            stats.ourSmoothingCollides = true;
+//        }
+//    }
+//    stats.ourSmoothingCollides = PlannerUtils::collides(smoothedTrajPoints);
+//    if (stats.ourSmoothingCollides)
+//        OMPL_WARN("%s collides with our smoothing!", label.c_str());
+//
+//    if (stats.exactGoalPath && !stats.ourSmoothingCollides)
+//    {
+//        stats.ourSmoothingTime = postsmoothing_time;
+//        stats.ourSmoothingPathLength = smoothedPathLength;
+//        stats.ourSmoothingCurvature = smoothedCurvature;
+//        QtVisualizer::addLegendEntry(LegendEntry(label + " - Our Smoothing", ourPen));
+//        QtVisualizer::drawPath(smoothedTrajPoints, ourPen);
+//    }
+//
+//    _distances->addSeries(smoothedLines);
+//
+//    QBoxSet *box = computeBox(distances, label);
+//    box->setBrush(QBrush(color, Qt::BrushStyle::BDiagPattern));
+//    _boxSeries->append(box);
+//
+//    QBoxSet *boxSmoothed = computeBox(smoothedDistances, label + " smoothed");
+//    boxSmoothed->setBrush(QBrush(color));
+//    _boxSeries->append(boxSmoothed);
 
     auto *traj = new Trajectory(path);
     double pathLength = PathLengthMetric::evaluate(traj);
@@ -347,8 +347,8 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label, 
         _maxPathLength = pathLength;
     if (curvature > _maxCurvature)
         _maxCurvature = curvature;
-    if (postsmoothing_time > _maxTime)
-        _maxTime = postsmoothing_time;
+//    if (postsmoothing_time > _maxTime)
+//        _maxTime = postsmoothing_time;
 
 //    QBarSet *pathLengthBarSet = new QBarSet(QString::fromStdString(label));
 //    pathLengthBarSet->setColor(color);
@@ -362,7 +362,7 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label, 
     stats.pathLength = pathLength;
 
     *_originalPathLengthSet << pathLength;
-    *_smoothedPathLengthSet << smoothedPathLength;
+//    *_smoothedPathLengthSet << smoothedPathLength;
 
 //    QBarSet *curvatureBarSet = new QBarSet(QString::fromStdString(label));
 //    curvatureBarSet->setColor(color);
@@ -371,7 +371,7 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label, 
 //              << curvature << std::endl;
 //    _curvatureSeries->append(curvatureBarSet);
     *_originalCurvatureSet << curvature;
-    *_smoothedCurvatureSet << smoothedCurvature;
+//    *_smoothedCurvatureSet << smoothedCurvature;
 //
 //    QBarSet *timeBarSet = new QBarSet(QString::fromStdString(label));
 //    timeBarSet->setColor(color);
@@ -380,7 +380,16 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label, 
 //              << planningTime << "s" << std::endl;
 //    _timeSeries->append(timeBarSet);
     *_originalTimeSet << planningTime;
-    *_smoothedTimeSet << postsmoothing_time;
+//    *_smoothedTimeSet << postsmoothing_time;
+
+
+    // TODO remove
+//    QtVisualizer::drawStats(stats);
+
+//    delete smoothedTraj;
+    delete traj;
+    return stats;
+
 
     OMPL_INFORM("Running B-Spline smoothing method on %s...", label.c_str());
     auto smoothed1 = planner->smoothBSpline();
@@ -542,7 +551,7 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label, 
 
     QtVisualizer::drawStats(stats);
 
-    delete smoothedTraj;
+//    delete smoothedTraj;
     delete traj;
     return stats;
 }
