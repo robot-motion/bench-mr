@@ -521,7 +521,7 @@ public: // methods
         typename vector<Node *>::iterator closedlist_result;
         typename vector<Node *>::iterator openlist_result;
 
-        std::cout << "Smooth Theta* Updates vertex grand parent" << std::endl;
+//        std::cout << "Smooth Theta* Updates vertex grand parent" << std::endl;
 
         double tcost = 0;
 

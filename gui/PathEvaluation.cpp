@@ -556,6 +556,24 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label, 
     return stats;
 }
 
+PathStatistics PathEvaluation::evaluate(const std::vector<Tpoint> &path, std::string label, QColor color)
+{
+    PathStatistics stats(label, color);
+    auto *traj = new Trajectory(path);
+    stats.pathLength = PathLengthMetric::evaluate(traj);
+    stats.curvature = CurvatureMetric::evaluate(traj);
+
+    std::cout << label << std::endl;
+    std::cout << "Path length:   \t" << stats.pathLength << std::endl;
+    std::cout << "Max curvature: \t" << stats.curvature << std::endl;
+
+    QPen oPen(color, 1.5);
+    QtVisualizer::addLegendEntry(LegendEntry(label, oPen));
+    QtVisualizer::drawPath(path, oPen);
+
+    return stats;
+}
+
 bool approxEqual(double a, double b)
 {
     return std::abs(a-b) < 1e-4;

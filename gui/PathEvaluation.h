@@ -46,6 +46,8 @@ public:
 
     static PathStatistics add(AbstractPlanner *planner, std::string label, QColor color);
 
+    static PathStatistics evaluate(const std::vector<Tpoint> &path, std::string label, QColor color);
+
     static std::vector<double> computeObstacleDistances(const std::vector<Tpoint> &path);
 
 private:
