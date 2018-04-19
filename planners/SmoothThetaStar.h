@@ -32,7 +32,7 @@ public:
     bool hasReachedGoalExactly() const override;
     double planningTime() const override;
 
-    static const bool gradientDescentOpenVertices = false;
+    static const bool gradientDescentOpenVertices = true;
     static const bool averageAngles = true;
 
 private:

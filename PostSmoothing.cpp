@@ -1,6 +1,7 @@
 #include "PostSmoothing.h"
 
-#define DEBUG 0
+//#define DEBUG 0
+#undef DEBUG
 
 int PostSmoothing::insertedNodes = 0;
 int PostSmoothing::pruningRounds = 0;

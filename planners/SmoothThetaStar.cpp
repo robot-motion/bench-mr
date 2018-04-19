@@ -91,7 +91,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
 
             int len = 0;
 
-            OMPL_INFORM("Open:");
+//            OMPL_INFORM("Open:");
             p = thetastarsearch.GetOpenListStart();
             lastOpen = p;
             if (p == nullptr)
@@ -157,7 +157,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
             path.insert(path.begin(), node);
             while ((node = node->parent) && !repeating)
             {
-                OMPL_INFORM("Found parent at %d %d", node->m_UserState.x, node->m_UserState.y);
+//                OMPL_INFORM("Found parent at %d %d", node->m_UserState.x, node->m_UserState.y);
                 for (GNode &r : reached)
                 {
                     if (r.x == node->m_UserState.x && r.y == node->m_UserState.y)
@@ -231,6 +231,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
                 reached.insert(reached.begin(), n->m_UserState);
             }
 
+            //TODO reactivate PNG saving
             QtVisualizer::drawTrajectory(reached, Qt::blue, 1.1f);
             QtVisualizer::drawNodes(reached, Qt::blue);
 
