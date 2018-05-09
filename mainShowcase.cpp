@@ -26,6 +26,8 @@ void printStats(const PathStatistics &stats)
 
 int main(int argc, char **argv)
 {
+    PlannerSettings::steeringType = Steering::STEER_TYPE_POSQ;
+    PlannerSettings::CarTurningRadius = 1.5;
     PlannerSettings::initializeSteering();
     PathEvaluation::initialize();
 
@@ -44,7 +46,7 @@ int main(int argc, char **argv)
 
     QtVisualizer::visualize(*PlannerSettings::environment, 0);
 
-    PathStatistics thetaStarStats, gripsStats, smothThetaStarStats;
+    PathStatistics thetaStarStats, gripsStats, smoothThetaStarStats;
 
     Log::instantiateRun();
     auto *thetaStar = new ThetaStar;
@@ -67,13 +69,13 @@ int main(int argc, char **argv)
     auto *smoothThetaStar = new SmoothThetaStar;
     if (smoothThetaStar->run()) {
         std::vector<Tpoint> path = smoothThetaStar->solutionPath();
-        smothThetaStarStats = PathEvaluation::evaluate(path, "Smooth Theta*", Qt::blue);
+        smoothThetaStarStats = PathEvaluation::evaluate(path, "Smooth Theta*", Qt::blue);
     }
     delete smoothThetaStar;
 
     printStats(thetaStarStats);
     printStats(gripsStats);
-    printStats(smothThetaStarStats);
+    printStats(smoothThetaStarStats);
 
     Log::storeRun();
     Log::save();
