@@ -202,6 +202,11 @@ public: // methods
         m_Steps = 0;
     }
 
+    inline const double distance(double x1, double y1, double x2, double y2)
+    {
+        return std::sqrt(std::pow(x1-x2, 2.) + std::pow(y1-y2, 2.));
+    }
+
     // Advances search one step
     unsigned int SearchStep()
     {
@@ -226,6 +231,24 @@ public: // methods
 
         // Incremement step count
         m_Steps++;
+
+        std::vector<Node*> new_Open;
+        for (auto i = 0; i < m_OpenList.size(); ++i)
+        {
+            bool markdel = false;
+            auto a = m_OpenList[i]->m_UserState;
+            for (auto j = i+1; j < m_OpenList.size(); ++j)
+            {
+                if (i == j)
+                    continue;
+                auto b = m_OpenList[j]->m_UserState;
+                if (distance(a.x_r, a.y_r, b.x_r, b.y_r) < 0.7)
+                    markdel = true;
+            }
+            if (!markdel)
+                new_Open.push_back(m_OpenList[i]);
+        }
+        m_OpenList = new_Open;
 
         // Pop the best node (the one with the lowest f)
         Node *n = m_OpenList.front(); // get pointer to the node
