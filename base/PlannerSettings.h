@@ -6,7 +6,7 @@
 
 typedef Steer_base SteerFunction;
 
-#define DEBUG
+//#define DEBUG
 #define STATS
 
 struct PlannerSettings

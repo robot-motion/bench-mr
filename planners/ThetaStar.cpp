@@ -92,6 +92,10 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNo
 
             if (SearchState != ThetaStarSearch<GNode>::SEARCH_STATE_SEARCHING)
                 break;
+
+            p = thetastarsearch.GetOpenListStart();
+            if (p == nullptr)
+                OMPL_INFORM("THETA*: No open nodes");
 #if DEBUG_LISTS
             OMPL_INFORM("Step: %d", (int)SearchSteps);
 

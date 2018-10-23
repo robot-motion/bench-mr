@@ -78,6 +78,12 @@ public: // data
     // A node represents a possible state in the search
     // The user provided state type is included inside this type
 
+    /**
+     * Distance threshold beyond which nodes from the open list are merged.
+     * Ignored if threshold <= 0.
+     */
+    double mergeNodeThreshold{-1.};
+
 public:
 
     class Node
@@ -152,24 +158,24 @@ public: // methods
     }
 
     // set Astar Search
-    void useAstar()
+    void useAstar() override
     {
         m_useAstar = true;
     }
 
-    void use_connectGrandParent()
+    void use_connectGrandParent() override
     {
         m_connectGrandParent = true;
     }
 
     // call at any time to cancel the search and free up all the memory
-    void CancelSearch()
+    void CancelSearch() override
     {
         m_CancelRequest = true;
     }
 
     // Set Start and goal states
-    void SetStartAndGoalStates(UserState &Start, UserState &Goal)
+    void SetStartAndGoalStates(UserState &Start, UserState &Goal) override
     {
         m_CancelRequest = false;
 
@@ -202,13 +208,13 @@ public: // methods
         m_Steps = 0;
     }
 
-    inline const double distance(double x1, double y1, double x2, double y2)
+    static double distance(double x1, double y1, double x2, double y2)
     {
         return std::sqrt(std::pow(x1-x2, 2.) + std::pow(y1-y2, 2.));
     }
 
     // Advances search one step
-    unsigned int SearchStep()
+    unsigned int SearchStep() override
     {
         // Firstly break if the user has not initialised the search
         assert((m_State > SEARCH_STATE_NOT_INITIALISED) && (m_State < SEARCH_STATE_INVALID));
@@ -232,23 +238,27 @@ public: // methods
         // Incremement step count
         m_Steps++;
 
-        std::vector<Node*> new_Open;
-        for (auto i = 0; i < m_OpenList.size(); ++i)
-        {
-            bool markdel = false;
-            auto a = m_OpenList[i]->m_UserState;
-            for (auto j = i+1; j < m_OpenList.size(); ++j)
-            {
-                if (i == j)
-                    continue;
-                auto b = m_OpenList[j]->m_UserState;
-                if (distance(a.x_r, a.y_r, b.x_r, b.y_r) < 0.7)
-                    markdel = true;
+        if (mergeNodeThreshold > 0.) {
+            std::vector<Node *> new_Open;
+            for (auto i = 0; i < m_OpenList.size(); ++i) {
+                bool markdel = false;
+                auto a = m_OpenList[i]->m_UserState;
+                for (auto j = i + 1; j < m_OpenList.size(); ++j) {
+                    if (i == j)
+                        continue;
+                    auto b = m_OpenList[j]->m_UserState;
+                    if (distance(a.x_r, a.y_r, b.x_r, b.y_r) < mergeNodeThreshold)
+                        markdel = true;
+                }
+                if (!markdel)
+                    new_Open.push_back(m_OpenList[i]);
             }
-            if (!markdel)
-                new_Open.push_back(m_OpenList[i]);
+            if (new_Open.size() != m_OpenList.size())
+                OMPL_DEBUG("\tSmoothStar merging reduces nodes from %i to %i.",
+                           (int) m_OpenList.size(),
+                           (int) new_Open.size());
+            m_OpenList = new_Open;
         }
-        m_OpenList = new_Open;
 
         // Pop the best node (the one with the lowest f)
         Node *n = m_OpenList.front(); // get pointer to the node
@@ -300,8 +310,9 @@ public: // methods
 
                     if (nodeParent == nodeChild && nodeChild != m_Start)
                     {
-                        usleep(200);
 #ifdef DEBUG
+                        usleep(200);
+
                         nodeParent->m_UserState.PrintNodeInfo();
                         nodeChild->m_UserState.PrintNodeInfo();
 #endif
@@ -746,7 +757,7 @@ public: // methods
 
     // User calls this to add a successor to a list of successors
     // when expanding the search frontier
-    bool AddSuccessor(UserState &State)
+    bool AddSuccessor(UserState &State) override
     {
         Node *node = AllocateNode();
 
@@ -765,7 +776,7 @@ public: // methods
     // Free the solution nodes
     // This is done to clean up all used Node memory when you are done with the
     // search
-    void FreeSolutionNodes()
+    void FreeSolutionNodes() override
     {
         Node *n = m_Start;
 
@@ -793,7 +804,7 @@ public: // methods
     // Functions for traversing the solution
 
     // Get start node
-    UserState *GetSolutionStart()
+    UserState *GetSolutionStart() override
     {
         m_CurrentSolutionNode = m_Start;
         if (m_Start)
@@ -807,7 +818,7 @@ public: // methods
     }
 
     // Get next node
-    UserState *GetSolutionNext()
+    UserState *GetSolutionNext() override
     {
         if (m_CurrentSolutionNode)
         {
@@ -823,7 +834,7 @@ public: // methods
     }
 
     // Get end node
-    UserState *GetSolutionEnd()
+    UserState *GetSolutionEnd() override
     {
         m_CurrentSolutionNode = m_Goal;
         if (m_Goal)
@@ -837,7 +848,7 @@ public: // methods
     }
 
     // Step solution iterator backwards
-    UserState *GetSolutionPrev()
+    UserState *GetSolutionPrev() override
     {
         if (m_CurrentSolutionNode)
         {
@@ -854,7 +865,7 @@ public: // methods
 
     // Get final cost of solution
     // Returns FLT_MAX if goal is not defined or there is no solution
-    float GetSolutionCost()
+    float GetSolutionCost() override
     {
         if (m_Goal && m_State == SEARCH_STATE_SUCCEEDED)
         {
@@ -869,13 +880,13 @@ public: // methods
     // For educational use and debugging it is useful to be able to view
     // the open and closed list at each step, here are two functions to allow that.
 
-    UserState *GetOpenListStart()
+    UserState *GetOpenListStart() override
     {
         float f, g, h;
         return GetOpenListStart(f, g, h);
     }
 
-    UserState *GetOpenListStart(float &f, float &g, float &h)
+    UserState *GetOpenListStart(float &f, float &g, float &h) override
     {
         iterDbgOpen = m_OpenList.begin();
         if (iterDbgOpen != m_OpenList.end())
@@ -889,13 +900,13 @@ public: // methods
         return NULL;
     }
 
-    UserState *GetOpenListNext()
+    UserState *GetOpenListNext() override
     {
         float f, g, h;
         return GetOpenListNext(f, g, h);
     }
 
-    UserState *GetOpenListNext(float &f, float &g, float &h)
+    UserState *GetOpenListNext(float &f, float &g, float &h) override
     {
         iterDbgOpen++;
         if (iterDbgOpen != m_OpenList.end())
@@ -914,13 +925,13 @@ public: // methods
         return m_OpenList.front();
     }
 
-    UserState *GetClosedListStart()
+    UserState *GetClosedListStart() override
     {
         float f, g, h;
         return GetClosedListStart(f, g, h);
     }
 
-    UserState *GetClosedListStart(float &f, float &g, float &h)
+    UserState *GetClosedListStart(float &f, float &g, float &h) override
     {
         iterDbgClosed = m_ClosedList.begin();
         if (iterDbgClosed != m_ClosedList.end())
@@ -935,13 +946,13 @@ public: // methods
         return NULL;
     }
 
-    UserState *GetClosedListNext()
+    UserState *GetClosedListNext() override
     {
         float f, g, h;
         return GetClosedListNext(f, g, h);
     }
 
-    UserState *GetClosedListNext(float &f, float &g, float &h)
+    UserState *GetClosedListNext(float &f, float &g, float &h) override
     {
         iterDbgClosed++;
         if (iterDbgClosed != m_ClosedList.end())
@@ -958,12 +969,12 @@ public: // methods
 
     // Get the number of steps
 
-    int GetStepCount()
+    int GetStepCount() override
     {
         return m_Steps;
     }
 
-    void EnsureMemoryFreed()
+    void EnsureMemoryFreed() override
     {
         if (m_AllocateNodeCount == 0)
             std::cout << "memory clean" << std::endl;
