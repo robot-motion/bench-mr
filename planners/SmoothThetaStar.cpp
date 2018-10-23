@@ -77,7 +77,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
         thetastarsearch.SetStartAndGoalStates(start, goal);
 
         unsigned int SearchState;
-        unsigned int SearchSteps = 1;
+        unsigned int SearchSteps = 0;
         do
         {
             SearchState = thetastarsearch.SearchStep();
@@ -87,7 +87,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
             if (SearchState != SmoothThetaStarSearch<GNode>::SEARCH_STATE_SEARCHING)
                 break;
 #if DEBUG_LISTS
-            OMPL_INFORM("Step: %d", (int)SearchSteps);
+            OMPL_INFORM("SmoothTheta* Step: %d", (int)SearchSteps);
 
             int len = 0;
 
@@ -95,7 +95,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
             p = thetastarsearch.GetOpenListStart();
             lastOpen = p;
             if (p == nullptr)
-                OMPL_INFORM("No open nodes");
+                OMPL_INFORM("SmoothTheta*: No open nodes");
 //            else
 //                QtVisualizer::drawNode(*p);
 
@@ -259,7 +259,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
 
         if (SearchState == SmoothThetaStarSearch<GNode>::SEARCH_STATE_SUCCEEDED)
         {
-            OMPL_DEBUG("Theta* search found goal state.");
+            OMPL_DEBUG("SmoothTheta* search found goal state.");
 
             GNode *node = thetastarsearch.GetSolutionStart();
             int steps = 0;
@@ -295,11 +295,11 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
         }
         else if (SearchState == SmoothThetaStarSearch<GNode>::SEARCH_STATE_FAILED)
         {
-            OMPL_ERROR("Theta* search terminated. Did not find goal state.");
+            OMPL_ERROR("SmoothTheta* search terminated. Did not find goal state.");
         }
 
         // Display the number of loops the search went through
-        OMPL_DEBUG("Theta* SearchSteps: %d ", (int) SearchSteps);
+        OMPL_DEBUG("SmoothTheta* SearchSteps: %d ", (int) SearchSteps);
 
         SearchCount++;
 
@@ -309,7 +309,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
     paths.push_back(sol);
 
     unsigned long path_size = paths.size();
-    OMPL_INFORM("Theta* found %d path(s).", (int)path_size);
+    OMPL_INFORM("SmoothTheta* found %d path(s).", (int)path_size);
 
     return path_size > 0;
 }
@@ -337,7 +337,7 @@ og::PathGeometric SmoothThetaStar::geometricPath() const
     auto gnodes = global_paths[0];
     if (gnodes.empty())
     {
-        OMPL_ERROR("Theta*: The computed path contains no GNodes!");
+        OMPL_ERROR("SmoothTheta*: The computed path contains no GNodes!");
         return path;
     }
     for (auto &node : gnodes)
@@ -407,18 +407,18 @@ ob::PlannerStatus SmoothThetaStar::solve(const ob::PlannerTerminationCondition &
 
     PlannerSettings::steering->clearInternalData();
 
-    OMPL_DEBUG("Theta*: Generate a new global path");
+    OMPL_DEBUG("SmoothTheta*: Generate a new global path");
     Stopwatch sw;
     sw.start();
     search(global_paths, startNode, goalNode);
     sw.stop();
     _planningTime = sw.time;
 
-    OMPL_INFORM("Theta* search finished");
+    OMPL_INFORM("SmoothTheta* search finished");
     OMPL_DEBUG("Global path size: %d", (int) global_paths[0].size());
     if ((int) global_paths[0].size() == 0)
     {
-        OMPL_WARN("Theta*: No Path found");
+        OMPL_WARN("SmoothTheta*: No Path found");
         return ob::PlannerStatus::ABORT;
     }
 

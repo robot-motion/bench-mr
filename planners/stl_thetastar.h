@@ -152,24 +152,24 @@ public: // methods
     }
 
     // set Astar Search
-    void useAstar()
+    virtual void useAstar()
     {
         m_useAstar = true;
     }
 
-    void use_connectGrandParent()
+    virtual void use_connectGrandParent()
     {
         m_connectGrandParent = true;
     }
 
     // call at any time to cancel the search and free up all the memory
-    void CancelSearch()
+    virtual void CancelSearch()
     {
         m_CancelRequest = true;
     }
 
     // Set Start and goal states
-    void SetStartAndGoalStates(UserState &Start, UserState &Goal)
+    virtual void SetStartAndGoalStates(UserState &Start, UserState &Goal)
     {
         m_CancelRequest = false;
 
@@ -761,7 +761,7 @@ public: // methods
     // Functions for traversing the solution
 
     // Get start node
-    UserState *GetSolutionStart()
+    virtual UserState *GetSolutionStart()
     {
         m_CurrentSolutionNode = m_Start;
         if (m_Start)
@@ -775,7 +775,7 @@ public: // methods
     }
 
     // Get next node
-    UserState *GetSolutionNext()
+    virtual UserState *GetSolutionNext()
     {
         if (m_CurrentSolutionNode)
         {
@@ -791,7 +791,7 @@ public: // methods
     }
 
     // Get end node
-    UserState *GetSolutionEnd()
+    virtual UserState *GetSolutionEnd()
     {
         m_CurrentSolutionNode = m_Goal;
         if (m_Goal)
@@ -805,7 +805,7 @@ public: // methods
     }
 
     // Step solution iterator backwards
-    UserState *GetSolutionPrev()
+    virtual UserState *GetSolutionPrev()
     {
         if (m_CurrentSolutionNode)
         {
@@ -822,7 +822,7 @@ public: // methods
 
     // Get final cost of solution
     // Returns FLT_MAX if goal is not defined or there is no solution
-    float GetSolutionCost()
+    virtual float GetSolutionCost()
     {
         if (m_Goal && m_State == SEARCH_STATE_SUCCEEDED)
         {
@@ -837,13 +837,13 @@ public: // methods
     // For educational use and debugging it is useful to be able to view
     // the open and closed list at each step, here are two functions to allow that.
 
-    UserState *GetOpenListStart()
+    virtual UserState *GetOpenListStart()
     {
         float f, g, h;
         return GetOpenListStart(f, g, h);
     }
 
-    UserState *GetOpenListStart(float &f, float &g, float &h)
+    virtual UserState *GetOpenListStart(float &f, float &g, float &h)
     {
         iterDbgOpen = m_OpenList.begin();
         if (iterDbgOpen != m_OpenList.end())
@@ -857,13 +857,13 @@ public: // methods
         return NULL;
     }
 
-    UserState *GetOpenListNext()
+    virtual UserState *GetOpenListNext()
     {
         float f, g, h;
         return GetOpenListNext(f, g, h);
     }
 
-    UserState *GetOpenListNext(float &f, float &g, float &h)
+    virtual UserState *GetOpenListNext(float &f, float &g, float &h)
     {
         iterDbgOpen++;
         if (iterDbgOpen != m_OpenList.end())
@@ -882,13 +882,13 @@ public: // methods
         return m_OpenList.front();
     }
 
-    UserState *GetClosedListStart()
+    virtual UserState *GetClosedListStart()
     {
         float f, g, h;
         return GetClosedListStart(f, g, h);
     }
 
-    UserState *GetClosedListStart(float &f, float &g, float &h)
+    virtual UserState *GetClosedListStart(float &f, float &g, float &h)
     {
         iterDbgClosed = m_ClosedList.begin();
         if (iterDbgClosed != m_ClosedList.end())
@@ -903,13 +903,13 @@ public: // methods
         return NULL;
     }
 
-    UserState *GetClosedListNext()
+    virtual UserState *GetClosedListNext()
     {
         float f, g, h;
         return GetClosedListNext(f, g, h);
     }
 
-    UserState *GetClosedListNext(float &f, float &g, float &h)
+    virtual UserState *GetClosedListNext(float &f, float &g, float &h)
     {
         iterDbgClosed++;
         if (iterDbgClosed != m_ClosedList.end())
@@ -926,12 +926,12 @@ public: // methods
 
     // Get the number of steps
 
-    int GetStepCount()
+    virtual int GetStepCount()
     {
         return m_Steps;
     }
 
-    void EnsureMemoryFreed()
+    virtual void EnsureMemoryFreed()
     {
         if (m_AllocateNodeCount == 0)
             std::cout << "memory clean" << std::endl;
