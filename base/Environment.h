@@ -2,6 +2,7 @@
 
 #include <ctime>
 #include <iostream>
+//#include <gui/QtVisualizer.h>
 
 #include "Trajectory.h"
 
@@ -102,8 +103,11 @@ public:
     {
         if (x < 0 || y < 0 || x > _width || y > _height)
             return true;
-        if (!fast)
+        if (!fast) {
+//            bool o = bilinearDistance(x, y) <= 0.05;
+//            QtVisualizer::drawNode(x, y, o ? Qt::red : Qt::darkGreen);
             return bilinearDistance(x, y) <= 0.05;
+        }
         return _grid[coord2key(x, y)]
                || _grid[coord2key(x+.15, y)]
                || _grid[coord2key(x, y+.15)] || _grid[coord2key(x+.15, y+.15)]

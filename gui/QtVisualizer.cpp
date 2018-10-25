@@ -13,6 +13,7 @@
 #include <QFile>
 #include <QByteArray>
 
+#include "base/gnode.h"
 #include "base/PlannerSettings.h"
 #include "QtVisualizer.h"
 
@@ -62,26 +63,26 @@ int QtVisualizer::exec()
     return _app->exec();
 }
 
-void QtVisualizer::visualize(Environment &environment, int run, bool renderDistances)
+void QtVisualizer::visualize(Environment *environment, int run, bool renderDistances)
 {
     _window->setWindowTitle(QString("Theta* Trajectory Planning (run %1)").arg(run));
-    _scene->setSceneRect(0, 0, environment.width()+1, environment.height()+1);
-    float scale = (float)1080*.9f/(float)environment.width();
+    _scene->setSceneRect(0, 0, environment->width()+1, environment->height()+1);
+    float scale = (float)1080*.9f/(float)environment->width();
     _view->scale(scale, scale);
     QPen pen(QColor(128, 128, 128, 20));
     pen.setWidthF(0.01f);
     pen.setCapStyle(Qt::PenCapStyle::FlatCap);
     pen.setJoinStyle(Qt::PenJoinStyle::BevelJoin);
-    for (unsigned x = 0; x <= std::max(environment.width(), environment.height()); ++x)
+    for (unsigned x = 0; x <= std::max(environment->width(), environment->height()); ++x)
     {
-//        _scene->addLine(x, 0, x, environment.height(), pen);
-//        _scene->addLine(0, x, environment.width(), x, pen);
+//        _scene->addLine(x, 0, x, environment->height(), pen);
+//        _scene->addLine(0, x, environment->width(), x, pen);
         if (x % 5 == 0)
         {
             QPen blackPen(Qt::black);
             blackPen.setWidthF(0.01f);
 
-            if (x <= environment.width())
+            if (x <= environment->width())
             {
                 QLabel *htext = new QLabel(QString::fromStdString(std::to_string(x)));
                 htext->setFont(QFont("Consolas", 1));
@@ -91,7 +92,7 @@ void QtVisualizer::visualize(Environment &environment, int run, bool renderDista
                 _scene->addLine(x, -2, x, 0, blackPen);
             }
 
-            if (x <= environment.height())
+            if (x <= environment->height())
             {
                 QLabel *vtext = new QLabel(QString::fromStdString(std::to_string(x)));
                 vtext->setFont(QFont("Consolas", 1));
@@ -102,25 +103,25 @@ void QtVisualizer::visualize(Environment &environment, int run, bool renderDista
             }
         }
 
-        for (unsigned y = 0; y <= environment.height(); ++y)
+        for (unsigned y = 0; y <= environment->height(); ++y)
         {
-            if (environment.occupied(x, y))
+            if (environment->occupiedCell(x, y))
                 _scene->addRect(x, y, 1, 1, pen, QColor(128, 128, 128));
 //            _scene->addEllipse(x-.25, y-.25, 0.4, 0.4, pen,
-//                            QColor::fromHslF(std::max(0., std::min(.65, environment.distance(x, y) * .1)), 1., .6));
+//                            QColor::fromHslF(std::max(0., std::min(.65, environment->distance(x, y) * .1)), 1., .6));
             else if (renderDistances)
             {
                 _scene->addRect(x, y, 0.5, 0.5, pen,
-                                QColor::fromHslF(std::min(.65, environment.bilinearDistance(x+.25, y+.25) * .1), 1.,
+                                QColor::fromHslF(std::min(.65, environment->bilinearDistance(x+.25, y+.25) * .1), 1.,
                                                  .6));
                 _scene->addRect(x + 0.5, y, 0.5, 0.5, pen,
-                                QColor::fromHslF(std::min(.65, environment.bilinearDistance(x+.75, y+.25) * .1), 1.,
+                                QColor::fromHslF(std::min(.65, environment->bilinearDistance(x+.75, y+.25) * .1), 1.,
                                                  .6));
                 _scene->addRect(x, y + 0.5, 0.5, 0.5, pen,
-                                QColor::fromHslF(std::min(.65, environment.bilinearDistance(x+.25, y+.75) * .1), 1.,
+                                QColor::fromHslF(std::min(.65, environment->bilinearDistance(x+.25, y+.75) * .1), 1.,
                                                  .6));
                 _scene->addRect(x + 0.5, y + 0.5, 0.5, 0.5, pen,
-                                QColor::fromHslF(std::min(.65, environment.bilinearDistance(x+.75, y+.75) * .1), 1.,
+                                QColor::fromHslF(std::min(.65, environment->bilinearDistance(x+.75, y+.75) * .1), 1.,
                                                  .6));
             }
         }
@@ -128,8 +129,8 @@ void QtVisualizer::visualize(Environment &environment, int run, bool renderDista
 
     if (_showStartGoal)
     {
-        drawNode(environment.start(), QColor(200, 60, 0));
-        drawNode(environment.goal(), QColor(0, 80, 200));
+        drawNode(environment->start(), QColor(200, 60, 0));
+        drawNode(environment->goal(), QColor(0, 80, 200));
     }
 }
 

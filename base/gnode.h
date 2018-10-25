@@ -6,6 +6,7 @@
 
 #include "planners/stl_thetastar.h"
 #include "PlannerSettings.h"
+#include "Trajectory.h"
 
 
 // Gnode class which includes useful methods for the Thetastar search

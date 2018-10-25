@@ -5,27 +5,30 @@
 #include <QtWidgets/QMainWindow>
 #include <utility>
 
-#include "base/gnode.h"
-#include "base/Environment.h"
 #include "base/PathStatistics.hpp"
-
+#include "base/Trajectory.h"
 
 struct LegendEntry
 {
     std::string label;
     QPen pen;
-    LegendEntry(const std::string &label = "Unknown", const QPen &pen = QPen(Qt::black))
-            : label(std::move(label)), pen(std::move(std::move(pen)))
+
+    explicit LegendEntry(const std::string &label = "Unknown", const QPen &pen = QPen(Qt::black))
+            : label(label), pen(pen)
     {}
 };
 
+
+class Environment;
+class GNode;
 
 class VisualizationView : public QGraphicsView
 {
     Q_OBJECT
 public:
-    VisualizationView(QGraphicsScene *scene, QWidget *parent = nullptr);
-    virtual ~VisualizationView();
+    explicit VisualizationView(QGraphicsScene *scene, QWidget *parent = nullptr);
+
+    ~VisualizationView() override;
 
 public slots:
     void showContextMenu(const QPoint &pos);
@@ -51,7 +54,7 @@ public:
         _window->showMaximized();
     }
 
-    static void visualize(Environment &environment, int run, bool renderDistances = false);
+    static void visualize(Environment *environment, int run, bool renderDistances = false);
 
     static void drawNode(const GNode &node,
                          QColor color = Qt::red,
