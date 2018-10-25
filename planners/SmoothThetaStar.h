@@ -33,6 +33,7 @@ public:
     double planningTime() const override;
 
     static const bool gradientDescentOpenVertices = true;
+    static const bool annealGradientDescentOpenVertices = true;
     static const bool averageAngles = true;
 
 private:

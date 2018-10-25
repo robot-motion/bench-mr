@@ -1062,6 +1062,11 @@ private:
         delete node;
     }
 
+public:
+    vector<Node *> openList() const {
+        return m_OpenList;
+    }
+
 private:
 
     // Heap using std:vector

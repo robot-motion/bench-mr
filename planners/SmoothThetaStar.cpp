@@ -102,6 +102,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
             QtVisualizer::saveScene();
             double dx, dy;
             double eta = 0.25;
+            int counter = 0;
             while (p)
             {
                 len++;
@@ -111,14 +112,20 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
                     PlannerSettings::environment->distanceGradient(p->x_r, p->y_r, dx, dy, 1.);
                     double distance = PlannerSettings::environment->bilinearDistance(p->x_r, p->y_r);
                     distance = std::max(.1, distance);
-                    p->x_r -= eta * dx / distance;
-                    p->y_r += eta * dy / distance;
+
+                    double relativeTime = 1;
+                    if (annealGradientDescentOpenVertices)
+                        relativeTime = (double) (counter + 1) / thetastarsearch.openList().size();
+
+                    p->x_r -= eta * dx / distance * relativeTime;
+                    p->y_r += eta * dy / distance * relativeTime;
                 }
+                ++counter;
 
 //#if !DEBUG_LIST_LENGTHS_ONLY
 //                //p->PrintNodeInfo();
 //                if (len > 1)
-                    QtVisualizer::drawNode(*p, Qt::yellow, 0.2, false);
+                    QtVisualizer::drawNode(*p, Qt::cyan, 0.2, false);
 
 //#endif
 
@@ -138,7 +145,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
 //                //p->PrintNodeInfo();
 //                QtVisualizer::drawNode(*p);
 //#endif
-                QtVisualizer::drawNode(*p, Qt::darkYellow, 0.2, false);
+                QtVisualizer::drawNode(*p, Qt::darkCyan, 0.2, false);
 
                 p = thetastarsearch.GetClosedListNext();
 
