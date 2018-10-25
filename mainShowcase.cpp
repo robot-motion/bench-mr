@@ -49,22 +49,22 @@ int main(int argc, char **argv)
     PathStatistics thetaStarStats, gripsStats, smoothThetaStarStats;
 
     Log::instantiateRun();
-//    auto *thetaStar = new ThetaStar;
-//    if (thetaStar->run())
-//    {
-//        std::vector<Tpoint> path = thetaStar->solutionPath();
-//        thetaStarStats = PathEvaluation::evaluate(path, "Theta*", Qt::black);
-//
-//        std::vector<GNode> trajectory = thetaStar->solutionTrajectory();
-//        std::vector<GNode> smoothed(trajectory);
-//        PostSmoothing::smooth(smoothed, path);
-//        auto smoothedTrajPoints = PlannerUtils::toSteeredTrajectoryPoints(smoothed);
-//        gripsStats = PathEvaluation::evaluate(smoothedTrajPoints, "GRIPS", Qt::red);
-//    }
-//    else {
-//        OMPL_ERROR("Theta* couldn't find a solution.");
-//    }
-//    delete thetaStar;
+    auto *thetaStar = new ThetaStar;
+    if (thetaStar->run())
+    {
+        std::vector<Tpoint> path = thetaStar->solutionPath();
+        thetaStarStats = PathEvaluation::evaluate(path, "Theta*", Qt::black);
+
+        std::vector<GNode> trajectory = thetaStar->solutionTrajectory();
+        std::vector<GNode> smoothed(trajectory);
+        PostSmoothing::smooth(smoothed, path);
+        auto smoothedTrajPoints = PlannerUtils::toSteeredTrajectoryPoints(smoothed);
+        gripsStats = PathEvaluation::evaluate(smoothedTrajPoints, "GRIPS", Qt::red);
+    }
+    else {
+        OMPL_ERROR("Theta* couldn't find a solution.");
+    }
+    delete thetaStar;
 
     auto *smoothThetaStar = new SmoothThetaStar;
     if (smoothThetaStar->run()) {
