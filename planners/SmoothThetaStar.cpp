@@ -118,7 +118,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
 //#if !DEBUG_LIST_LENGTHS_ONLY
 //                //p->PrintNodeInfo();
 //                if (len > 1)
-                    QtVisualizer::drawNode(*p, Qt::darkYellow, 0.3, false);
+                    QtVisualizer::drawNode(*p, Qt::yellow, 0.2, false);
 
 //#endif
 
@@ -138,7 +138,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
 //                //p->PrintNodeInfo();
 //                QtVisualizer::drawNode(*p);
 //#endif
-                QtVisualizer::drawNode(*p, Qt::gray, 0.3, false);
+                QtVisualizer::drawNode(*p, Qt::darkYellow, 0.2, false);
 
                 p = thetastarsearch.GetClosedListNext();
 
