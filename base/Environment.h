@@ -55,6 +55,7 @@ public:
 
     static const unsigned int DefaultWidth = 50;
     static const unsigned int DefaultHeight = 50;
+    static constexpr double VoxelSize = 1.0;
 
     unsigned int seed() const
     {
@@ -106,7 +107,7 @@ public:
         if (!fast) {
 //            bool o = bilinearDistance(x, y) <= 0.05;
 //            QtVisualizer::drawNode(x, y, o ? Qt::red : Qt::darkGreen);
-            return bilinearDistance(x, y) <= 0.05;
+            return _grid[coord2key(x, y)] || bilinearDistance(x, y) <= 0.1;
         }
         return _grid[coord2key(x, y)]
                || _grid[coord2key(x+.15, y)]

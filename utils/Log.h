@@ -11,6 +11,7 @@ public:
     static void instantiateRun();
 
     static void log(const PathStatistics &stats);
+    static void log(const nlohmann::json &stats);
 
     static void storeRun();
 

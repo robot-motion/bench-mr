@@ -41,43 +41,72 @@ int main(int argc, char **argv)
     PlannerSettings::environment->setStart(Tpoint(5, 3));
     PlannerSettings::environment->setGoal(Tpoint(36, 22));
 
-//    PlannerSettings::environment = Environment::createRandomCorridor(50, 50, 3, 30, //1502484532); //1502407983); //1502323408); //1502316103); //1502231684); //1502227898); //1501893283); //1501892155);//1501089540); //1501089410 );//1500660612);// 1500551721);// 1500550472);
+//    PlannerSettings::environment = Environment::createRandomCorridor(50, 50, 3, 30, //1540486476); //1540445576); //1502484532); //1502407983); //1502323408); //1502316103); //1502231684); //1502227898); //1501893283); //1501892155);//1501089540); //1501089410 );//1500660612);// 1500551721);// 1500550472);
 //                                                                     (unsigned int) (time(nullptr) + 123));
 
-    QtVisualizer::visualize(PlannerSettings::environment, 0);
-
-    PathStatistics thetaStarStats, gripsStats, smoothThetaStarStats;
-
     Log::instantiateRun();
-    auto *thetaStar = new ThetaStar;
-    if (thetaStar->run())
-    {
-        std::vector<Tpoint> path = thetaStar->solutionPath();
-        thetaStarStats = PathEvaluation::evaluate(path, "Theta*", Qt::black);
 
-        std::vector<GNode> trajectory = thetaStar->solutionTrajectory();
-        std::vector<GNode> smoothed(trajectory);
-        PostSmoothing::smooth(smoothed, path);
-        auto smoothedTrajPoints = PlannerUtils::toSteeredTrajectoryPoints(smoothed);
-        gripsStats = PathEvaluation::evaluate(smoothedTrajPoints, "GRIPS", Qt::red);
+    for (unsigned int i = 0; i < 50; ++i) {
+        PlannerSettings::environment = Environment::createRandom(50, 50, 0.1, 1542671305 + i);
+        QtVisualizer::visualize(PlannerSettings::environment, 0);
+        PathStatistics thetaStarStats, gripsStats, smoothThetaStarStats;
+
+        auto *thetaStar = new ThetaStar;
+        if (thetaStar->run()) {
+            PostSmoothing::smoothingTime = thetaStar->planningTime();
+            std::vector<Tpoint> path = thetaStar->solutionPath();
+            thetaStarStats = PathEvaluation::evaluate(path, "Theta*", Qt::black);
+
+            std::vector<GNode> trajectory = thetaStar->solutionTrajectory();
+            std::vector<GNode> smoothed(trajectory);
+            PostSmoothing::smooth(smoothed, path);
+            auto smoothedTrajPoints = PlannerUtils::toSteeredTrajectoryPoints(smoothed);
+            gripsStats = PathEvaluation::evaluate(smoothedTrajPoints, "GRIPS", Qt::red);
+        } else {
+            OMPL_ERROR("Theta* couldn't find a solution.");
+        }
+
+        auto *smoothThetaStar = new SmoothThetaStar;
+        if (smoothThetaStar->run()) {
+            std::vector<Tpoint> path = smoothThetaStar->solutionPath();
+            smoothThetaStarStats = PathEvaluation::evaluate(path, "Smooth Theta*", Qt::blue);
+        }
+
+        printStats(thetaStarStats);
+        std::cout << "\tSteps:\t\t\t" << thetaStar->steps() << std::endl;
+        std::cout << "\tTime:\t\t\t" << thetaStar->planningTime() << std::endl;
+        printStats(gripsStats);
+        std::cout << "\tSteps:\t\t\t" << thetaStar->steps() << std::endl;
+        std::cout << "\tTime:\t\t\t" << PostSmoothing::smoothingTime << std::endl;
+        printStats(smoothThetaStarStats);
+        std::cout << "\tSteps:\t\t\t" << smoothThetaStar->steps() << std::endl;
+        std::cout << "\tTime:\t\t\t" << smoothThetaStar->planningTime() << std::endl;
+
+        Log::log(nlohmann::json({
+                     {"thetaStar",       {
+                                                 {"curvature", thetaStarStats.curvature},
+                                                 {"pathLength", thetaStarStats.pathLength},
+                                                 {"steps", thetaStar->steps()},
+                                                 {"time", thetaStar->planningTime()}
+                                         }},
+                     {"grips",           {
+                                                 {"curvature", gripsStats.curvature},
+                                                 {"pathLength", gripsStats.pathLength},
+                                                 {"steps", thetaStar->steps()},
+                                                 {"time", PostSmoothing::smoothingTime}
+                                         }},
+                     {"smoothThetaStar", {
+                                                 {"curvature", smoothThetaStarStats.curvature},
+                                                 {"pathLength", smoothThetaStarStats.pathLength},
+                                                 {"steps", smoothThetaStar->steps()},
+                                                 {"time", smoothThetaStar->planningTime()}
+                                         }}
+             }));
+
+        delete thetaStar;
+        delete smoothThetaStar;
     }
-    else {
-        OMPL_ERROR("Theta* couldn't find a solution.");
-    }
-    delete thetaStar;
 
-    auto *smoothThetaStar = new SmoothThetaStar;
-    if (smoothThetaStar->run()) {
-        std::vector<Tpoint> path = smoothThetaStar->solutionPath();
-        smoothThetaStarStats = PathEvaluation::evaluate(path, "Smooth Theta*", Qt::blue);
-    }
-    delete smoothThetaStar;
-
-    printStats(thetaStarStats);
-    printStats(gripsStats);
-    printStats(smoothThetaStarStats);
-
-    Log::storeRun();
     Log::save();
 
     QtVisualizer::show();

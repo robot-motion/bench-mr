@@ -33,6 +33,7 @@ public:
 
     bool hasReachedGoalExactly() const override;
     double planningTime() const override;
+    unsigned int steps() const;
 
 private:
     Trajectory *curr_traj;
@@ -42,6 +43,7 @@ private:
     bool USE_GRANDPARENT;
 
     double _planningTime;
+    unsigned int _steps;
 
     std::vector<std::vector<GNode> > global_paths;
 

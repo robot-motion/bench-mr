@@ -18,7 +18,7 @@ void Log::instantiateRun()
             {"settings", {
                                  {"steering", Steering::to_string(PlannerSettings::steeringType)},
                                  {"carTurningRadius", PlannerSettings::CarTurningRadius},
-                                 {"ourSmoothing", {
+                                 {"grips", {
                                       {"minNodeDistance", PlannerSettings::gripsMinNodeDistance},
                                       {"eta", PlannerSettings::gripsEta},
                                       {"etaDiscount", PlannerSettings::gripsEtaDiscount},
@@ -26,6 +26,15 @@ void Log::instantiateRun()
                                       {"pruningRounds", PlannerSettings::gripsMaxPruningRounds},
                                       {"minimizePathLength", PostSmoothing::MINIMIZE_PATHLENGTH},
                                       {"fixCollisions", PostSmoothing::FIX_COLLISIONS}
+                                 }},
+                                 {"smoothStar", {
+                                       {"gdOpenNodes", PlannerSettings::gradientDescentOpenNodes},
+                                       {"annealedGdOpenNodes", PlannerSettings::annealedGradientDescentOpenNodes},
+                                       {"eta", PlannerSettings::gradientDescentEta},
+                                       {"etaDiscount", PlannerSettings::gradientDescentEtaDiscount},
+                                       {"gdRounds", PlannerSettings::gradientDescentRounds},
+                                       {"gdCurrent", PlannerSettings::gradientDescentCurrent},
+                                       {"gdSuccessors", PlannerSettings::gradientDescentSuccessors}
                                  }}
                          }},
             {"environment",
@@ -104,18 +113,22 @@ void Log::log(const PathStatistics &stats)
     _currentRun["runs"].push_back(runStats);
 }
 
+void Log::log(const nlohmann::json &stats) {
+    _currentRun["runs"].push_back(stats);
+}
+
 void Log::save(std::string filename, std::string path)
 {
     if (filename.empty())
-        filename = _json["runs"][0]["settings"]["steering"].get<std::string>() + " "
-                   + std::to_string(_json["runs"][0]["environment"]["width"].get<unsigned int>()) + "x"
-                   + std::to_string(_json["runs"][0]["environment"]["height"].get<unsigned int>()) + " "
-                   + _json["runs"][0]["environment"]["generator"].get<std::string>() + " "
-                   + std::to_string(_json["runs"][0]["environment"]["seed"].get<unsigned int>()) + " "
+        filename = _currentRun["settings"]["steering"].get<std::string>() + " "
+                   + std::to_string(_currentRun["environment"]["width"].get<unsigned int>()) + "x"
+                   + std::to_string(_currentRun["environment"]["height"].get<unsigned int>()) + " "
+                   + _currentRun["environment"]["generator"].get<std::string>() + " "
+                   + std::to_string(_currentRun["environment"]["seed"].get<unsigned int>()) + " "
                    + _currentRun["globals"]["time"].get<std::string>()
                    + (std::string)".json";
     std::ofstream o(path + filename);
-    o << std::setw(4) << _json << std::endl;
+    o << std::setw(4) << _currentRun << std::endl;
     OMPL_INFORM("Saved path statistics log file at %s.", (path + filename).c_str());
 }
 

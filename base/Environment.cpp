@@ -172,26 +172,26 @@ Environment *Environment::createRandom(unsigned int width, unsigned int height,
     // make borders occupied
     environment->fillBorder(true, borderSize);
     double x, y;
-    for (int i = 0; i < std::round((width-1.)*(height-1.) * obsRatio); ++i)
+    for (int i = 0; i < width * height * obsRatio; ++i)
     {
-        x = rand() * 1. / RAND_MAX * (width-1.);
-        y = rand() * 1. / RAND_MAX * (height-1.);
+        x = rand() * 1. / RAND_MAX * width;
+        y = rand() * 1. / RAND_MAX * height;
         environment->fill(x, y, true);
 //        environment->_checker->add_obstacle(Tobstacle(x, y, 0, 1, 1));
     }
 
     do
     {
-        x = rand() * 1. / RAND_MAX * (width/8.);
-        y = rand() * 1. / RAND_MAX * (height/8.);
+        x = int(rand() * 1. / RAND_MAX * (width/8.));
+        y = int(rand() * 1. / RAND_MAX * (height/8.));
         environment->_start = Tpoint(x, y);
     }
     while (environment->occupied(x, y));
 
     do
     {
-        x = width*7./8. + rand() * 1. / RAND_MAX * (width/8.);
-        y = height*7./8. + rand() * 1. / RAND_MAX * (height/8.);
+        x = int(width*7./8. + rand() * 1. / RAND_MAX * (width/8.));
+        y = int(height*7./8. + rand() * 1. / RAND_MAX * (height/8.));
         environment->_goal = Tpoint(x, y);
     }
     while (environment->occupied(x, y));
