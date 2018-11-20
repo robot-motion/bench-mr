@@ -50,3 +50,11 @@ double PlannerSettings::gripsEta = 0.5;
 double PlannerSettings::gripsEtaDiscount = 0.8;
 unsigned int PlannerSettings::gripsGradientDescentRounds = 5;
 unsigned int PlannerSettings::gripsMaxPruningRounds = 100;
+
+bool PlannerSettings::gradientDescentOpenNodes = false;
+bool PlannerSettings::annealedGradientDescentOpenNodes = false;
+bool PlannerSettings::gradientDescentCurrent = false;
+bool PlannerSettings::gradientDescentSuccessors = false;
+double PlannerSettings::gradientDescentEta = 0.25;
+double PlannerSettings::gradientDescentEtaDiscount = 0.8;
+unsigned int PlannerSettings::gradientDescentRounds = 10u;

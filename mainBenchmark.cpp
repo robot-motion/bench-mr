@@ -1,3 +1,5 @@
+#undef DEBUG
+
 #include "steer_functions/POSQ/POSQSteering.h"
 #include "steer_functions/Linear/LinearSteering.h"
 #include "steer_functions/ReedsShepp/ReedsSheppSteering.h"
@@ -70,11 +72,11 @@ int main(int argc, char **argv)
             }
 
             Log::instantiateRun();
-            statsAggregator.add(PathEvaluation::add(new RRTPlanner, "RRT", Qt::red));
-            statsAggregator.add(PathEvaluation::add(new RRTstarPlanner, "RRT*", QColor(180, 140, 0)));
-            statsAggregator.add(PathEvaluation::add(new SORRTstarPlanner, "SORRT*", Qt::darkCyan));
-            statsAggregator.add(PathEvaluation::add(new RRTsharpPlanner, "RRT#", Qt::darkGreen));
-            statsAggregator.add(PathEvaluation::add(new PRMPlanner, "PRM", Qt::blue));
+//            statsAggregator.add(PathEvaluation::add(new RRTPlanner, "RRT", Qt::red));
+//            statsAggregator.add(PathEvaluation::add(new RRTstarPlanner, "RRT*", QColor(180, 140, 0)));
+//            statsAggregator.add(PathEvaluation::add(new SORRTstarPlanner, "SORRT*", Qt::darkCyan));
+//            statsAggregator.add(PathEvaluation::add(new RRTsharpPlanner, "RRT#", Qt::darkGreen));
+//            statsAggregator.add(PathEvaluation::add(new PRMPlanner, "PRM", Qt::blue));
             statsAggregator.add(PathEvaluation::add(new ThetaStar, "Theta*", Qt::black));
 //        statsAggregator.add(PathEvaluation::add(new AStar, "A*", Qt::gray));
 

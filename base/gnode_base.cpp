@@ -16,7 +16,7 @@ bool GNode_base::line(double x0, double y0, double y1, double x1)
     double dx = (x1 - x0);
     double dy = (y1 - y0);
     double size = std::sqrt(dx*dx + dy*dy);
-    const double scale = 0.2;
+    const double scale = 0.1;
     dx = dx / size * scale;
     dy = dy / size * scale;
 

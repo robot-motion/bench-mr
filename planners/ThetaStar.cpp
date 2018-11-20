@@ -72,23 +72,23 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNo
     if (USE_GRANDPARENT)
         thetastarsearch.use_connectGrandParent();
 
-    unsigned int SearchCount = 0;
+    _steps = 0;
 
     const unsigned int NumSearches = 1;
 
     GNode *p, *lastOpen = nullptr;
+    unsigned int SearchCount = 0;
     while (SearchCount < NumSearches)
     {
         // Set Start and goal states
         thetastarsearch.SetStartAndGoalStates(start, goal);
 
         unsigned int SearchState;
-        unsigned int SearchSteps = 1;
         do
         {
             SearchState = thetastarsearch.SearchStep();
 
-            SearchSteps++;
+            _steps++;
 
             if (SearchState != ThetaStarSearch<GNode>::SEARCH_STATE_SEARCHING)
                 break;
@@ -96,8 +96,16 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNo
             p = thetastarsearch.GetOpenListStart();
             if (p == nullptr)
                 OMPL_INFORM("THETA*: No open nodes");
+
+#if DEBUG
+            while (p)
+            {
+                QtVisualizer::drawNode(*p, Qt::darkYellow, 0.2, false);
+                p = thetastarsearch.GetOpenListNext();
+            }
+#endif
 #if DEBUG_LISTS
-            OMPL_INFORM("Step: %d", (int)SearchSteps);
+            OMPL_INFORM("Step: %d", (int)_steps);
 
             int len = 0;
 
@@ -230,7 +238,7 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNo
         }
 
         // Display the number of loops the search went through
-        OMPL_DEBUG("Theta* SearchSteps: %d ", (int) SearchSteps);
+        OMPL_DEBUG("Theta* _steps: %d ", (int) _steps);
 
         SearchCount++;
 
@@ -366,4 +374,8 @@ ob::PlannerStatus ThetaStar::solve(const ob::PlannerTerminationCondition &ptc)
     }
 
     return ob::PlannerStatus::EXACT_SOLUTION;
+}
+
+unsigned int ThetaStar::steps() const {
+    return _steps;
 }

@@ -55,4 +55,12 @@ public:
      * should terminate.
      */
     static unsigned int gripsMaxPruningRounds;
+
+    static bool gradientDescentOpenNodes;
+    static bool annealedGradientDescentOpenNodes;
+    static bool gradientDescentCurrent;
+    static bool gradientDescentSuccessors;
+    static double gradientDescentEta;
+    static double gradientDescentEtaDiscount;
+    static unsigned int gradientDescentRounds;
 };

@@ -312,6 +312,16 @@ public: // methods
 
             bool ret = n->m_UserState.GetSuccessors(this, n->parent ? &n->parent->m_UserState : NULL);
 
+            // Look for continuation with next best open node
+            while (!ret && !m_OpenList.empty()) {
+                n = m_OpenList.front(); // get pointer to the node
+                if (n == nullptr)
+                    break;
+                pop_heap(m_OpenList.begin(), m_OpenList.end(), HeapCompare_f());
+                m_OpenList.pop_back();
+                ret = n->m_UserState.GetSuccessors(this, n->parent ? &n->parent->m_UserState : NULL);
+            }
+
             if (!ret)
             {
                 typename vector<Node *>::iterator successor;

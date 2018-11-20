@@ -66,30 +66,34 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
     if (USE_GRANDPARENT)
         thetastarsearch.use_connectGrandParent();
 
-    unsigned int SearchCount = 0;
+    _steps = 0;
 
     const unsigned int NumSearches = 1;
 
+    // Gradient descent parameters
+    double dx, dy;
+    int counter = 0;
+
     GNode *p, *lastOpen = nullptr;
+    unsigned int SearchCount = 0;
     while (SearchCount < NumSearches)
     {
         // Set Start and goal states
         thetastarsearch.SetStartAndGoalStates(start, goal);
 
         unsigned int SearchState;
-        unsigned int SearchSteps = 0;
         do
         {
             SearchState = thetastarsearch.SearchStep();
 
-            SearchSteps++;
+            _steps++;
 
             if (SearchState != SmoothThetaStarSearch<GNode>::SEARCH_STATE_SEARCHING)
                 break;
-#if DEBUG_LISTS
-            OMPL_INFORM("SmoothTheta* Step: %d", (int)SearchSteps);
 
-            int len = 0;
+#if DEBUG
+            OMPL_INFORM("SmoothTheta* Step: %d", (int)_steps);
+#endif
 
 //            OMPL_INFORM("Open:");
             p = thetastarsearch.GetOpenListStart();
@@ -99,58 +103,54 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
 //            else
 //                QtVisualizer::drawNode(*p);
 
+            if (p && PlannerSettings::gradientDescentCurrent) {
+                double eta = PlannerSettings::gradientDescentEta;
+                for (auto i = 0u; i < PlannerSettings::gradientDescentRounds; ++i) {
+                    PlannerSettings::environment->distanceGradient(p->x_r, p->y_r, dx, dy, 1.);
+                    double distance = PlannerSettings::environment->bilinearDistance(p->x_r, p->y_r);
+                    distance = std::max(.1, distance);
+                    p->x_r -= eta * dx / distance;
+                    p->y_r += eta * dy / distance;
+                    eta *= PlannerSettings::gradientDescentEtaDiscount;
+                }
+            }
+
+            counter = 0;
             QtVisualizer::saveScene();
-            double dx, dy;
-            double eta = 0.25;
-            int counter = 0;
             while (p)
             {
-                len++;
-
-                if (gradientDescentOpenVertices)
+                if (PlannerSettings::gradientDescentOpenNodes)
                 {
                     PlannerSettings::environment->distanceGradient(p->x_r, p->y_r, dx, dy, 1.);
                     double distance = PlannerSettings::environment->bilinearDistance(p->x_r, p->y_r);
                     distance = std::max(.1, distance);
 
-                    double relativeTime = 1;
-                    if (annealGradientDescentOpenVertices)
-                        relativeTime = (double) (counter + 1) / thetastarsearch.openList().size();
+                    double gdFactor = 1;
+                    if (PlannerSettings::annealedGradientDescentOpenNodes) {
+                        gdFactor = (double) (counter + 1) / thetastarsearch.openList().size();
+                        if (distance < Environment::VoxelSize)
+                            gdFactor = 1.;
+                    }
 
-                    p->x_r -= eta * dx / distance * relativeTime;
-                    p->y_r += eta * dy / distance * relativeTime;
+                    p->x_r -= PlannerSettings::gradientDescentEta * dx / distance * gdFactor;
+                    p->y_r += PlannerSettings::gradientDescentEta * dy / distance * gdFactor;
                 }
                 ++counter;
 
-//#if !DEBUG_LIST_LENGTHS_ONLY
-//                //p->PrintNodeInfo();
-//                if (len > 1)
-                    QtVisualizer::drawNode(*p, Qt::cyan, 0.2, false);
-
-//#endif
-
+#if DEBUG
+                QtVisualizer::drawNode(*p, Qt::cyan, 0.15, false);
+#endif
                 p = thetastarsearch.GetOpenListNext();
             }
-//            OMPL_INFORM("Open list has %d",len);
-
-//            len = 0;
-
-//            OMPL_INFORM("Closed");
+#if DEBUG
             p = thetastarsearch.GetClosedListStart();
             while (p)
             {
-                len++;
-
-//#if !DEBUG_LIST_LENGTHS_ONLY
-//                //p->PrintNodeInfo();
-//                QtVisualizer::drawNode(*p);
-//#endif
                 QtVisualizer::drawNode(*p, Qt::darkCyan, 0.2, false);
-
                 p = thetastarsearch.GetClosedListNext();
 
             }
-//            OMPL_INFORM("Closed list has %d nodes",len);
+#endif
 
             SmoothThetaStarSearch<GNode>::Node *node = thetastarsearch.GetCurrentBestRawNode(); //thetastarsearch.GetSolutionStart();
             if (node == nullptr)
@@ -162,7 +162,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
             reached.push_back(node->m_UserState);
             std::vector<SmoothThetaStarSearch<GNode>::Node *> path;
             path.insert(path.begin(), node);
-            while ((node = node->parent) && !repeating)
+            while ((node = node->parent))
             {
 //                OMPL_INFORM("Found parent at %d %d", node->m_UserState.x, node->m_UserState.y);
                 for (GNode &r : reached)
@@ -181,8 +181,8 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
 //                pub_open_closed_.publish(_createNodeMarker(&(node->m_UserState), .1f, .7f, .1f));
             }
 
-            bool preventCollisions = true;
-            bool AverageAngles = true;
+            const bool preventCollisions = true;
+            const bool AverageAngles = true;
             if (averageAngles && path.size() > 2)
             {
                 double theta_old = path[0]->m_UserState.theta;
@@ -196,7 +196,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
                     {
                         double l = PlannerUtils::slope(path[i - 1]->m_UserState, path[i]->m_UserState);
                         double r = PlannerUtils::slope(path[i]->m_UserState, path[i + 1]->m_UserState);
-                        if (std::abs(l - r) >= M_PI)
+                        if (std::abs(l - r) > M_PI)
                         {
                             if (l > r)
                                 l += 2. * M_PI;
@@ -238,18 +238,13 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
                 reached.insert(reached.begin(), n->m_UserState);
             }
 
+#if DEBUG
             //TODO reactivate PNG saving
             QtVisualizer::drawTrajectory(reached, Qt::blue, 1.1f);
             QtVisualizer::drawNodes(reached, Qt::blue);
 
-            QtVisualizer::savePng(QString("log/step_%1.png").arg((int)SearchSteps, 5, 10, QChar('0')));
+            QtVisualizer::savePng(QString("log/step_%1.png").arg((int)_steps, 5, 10, QChar('0')));
             QtVisualizer::restoreScene();
-//
-//            OMPL_INFORM("Generated partial path of length %d", (int)sol.size());
-////            if (sol.size() > 1)
-////                _publisher.publishGlobalTraj(sol, false, 1);
-//
-//            sol.clear();
 #endif
 
 #if INTERACTIVE_STEP_THROUGH
@@ -306,7 +301,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
         }
 
         // Display the number of loops the search went through
-        OMPL_DEBUG("SmoothTheta* SearchSteps: %d ", (int) SearchSteps);
+        OMPL_DEBUG("SmoothTheta* _steps: %d ", (int) _steps);
 
         SearchCount++;
 
@@ -443,4 +438,8 @@ ob::PlannerStatus SmoothThetaStar::solve(const ob::PlannerTerminationCondition &
     }
 
     return ob::PlannerStatus::EXACT_SOLUTION;
+}
+
+unsigned int SmoothThetaStar::steps() const {
+    return _steps;
 }

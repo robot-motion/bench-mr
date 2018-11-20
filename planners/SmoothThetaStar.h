@@ -30,10 +30,9 @@ public:
     og::PathGeometric geometricPath() const override;
 
     bool hasReachedGoalExactly() const override;
-    double planningTime() const override;
+    double planningTime() const;
+    unsigned int steps() const;
 
-    static const bool gradientDescentOpenVertices = true;
-    static const bool annealGradientDescentOpenVertices = true;
     static const bool averageAngles = true;
 
 private:
@@ -44,6 +43,7 @@ private:
     bool USE_GRANDPARENT;
 
     double _planningTime;
+    unsigned int _steps;
 
     std::vector<std::vector<GNode> > global_paths;
 
