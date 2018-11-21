@@ -1,5 +1,7 @@
 #include <QtWidgets/QGridLayout>
 
+#include "metrics/ClearingMetric.h"
+
 #include "base/PlannerUtils.hpp"
 #include "PathEvaluation.h"
 #include "Table.hpp"
@@ -562,6 +564,12 @@ PathStatistics PathEvaluation::evaluate(const std::vector<Tpoint> &path, std::st
     auto *traj = new Trajectory(path);
     stats.pathLength = PathLengthMetric::evaluate(traj);
     stats.curvature = CurvatureMetric::evaluate(traj);
+
+    auto clearings = ClearingMetric::clearingDistances(traj);
+    stats.meanClearingDistance = stat::mean(clearings);
+    stats.medianClearingDistance = stat::median(clearings);
+    stats.minClearingDistance = stat::min(clearings);
+    stats.maxClearingDistance = stat::max(clearings);
 
     std::cout << label << std::endl;
     std::cout << "Path length:   \t" << stats.pathLength << std::endl;

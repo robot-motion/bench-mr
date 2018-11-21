@@ -57,5 +57,5 @@ bool PlannerSettings::gradientDescentCurrent = false;
 bool PlannerSettings::gradientDescentSuccessors = false;
 double PlannerSettings::gradientDescentEta = 0.25;
 double PlannerSettings::gradientDescentEtaDiscount = 0.8;
-unsigned int PlannerSettings::gradientDescentRounds = 20u;
+unsigned int PlannerSettings::gradientDescentRounds = 10u;
 bool PlannerSettings::averageAngles = true;

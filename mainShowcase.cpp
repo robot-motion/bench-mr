@@ -86,19 +86,31 @@ int main(int argc, char **argv)
                                                  {"curvature", thetaStarStats.curvature},
                                                  {"pathLength", thetaStarStats.pathLength},
                                                  {"steps", thetaStar->steps()},
-                                                 {"time", thetaStar->planningTime()}
+                                                 {"time", thetaStar->planningTime()},
+                                                 {"meanClearingDistance", thetaStarStats.meanClearingDistance},
+                                                 {"medianClearingDistance", thetaStarStats.medianClearingDistance},
+                                                 {"minClearingDistance", thetaStarStats.minClearingDistance},
+                                                 {"maxClearingDistance", thetaStarStats.maxClearingDistance}
                                          }},
                      {"grips",           {
                                                  {"curvature", gripsStats.curvature},
                                                  {"pathLength", gripsStats.pathLength},
                                                  {"steps", thetaStar->steps()},
-                                                 {"time", PostSmoothing::smoothingTime + thetaStar->planningTime()}
+                                                 {"time", PostSmoothing::smoothingTime + thetaStar->planningTime()},
+                                                 {"meanClearingDistance", gripsStats.meanClearingDistance},
+                                                 {"medianClearingDistance", gripsStats.medianClearingDistance},
+                                                 {"minClearingDistance", gripsStats.minClearingDistance},
+                                                 {"maxClearingDistance", gripsStats.maxClearingDistance}
                                          }},
                      {"smoothThetaStar", {
                                                  {"curvature", smoothThetaStarStats.curvature},
                                                  {"pathLength", smoothThetaStarStats.pathLength},
                                                  {"steps", smoothThetaStar->steps()},
-                                                 {"time", smoothThetaStar->planningTime()}
+                                                 {"time", smoothThetaStar->planningTime()},
+                                                 {"meanClearingDistance", smoothThetaStarStats.meanClearingDistance},
+                                                 {"medianClearingDistance", smoothThetaStarStats.medianClearingDistance},
+                                                 {"minClearingDistance", smoothThetaStarStats.minClearingDistance},
+                                                 {"maxClearingDistance", smoothThetaStarStats.maxClearingDistance}
                                          }}
              }));
 
