@@ -34,7 +34,8 @@ void Log::instantiateRun()
                                        {"etaDiscount", PlannerSettings::gradientDescentEtaDiscount},
                                        {"gdRounds", PlannerSettings::gradientDescentRounds},
                                        {"gdCurrent", PlannerSettings::gradientDescentCurrent},
-                                       {"gdSuccessors", PlannerSettings::gradientDescentSuccessors}
+                                       {"gdSuccessors", PlannerSettings::gradientDescentSuccessors},
+                                       {"averageAngles", PlannerSettings::averageAngles}
                                  }}
                          }},
             {"environment",

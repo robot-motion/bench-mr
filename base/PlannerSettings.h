@@ -63,4 +63,5 @@ public:
     static double gradientDescentEta;
     static double gradientDescentEtaDiscount;
     static unsigned int gradientDescentRounds;
+    static bool averageAngles;
 };
