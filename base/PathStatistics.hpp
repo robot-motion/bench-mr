@@ -37,6 +37,11 @@ struct PathStatistics
     double omplSmoothing2Curvature{-1};
     double omplSmoothing3Curvature{-1};
     double omplSmoothing4Curvature{-1};
+    double meanClearingDistance{-1};
+    double medianClearingDistance{-1};
+    double minClearingDistance{-1};
+    double maxClearingDistance{-1};
+
     std::string planner;
     QColor color;
 
