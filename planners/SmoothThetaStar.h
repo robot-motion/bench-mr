@@ -33,8 +33,6 @@ public:
     double planningTime() const;
     unsigned int steps() const;
 
-    static const bool averageAngles = true;
-
 private:
     Trajectory *curr_traj;
 

@@ -116,10 +116,12 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
             }
 
             counter = 0;
-            QtVisualizer::saveScene();
-            while (p)
+            if (PlannerSettings::gradientDescentOpenNodes)
             {
-                if (PlannerSettings::gradientDescentOpenNodes)
+#if DEBUG
+                QtVisualizer::saveScene();
+#endif
+                while (p)
                 {
                     PlannerSettings::environment->distanceGradient(p->x_r, p->y_r, dx, dy, 1.);
                     double distance = PlannerSettings::environment->bilinearDistance(p->x_r, p->y_r);
@@ -134,13 +136,13 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
 
                     p->x_r -= PlannerSettings::gradientDescentEta * dx / distance * gdFactor;
                     p->y_r += PlannerSettings::gradientDescentEta * dy / distance * gdFactor;
-                }
-                ++counter;
 
 #if DEBUG
-                QtVisualizer::drawNode(*p, Qt::cyan, 0.15, false);
+                    QtVisualizer::drawNode(*p, Qt::cyan, 0.15, false);
 #endif
-                p = thetastarsearch.GetOpenListNext();
+                    p = thetastarsearch.GetOpenListNext();
+                }
+                ++counter;
             }
 #if DEBUG
             p = thetastarsearch.GetClosedListStart();
@@ -152,97 +154,95 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
             }
 #endif
 
-            SmoothThetaStarSearch<GNode>::Node *node = thetastarsearch.GetCurrentBestRawNode(); //thetastarsearch.GetSolutionStart();
-            if (node == nullptr)
-                continue;
-//            sol.push_back(GNode(node->m_UserState.x, node->m_UserState.y, node->m_UserState.theta));
-            bool repeating = false;
-//            _publisher.publish(_publisher._createNodeMarker(&(node->m_UserState), .1f, .7f, .1f));
-            std::vector<GNode> reached;
-            reached.push_back(node->m_UserState);
-            std::vector<SmoothThetaStarSearch<GNode>::Node *> path;
-            path.insert(path.begin(), node);
-            while ((node = node->parent))
-            {
-//                OMPL_INFORM("Found parent at %d %d", node->m_UserState.x, node->m_UserState.y);
-                for (GNode &r : reached)
-                {
-                    if (r.x == node->m_UserState.x && r.y == node->m_UserState.y)
-                    {
-                        repeating = true;
-                        break;
-                    }
-                }
-                if (repeating)
-                    break;
-//                sol.push_back(GNode(node->m_UserState.x_r, node->m_UserState.y_r, node->m_UserState.theta));
+            if (PlannerSettings::averageAngles) {
+                SmoothThetaStarSearch<GNode>::Node *node = thetastarsearch.GetCurrentBestRawNode(); //thetastarsearch.GetSolutionStart();
+                if (node == nullptr)
+                    continue;
+                std::vector<SmoothThetaStarSearch<GNode>::Node *> path;
+
+                bool repeating = false;
+                std::vector<GNode> reached;
                 reached.push_back(node->m_UserState);
                 path.insert(path.begin(), node);
-//                pub_open_closed_.publish(_createNodeMarker(&(node->m_UserState), .1f, .7f, .1f));
-            }
-
-            const bool preventCollisions = true;
-            const bool AverageAngles = true;
-            if (averageAngles && path.size() > 2)
-            {
-                double theta_old = path[0]->m_UserState.theta;
-                path[0]->m_UserState.theta = PlannerUtils::slope(path[0]->m_UserState, path[1]->m_UserState);
-                if (preventCollisions && PlannerUtils::collides(path[0]->m_UserState, path[1]->m_UserState))
-                    path[0]->m_UserState.theta = theta_old; // revert setting
-                for (int i = 1; i < path.size() - 1; ++i)
+                while ((node = node->parent))
                 {
-                    theta_old = path[i]->m_UserState.theta;
-                    if (AverageAngles)
+//                OMPL_INFORM("Found parent at %d %d", node->m_UserState.x, node->m_UserState.y);
+                    for (GNode &r : reached)
                     {
-                        double l = PlannerUtils::slope(path[i - 1]->m_UserState, path[i]->m_UserState);
-                        double r = PlannerUtils::slope(path[i]->m_UserState, path[i + 1]->m_UserState);
-                        if (std::abs(l - r) > M_PI)
+                        if (r.x == node->m_UserState.x && r.y == node->m_UserState.y)
                         {
-                            if (l > r)
-                                l += 2. * M_PI;
-                            else
-                                r += 2. * M_PI;
+                            repeating = true;
+                            break;
                         }
-                        path[i]->m_UserState.theta = (l + r) * 0.5;
                     }
-                    else
-                        path[i]->m_UserState.theta = PlannerUtils::slope(path[i - 1]->m_UserState, path[i]->m_UserState);
-
-                    if (preventCollisions && (PlannerUtils::collides(path[i-1]->m_UserState, path[i]->m_UserState) || PlannerUtils::collides(path[i]->m_UserState, path[i+1]->m_UserState)))
-                        path[i]->m_UserState.theta = theta_old; // revert setting
+                    if (repeating)
+                        break;
+//                sol.push_back(GNode(node->m_UserState.x_r, node->m_UserState.y_r, node->m_UserState.theta));
+                    reached.push_back(node->m_UserState);
+                    path.insert(path.begin(), node);
+//                pub_open_closed_.publish(_createNodeMarker(&(node->m_UserState), .1f, .7f, .1f));
                 }
-                theta_old = path[path.size() - 1]->m_UserState.theta;
-                path[path.size() - 1]->m_UserState.theta = PlannerUtils::slope(path[path.size() - 2]->m_UserState, path[path.size() - 1]->m_UserState);
-                if (preventCollisions && PlannerUtils::collides(path[path.size() - 1]->m_UserState, path[path.size() - 2]->m_UserState))
-                    path[path.size() - 1]->m_UserState.theta = theta_old; // revert setting
-            }
-            else if (averageAngles && path.size() == 2)
-            {
-                double theta_old0 = path[0]->m_UserState.theta;
-                double theta_old1 = path[1]->m_UserState.theta;
-                // try to set angle like a straight line connecting both vertices
-                path[0]->m_UserState.theta = PlannerUtils::slope(path[0]->m_UserState, path[1]->m_UserState);
-                path[1]->m_UserState.theta = path[0]->m_UserState.theta;
-                if (preventCollisions && PlannerUtils::collides(path[0]->m_UserState, path[1]->m_UserState))
+
+                const bool preventCollisions = true;
+                if (path.size() > 2) {
+                    double theta_old = path[0]->m_UserState.theta;
+                    path[0]->m_UserState.theta = PlannerUtils::slope(path[0]->m_UserState, path[1]->m_UserState);
+                    if (preventCollisions && PlannerUtils::collides(path[0]->m_UserState, path[1]->m_UserState))
+                        path[0]->m_UserState.theta = theta_old; // revert setting
+                    for (int i = 1; i < path.size() - 1; ++i) {
+                        theta_old = path[i]->m_UserState.theta;
+                        if (PlannerSettings::averageAngles) {
+                            double l = PlannerUtils::slope(path[i - 1]->m_UserState, path[i]->m_UserState);
+                            double r = PlannerUtils::slope(path[i]->m_UserState, path[i + 1]->m_UserState);
+                            if (std::abs(l - r) > M_PI) {
+                                if (l > r)
+                                    l += 2. * M_PI;
+                                else
+                                    r += 2. * M_PI;
+                            }
+                            path[i]->m_UserState.theta = (l + r) * 0.5;
+                        } else
+                            path[i]->m_UserState.theta = PlannerUtils::slope(path[i - 1]->m_UserState,
+                                                                             path[i]->m_UserState);
+
+                        if (preventCollisions &&
+                            (PlannerUtils::collides(path[i - 1]->m_UserState, path[i]->m_UserState) ||
+                             PlannerUtils::collides(path[i]->m_UserState, path[i + 1]->m_UserState)))
+                            path[i]->m_UserState.theta = theta_old; // revert setting
+                    }
+                    theta_old = path[path.size() - 1]->m_UserState.theta;
+                    path[path.size() - 1]->m_UserState.theta = PlannerUtils::slope(path[path.size() - 2]->m_UserState,
+                                                                                   path[path.size() - 1]->m_UserState);
+                    if (preventCollisions &&
+                        PlannerUtils::collides(path[path.size() - 1]->m_UserState, path[path.size() - 2]->m_UserState))
+                        path[path.size() - 1]->m_UserState.theta = theta_old; // revert setting
+                } else if (path.size() == 2) {
+                    double theta_old0 = path[0]->m_UserState.theta;
+                    double theta_old1 = path[1]->m_UserState.theta;
+                    // try to set angle like a straight line connecting both vertices
+                    path[0]->m_UserState.theta = PlannerUtils::slope(path[0]->m_UserState, path[1]->m_UserState);
+                    path[1]->m_UserState.theta = path[0]->m_UserState.theta;
+                    if (preventCollisions && PlannerUtils::collides(path[0]->m_UserState, path[1]->m_UserState)) {
+                        path[0]->m_UserState.theta = theta_old0;
+                        path[1]->m_UserState.theta = theta_old1;
+                        OMPL_WARN("REVERTING avg angles for path of length 2.");
+                    }
+                    OMPL_INFORM("Averaged angles for path length 2.");
+                }
+
+#if DEBUG
+                reached.clear();
+                for (auto *n : path)
                 {
-                    path[0]->m_UserState.theta = theta_old0;
-                    path[1]->m_UserState.theta = theta_old1;
-                    OMPL_WARN("REVERTING avg angles for path of length 2.");
+                    reached.insert(reached.begin(), n->m_UserState);
                 }
-                OMPL_INFORM("Averaged angles for path length 2.");
-            }
 
-            reached.clear();
-            for (auto *n : path)
-            {
-                reached.insert(reached.begin(), n->m_UserState);
+                QtVisualizer::drawTrajectory(reached, Qt::blue, 1.1f);
+                QtVisualizer::drawNodes(reached, Qt::blue);
+#endif
             }
 
 #if DEBUG
-            //TODO reactivate PNG saving
-            QtVisualizer::drawTrajectory(reached, Qt::blue, 1.1f);
-            QtVisualizer::drawNodes(reached, Qt::blue);
-
             QtVisualizer::savePng(QString("log/step_%1.png").arg((int)_steps, 5, 10, QChar('0')));
             QtVisualizer::restoreScene();
 #endif
@@ -287,7 +287,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode star
                 steps++;
             }
 
-            if (averageAngles)
+            if (PlannerSettings::averageAngles)
             {
                 PlannerUtils::updateAngles(sol);
             }
