@@ -121,13 +121,7 @@ void Log::log(const nlohmann::json &stats) {
 void Log::save(std::string filename, std::string path)
 {
     if (filename.empty())
-        filename = _currentRun["settings"]["steering"].get<std::string>() + " "
-                   + std::to_string(_currentRun["environment"]["width"].get<unsigned int>()) + "x"
-                   + std::to_string(_currentRun["environment"]["height"].get<unsigned int>()) + " "
-                   + _currentRun["environment"]["generator"].get<std::string>() + " "
-                   + std::to_string(_currentRun["environment"]["seed"].get<unsigned int>()) + " "
-                   + _currentRun["globals"]["time"].get<std::string>()
-                   + (std::string)".json";
+        filename = Log::filename() + (std::string)".json";
     std::ofstream o(path + filename);
     o << std::setw(4) << _currentRun << std::endl;
     OMPL_INFORM("Saved path statistics log file at %s.", (path + filename).c_str());
@@ -136,4 +130,13 @@ void Log::save(std::string filename, std::string path)
 void Log::storeRun()
 {
     _json["runs"].push_back(_currentRun);
+}
+
+std::string Log::filename() {
+    return _currentRun["settings"]["steering"].get<std::string>() + " "
+           + std::to_string(_currentRun["environment"]["width"].get<unsigned int>()) + "x"
+           + std::to_string(_currentRun["environment"]["height"].get<unsigned int>()) + " "
+           + _currentRun["environment"]["generator"].get<std::string>() + " "
+           + std::to_string(_currentRun["environment"]["seed"].get<unsigned int>()) + " "
+           + _currentRun["globals"]["time"].get<std::string>();
 }

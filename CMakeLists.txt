@@ -9,8 +9,8 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 #set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+#set(CMAKE_CXX_FLAGS_DEBUG "-g")
+#set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 # add the binary tree to the search path for include files
 # so that we will find GripsConfig.h
@@ -21,12 +21,17 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Eigen3 REQUIRED NO_MODULE)
 include_directories(${EIGEN3_INCLUDE_DIR})
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SBPL REQUIRED sbpl)
+include_directories(${SBPL_INCLUDE_DIRS})
+link_directories(${SBPL_LIBRARY_DIRS})
+
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets Charts Svg)
 include_directories( ${CMAKE_BINARY_DIR} )
 set(CMAKE_AUTOMOC ON)
 file(GLOB GUI_SRC gui/*.?pp)
 set(EXTRA_SRC ${EXTRA_SRC} ${GUI_SRC})
-set(EXTRA_LIB ${EXTRA_LIB} Qt5::Core Qt5::Widgets Qt5::Charts Qt5::Svg)
+set(EXTRA_LIB ${EXTRA_LIB} Qt5::Core Qt5::Widgets Qt5::Charts Qt5::Svg ${SBPL_LIBRARIES})
 
 option(USE_G1 "Use G1 clothoid steering (not Open Source)" OFF)
 if (USE_G1)
@@ -56,9 +61,13 @@ add_executable(showcase mainShowcase.cpp ${ALL_SRC})
 add_executable(visual_compare mainVisualCompare.cpp ${ALL_SRC})
 add_executable(grips_params mainGripsParameters.cpp ${ALL_SRC})
 
+add_executable(sbpl_test mainSBPL.cpp)
+
 target_link_libraries(benchmark -lompl ${EXTRA_LIB})
 target_link_libraries(homotopy_test -lompl ${EXTRA_LIB})
 target_link_libraries(shortening_test -lompl ${EXTRA_LIB})
 target_link_libraries(showcase -lompl ${EXTRA_LIB})
 target_link_libraries(visual_compare -lompl ${EXTRA_LIB})
 target_link_libraries(grips_params -lompl ${EXTRA_LIB})
+
+target_link_libraries(sbpl_test ${SBPL_LIBRARIES})

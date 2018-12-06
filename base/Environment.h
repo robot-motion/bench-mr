@@ -2,7 +2,6 @@
 
 #include <ctime>
 #include <iostream>
-//#include <gui/QtVisualizer.h>
 
 #include "Trajectory.h"
 
@@ -245,6 +244,15 @@ public:
         }
     }
 
+    /**
+     * Writes cfg file for planners based on sbpl.
+     * @param filename The filename of the ".cfg" file.
+     * @return True if saving succeeded, false otherwise.
+     */
+    bool saveSbplConfigFile(const std::string &filename) const;
+
+    unsigned char *mapData() const;
+
     std::vector<Rectangle> obstacles() const;
     std::vector<Rectangle> obstacles(double x1, double y1, double x2, double y2) const;
 
@@ -303,7 +311,6 @@ private:
     bool *_grid{nullptr};
     double *_distances{nullptr};
     unsigned int _width{0}, _height{0};
-//    CollisionChecker *_checker{nullptr};
     bool _empty{true};
     unsigned int _seed{0};
     std::string _type{"undefined"};

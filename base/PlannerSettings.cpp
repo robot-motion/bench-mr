@@ -59,3 +59,15 @@ double PlannerSettings::gradientDescentEta = 0.25;
 double PlannerSettings::gradientDescentEtaDiscount = 0.8;
 unsigned int PlannerSettings::gradientDescentRounds = 10u;
 bool PlannerSettings::averageAngles = true;
+
+// SBPL settings
+bool PlannerSettings::sbplSearchUntilFirstSolution = false;
+double PlannerSettings::sbplInitialSolutionEps = 1.0;
+double PlannerSettings::sbplFordwardVelocity = 3.;
+double PlannerSettings::sbplTimeToTurn45DegsInPlace = 3.;
+char *PlannerSettings::sbplMotionPrimitiveFilename = const_cast<char *>("/home/eric/sbpl/matlab/mprim/unicycle_noturninplace.mprim");
+double PlannerSettings::sbplGoalToleranceX = 0.1;
+double PlannerSettings::sbplGoalToleranceY = 0.1;
+double PlannerSettings::sbplGoalToleranceTheta = 2. * M_PI;
+double PlannerSettings::sbplResolution = 0.025;
+unsigned int PlannerSettings::sbplNumThetaDirs = 16u;
