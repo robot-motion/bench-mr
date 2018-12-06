@@ -248,5 +248,5 @@ protected:
     }
 
 protected:
-    virtual ob::Planner *omplPlanner() = 0;
+    virtual ob::Planner *omplPlanner() { return nullptr; }
 };

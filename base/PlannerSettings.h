@@ -64,4 +64,18 @@ public:
     static double gradientDescentEtaDiscount;
     static unsigned int gradientDescentRounds;
     static bool averageAngles;
+
+
+    // SBPL settings
+    static bool sbplSearchUntilFirstSolution; // search until it finds a solution? (even if allotted time is over)
+    static double sbplInitialSolutionEps; // >1, ignored by planners that don't have notion of eps, 1 means optimal search
+    static double sbplFordwardVelocity; // in meters/sec
+    static double sbplTimeToTurn45DegsInPlace; // in sec
+    static char *sbplMotionPrimitiveFilename;
+    // Tolerances are most likely ignored by SPBL at the moment
+    static double sbplGoalToleranceX;
+    static double sbplGoalToleranceY;
+    static double sbplGoalToleranceTheta;
+    static double sbplResolution; // XXX Important: resolution must match resolution in motion primitive definition file!!!
+    static unsigned int sbplNumThetaDirs; // XXX Important: number of theta directions must match resolution in motion primitive definition file!!!
 };

@@ -1,3 +1,5 @@
+#include <fstream>
+
 #include <ompl/util/Console.h>
 
 #include "Environment.h"
@@ -452,4 +454,36 @@ double Environment::corridorRadius() const
 std::string Environment::generatorType() const
 {
     return _type;
+}
+
+bool Environment::saveSbplConfigFile(const std::string &filename) const {
+    auto file = std::fstream(filename, std::ios::out);
+    if (file.bad())
+        return false;
+
+    file << "discretization(cells): " << _width << " " << _height << std::endl;
+    file << "start(cells): " << 0 << " " << 0 << std::endl;
+    file << "end(cells): " << _width-1 << " " << _height-1 << std::endl;
+    file << "environment:" << std::endl;
+    for (unsigned int x = 0; x <= _width; ++x)
+    {
+        for (unsigned int y = 0; y <= _height; ++y)
+            file << (occupiedCell(x, y) ? "1 " : "0 ");
+        file << std::endl;
+    }
+    OMPL_INFORM(("Saved sbpl environment cfg-file at " + filename).c_str());
+    return true;
+}
+
+unsigned char *Environment::mapData() const {
+    auto *data = new unsigned char[_width * _height];
+    auto *ptr = data;
+    for (unsigned int x = 0; x <= _width; ++x)
+    {
+        for (unsigned int y = 0; y <= _height; ++y, ++ptr)
+             data[x + y * _width] = occupiedCell(x, y) ? '1' : '0';
+
+    }
+    OMPL_DEBUG("Generated SBPL map data");
+    return data;
 }
