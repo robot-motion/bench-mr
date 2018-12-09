@@ -50,8 +50,8 @@ int main(int argc, char **argv)
     for (unsigned int i = 0; i < 50; ++i) {
 //        PlannerSettings::environment = Environment::createRandom(50, 50, 0.1, 1542671305 + i);
 //        QtVisualizer::visualize(PlannerSettings::environment, 0);
-        PlannerSettings::environment = Environment::createRandomCorridor(50, 50, 3, 30, //1540486476); //1540445576); //1502484532); //1502407983); //1502323408); //1502316103); //1502231684); //1502227898); //1501893283); //1501892155);//1501089540); //1501089410 );//1500660612);// 1500551721);// 1500550472);
-                                                                         (unsigned int) (time(nullptr) + 123));
+        PlannerSettings::environment = Environment::createRandomCorridor(50, 50, 3, 30, 1540486476 + i); //1540486476); //1540445576); //1502484532); //1502407983); //1502323408); //1502316103); //1502231684); //1502227898); //1501893283); //1501892155);//1501089540); //1501089410 );//1500660612);// 1500551721);// 1500550472);
+//                                                                         (unsigned int) (time(nullptr) + 123));
         PathStatistics thetaStarStats, rrtStarStats, gripsStats, smoothThetaStarStats, sbplStats;
 
         std::vector<Tpoint> gripsPath;
