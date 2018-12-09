@@ -1,4 +1,6 @@
 #include <chrono>
+#include <base/Trajectory.h>
+#include <base/gnode.h>
 
 #include "base/PathStatistics.hpp"
 
@@ -19,6 +21,9 @@ public:
                      std::string path = "log/");
 
     static std::string filename();
+
+    static std::vector<std::vector<double> > serializePath(const std::vector<Tpoint> &path);
+    static std::vector<std::vector<double> > serializeTrajectory(const std::vector<GNode> &traj);
 
 private:
     static nlohmann::json _json;

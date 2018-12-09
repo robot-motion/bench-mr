@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(smoothstar)
+project(smooth_star)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -12,9 +12,18 @@ endif()
 #set(CMAKE_CXX_FLAGS_DEBUG "-g")
 #set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
+find_package(catkin REQUIRED COMPONENTS
+        roscpp
+        rospy
+        std_msgs
+#        steering_functions
+        )
+
 # add the binary tree to the search path for include files
 # so that we will find GripsConfig.h
 include_directories("${PROJECT_BINARY_DIR}")
+
+catkin_package()
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -31,7 +40,7 @@ include_directories( ${CMAKE_BINARY_DIR} )
 set(CMAKE_AUTOMOC ON)
 file(GLOB GUI_SRC gui/*.?pp)
 set(EXTRA_SRC ${EXTRA_SRC} ${GUI_SRC})
-set(EXTRA_LIB ${EXTRA_LIB} Qt5::Core Qt5::Widgets Qt5::Charts Qt5::Svg ${SBPL_LIBRARIES})
+set(EXTRA_LIB ${EXTRA_LIB} Qt5::Core Qt5::Widgets Qt5::Charts Qt5::Svg ${SBPL_LIBRARIES} ${catkin_LIBRARIES})
 
 option(USE_G1 "Use G1 clothoid steering (not Open Source)" OFF)
 if (USE_G1)

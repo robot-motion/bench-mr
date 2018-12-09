@@ -34,7 +34,7 @@ int main(int argc, char **argv)
     std::vector<Rectangle> obstacles;
     PlannerSettings::environment = Environment::createFromObstacles(obstacles);
 
-    QtVisualizer::visualize(*PlannerSettings::environment, 0);
+    QtVisualizer::visualize(PlannerSettings::environment, 0);
 
     std::vector<GNode> path {
             GNode( 5, 25, 0),

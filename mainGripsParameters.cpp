@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 
     PlannerSettings::environment = Environment::createRandomCorridor(50, 50, 3, 30, 123);
 
-    QtVisualizer::visualize(*PlannerSettings::environment, 0);
+    QtVisualizer::visualize(PlannerSettings::environment, 0);
 
     auto *planner = new ThetaStar;
     if (!planner->run())

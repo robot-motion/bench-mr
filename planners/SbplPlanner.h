@@ -37,5 +37,5 @@ private:
     EnvironmentNAV2D _env2d;
     std::vector<GNode> _solution;
     double _planningTime;
-    const unsigned char *_mapData;
+    unsigned char *_mapData;
 };

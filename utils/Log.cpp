@@ -38,15 +38,7 @@ void Log::instantiateRun()
                                        {"averageAngles", PlannerSettings::averageAngles}
                                  }}
                          }},
-            {"environment",
-                         {
-                                 {"width", PlannerSettings::environment->width()},
-                                 {"height", PlannerSettings::environment->height()},
-                                 {"generator", PlannerSettings::environment->generatorType()},
-                                 {"corridorRadius", PlannerSettings::environment->corridorRadius()},
-                                 {"seed", PlannerSettings::environment->seed()},
-                                 {"obstacleRatio", PlannerSettings::environment->obstacleRatio()}
-                         }},
+//            {"environment", PlannerSettings::environment->asJSON()},
             {"runs",     nlohmann::json::array()}
     };
 }
@@ -134,9 +126,23 @@ void Log::storeRun()
 
 std::string Log::filename() {
     return _currentRun["settings"]["steering"].get<std::string>() + " "
-           + std::to_string(_currentRun["environment"]["width"].get<unsigned int>()) + "x"
-           + std::to_string(_currentRun["environment"]["height"].get<unsigned int>()) + " "
-           + _currentRun["environment"]["generator"].get<std::string>() + " "
-           + std::to_string(_currentRun["environment"]["seed"].get<unsigned int>()) + " "
+           + std::to_string(PlannerSettings::environment->width()) + "x"
+           + std::to_string(PlannerSettings::environment->height()) + " "
+           + PlannerSettings::environment->generatorType() + " "
+           + std::to_string(PlannerSettings::environment->seed()) + " "
            + _currentRun["globals"]["time"].get<std::string>();
+}
+
+std::vector<std::vector<double> > Log::serializePath(const std::vector<Tpoint> &path) {
+    vector<vector<double>> r;
+    for (auto &p : path)
+        r.push_back({p.x, p.y});
+    return r;
+}
+
+std::vector<std::vector<double> > Log::serializeTrajectory(const std::vector<GNode> &traj) {
+    vector<vector<double>> r;
+    for (auto &p : traj)
+        r.push_back({p.x_r, p.y_r, p.theta});
+    return r;
 }

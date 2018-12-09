@@ -20,6 +20,7 @@ ob::PlannerStatus SbplPlanner::run() {
 //        printf("%d states were affected\n", (int)preds_of_changededgesIDV.size());
 //    }
     OMPL_DEBUG("Notified of changes");
+//    _sbPlanner->InitializeSearchStateSpace();
     int result = _sbPlanner->replan(PlannerSettings::PlanningTime, &stateIDs);
     OMPL_DEBUG("SBPL finished.");
     _planningTime = stopwatch.stop();
@@ -79,21 +80,7 @@ double SbplPlanner::planningTime() const {
 
 SbplPlanner::SbplPlanner(SbplPlanner::SbplType type) {
     _env = new EnvironmentNAVXYTHETALAT;
-//    const auto *mapData = PlannerSettings::environment->mapData();
-//    std::cout << "config: " << (int) PlannerSettings::environment->start().x << " " <<
-//            (int) PlannerSettings::environment->start().y << " " <<
-//            (int) PlannerSettings::environment->goal().x << " " <<
-//            (int) PlannerSettings::environment->goal().y << std::endl;
-////    _env.InitializeEnvironment();
-//    _env2d.InitializeEnv(PlannerSettings::environment->width(),
-//                         PlannerSettings::environment->height(),
-//                         mapData,
-//                         (int) PlannerSettings::environment->start().x,
-//                         (int) PlannerSettings::environment->start().y,
-//                         (int) PlannerSettings::environment->goal().x,
-//                         (int) PlannerSettings::environment->goal().y,
-//                         1u
-//    );
+
     // set the perimeter of the robot (it is given with 0,0,0 robot ref. point for which planning is done)
     vector<sbpl_2Dpt_t> perimeterptsV;
     sbpl_2Dpt_t pt_m;
@@ -116,10 +103,12 @@ SbplPlanner::SbplPlanner(SbplPlanner::SbplType type) {
 
     OMPL_DEBUG("Constructing SBPL Planner");
     std::cout << "Motion primitive filename: " << PlannerSettings::sbplMotionPrimitiveFilename << std::endl;
-//    _mapData = PlannerSettings::environment->mapData();
+    _mapData = new unsigned char[PlannerSettings::environment->cells()];
+    PlannerSettings::environment->mapData(_mapData);
+
     EnvNAVXYTHETALAT_InitParms params{};
     params.numThetas = PlannerSettings::sbplNumThetaDirs;
-//    params.mapdata = _mapData;
+//    params.mapdata = _mapData;  // TODO reactivate
     params.startx = PlannerSettings::environment->start().x * PlannerSettings::sbplResolution;
     params.starty = PlannerSettings::environment->start().y * PlannerSettings::sbplResolution;
     params.goalx = PlannerSettings::environment->goal().x * PlannerSettings::sbplResolution;
@@ -131,36 +120,36 @@ SbplPlanner::SbplPlanner(SbplPlanner::SbplType type) {
     OMPL_DEBUG("Size: %d", sizeof(_mapData));
 
 //    EnvironmentNAVXYTHETALAT env3;
-    _env->InitializeEnv(PlannerSettings::environment->width(),
-                       PlannerSettings::environment->height(),
-                       perimeterptsV,
-                       PlannerSettings::sbplResolution, // cell size
-                       1., //PlannerSettings::sbplFordwardVelocity,
-                       1., //PlannerSettings::sbplTimeToTurn45DegsInPlace,
-                       1u, // obstacle threshold
-                       PlannerSettings::sbplMotionPrimitiveFilename,
-                       params
+    _env->InitializeEnv(PlannerSettings::environment->width() + 1,
+                        PlannerSettings::environment->height() + 1,
+                        perimeterptsV,
+                        PlannerSettings::sbplResolution, // cell size
+                        1., //PlannerSettings::sbplFordwardVelocity,
+                        1., //PlannerSettings::sbplTimeToTurn45DegsInPlace,
+                        1u, // obstacle threshold
+                        PlannerSettings::sbplMotionPrimitiveFilename,
+                        params
     );
     OMPL_DEBUG("Initialized SBPL environment");
 
     // Initialize MDP Info
-//    MDPConfig MDPCfg;
-//    if (!_env.InitializeMDPCfg(&MDPCfg)) {
-//        throw SBPL_Exception("ERROR: InitializeMDPCfg failed");
-//    }
+    MDPConfig MDPCfg;
+    if (!_env->InitializeMDPCfg(&MDPCfg)) {
+        throw SBPL_Exception("ERROR: InitializeMDPCfg failed");
+    }
 
     switch (type) {
         case SBPL_ARASTAR:
-            _sbPlanner = new ARAPlanner(&_env2d, ForwardSearch);
+            _sbPlanner = new ARAPlanner(_env, ForwardSearch);
             break;
         case SBPL_ADSTAR:
-            _sbPlanner = new ADPlanner(&_env2d, ForwardSearch);
+            _sbPlanner = new ADPlanner(_env, ForwardSearch);
             break;
         case SBPL_RSTAR:
-            _sbPlanner = new RSTARPlanner(&_env2d, ForwardSearch);
+            _sbPlanner = new RSTARPlanner(_env, ForwardSearch);
             break;
         case SBPL_ANASTAR:
-            _sbPlanner = new anaPlanner(&_env2d, ForwardSearch);
+            _sbPlanner = new anaPlanner(_env, ForwardSearch);
             break;
     }
 
@@ -168,6 +157,13 @@ SbplPlanner::SbplPlanner(SbplPlanner::SbplType type) {
 
     _sbPlanner->set_search_mode(PlannerSettings::sbplSearchUntilFirstSolution);
     _sbPlanner->set_initialsolution_eps(PlannerSettings::sbplInitialSolutionEps);
+
+    _sbPlanner->set_start(_env->GetStateFromCoord(static_cast<int>(PlannerSettings::environment->start().x),
+                                                  static_cast<int>(PlannerSettings::environment->start().y),
+                                                  0));
+    _sbPlanner->set_goal(_env->GetStateFromCoord(static_cast<int>(PlannerSettings::environment->goal().x),
+                                                 static_cast<int>(PlannerSettings::environment->goal().y),
+                                                 0));
 }
 
 SbplPlanner::~SbplPlanner() {
