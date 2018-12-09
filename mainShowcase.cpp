@@ -40,18 +40,20 @@ int main(int argc, char **argv)
 //    PlannerSettings::environment = Environment::createFromObstacles(obstacles, 40, 25);
 //    PlannerSettings::environment->setStart(Tpoint(5, 3));
 //    PlannerSettings::environment->setGoal(Tpoint(36, 22));
-    PlannerSettings::environment = Environment::createRandom(50, 50, 0.1, 1542671305);
+//    PlannerSettings::environment = Environment::createRandom(50, 50, 0.1, 1542671305);
 
-//    PlannerSettings::environment = Environment::createRandomCorridor(50, 50, 3, 30, //1540486476); //1540445576); //1502484532); //1502407983); //1502323408); //1502316103); //1502231684); //1502227898); //1501893283); //1501892155);//1501089540); //1501089410 );//1500660612);// 1500551721);// 1500550472);
-//                                                                     (unsigned int) (time(nullptr) + 123));
+    PlannerSettings::environment = Environment::createRandomCorridor(50, 50, 3, 30, //1540486476); //1540445576); //1502484532); //1502407983); //1502323408); //1502316103); //1502231684); //1502227898); //1501893283); //1501892155);//1501089540); //1501089410 );//1500660612);// 1500551721);// 1500550472);
+                                                                     (unsigned int) (time(nullptr) + 123));
 
     Log::instantiateRun();
 
-    for (unsigned int i = 0; i < 50; ++i) {
-        PlannerSettings::environment = Environment::createRandom(50, 50, 0.1, 1542671305 + i);
+    for (unsigned int i = 0; i < 2; ++i) {
+//        PlannerSettings::environment = Environment::createRandom(50, 50, 0.1, 1542671305 + i);
 //        QtVisualizer::visualize(PlannerSettings::environment, 0);
-        PathStatistics thetaStarStats, gripsStats, smoothThetaStarStats, sbplStats;
-//
+        PlannerSettings::environment = Environment::createRandomCorridor(50, 50, 8, 30, //1540486476); //1540445576); //1502484532); //1502407983); //1502323408); //1502316103); //1502231684); //1502227898); //1501893283); //1501892155);//1501089540); //1501089410 );//1500660612);// 1500551721);// 1500550472);
+                                                                         (unsigned int) (time(nullptr) + 123));
+        PathStatistics thetaStarStats, rrtStarStats, gripsStats, smoothThetaStarStats, sbplStats;
+
 //        auto *thetaStar = new ThetaStar;
 //        if (thetaStar->run()) {
 //            std::vector<Tpoint> path = thetaStar->solutionPath();
@@ -66,13 +68,21 @@ int main(int argc, char **argv)
 //            OMPL_ERROR("Theta* couldn't find a solution.");
 //        }
 //
-//        auto *smoothThetaStar = new SmoothThetaStar;
-//        if (smoothThetaStar->run()) {
-//            std::vector<Tpoint> path = smoothThetaStar->solutionPath();
-//            smoothThetaStarStats = PathEvaluation::evaluate(path, "Smooth Theta*", Qt::blue);
+//        auto *rrtStar = new RRTstarPlanner;
+//        if (rrtStar->run()) {
+//            std::vector<Tpoint> path = rrtStar->solutionPath();
+//            rrtStarStats = PathEvaluation::evaluate(path, "RRT*", Qt::black);
+//        } else {
+//            OMPL_ERROR("RRT* couldn't find a solution.");
 //        }
+//
+        auto *smoothThetaStar = new SmoothThetaStar;
+        if (smoothThetaStar->run()) {
+            std::vector<Tpoint> path = smoothThetaStar->solutionPath();
+            smoothThetaStarStats = PathEvaluation::evaluate(path, "Smooth Theta*", Qt::blue);
+        }
 
-        auto *sbplPlanner = new SbplPlanner(SbplPlanner::SbplType::SBPL_RSTAR);
+        auto *sbplPlanner = new SbplPlanner(SbplPlanner::SbplType::SBPL_ANASTAR);
         if (sbplPlanner->run()) {
             std::vector<Tpoint> path = sbplPlanner->solutionPath();
             sbplStats = PathEvaluation::evaluate(path, "SBPL (ANA*)", Qt::darkGreen);
@@ -87,8 +97,9 @@ int main(int argc, char **argv)
 //        printStats(smoothThetaStarStats);
 //        std::cout << "\tSteps:\t\t\t" << smoothThetaStar->steps() << std::endl;
 //        std::cout << "\tTime:\t\t\t" << smoothThetaStar->planningTime() << std::endl;
-
+//
         Log::log(nlohmann::json({
+                {"plans", {
 //                     {"thetaStar",       {
 //                                                 {"curvature", thetaStarStats.curvature},
 //                                                 {"pathLength", thetaStarStats.pathLength},
@@ -109,16 +120,29 @@ int main(int argc, char **argv)
 //                                                 {"minClearingDistance", gripsStats.minClearingDistance},
 //                                                 {"maxClearingDistance", gripsStats.maxClearingDistance}
 //                                         }},
-//                     {"smoothThetaStar", {
-//                                                 {"curvature", smoothThetaStarStats.curvature},
-//                                                 {"pathLength", smoothThetaStarStats.pathLength},
-//                                                 {"steps", smoothThetaStar->steps()},
-//                                                 {"time", smoothThetaStar->planningTime()},
-//                                                 {"meanClearingDistance", smoothThetaStarStats.meanClearingDistance},
-//                                                 {"medianClearingDistance", smoothThetaStarStats.medianClearingDistance},
-//                                                 {"minClearingDistance", smoothThetaStarStats.minClearingDistance},
-//                                                 {"maxClearingDistance", smoothThetaStarStats.maxClearingDistance}
+//                     {"rrtStar",       {
+//                                                 {"curvature", rrtStarStats.curvature},
+//                                                 {"pathLength", rrtStarStats.pathLength},
+//                                                 {"steps", 0},
+//                                                 {"time", rrtStar->planningTime()},
+//                                                 {"meanClearingDistance", rrtStarStats.meanClearingDistance},
+//                                                 {"medianClearingDistance", rrtStarStats.medianClearingDistance},
+//                                                 {"minClearingDistance", rrtStarStats.minClearingDistance},
+//                                                 {"maxClearingDistance", rrtStarStats.maxClearingDistance}
 //                                         }},
+                                         {"smoothThetaStar", {
+                                                 {"curvature", smoothThetaStarStats.curvature},
+                                                 {"pathLength", smoothThetaStarStats.pathLength},
+                                                 {"steps", smoothThetaStar->steps()},
+                                                 {"time", smoothThetaStar->planningTime()},
+                                                 {"meanClearingDistance", smoothThetaStarStats.meanClearingDistance},
+                                                 {"medianClearingDistance",
+                                                  smoothThetaStarStats.medianClearingDistance},
+                                                 {"minClearingDistance", smoothThetaStarStats.minClearingDistance},
+                                                 {"maxClearingDistance", smoothThetaStarStats.maxClearingDistance},
+                                                 {"path", Log::serializePath(smoothThetaStar->solutionPath())},
+                                                 {"trajectory", Log::serializeTrajectory(smoothThetaStar->solutionTrajectory())}
+                                         }},
                      {"sbpl", {
                                                  {"curvature", sbplStats.curvature},
                                                  {"pathLength", sbplStats.pathLength},
@@ -127,12 +151,17 @@ int main(int argc, char **argv)
                                                  {"meanClearingDistance", sbplStats.meanClearingDistance},
                                                  {"medianClearingDistance", sbplStats.medianClearingDistance},
                                                  {"minClearingDistance", sbplStats.minClearingDistance},
-                                                 {"maxClearingDistance", sbplStats.maxClearingDistance}
-                                         }}
+                                                 {"maxClearingDistance", sbplStats.maxClearingDistance},
+                                                 {"path", Log::serializePath(sbplPlanner->solutionPath())},
+                                                 {"trajectory", Log::serializeTrajectory(sbplPlanner->solutionTrajectory())}
+                                         }},
+                }},
+                {"environment", PlannerSettings::environment->asJSON()}
              }));
-
+//
 //        delete thetaStar;
 //        delete smoothThetaStar;
+//        delete rrtStar;
     }
 
     Log::save();

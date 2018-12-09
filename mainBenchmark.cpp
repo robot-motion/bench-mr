@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 //            PlannerSettings::environment = Environment::createRandom(50, 50, .05);
 //        PlannerSettings::environment = Environment::createSimple();
 
-            QtVisualizer::visualize(*PlannerSettings::environment, run);
+            QtVisualizer::visualize(PlannerSettings::environment, run);
 
             // one run before each benchmark to avoid problems (bug in OMPL?)
             RRTPlanner rrtPlanner;

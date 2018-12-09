@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     PlannerSettings::environment->setStart(Tpoint(2, 12));
     PlannerSettings::environment->setGoal(Tpoint(Environment::DefaultWidth-1, Environment::DefaultHeight-12));
 
-    QtVisualizer::visualize(*PlannerSettings::environment, 0);
+    QtVisualizer::visualize(PlannerSettings::environment, 0);
 
     statsAggregator.add(PathEvaluation::add(new ThetaStar, "Theta*", Qt::black));
     statsAggregator.add(PathEvaluation::add(new AStar, "A*", Qt::gray));

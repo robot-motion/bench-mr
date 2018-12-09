@@ -3,6 +3,7 @@
 #include <ctime>
 #include <iostream>
 
+#include <utils/json.hpp>
 #include "Trajectory.h"
 
 #define ROS_SUPPORT 0
@@ -251,7 +252,8 @@ public:
      */
     bool saveSbplConfigFile(const std::string &filename) const;
 
-    unsigned char *mapData() const;
+    void mapData(unsigned char *data) const;
+    std::string mapString() const;
 
     std::vector<Rectangle> obstacles() const;
     std::vector<Rectangle> obstacles(double x1, double y1, double x2, double y2) const;
@@ -276,6 +278,8 @@ public:
                                             int borderSize = 1);
     static Environment *createSimple();
 
+    nlohmann::json asJSON() const;
+
 #if XML_SUPPORT
     static Environment *loadFromXml(std::string filename);
 #endif
@@ -286,6 +290,10 @@ public:
     double obstacleRatio() const;
     double corridorRadius() const;
     std::string generatorType() const;
+
+    unsigned int cells() const {
+        return (_width + 1) * (_height + 1);
+    }
 
 protected:
     Environment(unsigned int seed, unsigned int width, unsigned int height);

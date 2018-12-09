@@ -51,11 +51,12 @@ double PlannerSettings::gripsEtaDiscount = 0.8;
 unsigned int PlannerSettings::gripsGradientDescentRounds = 5;
 unsigned int PlannerSettings::gripsMaxPruningRounds = 100;
 
+// SmoothStar settings
 bool PlannerSettings::gradientDescentOpenNodes = true;
 bool PlannerSettings::annealedGradientDescentOpenNodes = true;
 bool PlannerSettings::gradientDescentCurrent = false;
 bool PlannerSettings::gradientDescentSuccessors = false;
-double PlannerSettings::gradientDescentEta = 0.25;
+double PlannerSettings::gradientDescentEta = 0.5;
 double PlannerSettings::gradientDescentEtaDiscount = 0.8;
 unsigned int PlannerSettings::gradientDescentRounds = 10u;
 bool PlannerSettings::averageAngles = true;

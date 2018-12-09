@@ -21,9 +21,9 @@ Environment::Environment(unsigned int seed, unsigned int width, unsigned int hei
 : _width(width), _height(height), _empty(false), _seed(seed),
   _distances(nullptr), _corridorRadius(-1), _type("unknown")
 {
-    _grid = new bool[(width+1) * (height+1)];
+    _grid = new bool[cells()];
     bool *g = _grid;
-    for (unsigned int i = 0; i < (width+1) * (height+1); ++i)
+    for (unsigned int i = 0; i < cells(); ++i)
         *g++ = false;
 }
 
@@ -85,7 +85,7 @@ Environment *Environment::createRandomCorridor(unsigned int width, unsigned int 
     environment->_type = "corridor";
     environment->_corridorRadius = radius;
 
-    for (unsigned int i = 0; i <= (width+1) * (height+1); ++i)
+    for (unsigned int i = 0; i <= environment->cells(); ++i)
     {
         environment->_grid[i] = true;
     }
@@ -475,15 +475,35 @@ bool Environment::saveSbplConfigFile(const std::string &filename) const {
     return true;
 }
 
-unsigned char *Environment::mapData() const {
-    auto *data = new unsigned char[_width * _height];
-    auto *ptr = data;
+void Environment::mapData(unsigned char *data) const {
     for (unsigned int x = 0; x <= _width; ++x)
     {
-        for (unsigned int y = 0; y <= _height; ++y, ++ptr)
+        for (unsigned int y = 0; y <= _height; ++y)
              data[x + y * _width] = occupiedCell(x, y) ? '1' : '0';
 
     }
     OMPL_DEBUG("Generated SBPL map data");
+}
+
+std::string Environment::mapString() const {
+    std::string data;
+    for (unsigned int y = 0; y <= _height; ++y) {
+        for (unsigned int x = 0; x <= _width; ++x)
+            data += occupiedCell(x, y) ? '1' : '0';
+    }
+    return data;
+}
+
+nlohmann::json Environment::asJSON() const {
+    nlohmann::json data;
+    data["corridorRadius"] =  corridorRadius();
+    data["generator"] =  generatorType();
+    data["width"] =  width();
+    data["height"] =  height();
+    data["obstacleRatio"] =  obstacleRatio();
+    data["seed"] = seed();
+    data["start"] = {start().x, start().y};
+    data["goal"] = {goal().x, goal().y};
+    data["map"] = mapString();
     return data;
 }
