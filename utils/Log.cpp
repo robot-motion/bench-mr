@@ -36,6 +36,18 @@ void Log::instantiateRun()
                                        {"gdCurrent", PlannerSettings::gradientDescentCurrent},
                                        {"gdSuccessors", PlannerSettings::gradientDescentSuccessors},
                                        {"averageAngles", PlannerSettings::averageAngles}
+                                 }},
+                                 {"sbpl", {
+                                         {"sbplSearchUntilFirstSolution", PlannerSettings::sbplSearchUntilFirstSolution},
+                                         {"sbplInitialSolutionEps", PlannerSettings::sbplInitialSolutionEps},
+                                         {"sbplFordwardVelocity", PlannerSettings::sbplFordwardVelocity},
+                                         {"sbplTimeToTurn45DegsInPlace", PlannerSettings::sbplTimeToTurn45DegsInPlace},
+                                         {"sbplMotionPrimitiveFilename", PlannerSettings::sbplMotionPrimitiveFilename},
+                                         {"sbplGoalToleranceX", PlannerSettings::sbplGoalToleranceX},
+                                         {"sbplGoalToleranceY", PlannerSettings::sbplGoalToleranceY},
+                                         {"sbplGoalToleranceTheta", PlannerSettings::sbplGoalToleranceTheta},
+                                         {"sbplResolution", PlannerSettings::sbplResolution},
+                                         {"sbplNumThetaDirs", PlannerSettings::sbplNumThetaDirs}
                                  }}
                          }},
 //            {"environment", PlannerSettings::environment->asJSON()},

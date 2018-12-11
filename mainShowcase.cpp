@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 
     Log::instantiateRun();
 
-    for (unsigned int i = 0; i < 50; ++i) {
+    for (unsigned int i = 0; i < 5; ++i) {
 //        PlannerSettings::environment = Environment::createRandom(50, 50, 0.1, 1542671305 + i);
 //        QtVisualizer::visualize(PlannerSettings::environment, 0);
         PlannerSettings::environment = Environment::createRandomCorridor(50, 50, 3, 30, 1540486476 + i); //1540486476); //1540445576); //1502484532); //1502407983); //1502323408); //1502316103); //1502231684); //1502227898); //1501893283); //1501892155);//1501089540); //1501089410 );//1500660612);// 1500551721);// 1500550472);
@@ -85,11 +85,11 @@ int main(int argc, char **argv)
             smoothThetaStarStats = PathEvaluation::evaluate(path, "Smooth Theta*", Qt::blue);
         }
 
-//        auto *sbplPlanner = new SbplPlanner(SbplPlanner::SbplType::SBPL_ANASTAR);
-//        if (sbplPlanner->run()) {
-//            std::vector<Tpoint> path = sbplPlanner->solutionPath();
-//            sbplStats = PathEvaluation::evaluate(path, "SBPL (ANA*)", Qt::darkGreen);
-//        }
+        auto *sbplPlanner = new SbplPlanner(SbplPlanner::SbplType::SBPL_ANASTAR);
+        if (sbplPlanner->run()) {
+            std::vector<Tpoint> path = sbplPlanner->solutionPath();
+            sbplStats = PathEvaluation::evaluate(path, "SBPL (ANA*)", Qt::darkGreen);
+        }
 
 //        printStats(thetaStarStats);
 //        std::cout << "\tSteps:\t\t\t" << thetaStar->steps() << std::endl;
@@ -152,25 +152,26 @@ int main(int argc, char **argv)
                                                  {"path", Log::serializePath(smoothThetaStar->solutionPath())},
                                                  {"trajectory", Log::serializeTrajectory(smoothThetaStar->solutionTrajectory())}
                                          }},
-//                     {"sbpl", {
-//                                                 {"curvature", sbplStats.curvature},
-//                                                 {"pathLength", sbplStats.pathLength},
-//                                                 {"steps", std::nan("N/A")},
-////                                                 {"time", sbplPlanner->planningTime()},
-//                                                 {"meanClearingDistance", sbplStats.meanClearingDistance},
-//                                                 {"medianClearingDistance", sbplStats.medianClearingDistance},
-//                                                 {"minClearingDistance", sbplStats.minClearingDistance},
-//                                                 {"maxClearingDistance", sbplStats.maxClearingDistance},
-//                                                 {"path", Log::serializePath(sbplPlanner->solutionPath())},
-//                                                 {"trajectory", Log::serializeTrajectory(sbplPlanner->solutionTrajectory())}
-//                                         }},
+                     {"sbpl", {
+                                                 {"curvature", sbplStats.curvature},
+                                                 {"pathLength", sbplStats.pathLength},
+                                                 {"steps", std::nan("N/A")},
+                                                 {"time", sbplPlanner->planningTime()},
+                                                 {"meanClearingDistance", sbplStats.meanClearingDistance},
+                                                 {"medianClearingDistance", sbplStats.medianClearingDistance},
+                                                 {"minClearingDistance", sbplStats.minClearingDistance},
+                                                 {"maxClearingDistance", sbplStats.maxClearingDistance},
+                                                 {"path", sbplPlanner->solutionTrajectory().empty() ? Log::serializePath({}) : Log::serializePath(sbplPlanner->solutionPath())},
+                                                 {"trajectory", Log::serializeTrajectory(sbplPlanner->solutionTrajectory())}
+                                         }},
                 }},
                 {"environment", PlannerSettings::environment->asJSON()}
              }));
 //
-//        delete thetaStar;
-//        delete smoothThetaStar;
-//        delete rrtStar;
+        delete thetaStar;
+        delete smoothThetaStar;
+        delete rrtStar;
+        delete sbplPlanner;
     }
 
     Log::save();
