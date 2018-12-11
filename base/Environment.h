@@ -252,7 +252,7 @@ public:
      */
     bool saveSbplConfigFile(const std::string &filename) const;
 
-    void mapData(unsigned char *data) const;
+    void mapData(unsigned char *data, double resolution=1.);
     std::string mapString() const;
 
     std::vector<Rectangle> obstacles() const;
@@ -291,8 +291,8 @@ public:
     double corridorRadius() const;
     std::string generatorType() const;
 
-    unsigned int cells() const {
-        return (_width + 1) * (_height + 1);
+    unsigned int cells(double resolution = 1) const {
+        return static_cast<unsigned int>((_width / resolution + 1) * (_height / resolution + 1));
     }
 
 protected:

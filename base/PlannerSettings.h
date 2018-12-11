@@ -24,7 +24,7 @@ public:
 
     static double CarTurningRadius;
 
-    static constexpr double PlanningTime{3.0};
+    static constexpr double PlanningTime{15.0};
 
     static bool VisualizeSmoothing1;
     static bool VisualizeSmoothing2;
