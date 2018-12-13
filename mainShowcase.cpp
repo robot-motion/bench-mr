@@ -128,7 +128,7 @@ int main(int argc, char **argv)
         info["plans"]["rrtStar"] = {
                 {"curvature", rrtStarStats.curvature},
                 {"pathLength", rrtStarStats.pathLength},
-                {"steps", 0},
+                {"steps", std::nan("N/A")},
                 {"time", rrtStar->planningTime()},
                 {"meanClearingDistance", rrtStarStats.meanClearingDistance},
                 {"medianClearingDistance", rrtStarStats.medianClearingDistance},
@@ -159,24 +159,24 @@ int main(int argc, char **argv)
         };
         delete smoothThetaStar;
 
-//        auto *sbplPlanner = new SbplPlanner(SbplPlanner::SbplType::SBPL_ANASTAR);
-//        if (sbplPlanner->run()) {
-//            std::vector<Tpoint> path = sbplPlanner->solutionPath();
-//            sbplStats = PathEvaluation::evaluate(path, "SBPL (ANA*)", Qt::darkGreen);
-//        }
-//        info["plans"]["sbpl"] = {
-//                {"curvature", sbplStats.curvature},
-//                {"pathLength", sbplStats.pathLength},
-//                {"steps", std::nan("N/A")},
-//                {"time", sbplPlanner->planningTime()},
-//                {"meanClearingDistance", sbplStats.meanClearingDistance},
-//                {"medianClearingDistance", sbplStats.medianClearingDistance},
-//                {"minClearingDistance", sbplStats.minClearingDistance},
-//                {"maxClearingDistance", sbplStats.maxClearingDistance},
-//                {"path", sbplPlanner->solutionTrajectory().empty() ? Log::serializePath({}) : Log::serializePath(sbplPlanner->solutionPath())},
-//                {"trajectory", Log::serializeTrajectory(sbplPlanner->solutionTrajectory())}
-//        };
-//        delete sbplPlanner;
+        auto *sbplPlanner = new SbplPlanner(SbplPlanner::SbplType::SBPL_ANASTAR);
+        if (sbplPlanner->run()) {
+            std::vector<Tpoint> path = sbplPlanner->solutionPath();
+            sbplStats = PathEvaluation::evaluate(path, "SBPL (ANA*)", Qt::darkGreen);
+        }
+        info["plans"]["sbpl"] = {
+                {"curvature", sbplStats.curvature},
+                {"pathLength", sbplStats.pathLength},
+                {"steps", std::nan("N/A")},
+                {"time", sbplPlanner->planningTime()},
+                {"meanClearingDistance", sbplStats.meanClearingDistance},
+                {"medianClearingDistance", sbplStats.medianClearingDistance},
+                {"minClearingDistance", sbplStats.minClearingDistance},
+                {"maxClearingDistance", sbplStats.maxClearingDistance},
+                {"path", sbplPlanner->solutionTrajectory().empty() ? Log::serializePath({}) : Log::serializePath(sbplPlanner->solutionPath())},
+                {"trajectory", Log::serializeTrajectory(sbplPlanner->solutionTrajectory())}
+        };
+        delete sbplPlanner;
 
 //        printStats(thetaStarStats);
 //        std::cout << "\tSteps:\t\t\t" << thetaStar->steps() << std::endl;
