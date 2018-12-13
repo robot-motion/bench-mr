@@ -20,6 +20,10 @@ public:
     ThetaStar();
     virtual ~ThetaStar();
 
+    std::string name() const override {
+        return "Theta*";
+    }
+
     bool initialize();
 
     void setProblemDefinition(const ob::ProblemDefinitionPtr &pdef) override;

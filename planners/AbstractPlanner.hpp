@@ -39,11 +39,29 @@ public:
     static const bool ANYTIME_SHORTCUT = true;
     static const bool ANYTIME_HYBRIDIZE = true;
 
+    virtual std::string name() const = 0;
+
     virtual ob::PlannerStatus run() = 0;
 
     virtual std::vector<GNode> solutionTrajectory() const = 0;
     virtual std::vector<Tpoint> solutionPath() const = 0;
-    virtual og::PathGeometric geometricPath() const = 0;
+    virtual og::PathGeometric geometricPath() const {
+        og::PathGeometric path(ss->getSpaceInformation());
+        const auto solution = solutionTrajectory();
+        if (solution.empty())
+        {
+            OMPL_ERROR((name() + ": The computed path contains no GNodes!").c_str());
+            return path;
+        }
+        for (auto &node : solution)
+        {
+            auto *state = ss->getStateSpace()->allocState()->as<ob::SE2StateSpace::StateType>();
+            state->setXY(node.x_r, node.y_r);
+            state->setYaw(node.theta);
+            path.append(state);
+        }
+        return path;
+    }
 
     virtual bool hasReachedGoalExactly() const = 0;
     virtual double planningTime() const = 0;
@@ -163,6 +181,11 @@ public:
         return r;
     }
 
+    virtual ~AbstractPlanner() {
+//        if (ss != nullptr)
+//            delete ss;
+    }
+
 protected:
     og::SimpleSetup *ss{nullptr};
 
@@ -205,7 +228,7 @@ protected:
         ss->setStateValidityChecker([](const ob::State *state)
                                     {
                                         const auto *s = state->as<ob::SE2StateSpace::StateType>();
-                                        double x=s->getX(), y=s->getY();
+                                        const double x=s->getX(), y=s->getY();
                                         return !PlannerSettings::environment->occupied(x, y);
                                     });
 

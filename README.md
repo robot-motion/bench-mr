@@ -2,7 +2,7 @@
 Combining any-angle path planning and trajectory optimization
 
 ## Dependencies
-* [libccd-1.4](https://github.com/danfis/libccd/releases/tag/v1.4) (because of the `chomp-multigrid` implementation used here)
+* [libccd-1.4](https://github.com/danfis/libccd/releases/tag/v1.4) (because of the `chomp` implementation used here)
 
 ## Third-party libraries
 This project uses the following the packages:

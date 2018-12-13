@@ -29,6 +29,10 @@ public:
         delete _geometric;
     }
 
+    std::string name() const override {
+        return "OMPL Simplifier";
+    }
+
     ob::PlannerStatus run()
     {
         OMPL_ERROR("OMPLSimplifier::run() has not been implemented.");

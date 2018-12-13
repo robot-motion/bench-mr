@@ -185,6 +185,38 @@ public:
             path[path.size() - 1].theta = theta_old; // revert setting
     }
 
+    static void gradientDescent(std::vector<GNode> &path, unsigned int rounds, double eta, double discount = 1.) {
+        double dx, dy;
+        for (int round = 0; round < rounds; ++round) {
+            // gradient descent along distance field, excluding start/end nodes
+            for (int i = 1; i < path.size() - 1; ++i) {
+                // compute gradient
+                PlannerSettings::environment->distanceGradient(path[i].x_r, path[i].y_r, dx, dy, 1.);
+                double distance = PlannerSettings::environment->bilinearDistance(path[i].x_r, path[i].y_r);
+                distance = std::max(.1, distance);
+                path[i].x_r -= eta * dx / distance;
+                path[i].y_r += eta * dy / distance;
+            }
+            eta *= discount;
+        }
+    }
+
+    static void gradientDescent(std::vector<Tpoint> &path, unsigned int rounds, double eta, double discount = 1.) {
+        double dx, dy;
+        for (int round = 0; round < rounds; ++round) {
+            // gradient descent along distance field, excluding start/end nodes
+            for (int i = 1; i < path.size() - 1; ++i) {
+                // compute gradient
+                PlannerSettings::environment->distanceGradient(path[i].x, path[i].y, dx, dy, 1.);
+                double distance = PlannerSettings::environment->bilinearDistance(path[i].x, path[i].y);
+                distance = std::max(.1, distance);
+                path[i].x -= eta * dx / distance;
+                path[i].y += eta * dy / distance;
+            }
+            eta *= discount;
+        }
+    }
+
     static std::vector<Tpoint> linearInterpolate(const Tpoint &a, const Tpoint &b, double dt = 0.1)
     {
         std::vector<Tpoint> points;
@@ -270,7 +302,7 @@ public:
         {
             if (PlannerSettings::environment->occupied(points[i].x, points[i].y))
                 continue;
-            double d = points[i].distanceSquared(x);
+            const double d = points[i].distanceSquared(x);
             if (d < dist)
             {
                 dist = d;
@@ -283,5 +315,51 @@ public:
         else
             theta = slope(points[closest-1], points[closest+1]);
         return GNode(points[closest].x, points[closest].y, theta);
+    }
+
+    static double totalLength(const std::vector<Tpoint> &path) {
+        double l = 0;
+        for (size_t i = 1; i < path.size(); ++i) {
+            const double dx = (path[i].x - path[i-1].x);
+            const double dy = (path[i].y - path[i-1].y);
+            l += std::sqrt(dx*dx + dy*dy);
+        }
+        return l;
+    }
+
+    static std::vector<Tpoint> equidistantSampling(const std::vector<Tpoint> &path, size_t targetSize) {
+        std::vector<Tpoint> result;
+        const double total = totalLength(path);
+        const double targetSegment = total / targetSize;
+        result.emplace_back(path[0]);
+        double sofar = 0;
+        double segment = 0;
+        size_t resultCounter = 1;
+        for (size_t i = 1; i < path.size(); ++i) {
+            double dx = (path[i].x - path[i-1].x);
+            double dy = (path[i].y - path[i-1].y);
+            const double l = std::sqrt(dx*dx + dy*dy);
+            if (std::abs(l) < 1e-3)
+                continue;
+            dx /= l;
+            dy /= l;
+            if (segment + l < targetSegment) {
+                segment += l;
+                OMPL_DEBUG("EquidistantSampling: Segment too short between %i and %i", i-1, i);
+                continue;
+            }
+            double start = std::fmod(segment + l, targetSegment) - segment;
+            segment = 0;
+            const auto segmentSteps = static_cast<unsigned int>(std::floor((segment + l) / targetSegment));
+            for (unsigned int j = 0; j < segmentSteps; ++j) {
+                const double alpha = start + j * targetSegment;
+                const Tpoint p(path[i-1].x + dx * alpha, path[i-1].y + dy * alpha);
+                result.emplace_back(p);
+            }
+            sofar += segmentSteps * targetSegment;
+            segment = l - segmentSteps * targetSegment;
+        }
+        result.emplace_back(path.back());
+        return result;
     }
 };

@@ -13,7 +13,8 @@ int PlannerSettings::numberEdges = 10;
 
 // steering function settings
 Steering::SteeringType PlannerSettings::steeringType = Steering::STEER_TYPE_REEDS_SHEPP;
-double PlannerSettings::CarTurningRadius = 3.5;
+double PlannerSettings::CarTurningRadius = 7;
+double PlannerSettings::LinearSteeringDelta = 3.0;
 
 SteerFunction *PlannerSettings::steering = nullptr;
 
@@ -72,3 +73,13 @@ double PlannerSettings::sbplGoalToleranceX = 1;
 double PlannerSettings::sbplGoalToleranceY = 1;
 double PlannerSettings::sbplGoalToleranceTheta = 2. * M_PI;
 unsigned int PlannerSettings::sbplNumThetaDirs = 16u;
+
+// CHOMP settings
+unsigned int PlannerSettings::chompNodes = 127;
+double PlannerSettings::chompAlpha = 0.05;
+float PlannerSettings::chompEpsilon = 2.f;
+double PlannerSettings::chompGamma = 0.8;
+double PlannerSettings::chompErrorTolerance = 1e-6;
+unsigned int PlannerSettings::chompMaxIterations = 1500;
+chomp::ChompObjectiveType PlannerSettings::chompObjectiveType = chomp::MINIMIZE_VELOCITY;
+chomp::ChompInitialization PlannerSettings::chompInitialization = chomp::THETA_STAR;

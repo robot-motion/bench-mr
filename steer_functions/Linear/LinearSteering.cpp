@@ -8,21 +8,23 @@
 
 bool LinearSteering::Steer(const GNode_base *parent_node, const GNode_base *successor, Trajectory *traj)
 {
-    traj->reset();
-    double dx = (successor->x_r - parent_node->x_r);
-    double dy = (successor->y_r - parent_node->y_r);
-    double size = std::sqrt(dx*dx + dy*dy);
-    const double scale = 0.1;
-    dx = dx / size * scale;
-    dy = dy / size * scale;
-
-    auto steps = (int)(size / std::sqrt(dx*dx + dy*dy));
-
-    for (int j = 0; j <= steps ; ++j)
-    {
-        traj->addPointEnd(Tpoint(parent_node->x_r + dx * j, parent_node->y_r + dy * j));
-        traj->addVelocities(1, 1);
-    }
+//    traj->reset();
+    traj->addPointEnd(Tpoint(parent_node->x_r, parent_node->y_r));
+    traj->addVelocities(1, 1);
+//    double dx = (successor->x_r - parent_node->x_r);
+//    double dy = (successor->y_r - parent_node->y_r);
+//    double size = std::sqrt(dx*dx + dy*dy);
+//    const double scale = PlannerSettings::LinearSteeringDelta;
+//    dx = dx / size * scale;
+//    dy = dy / size * scale;
+//
+//    auto steps = (int)(size / std::sqrt(dx*dx + dy*dy));
+//
+//    for (int j = 0; j <= steps ; ++j)
+//    {
+//        traj->addPointEnd(Tpoint(parent_node->x_r + dx * j, parent_node->y_r + dy * j));
+//        traj->addVelocities(1, 1);
+//    }
     traj->addPointEnd(Tpoint(successor->x_r, successor->y_r));
     traj->addVelocities(1, 1);
 
