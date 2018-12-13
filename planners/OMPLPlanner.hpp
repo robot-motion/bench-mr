@@ -74,9 +74,8 @@ public:
         return solved;
     }
 
-    virtual ~OMPLPlanner()
-    {
-        delete ss;
+    std::string name() const override {
+        return _omplPlanner->getName();
     }
 
     std::vector<GNode> solutionTrajectory() const override

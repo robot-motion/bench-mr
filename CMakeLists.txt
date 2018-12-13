@@ -19,6 +19,9 @@ find_package(catkin REQUIRED COMPONENTS
 #        steering_functions
         )
 
+add_subdirectory(chomp)
+include_directories(chomp)
+
 # add the binary tree to the search path for include files
 # so that we will find GripsConfig.h
 include_directories("${PROJECT_BINARY_DIR}")
@@ -40,7 +43,7 @@ include_directories( ${CMAKE_BINARY_DIR} )
 set(CMAKE_AUTOMOC ON)
 file(GLOB GUI_SRC gui/*.?pp)
 set(EXTRA_SRC ${EXTRA_SRC} ${GUI_SRC})
-set(EXTRA_LIB ${EXTRA_LIB} Qt5::Core Qt5::Widgets Qt5::Charts Qt5::Svg ${SBPL_LIBRARIES} ${catkin_LIBRARIES})
+set(EXTRA_LIB ${EXTRA_LIB} Qt5::Core Qt5::Widgets Qt5::Charts Qt5::Svg ${SBPL_LIBRARIES} ${catkin_LIBRARIES} chomp mzcommon)
 
 option(USE_G1 "Use G1 clothoid steering (not Open Source)" OFF)
 if (USE_G1)
@@ -58,7 +61,9 @@ file(GLOB Utils utils/*)
 file(GLOB_RECURSE Steer steer_functions/*)
 file(GLOB Metrics metrics/*)
 file(GLOB Planners planners/*)
-set(ALL_SRC ${Base} ${Utils} ${Steer} ${Metrics} ${Planners} ${EXTRA_SRC} PostSmoothing.cpp)
+
+#file(GLOB_RECURSE CHOMP_SRC chomp/*)
+set(ALL_SRC ${Base} ${Utils} ${Steer} ${Metrics} ${Planners} ${EXTRA_SRC} PostSmoothing.cpp chomp/chomp/Map2D.cpp)
 
 link_directories(base/)
 link_directories(steer_functions/)

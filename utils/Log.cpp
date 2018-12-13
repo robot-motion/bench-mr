@@ -13,43 +13,53 @@ void Log::instantiateRun()
     tstr = tstr.substr(0, tstr.length()-1);
     _currentRun = {
             {"globals",  {
-                                 {"time", tstr},
-                         }},
+                    {"time", tstr},
+            }},
             {"settings", {
-                                 {"steering", Steering::to_string(PlannerSettings::steeringType)},
-                                 {"carTurningRadius", PlannerSettings::CarTurningRadius},
-                                 {"grips", {
-                                      {"minNodeDistance", PlannerSettings::gripsMinNodeDistance},
-                                      {"eta", PlannerSettings::gripsEta},
-                                      {"etaDiscount", PlannerSettings::gripsEtaDiscount},
-                                      {"gdRounds", PlannerSettings::gripsGradientDescentRounds},
-                                      {"pruningRounds", PlannerSettings::gripsMaxPruningRounds},
-                                      {"minimizePathLength", PostSmoothing::MINIMIZE_PATHLENGTH},
-                                      {"fixCollisions", PostSmoothing::FIX_COLLISIONS}
-                                 }},
-                                 {"smoothStar", {
-                                       {"gdOpenNodes", PlannerSettings::gradientDescentOpenNodes},
-                                       {"annealedGdOpenNodes", PlannerSettings::annealedGradientDescentOpenNodes},
-                                       {"eta", PlannerSettings::gradientDescentEta},
-                                       {"etaDiscount", PlannerSettings::gradientDescentEtaDiscount},
-                                       {"gdRounds", PlannerSettings::gradientDescentRounds},
-                                       {"gdCurrent", PlannerSettings::gradientDescentCurrent},
-                                       {"gdSuccessors", PlannerSettings::gradientDescentSuccessors},
-                                       {"averageAngles", PlannerSettings::averageAngles}
-                                 }},
-                                 {"sbpl", {
-                                         {"sbplSearchUntilFirstSolution", PlannerSettings::sbplSearchUntilFirstSolution},
-                                         {"sbplInitialSolutionEps", PlannerSettings::sbplInitialSolutionEps},
-                                         {"sbplFordwardVelocity", PlannerSettings::sbplFordwardVelocity},
-                                         {"sbplTimeToTurn45DegsInPlace", PlannerSettings::sbplTimeToTurn45DegsInPlace},
-                                         {"sbplMotionPrimitiveFilename", PlannerSettings::sbplMotionPrimitiveFilename},
-                                         {"sbplGoalToleranceX", PlannerSettings::sbplGoalToleranceX},
-                                         {"sbplGoalToleranceY", PlannerSettings::sbplGoalToleranceY},
-                                         {"sbplGoalToleranceTheta", PlannerSettings::sbplGoalToleranceTheta},
-                                         {"sbplResolution", PlannerSettings::sbplResolution},
-                                         {"sbplNumThetaDirs", PlannerSettings::sbplNumThetaDirs}
-                                 }}
-                         }},
+                    {"steering", Steering::to_string(PlannerSettings::steeringType)},
+                    {"carTurningRadius", PlannerSettings::CarTurningRadius},
+                    {"grips", {
+                         {"minNodeDistance", PlannerSettings::gripsMinNodeDistance},
+                         {"eta", PlannerSettings::gripsEta},
+                         {"etaDiscount", PlannerSettings::gripsEtaDiscount},
+                         {"gdRounds", PlannerSettings::gripsGradientDescentRounds},
+                         {"pruningRounds", PlannerSettings::gripsMaxPruningRounds},
+                         {"minimizePathLength", PostSmoothing::MINIMIZE_PATHLENGTH},
+                         {"fixCollisions", PostSmoothing::FIX_COLLISIONS}
+                    }},
+                    {"smoothThetaStar", {
+                         {"gdOpenNodes", PlannerSettings::gradientDescentOpenNodes},
+                         {"annealedGdOpenNodes", PlannerSettings::annealedGradientDescentOpenNodes},
+                         {"eta", PlannerSettings::gradientDescentEta},
+                         {"etaDiscount", PlannerSettings::gradientDescentEtaDiscount},
+                         {"gdRounds", PlannerSettings::gradientDescentRounds},
+                         {"gdCurrent", PlannerSettings::gradientDescentCurrent},
+                         {"gdSuccessors", PlannerSettings::gradientDescentSuccessors},
+                         {"averageAngles", PlannerSettings::averageAngles}
+                    }},
+                    {"sbpl", {
+                         {"sbplSearchUntilFirstSolution", PlannerSettings::sbplSearchUntilFirstSolution},
+                         {"sbplInitialSolutionEps", PlannerSettings::sbplInitialSolutionEps},
+                         {"sbplFordwardVelocity", PlannerSettings::sbplFordwardVelocity},
+                         {"sbplTimeToTurn45DegsInPlace", PlannerSettings::sbplTimeToTurn45DegsInPlace},
+                         {"sbplMotionPrimitiveFilename", PlannerSettings::sbplMotionPrimitiveFilename},
+                         {"sbplGoalToleranceX", PlannerSettings::sbplGoalToleranceX},
+                         {"sbplGoalToleranceY", PlannerSettings::sbplGoalToleranceY},
+                         {"sbplGoalToleranceTheta", PlannerSettings::sbplGoalToleranceTheta},
+                         {"sbplResolution", PlannerSettings::sbplResolution},
+                         {"sbplNumThetaDirs", PlannerSettings::sbplNumThetaDirs}
+                    }},
+                    {"chomp", {
+                         {"chompNodes", PlannerSettings::chompNodes},
+                         {"chompAlpha", PlannerSettings::chompAlpha},
+                         {"chompEpsilon", PlannerSettings::chompEpsilon},
+                         {"chompGamma", PlannerSettings::chompGamma},
+                         {"chompErrorTolerance", PlannerSettings::chompErrorTolerance},
+                         {"chompMaxIterations", PlannerSettings::chompMaxIterations},
+                         {"chompObjectiveType", PlannerSettings::chompObjectiveType},
+                         {"chompInitialization", PlannerSettings::chompInitialization}
+                    }}
+            }},
 //            {"environment", PlannerSettings::environment->asJSON()},
             {"runs",     nlohmann::json::array()}
     };

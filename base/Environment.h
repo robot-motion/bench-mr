@@ -180,18 +180,16 @@ public:
      */
     double bilinearDistance(double x, double y)
     {
-        auto xi = (unsigned int) x;
-        auto yi = (unsigned int) y;
-        double u_ratio = x - xi;
-        double v_ratio = y - yi;
-        double u_opposite = 1. - u_ratio;
-        double v_opposite = 1. - v_ratio;
-        xi = std::max(std::min(_width, xi), (unsigned int) 0);
-        yi = std::max(std::min(_height, yi), (unsigned int) 0); // repeat voxels at edge
-        unsigned int xp = std::max(std::min(_width, xi + 1), (unsigned int) 0);
-        unsigned int yp = std::max(std::min(_height, yi + 1), (unsigned int) 0);
-        double tl = distance(xi, yi), tr = distance(xp, yi);
-        double bl = distance(xi, yp), br = distance(xp, yp);
+        const auto xi = static_cast<unsigned int>(std::max(std::min(static_cast<double>(_width), x), 0.));
+        const auto yi = static_cast<unsigned int>(std::max(std::min(static_cast<double>(_height), y), 0.));
+        const auto xp = static_cast<unsigned int>(std::max(std::min(static_cast<double>(_width), x+1.), 0.));
+        const auto yp = static_cast<unsigned int>(std::max(std::min(static_cast<double>(_height), y+1.), 0.));
+        const double u_ratio = x - xi;
+        const double v_ratio = y - yi;
+        const double u_opposite = 1. - u_ratio;
+        const double v_opposite = 1. - v_ratio;
+        const double tl = distance(xi, yi), tr = distance(xp, yi);
+        const double bl = distance(xi, yp), br = distance(xp, yp);
         return   (tl * u_opposite + tr * u_ratio) * v_opposite
                + (bl * u_opposite + br * u_ratio) * v_ratio;
     }
@@ -203,7 +201,7 @@ public:
 
 
     /**
-     * Computes gradient of distance field at position x,y.
+     * Computes negative gradient of distance field at position x,y.
      * @param x Position coordinate x.
      * @param y Position coordinate y.
      * @param dx Resulting gradient coordinate x.

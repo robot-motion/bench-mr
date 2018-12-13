@@ -1,13 +1,24 @@
 #pragma once
 
+#include <chomp/Chomp.h>
+
 #include "Environment.h"
 #include "steer_functions/steer_base.h"
 
 
 typedef Steer_base SteerFunction;
 
-//#define DEBUG
+//#define DEBUG 1
 #define STATS
+
+namespace chomp {
+    enum ChompInitialization {
+        STRAIGHT_LINE,
+        THETA_STAR,
+        THETA_STAR_X_CLEARING
+    };
+}
+
 
 struct PlannerSettings
 {
@@ -23,6 +34,7 @@ public:
     static void initializeSteering();
 
     static double CarTurningRadius;
+    static double LinearSteeringDelta;
 
     static constexpr double PlanningTime{15.0};
 
@@ -56,6 +68,7 @@ public:
      */
     static unsigned int gripsMaxPruningRounds;
 
+    // Smooth Theta* settings
     static bool gradientDescentOpenNodes;
     static bool annealedGradientDescentOpenNodes;
     static bool gradientDescentCurrent;
@@ -64,7 +77,6 @@ public:
     static double gradientDescentEtaDiscount;
     static unsigned int gradientDescentRounds;
     static bool averageAngles;
-
 
     // SBPL settings
     static bool sbplSearchUntilFirstSolution; // search until it finds a solution? (even if allotted time is over)
@@ -78,4 +90,14 @@ public:
     static double sbplGoalToleranceTheta;
     static double sbplResolution; // XXX Important: resolution must match resolution in motion primitive definition file!!!
     static unsigned int sbplNumThetaDirs; // XXX Important: number of theta directions must match resolution in motion primitive definition file!!!
+
+    // CHOMP settings
+    static unsigned int chompNodes;
+    static double chompAlpha;
+    static float chompEpsilon;  // obstacle importance
+    static double chompGamma;
+    static double chompErrorTolerance;
+    static unsigned int chompMaxIterations;  // global == local iterations
+    static chomp::ChompObjectiveType chompObjectiveType;
+    static chomp::ChompInitialization chompInitialization;
 };

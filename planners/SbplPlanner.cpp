@@ -163,23 +163,6 @@ std::vector<Tpoint> SbplPlanner::solutionPath() const {
 //    return PlannerUtils::toSteeredTrajectory(_solution).getPath();
 }
 
-og::PathGeometric SbplPlanner::geometricPath() const {
-    og::PathGeometric path(ss->getSpaceInformation());
-    if (_solution.empty())
-    {
-        OMPL_ERROR("SmoothTheta*: The computed path contains no GNodes!");
-        return path;
-    }
-    for (auto &node : _solution)
-    {
-        auto *state = ss->getStateSpace()->allocState()->as<ob::SE2StateSpace::StateType>();
-        state->setXY(node.x_r, node.y_r);
-        state->setYaw(node.theta);
-        path.append(state);
-    }
-    return path;
-}
-
 bool SbplPlanner::hasReachedGoalExactly() const {
     return !_solution.empty()
            && _solution.back().x_r == PlannerSettings::environment->goal().x

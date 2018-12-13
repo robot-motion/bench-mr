@@ -240,14 +240,14 @@ public: // methods
             m_Goal->parent = n->parent;
             m_Goal->g = n->g;
 
-            OMPL_DEBUG("Setting Goal orientation..");
+//            OMPL_DEBUG("Setting Goal orientation..");
 
             if (!(n->m_UserState.lineofsight(&(n->parent->m_UserState), &((m_Goal)->m_UserState))))
             {
                 (m_Goal)->m_UserState.setOrientation(&(n->parent->m_UserState));
             }
 
-            OMPL_DEBUG("Setting Goal orientation done");
+//            OMPL_DEBUG("Setting Goal orientation done");
             m_Goal->m_UserState.steer = n->m_UserState.steer;
 
 

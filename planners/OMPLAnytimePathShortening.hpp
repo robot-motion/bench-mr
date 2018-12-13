@@ -18,6 +18,10 @@ public:
     bool shortcut{true};
     bool hybridize{true};
 
+    std::string name() const override {
+        return "OMPL Anytime Path Shortening";
+    }
+
     virtual ob::PlannerStatus run()
     {
         ob::PlannerPtr planner;

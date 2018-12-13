@@ -59,7 +59,7 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNo
 {
     paths.clear();
 
-    OMPL_DEBUG("Theta*: Start: %d, %d --- Goal: %d, %d ", start.x, start.y, goal.x, goal.y);
+//    OMPL_DEBUG("Theta*: Start: %d, %d --- Goal: %d, %d ", start.x, start.y, goal.x, goal.y);
 
     std::vector<GNode> sol;
     std::vector<std::vector<GNode> > path_sol;
@@ -94,8 +94,8 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNo
                 break;
 
             p = thetastarsearch.GetOpenListStart();
-            if (p == nullptr)
-                OMPL_INFORM("THETA*: No open nodes");
+//            if (p == nullptr)
+//                OMPL_INFORM("THETA*: No open nodes");
 
 #if DEBUG
             while (p)
@@ -203,7 +203,7 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNo
 
         if (SearchState == ThetaStarSearch<GNode>::SEARCH_STATE_SUCCEEDED)
         {
-            OMPL_DEBUG("Theta* search found goal state.");
+//            OMPL_DEBUG("Theta* search found goal state.");
 
             GNode *node = thetastarsearch.GetSolutionStart();
             int steps = 0;

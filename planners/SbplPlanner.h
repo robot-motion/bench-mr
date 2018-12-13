@@ -22,11 +22,14 @@ public:
     SbplPlanner(SbplType type);
     virtual ~SbplPlanner();
 
+    std::string name() const override {
+        return "SBPL";
+    }
+
     ob::PlannerStatus run() override;
 
     std::vector<GNode> solutionTrajectory() const override;
     std::vector<Tpoint> solutionPath() const override;
-    og::PathGeometric geometricPath() const override;
 
     bool hasReachedGoalExactly() const override;
     double planningTime() const override;

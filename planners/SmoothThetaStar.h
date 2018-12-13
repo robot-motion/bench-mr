@@ -18,6 +18,10 @@ public:
     SmoothThetaStar();
     ~SmoothThetaStar() override = default;
 
+    std::string name() const override {
+        return "Smooth Theta*";
+    }
+
     bool initialize();
 
     void setProblemDefinition(const ob::ProblemDefinitionPtr &pdef) override;
