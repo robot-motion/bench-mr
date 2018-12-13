@@ -13,7 +13,7 @@ int PlannerSettings::numberEdges = 10;
 
 // steering function settings
 Steering::SteeringType PlannerSettings::steeringType = Steering::STEER_TYPE_REEDS_SHEPP;
-double PlannerSettings::CarTurningRadius = 7;
+double PlannerSettings::CarTurningRadius = 4;
 double PlannerSettings::LinearSteeringDelta = 3.0;
 
 SteerFunction *PlannerSettings::steering = nullptr;
