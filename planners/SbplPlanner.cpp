@@ -28,44 +28,10 @@ SbplPlanner::SbplPlanner(SbplPlanner::SbplType type) {
     OMPL_DEBUG("Constructing SBPL Planner");
 
     std::cout << "Motion primitive filename: " << PlannerSettings::sbplMotionPrimitiveFilename << std::endl;
-    _mapData = new unsigned char[PlannerSettings::environment->cells(PlannerSettings::sbplResolution)];
-    PlannerSettings::environment->mapData(_mapData, PlannerSettings::sbplResolution);
-
-    EnvNAVXYTHETALAT_InitParms params{};
-    params.numThetas = PlannerSettings::sbplNumThetaDirs;
-    params.mapdata = _mapData;  // TODO reactivate
-    auto w = static_cast<unsigned int>(PlannerSettings::environment->width() / PlannerSettings::sbplResolution);
-    auto h = static_cast<unsigned int>(PlannerSettings::environment->height() / PlannerSettings::sbplResolution);
-    for (unsigned int y = 0; y <= h; ++y) {
-        for (unsigned int x = 0; x <= w; ++x)
-            std::cout << static_cast<unsigned>(_mapData[x + y * w]);
-        std::cout << std::endl;
-    }
-    params.startx = PlannerSettings::environment->start().x;
-    params.starty = PlannerSettings::environment->start().y;
-    params.goalx = PlannerSettings::environment->goal().x;
-    params.goaly = PlannerSettings::environment->goal().y;
-    params.goaltol_x = PlannerSettings::sbplGoalToleranceX;
-    params.goaltol_y = PlannerSettings::sbplGoalToleranceY;
-    params.goaltol_theta = PlannerSettings::sbplGoalToleranceTheta;
-
-//    OMPL_DEBUG("Size: %d", sizeof(_mapData));
-
-//    EnvironmentNAVXYTHETALAT env3;
-//    _env->InitializeEnv(static_cast<int>(PlannerSettings::environment->width() / PlannerSettings::sbplResolution + 1),
-//                        static_cast<int>(PlannerSettings::environment->height() / PlannerSettings::sbplResolution + 1),
-//                        perimeterptsV,
-//                        PlannerSettings::sbplResolution, // cell size
-//                        PlannerSettings::sbplFordwardVelocity,
-//                        PlannerSettings::sbplTimeToTurn45DegsInPlace,
-//                        20u, // obstacle threshold
-//                        PlannerSettings::sbplMotionPrimitiveFilename,
-//                        params
-//    );
 
     _env->InitializeEnv(static_cast<int>(PlannerSettings::environment->width()),
                         static_cast<int>(PlannerSettings::environment->height()),
-                        0, // mapdata
+                        nullptr, // mapdata
                         0, 0, 0, // start (x, y, theta, t)
                         0, 0, 0, // goal (x, y, theta)
                         0, 0, 0, //goal tolerance
@@ -118,7 +84,6 @@ SbplPlanner::SbplPlanner(SbplPlanner::SbplType type) {
 SbplPlanner::~SbplPlanner() {
     delete _sbPlanner;
     delete _env;
-    delete [] _mapData;
 }
 
 ob::PlannerStatus SbplPlanner::run() {
@@ -145,14 +110,8 @@ ob::PlannerStatus SbplPlanner::run() {
     _planningTime = stopwatch.stop();
     if (result) {
         OMPL_INFORM("SBPL found a solution!");
-//        int x, y;
-//        for (auto id : stateIDs) {
-//            _env2d.GetCoordFromState(id, x, y);
-//            _solution.emplace_back(GNode(x, y));
-//        }
         std::vector<sbpl_xy_theta_pt_t> xythetaPath;
         _env->ConvertStateIDPathintoXYThetaPath(&stateIDs, &xythetaPath);
-//        _solution.resize(xythetaPath.size());
         for (auto &xyt : xythetaPath) {
             if (std::abs(xyt.x) < 1e-3 && std::abs(xyt.y) < 1e-3)
                 continue;
@@ -172,12 +131,11 @@ std::vector<GNode> SbplPlanner::solutionTrajectory() const {
 }
 
 std::vector<Tpoint> SbplPlanner::solutionPath() const {
-    // XXX SBPL already returns all the steered points
+    // SBPL already returns all the steered points
     std::vector<Tpoint> p;
     for (auto &node : _solution)
         p.emplace_back(Tpoint(node.x_r, node.y_r));
     return p;
-//    return PlannerUtils::toSteeredTrajectory(_solution).getPath();
 }
 
 bool SbplPlanner::hasReachedGoalExactly() const {

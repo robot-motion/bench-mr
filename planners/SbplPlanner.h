@@ -37,8 +37,6 @@ public:
 private:
     SBPLPlanner *_sbPlanner;
     EnvironmentNAVXYTHETALAT *_env;
-    EnvironmentNAV2D _env2d;
     std::vector<GNode> _solution;
     double _planningTime;
-    unsigned char *_mapData;
 };

@@ -476,19 +476,19 @@ bool Environment::saveSbplConfigFile(const std::string &filename) const {
 }
 
 void Environment::mapData(unsigned char *data, double resolution) {
-//    if (resolution == 1) {
+    if (resolution == 1) {
         for (unsigned int x = 0; x <= _width; ++x) {
             for (unsigned int y = 0; y <= _height; ++y)
                 data[x + y * _width] = static_cast<unsigned char>(occupiedCell(x, y) ? 20u : 0u);
         }
-//    } else {
-//        auto w = static_cast<unsigned int>(_width / resolution);
-//        auto h = static_cast<unsigned int>(_height / resolution);
-//        for (unsigned int y = 0; y <= h; ++y) {
-//            for (unsigned int x = 0; x <= w; ++x)
-//                data[x + y * w] = static_cast<unsigned char>(occupied(x * resolution, y * resolution, true) ? 20u : 0u);
-//        }
-//    }
+    } else {
+        auto w = static_cast<unsigned int>(_width / resolution);
+        auto h = static_cast<unsigned int>(_height / resolution);
+        for (unsigned int y = 0; y <= h; ++y) {
+            for (unsigned int x = 0; x <= w; ++x)
+                data[x + y * w] = static_cast<unsigned char>(occupied(x * resolution, y * resolution, true) ? 20u : 0u);
+        }
+    }
     OMPL_DEBUG("Generated SBPL map data");
 }
 
