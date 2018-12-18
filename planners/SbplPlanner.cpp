@@ -52,16 +52,33 @@ SbplPlanner::SbplPlanner(SbplPlanner::SbplType type) {
 //    OMPL_DEBUG("Size: %d", sizeof(_mapData));
 
 //    EnvironmentNAVXYTHETALAT env3;
-    _env->InitializeEnv(static_cast<int>(PlannerSettings::environment->width() / PlannerSettings::sbplResolution + 1),
-                        static_cast<int>(PlannerSettings::environment->height() / PlannerSettings::sbplResolution + 1),
+//    _env->InitializeEnv(static_cast<int>(PlannerSettings::environment->width() / PlannerSettings::sbplResolution + 1),
+//                        static_cast<int>(PlannerSettings::environment->height() / PlannerSettings::sbplResolution + 1),
+//                        perimeterptsV,
+//                        PlannerSettings::sbplResolution, // cell size
+//                        PlannerSettings::sbplFordwardVelocity,
+//                        PlannerSettings::sbplTimeToTurn45DegsInPlace,
+//                        20u, // obstacle threshold
+//                        PlannerSettings::sbplMotionPrimitiveFilename,
+//                        params
+//    );
+
+    _env->InitializeEnv(static_cast<int>(PlannerSettings::environment->width()),
+                        static_cast<int>(PlannerSettings::environment->height()),
+                        0, // mapdata
+                        0, 0, 0, // start (x, y, theta, t)
+                        0, 0, 0, // goal (x, y, theta)
+                        0, 0, 0, //goal tolerance
                         perimeterptsV,
                         PlannerSettings::sbplResolution, // cell size
                         PlannerSettings::sbplFordwardVelocity,
                         PlannerSettings::sbplTimeToTurn45DegsInPlace,
-                        1u, // obstacle threshold
-                        PlannerSettings::sbplMotionPrimitiveFilename,
-                        params
-    );
+                        20u, // obstacle threshold
+                        PlannerSettings::sbplMotionPrimitiveFilename);
+    for (int ix(0); ix < PlannerSettings::environment->width(); ++ix)
+        for (int iy(0); iy < PlannerSettings::environment->height(); ++iy)
+            _env->UpdateCost(ix, iy,
+                             static_cast<unsigned char>(PlannerSettings::environment->occupied(ix, iy) ? 20u : 1u));
     OMPL_DEBUG("Initialized SBPL environment");
 
     // Initialize MDP Info
@@ -90,11 +107,11 @@ SbplPlanner::SbplPlanner(SbplPlanner::SbplType type) {
     _sbPlanner->set_search_mode(PlannerSettings::sbplSearchUntilFirstSolution);
     _sbPlanner->set_initialsolution_eps(PlannerSettings::sbplInitialSolutionEps);
 
-    _sbPlanner->set_start(_env->GetStateFromCoord(static_cast<int>(PlannerSettings::environment->start().x / PlannerSettings::sbplResolution),
-                                                  static_cast<int>(PlannerSettings::environment->start().y / PlannerSettings::sbplResolution),
+    _sbPlanner->set_start(_env->GetStateFromCoord(static_cast<int>(PlannerSettings::environment->start().x),
+                                                  static_cast<int>(PlannerSettings::environment->start().y),
                                                   0));
-    _sbPlanner->set_goal(_env->GetStateFromCoord(static_cast<int>(PlannerSettings::environment->goal().x / PlannerSettings::sbplResolution),
-                                                 static_cast<int>(PlannerSettings::environment->goal().y / PlannerSettings::sbplResolution),
+    _sbPlanner->set_goal(_env->GetStateFromCoord(static_cast<int>(PlannerSettings::environment->goal().x),
+                                                 static_cast<int>(PlannerSettings::environment->goal().y),
                                                  0));
 }
 
@@ -140,8 +157,8 @@ ob::PlannerStatus SbplPlanner::run() {
             if (std::abs(xyt.x) < 1e-3 && std::abs(xyt.y) < 1e-3)
                 continue;
             _solution.emplace_back(GNode(
-                    xyt.x,  // / PlannerSettings::sbplResolution,
-                    xyt.y,  // / PlannerSettings::sbplResolution,
+                    xyt.x / PlannerSettings::sbplResolution,
+                    xyt.y / PlannerSettings::sbplResolution,
                     xyt.theta));
         }
     } else {
