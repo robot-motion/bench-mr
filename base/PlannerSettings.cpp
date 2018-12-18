@@ -65,10 +65,11 @@ bool PlannerSettings::averageAngles = true;
 // SBPL settings
 bool PlannerSettings::sbplSearchUntilFirstSolution = false;
 double PlannerSettings::sbplInitialSolutionEps = 3.0;
-double PlannerSettings::sbplFordwardVelocity = 0.1;
-double PlannerSettings::sbplTimeToTurn45DegsInPlace = 0.1;
-char *PlannerSettings::sbplMotionPrimitiveFilename = const_cast<char *>("/home/eric/sbpl/matlab/mprim/unicycle_0.25.mprim");
-double PlannerSettings::sbplResolution = 0.25;
+double PlannerSettings::sbplFordwardVelocity = 0.4;
+double PlannerSettings::sbplTimeToTurn45DegsInPlace = 0.6;
+//char *PlannerSettings::sbplMotionPrimitiveFilename = const_cast<char *>("/home/eric/catkin_ws_planning/src/smooth-planning/sbpl_mprim/unicycle_0.0625.mprim");
+char *PlannerSettings::sbplMotionPrimitiveFilename = const_cast<char *>("/home/eric/catkin_ws_planning/src/smooth-planning/sbpl_mprim/pr2.mprim");
+double PlannerSettings::sbplResolution = 0.025;
 double PlannerSettings::sbplGoalToleranceX = 1;
 double PlannerSettings::sbplGoalToleranceY = 1;
 double PlannerSettings::sbplGoalToleranceTheta = 2. * M_PI;

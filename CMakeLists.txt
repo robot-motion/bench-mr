@@ -38,6 +38,13 @@ pkg_check_modules(SBPL REQUIRED sbpl)
 include_directories(${SBPL_INCLUDE_DIRS})
 link_directories(${SBPL_LIBRARY_DIRS})
 
+set(Qt5Core_DIR "/home/eric/Qt/5.11.1/gcc_64/lib")
+set(Qt5Widgets_DIR "/home/eric/Qt/5.11.1/gcc_64/lib")
+set(Qt5Charts_DIR "/home/eric/Qt/5.11.1/gcc_64/lib")
+set(Qt5_DIR "/home/eric/Qt/5.11.1/gcc_64/lib")
+set(QT_QMAKE_EXECUTABLE "/home/eric/Qt/5.11.1/gcc_64/bin/qmake")
+set(CMAKE_PREFIX_PATH /home/eric/Qt/5.11.1/gcc_64;${CMAKE_PREFIX_PATH})
+
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets Charts Svg)
 include_directories( ${CMAKE_BINARY_DIR} )
 set(CMAKE_AUTOMOC ON)
@@ -75,13 +82,9 @@ add_executable(showcase mainShowcase.cpp ${ALL_SRC})
 add_executable(visual_compare mainVisualCompare.cpp ${ALL_SRC})
 add_executable(grips_params mainGripsParameters.cpp ${ALL_SRC})
 
-add_executable(sbpl_test mainSBPL.cpp)
-
 target_link_libraries(benchmark -lompl ${EXTRA_LIB})
 target_link_libraries(homotopy_test -lompl ${EXTRA_LIB})
 target_link_libraries(shortening_test -lompl ${EXTRA_LIB})
 target_link_libraries(showcase -lompl ${EXTRA_LIB})
 target_link_libraries(visual_compare -lompl ${EXTRA_LIB})
 target_link_libraries(grips_params -lompl ${EXTRA_LIB})
-
-target_link_libraries(sbpl_test ${SBPL_LIBRARIES})
