@@ -1,4 +1,6 @@
 #include <fstream>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include <ompl/util/Console.h>
 
@@ -471,7 +473,10 @@ bool Environment::saveSbplConfigFile(const std::string &filename) const {
             file << (occupiedCell(x, y) ? "1 " : "0 ");
         file << std::endl;
     }
-    OMPL_INFORM(("Saved sbpl environment cfg-file at " + filename).c_str());
+
+    char *absFilename = nullptr;
+    absFilename = realpath(filename.c_str(), absFilename);
+    OMPL_INFORM(("Saved sbpl environment cfg-file at " + std::string(absFilename)).c_str());
     return true;
 }
 
