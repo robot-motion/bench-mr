@@ -1,4 +1,8 @@
 #include "Log.h"
+
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "PostSmoothing.h"
 
 nlohmann::json Log::_json = {{"runs", nlohmann::json::array()}};
@@ -138,7 +142,10 @@ void Log::save(std::string filename, std::string path)
         filename = Log::filename() + (std::string)".json";
     std::ofstream o(path + filename);
     o << std::setw(4) << _currentRun << std::endl;
-    OMPL_INFORM("Saved path statistics log file at %s.", (path + filename).c_str());
+
+    char *absFilename = nullptr;
+    absFilename = realpath((path + filename).c_str(), absFilename);
+    OMPL_INFORM("Saved path statistics log file at %s.", absFilename);
 }
 
 void Log::storeRun()
