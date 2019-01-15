@@ -12,12 +12,12 @@ endif()
 #set(CMAKE_CXX_FLAGS_DEBUG "-g")
 #set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-find_package(catkin REQUIRED COMPONENTS
-        roscpp
-        rospy
-        std_msgs
-#        steering_functions
-        )
+# find_package(catkin REQUIRED COMPONENTS
+#         roscpp
+#         rospy
+#         std_msgs
+# #        steering_functions
+#         )
 
 add_subdirectory(chomp)
 include_directories(chomp)
@@ -26,7 +26,7 @@ include_directories(chomp)
 # so that we will find GripsConfig.h
 include_directories("${PROJECT_BINARY_DIR}")
 
-catkin_package()
+# catkin_package()
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -38,19 +38,19 @@ pkg_check_modules(SBPL REQUIRED sbpl)
 include_directories(${SBPL_INCLUDE_DIRS})
 link_directories(${SBPL_LIBRARY_DIRS})
 
-set(Qt5Core_DIR "/home/eric/Qt/5.11.1/gcc_64/lib")
-set(Qt5Widgets_DIR "/home/eric/Qt/5.11.1/gcc_64/lib")
-set(Qt5Charts_DIR "/home/eric/Qt/5.11.1/gcc_64/lib")
-set(Qt5_DIR "/home/eric/Qt/5.11.1/gcc_64/lib")
-set(QT_QMAKE_EXECUTABLE "/home/eric/Qt/5.11.1/gcc_64/bin/qmake")
-set(CMAKE_PREFIX_PATH /home/eric/Qt/5.11.1/gcc_64;${CMAKE_PREFIX_PATH})
+# set(Qt5Core_DIR "/home/eric/Qt/5.11.1/gcc_64/lib")
+# set(Qt5Widgets_DIR "/home/eric/Qt/5.11.1/gcc_64/lib")
+# set(Qt5Charts_DIR "/home/eric/Qt/5.11.1/gcc_64/lib")
+# set(Qt5_DIR "/home/eric/Qt/5.11.1/gcc_64/lib")
+# set(QT_QMAKE_EXECUTABLE "/home/eric/Qt/5.11.1/gcc_64/bin/qmake")
+# set(CMAKE_PREFIX_PATH /home/eric/Qt/5.11.1/gcc_64;${CMAKE_PREFIX_PATH})
 
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets Charts Svg)
 include_directories( ${CMAKE_BINARY_DIR} )
 set(CMAKE_AUTOMOC ON)
 file(GLOB GUI_SRC gui/*.?pp)
 set(EXTRA_SRC ${EXTRA_SRC} ${GUI_SRC})
-set(EXTRA_LIB ${EXTRA_LIB} Qt5::Core Qt5::Widgets Qt5::Charts Qt5::Svg ${SBPL_LIBRARIES} ${catkin_LIBRARIES} chomp mzcommon)
+set(EXTRA_LIB ${EXTRA_LIB} Qt5::Core Qt5::Widgets Qt5::Charts Qt5::Svg ${SBPL_LIBRARIES} chomp mzcommon)
 
 option(USE_G1 "Use G1 clothoid steering (not Open Source)" OFF)
 if (USE_G1)
