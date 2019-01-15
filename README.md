@@ -18,11 +18,11 @@ Benchmarking motion planners for wheeled mobile robots in cluttered environments
     mkdir build && mkdir build/log
     ```
 
-2.  Build project
+3.  Build project
     ```bash
     cd build
     cmake ..
-    cmake --build .
+    cmake --build . -- -j4
     ```
 
 4.  Run demo
