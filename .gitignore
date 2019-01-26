@@ -40,3 +40,6 @@ Makefile
 moc_*
 CMakeFiles*
 cmake-*
+
+# stats / binary files
+bin/
