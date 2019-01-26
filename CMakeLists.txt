@@ -29,6 +29,7 @@ include_directories("${PROJECT_BINARY_DIR}")
 # catkin_package()
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 find_package(Eigen3 REQUIRED NO_MODULE)
 include_directories(${EIGEN3_INCLUDE_DIR})

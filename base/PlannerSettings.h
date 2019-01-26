@@ -88,8 +88,9 @@ public:
     static double sbplGoalToleranceX;
     static double sbplGoalToleranceY;
     static double sbplGoalToleranceTheta;
-    static double sbplResolution; // XXX Important: resolution must match resolution in motion primitive definition file!!!
-    static unsigned int sbplNumThetaDirs; // XXX Important: number of theta directions must match resolution in motion primitive definition file!!!
+    static double sbplResolution; // XXX Important: resolution must match resolution in motion primitive definition file
+    static double sbplScaling; // scale environment to accommodate extents of SBPL's motion primitives
+    static unsigned int sbplNumThetaDirs; // XXX Important: number of theta directions must match resolution in motion primitive definition file
 
     // CHOMP settings
     static unsigned int chompNodes;
