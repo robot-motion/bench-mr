@@ -45,6 +45,8 @@ void PlannerSettings::initializeSteering()
 #endif
 }
 
+bool PlannerSettings::estimateTheta = true;
+
 // GRIPS settings
 double PlannerSettings::gripsMinNodeDistance = 3;
 double PlannerSettings::gripsEta = 0.5;
@@ -70,6 +72,7 @@ double PlannerSettings::sbplTimeToTurn45DegsInPlace = 0.6;
 char *PlannerSettings::sbplMotionPrimitiveFilename = const_cast<char *>("./sbpl_mprim/unicycle_0.125.mprim");
 //char *PlannerSettings::sbplMotionPrimitiveFilename = const_cast<char *>("./sbpl_mprim/pr2.mprim");
 double PlannerSettings::sbplResolution = 0.125;
+double PlannerSettings::sbplScaling = 5.;
 double PlannerSettings::sbplGoalToleranceX = 1;
 double PlannerSettings::sbplGoalToleranceY = 1;
 double PlannerSettings::sbplGoalToleranceTheta = 2. * M_PI;

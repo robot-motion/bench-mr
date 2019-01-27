@@ -22,6 +22,7 @@ void Log::instantiateRun()
             {"settings", {
                     {"steering", Steering::to_string(PlannerSettings::steeringType)},
                     {"carTurningRadius", PlannerSettings::CarTurningRadius},
+                    {"estimateTheta", PlannerSettings::estimateTheta},
                     {"grips", {
                          {"minNodeDistance", PlannerSettings::gripsMinNodeDistance},
                          {"eta", PlannerSettings::gripsEta},
@@ -51,7 +52,8 @@ void Log::instantiateRun()
                          {"sbplGoalToleranceY", PlannerSettings::sbplGoalToleranceY},
                          {"sbplGoalToleranceTheta", PlannerSettings::sbplGoalToleranceTheta},
                          {"sbplResolution", PlannerSettings::sbplResolution},
-                         {"sbplNumThetaDirs", PlannerSettings::sbplNumThetaDirs}
+                         {"sbplNumThetaDirs", PlannerSettings::sbplNumThetaDirs},
+                         {"sbplScaling", PlannerSettings::sbplScaling}
                     }},
                     {"chomp", {
                          {"chompNodes", PlannerSettings::chompNodes},

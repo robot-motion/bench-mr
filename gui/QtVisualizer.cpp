@@ -129,8 +129,8 @@ void QtVisualizer::visualize(Environment *environment, int run, bool renderDista
 
     if (_showStartGoal)
     {
-        drawNode(environment->start(), QColor(200, 60, 0));
-        drawNode(environment->goal(), QColor(0, 80, 200));
+        drawNode(environment->start(), QColor(200, 60, 0), 0.8);
+        drawNode(environment->goal(), QColor(0, 80, 200), 0.8);
     }
 }
 
@@ -160,6 +160,21 @@ void QtVisualizer::drawNode(double x, double y, QColor color, double radius)
     QPen pen(color);
     pen.setWidthF(0.);
     _scene->addEllipse(x - radius, y - radius, 2*radius, 2*radius, pen, QBrush(color));
+}
+
+void QtVisualizer::drawNode(double x, double y, double theta, QColor color, double radius, bool drawArrow)
+{
+    if (drawArrow)
+    {
+        QPen pen(color);
+        pen.setWidthF(radius * 0.5);
+        _scene->addLine(x,
+                        y,
+                        x + std::cos(theta) * radius * 5.,
+                        y + std::sin(theta) * radius * 5.,
+                        pen);
+    }
+    drawNode(x, y, color, radius);
 }
 
 void QtVisualizer::drawTrajectory(std::vector<GNode> nodes, const QColor &color,

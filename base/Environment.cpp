@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include <ompl/util/Console.h>
+#include <planners/ThetaStar.h>
 
 #include "Environment.h"
 #include "PlannerSettings.h"
@@ -456,6 +457,25 @@ double Environment::corridorRadius() const
 std::string Environment::generatorType() const
 {
     return _type;
+}
+
+std::pair<double, double> Environment::estimateStartGoalOrientations() const {
+    auto result = std::make_pair<double, double>(std::nan("start"), std::nan("goal"));
+    const auto cacheSteeringType = PlannerSettings::steeringType;
+    PlannerSettings::steeringType = Steering::STEER_TYPE_LINEAR;
+    PlannerSettings::initializeSteering();
+    auto *thetaStar = new ThetaStar;
+    if (thetaStar->run()) {
+        std::vector<Tpoint> path = thetaStar->solutionPath();
+        QtVisualizer::drawPath(path, Qt::black);
+        result.first = std::atan2(path[1].y - path[0].y, path[1].x - path[0].x);
+        const auto n = path.size() - 1;
+        result.second = std::atan2(path[n].y - path[n-1].y, path[n].x - path[n-1].x);
+    }
+    delete thetaStar;
+    PlannerSettings::steeringType = cacheSteeringType;
+    PlannerSettings::initializeSteering();
+    return result;
 }
 
 bool Environment::saveSbplConfigFile(const std::string &filename) const {

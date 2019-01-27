@@ -29,8 +29,8 @@ SbplPlanner::SbplPlanner(SbplPlanner::SbplType type) {
 
     std::cout << "Motion primitive filename: " << PlannerSettings::sbplMotionPrimitiveFilename << std::endl;
 
-    _env->InitializeEnv(static_cast<int>(PlannerSettings::environment->width()),
-                        static_cast<int>(PlannerSettings::environment->height()),
+    _env->InitializeEnv(static_cast<int>(PlannerSettings::environment->width() * PlannerSettings::sbplScaling),
+                        static_cast<int>(PlannerSettings::environment->height() * PlannerSettings::sbplScaling),
                         nullptr, // mapdata
                         0, 0, 0, // start (x, y, theta, t)
                         0, 0, 0, // goal (x, y, theta)
@@ -41,10 +41,11 @@ SbplPlanner::SbplPlanner(SbplPlanner::SbplType type) {
                         PlannerSettings::sbplTimeToTurn45DegsInPlace,
                         20u, // obstacle threshold
                         PlannerSettings::sbplMotionPrimitiveFilename);
-    for (int ix(0); ix < PlannerSettings::environment->width(); ++ix)
-        for (int iy(0); iy < PlannerSettings::environment->height(); ++iy)
+    for (int ix(0); ix < PlannerSettings::environment->width() * PlannerSettings::sbplScaling; ++ix)
+        for (int iy(0); iy < PlannerSettings::environment->height() * PlannerSettings::sbplScaling; ++iy)
             _env->UpdateCost(ix, iy,
-                             static_cast<unsigned char>(PlannerSettings::environment->occupied(ix, iy) ? 20u : 1u));
+                             static_cast<unsigned char>(PlannerSettings::environment->occupied(
+                                     ix / PlannerSettings::sbplScaling, iy / PlannerSettings::sbplScaling) ? 20u : 1u));
     OMPL_DEBUG("Initialized SBPL environment");
 
     // Initialize MDP Info
@@ -70,15 +71,49 @@ SbplPlanner::SbplPlanner(SbplPlanner::SbplType type) {
 
     OMPL_DEBUG("Initialized SBPL Planner");
 
+    int startTheta = 0, goalTheta = 0;
+    if (PlannerSettings::estimateTheta) {
+        auto orientations = PlannerSettings::environment->estimateStartGoalOrientations();
+        // handle weird behavior when start and goal nodes appear on different sides as usual
+        // TODO verify
+        if (PlannerSettings::environment->start().x < PlannerSettings::environment->goal().x) {
+            startTheta = static_cast<int>(std::round(
+                    (orientations.first) / M_PI * PlannerSettings::sbplNumThetaDirs)) %
+                         PlannerSettings::sbplNumThetaDirs;
+            goalTheta = static_cast<int>(std::round(
+                    (orientations.second) / M_PI * PlannerSettings::sbplNumThetaDirs)) %
+                        PlannerSettings::sbplNumThetaDirs;
+        } else {
+            startTheta = static_cast<int>(std::round(
+                    (orientations.first + M_PI / 2) / M_PI * PlannerSettings::sbplNumThetaDirs)) %
+                         PlannerSettings::sbplNumThetaDirs;
+            goalTheta = static_cast<int>(std::round(
+                    (orientations.second + M_PI / 2) / M_PI * PlannerSettings::sbplNumThetaDirs)) %
+                        PlannerSettings::sbplNumThetaDirs;
+        }
+
+        std::cout << "startTheta: " << (orientations.first * 180. / M_PI) << " deg   " << startTheta << std::endl;
+        std::cout << "goalTheta: " << (orientations.second * 180. / M_PI) << " deg   " << goalTheta << std::endl;
+
+//#if DEBUG
+        QtVisualizer::drawNode(PlannerSettings::environment->start().x, PlannerSettings::environment->start().y,
+                               orientations.first);
+        QtVisualizer::drawNode(PlannerSettings::environment->goal().x, PlannerSettings::environment->goal().y,
+                               orientations.second);
+//#endif
+    }
+
     _sbPlanner->set_search_mode(PlannerSettings::sbplSearchUntilFirstSolution);
     _sbPlanner->set_initialsolution_eps(PlannerSettings::sbplInitialSolutionEps);
 
-    _sbPlanner->set_start(_env->GetStateFromCoord(static_cast<int>(PlannerSettings::environment->start().x),
-                                                  static_cast<int>(PlannerSettings::environment->start().y),
-                                                  0));
-    _sbPlanner->set_goal(_env->GetStateFromCoord(static_cast<int>(PlannerSettings::environment->goal().x),
-                                                 static_cast<int>(PlannerSettings::environment->goal().y),
-                                                 0));
+    _sbPlanner->set_start(_env->GetStateFromCoord(
+            static_cast<int>(std::round(PlannerSettings::environment->start().x * PlannerSettings::sbplScaling)),
+            static_cast<int>(std::round(PlannerSettings::environment->start().y * PlannerSettings::sbplScaling)),
+            startTheta));
+    _sbPlanner->set_goal(_env->GetStateFromCoord(
+            static_cast<int>(std::round(PlannerSettings::environment->goal().x * PlannerSettings::sbplScaling)),
+            static_cast<int>(std::round(PlannerSettings::environment->goal().y * PlannerSettings::sbplScaling)),
+            goalTheta));
 }
 
 SbplPlanner::~SbplPlanner() {
@@ -116,8 +151,8 @@ ob::PlannerStatus SbplPlanner::run() {
             if (std::abs(xyt.x) < 1e-3 && std::abs(xyt.y) < 1e-3)
                 continue;
             _solution.emplace_back(GNode(
-                    xyt.x / PlannerSettings::sbplResolution,
-                    xyt.y / PlannerSettings::sbplResolution,
+                    xyt.x / PlannerSettings::sbplResolution / PlannerSettings::sbplScaling,
+                    xyt.y / PlannerSettings::sbplResolution / PlannerSettings::sbplScaling,
                     xyt.theta));
         }
     } else {
