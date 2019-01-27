@@ -215,17 +215,7 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start, GNo
 
             while ((node = thetastarsearch.GetSolutionNext()))
             {
-                xs = (int) node->x_r;
-                ys = (int) node->y_r;
                 sol.emplace_back(*node);
-                GNode s(xs, ys,
-                        node->theta,
-                        node->steer,
-                        node->steer_cost,
-                        node->costs,
-                        node->orientations,
-                        node->x_r,
-                        node->y_r);
                 steps++;
             }
 

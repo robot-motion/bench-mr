@@ -244,6 +244,13 @@ public:
     }
 
     /**
+     * Estimates potentially suitable theta values for the start and goal state by running a simple line search
+     * from start to goal. This feature is useful for approaches that operate on the SE2 state space and cannot
+     * find good start / goal angles themselves (e.g. SBPL).
+     */
+    std::pair<double, double> estimateStartGoalOrientations() const;
+
+    /**
      * Writes cfg file for planners based on sbpl.
      * @param filename The filename of the ".cfg" file.
      * @return True if saving succeeded, false otherwise.

@@ -256,13 +256,19 @@ public:
         std::vector<Tpoint> points;
         for (unsigned int i = 0; i < path.size()-1; ++i)
         {
-            points.emplace_back(path[i].x_r, path[i].y_r);
             auto *traj = new Trajectory();
             PlannerSettings::steering->Steer(&path[i], &path[i + 1], traj);
             auto tpath = traj->getPath();
             delete traj;
+
+            // avoid duplications (messes up metrics computations, angle estimation, etc.)
+            if (path[i].x_r != tpath[0].x && path[i].y_r != tpath[0].y)
+                points.emplace_back(path[i].x_r, path[i].y_r);
+
             points.insert(points.end(), tpath.begin(), tpath.end());
-            points.emplace_back(path[i+1].x_r, path[i+1].y_r);
+
+            if (path[i+1].x_r != tpath.back().x && path[i+1].y_r != tpath.back().y)
+                points.emplace_back(path[i+1].x_r, path[i+1].y_r);
         }
         return points;
     }

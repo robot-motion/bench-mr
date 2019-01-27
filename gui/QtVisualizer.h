@@ -66,6 +66,10 @@ public:
     static void drawNode(double x, double y,
                          QColor color = Qt::red,
                          double radius = 0.3);
+    static void drawNode(double x, double y, double theta,
+                         QColor color = Qt::red,
+                         double radius = 0.3,
+                         bool drawArrow = true);
 
     static void drawTrajectory(std::vector<GNode> nodes, const QColor &color = Qt::white,
                                float penWidth = 1.f, Qt::PenStyle penStyle = Qt::PenStyle::SolidLine);

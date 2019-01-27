@@ -68,6 +68,12 @@ public:
      */
     static unsigned int gripsMaxPruningRounds;
 
+
+    /**
+     * Whether to estimate the orientation of the start and goal states for planners that need them (e.g. SBPL).
+     */
+    static bool estimateTheta;
+
     // Smooth Theta* settings
     static bool gradientDescentOpenNodes;
     static bool annealedGradientDescentOpenNodes;
