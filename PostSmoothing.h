@@ -7,8 +7,6 @@
 #include "base/TimedResult.hpp"
 #include "base/gnode.h"
 
-#include "gui/QtVisualizer.h"
-
 #include "metrics/CurvatureMetric.h"
 #include "metrics/PathLengthMetric.h"
 

@@ -5,7 +5,10 @@
 
 #include "TrajectoryMetric.h"
 #include "base/PlannerSettings.h"
+
+#if QT_SUPPORT
 #include "gui/QtVisualizer.h"
+#endif
 
 class CurvatureMetric : public TMetric<CurvatureMetric> {
  public:
@@ -85,6 +88,7 @@ class CurvatureMetric : public TMetric<CurvatureMetric> {
       double ki = 1. / radius;
 
 #ifdef DEBUG
+#if QT_SUPPORT
       if (visualize && ki > 0.5) {
         QtVisualizer::drawNode(
             x1, y1, QColor(255, std::max(0, (int)(255 - ki * 10)), 0, 50), .8);
@@ -93,6 +97,7 @@ class CurvatureMetric : public TMetric<CurvatureMetric> {
         QtVisualizer::drawNode(
             x3, y3, QColor(255, std::max(0, (int)(255 - ki * 10)), 0, 50), .8);
       }
+#endif
 #endif
 
       if (ki > maxK) maxK = ki;

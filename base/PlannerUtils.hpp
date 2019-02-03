@@ -5,7 +5,10 @@
 #include "PlannerSettings.h"
 #include "base/Trajectory.h"
 #include "base/gnode.h"
+
+#if QT_SUPPORT
 #include "gui/QtVisualizer.h"
+#endif
 
 class PlannerUtils {
  public:

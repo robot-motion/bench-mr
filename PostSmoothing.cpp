@@ -1,5 +1,9 @@
 #include "PostSmoothing.h"
 
+#if QT_SUPPORT
+#include "gui/QtVisualizer.h"
+#endif
+
 //#define DEBUG 0
 #undef DEBUG
 
@@ -55,8 +59,10 @@ bool PostSmoothing::smooth(
     PlannerUtils::updateAngles(path, AverageAngles);
 
 #ifdef DEBUG
+#if QT_SUPPORT
     QtVisualizer::drawTrajectory(path, QColor(150, 150, 150, 200));
     QtVisualizer::drawNodes(path, false, QColor(70, 180, 250, 150), .2);
+#endif
 #endif
 
     // add/remove nodes if necessary
@@ -95,7 +101,9 @@ bool PostSmoothing::smooth(
 
           ++insertedNodes;
 #ifdef DEBUG
+#if QT_SUPPORT
           QtVisualizer::drawNode(p.x, p.y, QColor(255, 150, 0, 180), 0.5);
+#endif
 #endif
         }
         lastDifference = difference;
@@ -110,8 +118,10 @@ bool PostSmoothing::smooth(
   }
 
 #ifdef DEBUG
+#if QT_SUPPORT
   for (auto &o : originalPathIntermediaries)
     QtVisualizer::drawNode(o, Qt::darkGreen, 0.1);
+#endif
 #endif
 
   // try to remove nodes
@@ -155,20 +165,24 @@ bool PostSmoothing::smooth(
     unremovable = local_unremovable;
 
 #ifdef DEBUG
+#if QT_SUPPORT
     for (auto i : unremovable) {
       QtVisualizer::drawNode(path[i].x_r, path[i].y_r, Qt::darkRed, 0.4);
       OMPL_INFORM("UNREMOVABLE %.2f %.2f", path[i].x_r, path[i].y_r);
     }
 #endif
+#endif
 
     PlannerUtils::updateAngles(path, AverageAngles, true);
 
 #ifdef DEBUG
+#if QT_SUPPORT
     for (unsigned int i = 0; i < path.size(); ++i) {
       QtVisualizer::drawNode(path[i], QColor(0, 0, 0, 100), 0.3, false);
       //            QtVisualizer::drawLabel(std::to_string(i), path[i].x_r +
       //            0.2, path[i].y_r + 0.2);
     }
+#endif
 #endif
 
     // compute final trajectory
@@ -202,6 +216,7 @@ bool PostSmoothing::smooth(
               PathLengthMetric::evaluate(std::vector<GNode>{path[u], path[v]});
 
 #ifdef DEBUG
+#if QT_SUPPORT
 //                    double dX = path[v].x_r - path[u].x_r;
 //                    double dY = path[v].y_r - path[u].y_r;
 //                    double rad = std::atan2(dY, dX);
@@ -220,6 +235,7 @@ bool PostSmoothing::smooth(
 //                                                                  Qt::black);
 //                    QtVisualizer::drawLabel(std::to_string(edgeWeight), x-2,
 //                    y, Qt::black);
+#endif
 #endif
           if (distances[u - i] + edgeWeight < distances[v - i]) {
             distances[v - i] = distances[u - i] + edgeWeight;
@@ -258,6 +274,7 @@ bool PostSmoothing::smooth(
   smoothingTime += stopWatch.time;
 
 #ifdef DEBUG
+#if QT_SUPPORT
   //    for (auto &n : path)
   //            QtVisualizer::drawNode(n, Qt::darkGreen, .1);
 
@@ -268,6 +285,7 @@ bool PostSmoothing::smooth(
 //    OMPL_INFORM("Speed Arc Length: %f", SpeedArcLengthMetric::evaluate(path,
 //    this, PlannerSettings::steering)); OMPL_INFORM("Peaks: %f",
 //    PeaksMetric::evaluate(path, this, PlannerSettings::steering));
+#endif
 #endif
   OMPL_INFORM("Post-smoothing SUCCEEDED after %i pruning rounds.",
               pruningRound);
