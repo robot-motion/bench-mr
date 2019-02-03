@@ -21,7 +21,7 @@ jobs:
       - run:
           name: Build and install SBPL
           command: 'pushd . && git clone https://github.com/sbpl/sbpl.git && cd sbpl && mkdir build && cd build && cmake .. && make -j4 && sudo make install && popd'
-    - run:
+      - run:
           name: Build and install OMPL
           command: 'pushd . && cd ompl && mkdir build && cd build && cmake .. && make -j4 && sudo make install && popd'
       - run:
