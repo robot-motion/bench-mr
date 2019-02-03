@@ -6,6 +6,8 @@
 #endif
 
 #include <cmath>
+#include <algorithm>
+#include <string>
 #include <utility>
 #include <vector>
 

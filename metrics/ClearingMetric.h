@@ -1,5 +1,6 @@
 #pragma once
 
+#include <base/PathStatistics.hpp>
 #include "TrajectoryMetric.h"
 
 class ClearingMetric : public TMetric<ClearingMetric> {
