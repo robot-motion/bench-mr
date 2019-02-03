@@ -1,7 +1,6 @@
 #include "metrics/ClearingMetric.h"
 
 #include "PathEvaluation.h"
-#include "Table.hpp"
 #include "base/PlannerUtils.hpp"
 
 double PathEvaluation::_maxPathLength = 0;
