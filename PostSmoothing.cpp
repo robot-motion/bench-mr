@@ -1,4 +1,5 @@
 #include "PostSmoothing.h"
+#include <base/PathStatistics.hpp>
 
 #if QT_SUPPORT
 #include "gui/QtVisualizer.h"

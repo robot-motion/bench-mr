@@ -6,13 +6,9 @@
 
 #include "steer_functions/steer_base.h"
 
-class Thetastar_planner;
-
 template <class METRIC>
 class TMetric {
  public:
-  typedef double (*TrajectoryMetric)(const Trajectory *, double);
-
   static constexpr double ComparisonTolerance = 1e-6;
 
   static double evaluate(const Trajectory *trajectory, double dt = 0.1) {

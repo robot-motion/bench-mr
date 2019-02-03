@@ -331,7 +331,9 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner,
   } else
     stats.omplSmoothing4Found = false;
 
+#if QT_SUPPORT
   QtVisualizer::drawStats(stats);
+#endif
 
   //    delete smoothedTraj;
   delete traj;
