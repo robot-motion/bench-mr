@@ -72,22 +72,22 @@ set(ALL_SRC ${Base} ${Utils} ${Steer} ${Metrics} ${Planners} ${EXTRA_SRC} PostSm
 link_directories(base/)
 link_directories(steer_functions/)
 
-add_executable(homotopy_test mainHomotopy.cpp ${ALL_SRC})
-target_link_libraries(homotopy_test -lompl ${EXTRA_LIB})
-
-add_executable(benchmark mainBenchmark.cpp ${ALL_SRC})
-target_link_libraries(benchmark -lompl ${EXTRA_LIB})
-
-add_executable(shortening_test mainShortening.cpp ${ALL_SRC})
-target_link_libraries(shortening_test -lompl ${EXTRA_LIB})
-
-add_executable(showcase mainShowcase.cpp ${ALL_SRC})
-target_link_libraries(showcase -lompl ${EXTRA_LIB})
-
 if (Qt5_FOUND)
+    add_executable(homotopy_test mainHomotopy.cpp ${ALL_SRC})
+    target_link_libraries(homotopy_test -lompl ${EXTRA_LIB})
+
+    add_executable(benchmark mainBenchmark.cpp ${ALL_SRC})
+    target_link_libraries(benchmark -lompl ${EXTRA_LIB})
+
+    add_executable(shortening_test mainShortening.cpp ${ALL_SRC})
+    target_link_libraries(shortening_test -lompl ${EXTRA_LIB})
+
+    add_executable(showcase mainShowcase.cpp ${ALL_SRC})
+    target_link_libraries(showcase -lompl ${EXTRA_LIB})
+
     add_executable(visual_compare mainVisualCompare.cpp ${ALL_SRC})
     target_link_libraries(visual_compare -lompl ${EXTRA_LIB})
-endif (USE_G1)
+endif (Qt5_FOUND)
 
 add_executable(grips_params mainGripsParameters.cpp ${ALL_SRC})
 target_link_libraries(grips_params -lompl ${EXTRA_LIB})
