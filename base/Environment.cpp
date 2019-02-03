@@ -423,7 +423,9 @@ std::pair<double, double> Environment::estimateStartGoalOrientations() const {
   auto *thetaStar = new ThetaStar;
   if (thetaStar->run()) {
     std::vector<Tpoint> path = thetaStar->solutionPath();
+#if QT_SUPPORT
     QtVisualizer::drawPath(path, Qt::black);
+#endif
     result.first = std::atan2(path[1].y - path[0].y, path[1].x - path[0].x);
     const auto n = path.size() - 1;
     result.second =
