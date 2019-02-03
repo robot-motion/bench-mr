@@ -39,10 +39,17 @@ void PathEvaluation::initialize() {
   _smoothCollides = false;
 }
 
+#if QT_SUPPORT
 PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label,
                                    QColor color) {
   //    OMPLPlanner<PLANNER> planner;
   PathStatistics stats(label, color);
+#else
+PathStatistics PathEvaluation::add(AbstractPlanner *planner,
+                                   std::string label) {
+  //    OMPLPlanner<PLANNER> planner;
+  PathStatistics stats(label);
+#endif
   if (!planner->run()) {
     stats.pathFound = false;
     OMPL_ERROR("Planner %s couldn't find a solution.", label.c_str());
@@ -332,9 +339,15 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner, std::string label,
   return stats;
 }
 
+#if QT_SUPPORT
 PathStatistics PathEvaluation::evaluate(const std::vector<Tpoint> &path,
                                         std::string label, QColor color) {
   PathStatistics stats(label, color);
+#else
+PathStatistics PathEvaluation::evaluate(const std::vector<Tpoint> &path,
+                                        std::string label) {
+  PathStatistics stats(label);
+#endif
   auto *traj = new Trajectory(path);
   stats.pathLength = PathLengthMetric::evaluate(traj);
   stats.curvature = CurvatureMetric::evaluate(traj);

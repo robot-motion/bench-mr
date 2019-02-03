@@ -28,11 +28,18 @@ class PathEvaluation {
  public:
   static void initialize();
 
+#if QT_SUPPORT
   static PathStatistics add(AbstractPlanner *planner, std::string label,
-                            QColor color);
+                            QColor color = Qt::black);
 
   static PathStatistics evaluate(const std::vector<Tpoint> &path,
-                                 std::string label, QColor color);
+                                 std::string label, QColor color = Qt::black);
+#else
+  static PathStatistics add(AbstractPlanner *planner, std::string label);
+
+  static PathStatistics evaluate(const std::vector<Tpoint> &path,
+                                 std::string label);
+#endif
 
   static std::vector<double> computeObstacleDistances(
       const std::vector<Tpoint> &path);
