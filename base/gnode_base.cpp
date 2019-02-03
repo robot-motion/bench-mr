@@ -1,7 +1,10 @@
 #include "gnode_base.h"
 
 #include "base/PlannerSettings.h"
+
+#if QT_SUPPORT
 #include "gui/QtVisualizer.h"
+#endif
 
 bool GNode_base::isblock(double x, double y) {
   //    bool c = PlannerSettings::environment->collides(x, y);

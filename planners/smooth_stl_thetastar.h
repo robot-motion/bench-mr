@@ -40,7 +40,10 @@ DAMAGE.
 #include <set>
 #include <vector>
 
+#if QT_SUPPORT
 #include <gui/QtVisualizer.h>
+#endif
+
 #include <ompl/util/Console.h>
 #include <unistd.h>
 

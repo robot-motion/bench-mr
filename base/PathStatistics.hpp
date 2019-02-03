@@ -1,7 +1,9 @@
 #pragma once
 
+#if QT_SUPPORT
 #include <QtCore/Qt>
 #include <QtGui/QColor>
+#endif
 
 #include <cmath>
 #include <utility>
@@ -42,11 +44,18 @@ struct PathStatistics {
   double maxClearingDistance{-1};
 
   std::string planner;
+#if QT_SUPPORT
   QColor color;
+#endif
 
+#if QT_SUPPORT
   explicit PathStatistics(std::string planner = "UNKNOWN",
                           QColor color = Qt::white)
       : planner(std::move(planner)), color(std::move(color)) {}
+#else
+  explicit PathStatistics(std::string planner = "UNKNOWN")
+      : planner(std::move(planner))) {}
+#endif
 };
 
 namespace stat {
