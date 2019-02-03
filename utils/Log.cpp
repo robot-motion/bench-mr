@@ -101,7 +101,11 @@ void Log::log(const PathStatistics &stats) {
        {"omplSmoothing3Curvature", stats.omplSmoothing3Curvature},
        {"omplSmoothing4Curvature", stats.omplSmoothing4Curvature},
        {"planner", stats.planner},
+       #if QT_SUPPORT
        {"color", stats.color.name().toStdString()},
+       #else
+       {"color", "black"},
+       #endif
        {"ps_insertedNodes", PostSmoothing::insertedNodes},
        {"ps_pruningRounds", PostSmoothing::pruningRounds},
        {"ps_collisionFixAttempts", PostSmoothing::collisionFixAttempts},
