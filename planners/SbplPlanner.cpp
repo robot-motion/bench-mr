@@ -116,12 +116,14 @@ SbplPlanner::SbplPlanner(SbplPlanner::SbplType type) {
               << " deg   " << goalTheta << std::endl;
 
     //#if DEBUG
+    #if QT_SUPPORT
     QtVisualizer::drawNode(PlannerSettings::environment->start().x,
                            PlannerSettings::environment->start().y,
                            orientations.first);
     QtVisualizer::drawNode(PlannerSettings::environment->goal().x,
                            PlannerSettings::environment->goal().y,
                            orientations.second);
+    #endif
     //#endif
   }
 
