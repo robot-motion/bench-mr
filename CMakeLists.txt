@@ -79,15 +79,15 @@ if (Qt5_FOUND)
     add_executable(benchmark mainBenchmark.cpp ${ALL_SRC})
     target_link_libraries(benchmark -lompl ${EXTRA_LIB})
 
+    add_executable(grips_params mainGripsParameters.cpp ${ALL_SRC})
+    target_link_libraries(grips_params -lompl ${EXTRA_LIB})
+
     add_executable(shortening_test mainShortening.cpp ${ALL_SRC})
     target_link_libraries(shortening_test -lompl ${EXTRA_LIB})
-
-    add_executable(showcase mainShowcase.cpp ${ALL_SRC})
-    target_link_libraries(showcase -lompl ${EXTRA_LIB})
 
     add_executable(visual_compare mainVisualCompare.cpp ${ALL_SRC})
     target_link_libraries(visual_compare -lompl ${EXTRA_LIB})
 endif (Qt5_FOUND)
 
-add_executable(grips_params mainGripsParameters.cpp ${ALL_SRC})
-target_link_libraries(grips_params -lompl ${EXTRA_LIB})
+add_executable(showcase mainShowcase.cpp ${ALL_SRC})
+target_link_libraries(showcase -lompl ${EXTRA_LIB})

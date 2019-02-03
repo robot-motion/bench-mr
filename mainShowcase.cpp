@@ -13,6 +13,9 @@
 #include "planners/SmoothThetaStar.h"
 
 #include "gui/PathEvaluation.h"
+#if QT_SUPPORT
+#include "gui/QtVisualizer.h"
+#endif
 
 #include "PostSmoothing.h"
 
@@ -30,7 +33,9 @@ int main(int argc, char **argv) {
   PlannerSettings::initializeSteering();
   PathEvaluation::initialize();
 
+#if QT_SUPPORT
   QtVisualizer::initialize();
+#endif
 
   //    std::vector<Rectangle> obstacles;
   //    obstacles.emplace_back(Rectangle(10, 0, 15, 14));
@@ -63,7 +68,9 @@ int main(int argc, char **argv) {
                  // //1501893283); //1501892155);//1501089540); //1501089410
                  // );//1500660612);// 1500551721);// 1500550472);
     //                                                                         (unsigned int) (time(nullptr) + 123));
+#if QT_SUPPORT
     QtVisualizer::visualize(PlannerSettings::environment, 0);
+#endif
     PathStatistics thetaStarStats, rrtStarStats, gripsStats,
         smoothThetaStarStats, sbplStats, chompStats;
 

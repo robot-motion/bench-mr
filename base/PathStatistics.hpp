@@ -54,7 +54,7 @@ struct PathStatistics {
       : planner(std::move(planner)), color(std::move(color)) {}
 #else
   explicit PathStatistics(std::string planner = "UNKNOWN")
-      : planner(std::move(planner))) {}
+      : planner(std::move(planner)) {}
 #endif
 };
 
