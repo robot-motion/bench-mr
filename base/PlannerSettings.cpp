@@ -1,10 +1,10 @@
 #include "PlannerSettings.h"
-#include "steer_functions/ReedsShepp/ReedsSheppSteering.h"
-#include "steer_functions/POSQ/POSQSteering.h"
-#include "steer_functions/Linear/LinearSteering.h"
 #include "steer_functions/Dubins/DubinsSteering.h"
+#include "steer_functions/Linear/LinearSteering.h"
+#include "steer_functions/POSQ/POSQSteering.h"
+#include "steer_functions/ReedsShepp/ReedsSheppSteering.h"
 #ifdef G1_AVAILABLE
-    #include "steer_functions/G1Clothoid/ClothoidSteering.hpp"
+#include "steer_functions/G1Clothoid/ClothoidSteering.hpp"
 #endif
 
 Environment *PlannerSettings::environment = nullptr;
@@ -12,7 +12,8 @@ Environment *PlannerSettings::environment = nullptr;
 int PlannerSettings::numberEdges = 10;
 
 // steering function settings
-Steering::SteeringType PlannerSettings::steeringType = Steering::STEER_TYPE_REEDS_SHEPP;
+Steering::SteeringType PlannerSettings::steeringType =
+    Steering::STEER_TYPE_REEDS_SHEPP;
 double PlannerSettings::CarTurningRadius = 4;
 double PlannerSettings::LinearSteeringDelta = 3.0;
 
@@ -23,25 +24,27 @@ bool PlannerSettings::VisualizeSmoothing2 = true;
 bool PlannerSettings::VisualizeSmoothing3 = true;
 bool PlannerSettings::VisualizeSmoothing4 = true;
 
-void PlannerSettings::initializeSteering()
-{
-    if (steeringType == Steering::STEER_TYPE_REEDS_SHEPP)
-        PlannerSettings::steering = new ReedsSheppSteering(PlannerSettings::CarTurningRadius);
-    else if (steeringType == Steering::STEER_TYPE_POSQ)
-        PlannerSettings::steering = new POSQSteering;
-    else if (steeringType == Steering::STEER_TYPE_LINEAR)
-        PlannerSettings::steering = new LinearSteering;
-    else if (steeringType == Steering::STEER_TYPE_DUBINS)
-        PlannerSettings::steering = new DubinsSteering(PlannerSettings::CarTurningRadius);
+void PlannerSettings::initializeSteering() {
+  if (steeringType == Steering::STEER_TYPE_REEDS_SHEPP)
+    PlannerSettings::steering =
+        new ReedsSheppSteering(PlannerSettings::CarTurningRadius);
+  else if (steeringType == Steering::STEER_TYPE_POSQ)
+    PlannerSettings::steering = new POSQSteering;
+  else if (steeringType == Steering::STEER_TYPE_LINEAR)
+    PlannerSettings::steering = new LinearSteering;
+  else if (steeringType == Steering::STEER_TYPE_DUBINS)
+    PlannerSettings::steering =
+        new DubinsSteering(PlannerSettings::CarTurningRadius);
 #ifdef G1_AVAILABLE
-    else if (steeringType == Steering::STEER_TYPE_CLOTHOID)
-        PlannerSettings::steering = new ClothoidSteering;
+  else if (steeringType == Steering::STEER_TYPE_CLOTHOID)
+    PlannerSettings::steering = new ClothoidSteering;
 #else
-    else if (steeringType == Steering::STEER_TYPE_CLOTHOID)
-    {
-        OMPL_ERROR("G1 Clothoid steering is not available in this release!");
-        OMPL_ERROR("Select a steering type other than STEER_TYPE_CLOTHOID in PlannerSettings.");
-    }
+  else if (steeringType == Steering::STEER_TYPE_CLOTHOID) {
+    OMPL_ERROR("G1 Clothoid steering is not available in this release!");
+    OMPL_ERROR(
+        "Select a steering type other than STEER_TYPE_CLOTHOID in "
+        "PlannerSettings.");
+  }
 #endif
 }
 
@@ -69,8 +72,10 @@ bool PlannerSettings::sbplSearchUntilFirstSolution = false;
 double PlannerSettings::sbplInitialSolutionEps = 3.0;
 double PlannerSettings::sbplFordwardVelocity = 0.4;
 double PlannerSettings::sbplTimeToTurn45DegsInPlace = 0.6;
-char *PlannerSettings::sbplMotionPrimitiveFilename = const_cast<char *>("./sbpl_mprim/unicycle_0.125.mprim");
-//char *PlannerSettings::sbplMotionPrimitiveFilename = const_cast<char *>("./sbpl_mprim/pr2.mprim");
+char *PlannerSettings::sbplMotionPrimitiveFilename =
+    const_cast<char *>("./sbpl_mprim/unicycle_0.125.mprim");
+// char *PlannerSettings::sbplMotionPrimitiveFilename = const_cast<char
+// *>("./sbpl_mprim/pr2.mprim");
 double PlannerSettings::sbplResolution = 0.125;
 double PlannerSettings::sbplScaling = 5.;
 double PlannerSettings::sbplGoalToleranceX = 1;
@@ -85,5 +90,7 @@ float PlannerSettings::chompEpsilon = 2.f;
 double PlannerSettings::chompGamma = 0.8;
 double PlannerSettings::chompErrorTolerance = 1e-6;
 unsigned int PlannerSettings::chompMaxIterations = 1500;
-chomp::ChompObjectiveType PlannerSettings::chompObjectiveType = chomp::MINIMIZE_VELOCITY;
-chomp::ChompInitialization PlannerSettings::chompInitialization = chomp::THETA_STAR;
+chomp::ChompObjectiveType PlannerSettings::chompObjectiveType =
+    chomp::MINIMIZE_VELOCITY;
+chomp::ChompInitialization PlannerSettings::chompInitialization =
+    chomp::THETA_STAR;

@@ -2,23 +2,19 @@
 
 #include <ompl/base/Planner.h>
 
-#include "utils/Stopwatch.hpp"
 #include "base/Trajectory.h"
-
+#include "utils/Stopwatch.hpp"
 
 namespace ob = ompl::base;
 
-class TimedResult : public Stopwatch
-{
-public:
-    std::vector<Tpoint> trajectory;
-    ob::PlannerStatus status;
+class TimedResult : public Stopwatch {
+ public:
+  std::vector<Tpoint> trajectory;
+  ob::PlannerStatus status;
 
-    explicit TimedResult(
-            std::vector<Tpoint> trajectory = std::vector<Tpoint>(),
-            double time = 0)
-        : trajectory(std::move(trajectory))
-    {
-        this->time = time;
-    }
+  explicit TimedResult(std::vector<Tpoint> trajectory = std::vector<Tpoint>(),
+                       double time = 0)
+      : trajectory(std::move(trajectory)) {
+    this->time = time;
+  }
 };
