@@ -4,21 +4,12 @@
 #include <unordered_map>
 
 #include <metrics/CurvatureMetric.h>
-#include <QtCharts/QBoxPlotSeries>
-#include <QtCharts/QBoxSet>
-#include <QtCharts/QChartView>
-#include <QtCharts/QLineSeries>
-#include <QtCharts/QScatterSeries>
-#include <QtCharts>
-#include <QtGui/QColor>
-#include <QtWidgets/QMainWindow>
+
 #include "PostSmoothing.h"
 #include "base/PathStatistics.hpp"
 #include "planners/OMPLAnytimePathShortening.hpp"
 #include "planners/OMPLPlanner.hpp"
 #include "utils/Log.h"
-
-using namespace QtCharts;
 
 class PathStatisticsAggregator {
  public:
@@ -28,8 +19,6 @@ class PathStatisticsAggregator {
     Log::log(stats);
   }
 
-  void showSummary();
-
  private:
   std::unordered_map<std::string, std::vector<PathStatistics> > _map;
   std::unordered_set<std::string> _planners;
@@ -38,7 +27,6 @@ class PathStatisticsAggregator {
 class PathEvaluation {
  public:
   static void initialize();
-  static void show();
 
   static PathStatistics add(AbstractPlanner *planner, std::string label,
                             QColor color);
@@ -50,19 +38,6 @@ class PathEvaluation {
       const std::vector<Tpoint> &path);
 
  private:
-  static QGridLayout *_layout;
-  static QWidget *_window;
-  static QChart *_distances;
-  static QChart *_boxes;
-  static QChart *_pathLengths;
-  static QChart *_curvatures;
-  static QChart *_times;
-  static QBarSeries *_pathLengthSeries;
-  static QBarSeries *_curvatureSeries;
-  static QBarSeries *_timeSeries;
-  static QBoxPlotSeries *_boxSeries;
-  static QStringList _labels;
-
   PathEvaluation() = default;
 
   static double _maxPathLength;
@@ -71,28 +46,6 @@ class PathEvaluation {
 
   static double findMedian(const std::vector<double> &distances, size_t l,
                            size_t r);
-
-  static QBoxSet *computeBox(std::vector<double> &distances, std::string label);
-
-  static QBarSet *_originalPathLengthSet;
-  static QBarSet *_smoothedPathLengthSet;
-  static QBarSet *_originalCurvatureSet;
-  static QBarSet *_smoothedCurvatureSet;
-  static QBarSet *_originalTimeSet;
-  static QBarSet *_smoothedTimeSet;
-
-  static QBarSet *_omplSmoothed1PathLengthSet;
-  static QBarSet *_omplSmoothed1CurvatureSet;
-  static QBarSet *_omplSmoothed1TimeSet;
-  static QBarSet *_omplSmoothed2PathLengthSet;
-  static QBarSet *_omplSmoothed2CurvatureSet;
-  static QBarSet *_omplSmoothed2TimeSet;
-  static QBarSet *_omplSmoothed3PathLengthSet;
-  static QBarSet *_omplSmoothed3CurvatureSet;
-  static QBarSet *_omplSmoothed3TimeSet;
-  static QBarSet *_omplSmoothed4PathLengthSet;
-  static QBarSet *_omplSmoothed4CurvatureSet;
-  static QBarSet *_omplSmoothed4TimeSet;
 
   static bool _smoothCollides;
 };

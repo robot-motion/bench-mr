@@ -7,7 +7,10 @@
 
 #include "Environment.h"
 #include "PlannerSettings.h"
+
+#ifdef QT_SUPPORT
 #include "gui/QtVisualizer.h"
+#endif
 
 #if XML_SUPPORT
 #include <pugixml/pugixml.hpp>apt
@@ -413,7 +416,9 @@ std::pair<double, double> Environment::estimateStartGoalOrientations() const {
   auto result =
       std::make_pair<double, double>(std::nan("start"), std::nan("goal"));
   const auto cacheSteeringType = PlannerSettings::steeringType;
+  const auto cacheEstimateTheta = PlannerSettings::estimateTheta;
   PlannerSettings::steeringType = Steering::STEER_TYPE_LINEAR;
+  PlannerSettings::estimateTheta = false;
   PlannerSettings::initializeSteering();
   auto *thetaStar = new ThetaStar;
   if (thetaStar->run()) {
@@ -426,6 +431,7 @@ std::pair<double, double> Environment::estimateStartGoalOrientations() const {
   }
   delete thetaStar;
   PlannerSettings::steeringType = cacheSteeringType;
+  PlannerSettings::estimateTheta = cacheEstimateTheta;
   PlannerSettings::initializeSteering();
   return result;
 }
