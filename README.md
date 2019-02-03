@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/eric-heiden/mpb.svg?style=svg)](https://circleci.com/gh/eric-heiden/mpb)
+
 # Motion Planning Benchmark
 Benchmarking motion planners for wheeled mobile robots in cluttered environments on scenarios close to real-world autonomous driving scenarios.
 

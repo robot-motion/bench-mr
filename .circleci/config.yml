@@ -11,10 +11,10 @@ jobs:
           command: 'apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*'
       - run:
           name: Installing GCC
-          command: 'apt-get update && sudo apt-get install -y gcc g++ build-essential wget git python-dev autotools-dev libicu-dev build-essential libbz2-dev libasio-dev'
+          command: 'apt-get update && sudo apt-get install -y gcc g++ build-essential wget git python-dev autotools-dev libicu-dev build-essential libbz2-dev libasio-dev libeigen3-dev'
       - run:
           name: Install CMAKE and Boost
-          command: 'apt-get update && sudo apt-get install -y cmake libboost-dev libboost-system-dev libboost-thread-dev'
+          command: 'apt-get update && sudo apt-get install -y cmake libboost-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-filesystem-dev'
       - run:
           name: Check out git submodules
           command: 'git submodule init && git submodule update'
