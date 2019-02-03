@@ -207,7 +207,10 @@ int main(int argc, char **argv) {
     auto *sbplPlanner = new SbplPlanner(SbplPlanner::SbplType::SBPL_ARASTAR);
     if (sbplPlanner->run()) {
       std::vector<Tpoint> path = sbplPlanner->solutionPath();
-      sbplStats = PathEvaluation::evaluate(path, "SBPL (ANA*)", Qt::darkGreen);
+      sbplStats = PathEvaluation::evaluate(path, "SBPL (ANA*)");
+#if QT_SUPPORT
+      sbplStats.color = Qt::darkGreen;
+#endif
     }
     info["plans"]["sbpl"] = {
         {"curvature", sbplStats.curvature},
