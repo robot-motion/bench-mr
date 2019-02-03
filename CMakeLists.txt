@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(smooth_star)
+project(mpb)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -12,13 +12,6 @@ endif()
 #set(CMAKE_CXX_FLAGS_DEBUG "-g")
 #set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-# find_package(catkin REQUIRED COMPONENTS
-#         roscpp
-#         rospy
-#         std_msgs
-# #        steering_functions
-#         )
-
 add_subdirectory(chomp)
 include_directories(chomp)
 
@@ -26,7 +19,6 @@ include_directories(chomp)
 # so that we will find GripsConfig.h
 include_directories("${PROJECT_BINARY_DIR}")
 
-# catkin_package()
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
@@ -46,12 +38,16 @@ link_directories(${SBPL_LIBRARY_DIRS})
 # set(QT_QMAKE_EXECUTABLE "/home/eric/Qt/5.11.1/gcc_64/bin/qmake")
 # set(CMAKE_PREFIX_PATH /home/eric/Qt/5.11.1/gcc_64;${CMAKE_PREFIX_PATH})
 
-find_package(Qt5 REQUIRED COMPONENTS Core Widgets Charts Svg)
+find_package(Qt5 COMPONENTS Core Widgets Charts Svg)
 include_directories( ${CMAKE_BINARY_DIR} )
 set(CMAKE_AUTOMOC ON)
 file(GLOB GUI_SRC gui/*.?pp)
 set(EXTRA_SRC ${EXTRA_SRC} ${GUI_SRC})
-set(EXTRA_LIB ${EXTRA_LIB} Qt5::Core Qt5::Widgets Qt5::Charts Qt5::Svg ${SBPL_LIBRARIES} chomp mzcommon)
+
+if (Qt5_FOUND)
+    set(EXTRA_LIB ${EXTRA_LIB} Qt5::Core Qt5::Widgets Qt5::Charts Qt5::Svg ${SBPL_LIBRARIES} chomp mzcommon)
+    add_definitions(-DQT_SUPPORT=1)
+endif (Qt5_FOUND)
 
 option(USE_G1 "Use G1 clothoid steering (not Open Source)" OFF)
 if (USE_G1)
@@ -77,15 +73,21 @@ link_directories(base/)
 link_directories(steer_functions/)
 
 add_executable(homotopy_test mainHomotopy.cpp ${ALL_SRC})
-add_executable(benchmark mainBenchmark.cpp ${ALL_SRC})
-add_executable(shortening_test mainShortening.cpp ${ALL_SRC})
-add_executable(showcase mainShowcase.cpp ${ALL_SRC})
-add_executable(visual_compare mainVisualCompare.cpp ${ALL_SRC})
-add_executable(grips_params mainGripsParameters.cpp ${ALL_SRC})
-
-target_link_libraries(benchmark -lompl ${EXTRA_LIB})
 target_link_libraries(homotopy_test -lompl ${EXTRA_LIB})
+
+add_executable(benchmark mainBenchmark.cpp ${ALL_SRC})
+target_link_libraries(benchmark -lompl ${EXTRA_LIB})
+
+add_executable(shortening_test mainShortening.cpp ${ALL_SRC})
 target_link_libraries(shortening_test -lompl ${EXTRA_LIB})
+
+add_executable(showcase mainShowcase.cpp ${ALL_SRC})
 target_link_libraries(showcase -lompl ${EXTRA_LIB})
-target_link_libraries(visual_compare -lompl ${EXTRA_LIB})
+
+if (Qt5_FOUND)
+    add_executable(visual_compare mainVisualCompare.cpp ${ALL_SRC})
+    target_link_libraries(visual_compare -lompl ${EXTRA_LIB})
+endif (USE_G1)
+
+add_executable(grips_params mainGripsParameters.cpp ${ALL_SRC})
 target_link_libraries(grips_params -lompl ${EXTRA_LIB})
