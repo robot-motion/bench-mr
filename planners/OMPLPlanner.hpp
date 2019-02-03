@@ -3,134 +3,115 @@
 #include <memory>
 
 #include <ompl/base/SpaceInformation.h>
+#include <ompl/base/objectives/MaximizeMinClearanceObjective.h>
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
 #include <ompl/base/objectives/StateCostIntegralObjective.h>
-#include <ompl/base/objectives/MaximizeMinClearanceObjective.h>
-#include <ompl/base/spaces/RealVectorStateSpace.h>
-#include <ompl/base/spaces/SE2StateSpace.h>
 #include <ompl/base/spaces/DubinsStateSpace.h>
+#include <ompl/base/spaces/RealVectorStateSpace.h>
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
+#include <ompl/base/spaces/SE2StateSpace.h>
 
+#include <ompl/geometric/PathGeometric.h>
+#include <ompl/geometric/PathSimplifier.h>
+#include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/bitstar/BITstar.h>
 #include <ompl/geometric/planners/cforest/CForest.h>
-#include <ompl/geometric/planners/fmt/FMT.h>
+#include <ompl/geometric/planners/est/EST.h>
 #include <ompl/geometric/planners/fmt/BFMT.h>
+#include <ompl/geometric/planners/fmt/FMT.h>
+#include <ompl/geometric/planners/kpiece/KPIECE1.h>
 #include <ompl/geometric/planners/prm/PRMstar.h>
 #include <ompl/geometric/planners/rrt/InformedRRTstar.h>
 #include <ompl/geometric/planners/rrt/RRT.h>
 #include <ompl/geometric/planners/rrt/RRTsharp.h>
 #include <ompl/geometric/planners/rrt/RRTstar.h>
-#include <ompl/geometric/planners/est/EST.h>
+#include <ompl/geometric/planners/rrt/SORRTstar.h>
 #include <ompl/geometric/planners/sbl/SBL.h>
 #include <ompl/geometric/planners/sst/SST.h>
-#include <ompl/geometric/planners/kpiece/KPIECE1.h>
 #include <ompl/geometric/planners/stride/STRIDE.h>
-#include <ompl/geometric/planners/rrt/SORRTstar.h>
-#include <ompl/geometric/PathGeometric.h>
-#include <ompl/geometric/SimpleSetup.h>
-#include <ompl/geometric/PathSimplifier.h>
 
 #include "base/PlannerSettings.h"
 #include "base/PlannerUtils.hpp"
 #include "base/gnode.h"
-#include "steer_functions/POSQ/POSQStateSpace.h"
 #include "planners/AbstractPlanner.hpp"
+#include "steer_functions/POSQ/POSQStateSpace.h"
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
 
+template <class PLANNER>
+class OMPLPlanner : public AbstractPlanner {
+ public:
+  OMPLPlanner() = default;
 
-template<class PLANNER>
-class OMPLPlanner : public AbstractPlanner
-{
-public:
-    OMPLPlanner() = default;
+  ob::PlannerStatus run() override {
+    const ob::SpaceInformationPtr si = ss->getSpaceInformation();
+    _omplPlanner = ob::PlannerPtr(new PLANNER(si));
+    ss->setPlanner(_omplPlanner);
+    ss->setup();
 
-    ob::PlannerStatus run() override
-    {
-        const ob::SpaceInformationPtr si = ss->getSpaceInformation();
-        _omplPlanner = ob::PlannerPtr(new PLANNER(si));
-        ss->setPlanner(_omplPlanner);
-        ss->setup();
+    auto solved = ss->solve(PlannerSettings::PlanningTime);
+    OMPL_INFORM("OMPL %s planning status: %s", _omplPlanner->getName().c_str(),
+                solved.asString().c_str());
 
-        auto solved = ss->solve(PlannerSettings::PlanningTime);
-        OMPL_INFORM("OMPL %s planning status: %s",
-                    _omplPlanner->getName().c_str(),
-                    solved.asString().c_str());
+    if (solved) {
+      //            ss->simplifySolution(); // TODO define time limit?
+      // Output the length of the path found
+      OMPL_INFORM(
+          "%s found a solution of length %f with an optimization objective "
+          "value of %f",
+          _omplPlanner->getName().c_str(), ss->getSolutionPath().length(),
+          ss->getSolutionPath().cost(ss->getOptimizationObjective()));
+    } else
+      OMPL_WARN("No solution found.");
+    return solved;
+  }
 
-        if (solved)
-        {
-//            ss->simplifySolution(); // TODO define time limit?
-            // Output the length of the path found
-            OMPL_INFORM(
-                    "%s found a solution of length %f with an optimization objective value of %f",
-                    _omplPlanner->getName().c_str(),
-                    ss->getSolutionPath().length(),
-                    ss->getSolutionPath().cost(ss->getOptimizationObjective())
-            );
-        }
-        else
-            OMPL_WARN("No solution found.");
-        return solved;
+  std::string name() const override { return _omplPlanner->getName(); }
+
+  std::vector<GNode> solutionTrajectory() const override {
+    std::vector<GNode> gnodes;
+    og::PathGeometric path = ss->getSolutionPath();
+    auto &states = path.getStates();
+    for (auto *state : path.getStates()) {
+      const auto *s = state->as<ob::SE2StateSpace::StateType>();
+      double x = s->getX(), y = s->getY();
+      gnodes.emplace_back(GNode(x, y, s->getYaw()));
     }
+    PlannerUtils::updateAngles(gnodes, true);
+    return gnodes;
+  }
 
-    std::string name() const override {
-        return _omplPlanner->getName();
+  std::vector<Tpoint> solutionPath() const override {
+    og::PathGeometric path = ss->getSolutionPath();
+    path.interpolate();
+    std::vector<Tpoint> points;
+    for (auto *state : path.getStates()) {
+      // Extract the robot's (x,y) position from its state
+      const auto *s = state->as<ob::SE2StateSpace::StateType>();
+      double x = s->getX(), y = s->getY();
+      points.emplace_back(x, y);
     }
+    return points;
+  }
 
-    std::vector<GNode> solutionTrajectory() const override
-    {
-        std::vector<GNode> gnodes;
-        og::PathGeometric path = ss->getSolutionPath();
-        auto &states = path.getStates();
-        for (auto *state : path.getStates())
-        {
-            const auto *s = state->as<ob::SE2StateSpace::StateType>();
-            double x=s->getX(), y=s->getY();
-            gnodes.emplace_back(GNode(x, y, s->getYaw()));
-        }
-        PlannerUtils::updateAngles(gnodes, true);
-        return gnodes;
-    }
+  bool hasReachedGoalExactly() const override {
+    return ss->haveExactSolutionPath();
+  }
 
-    std::vector<Tpoint> solutionPath() const override
-    {
-        og::PathGeometric path = ss->getSolutionPath();
-        path.interpolate();
-        std::vector<Tpoint> points;
-        for (auto *state : path.getStates())
-        {
-            // Extract the robot's (x,y) position from its state
-            const auto *s = state->as<ob::SE2StateSpace::StateType>();
-            double x = s->getX(), y = s->getY();
-            points.emplace_back(x, y);
-        }
-        return points;
-    }
+  inline og::PathGeometric geometricPath() const override {
+    return ss->getSolutionPath();
+  }
 
-    bool hasReachedGoalExactly() const override
-    {
-        return ss->haveExactSolutionPath();
-    }
+  double planningTime() const override {
+    return ss->getLastPlanComputationTime();
+  }
 
-    inline og::PathGeometric geometricPath() const override
-    {
-        return ss->getSolutionPath();
-    }
+ protected:
+  ob::Planner *omplPlanner() override { return _omplPlanner.get(); }
 
-    double planningTime() const override
-    {
-        return ss->getLastPlanComputationTime();
-    }
-
-protected:
-    ob::Planner *omplPlanner() override
-    {
-        return _omplPlanner.get();
-    }
-
-private:
-    ob::PlannerPtr _omplPlanner;
+ private:
+  ob::PlannerPtr _omplPlanner;
 };
 
 typedef OMPLPlanner<og::RRT> RRTPlanner;
