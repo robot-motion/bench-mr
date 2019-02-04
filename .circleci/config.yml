@@ -35,4 +35,4 @@ jobs:
           command: 'pushd . && cd build && make && popd'
       - run:
           name: Run showace
-          command: './bin/showcase'
+          command: 'pushd . && cd bin && ./showcase && popd'
