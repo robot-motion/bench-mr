@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chomp/Chomp.h>
+#include <ompl/base/spaces/ReedsSheppStateSpace.h>
 
 #include "Environment.h"
 #include "steer_functions/steer_base.h"
@@ -22,7 +23,14 @@ struct PlannerSettings {
 
   // steering function settings
   static Steering::SteeringType steeringType;
+  static ompl::base::StateSpacePtr stateSpace;
   static SteerFunction *steering;
+
+  /**
+   * Distance between states sampled using the steer function for collision
+   * detection, rendering and evaluation.
+   */
+  static double samplingResolution;
 
   static void initializeSteering();
 

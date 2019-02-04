@@ -3,6 +3,12 @@
 #include "steer_functions/Linear/LinearSteering.h"
 #include "steer_functions/POSQ/POSQSteering.h"
 #include "steer_functions/ReedsShepp/ReedsSheppSteering.h"
+
+#include <ompl/base/spaces/DubinsStateSpace.h>
+#include <ompl/base/spaces/ReedsSheppStateSpace.h>
+#include <ompl/base/spaces/SE2StateSpace.h>
+#include "steer_functions/POSQ/POSQStateSpace.h"
+
 #ifdef G1_AVAILABLE
 #include "steer_functions/G1Clothoid/ClothoidSteering.hpp"
 #endif
@@ -17,7 +23,10 @@ Steering::SteeringType PlannerSettings::steeringType =
 double PlannerSettings::CarTurningRadius = 4;
 double PlannerSettings::LinearSteeringDelta = 3.0;
 
+static double samplingResolution = 0.2;
+
 SteerFunction *PlannerSettings::steering = nullptr;
+ompl::base::StateSpacePtr PlannerSettings::stateSpace(nullptr);
 
 bool PlannerSettings::VisualizeSmoothing1 = true;
 bool PlannerSettings::VisualizeSmoothing2 = true;
@@ -25,6 +34,38 @@ bool PlannerSettings::VisualizeSmoothing3 = true;
 bool PlannerSettings::VisualizeSmoothing4 = true;
 
 void PlannerSettings::initializeSteering() {
+  ob::RealVectorBounds bounds(2);
+  bounds.setLow(0, 0);
+  bounds.setLow(1, 0);
+  bounds.setHigh(0, PlannerSettings::environment->width());
+  bounds.setHigh(1, PlannerSettings::environment->height());
+  ob::StateSpacePtr space;
+
+  // Construct the robot state space in which we're planning.
+  if (PlannerSettings::steeringType == Steering::STEER_TYPE_REEDS_SHEPP)
+    space = ob::StateSpacePtr(
+        new ob::ReedsSheppStateSpace(PlannerSettings::CarTurningRadius));
+  else if (PlannerSettings::steeringType == Steering::STEER_TYPE_POSQ)
+    space = ob::StateSpacePtr(new POSQStateSpace());
+  else if (PlannerSettings::steeringType == Steering::STEER_TYPE_DUBINS)
+    space = ob::StateSpacePtr(
+        new ob::DubinsStateSpace(PlannerSettings::CarTurningRadius));
+  else if (PlannerSettings::steeringType == Steering::STEER_TYPE_LINEAR)
+    space = ob::StateSpacePtr(new ob::SE2StateSpace);
+#ifdef G1_AVAILABLE
+  else if (PlannerSettings::steeringType == Steering::STEER_TYPE_CLOTHOID)
+    space = ob::StateSpacePtr(new G1ClothoidStateSpace());
+#else
+  else if (PlannerSettings::steeringType == Steering::STEER_TYPE_CLOTHOID) {
+    OMPL_ERROR("G1 Clothoid steering is not available in this release!");
+    OMPL_ERROR(
+            "Select a steering type other than STEER_TYPE_CLOTHOID in "
+            "PlannerSettings.");
+  }
+#endif
+
+  space->as<ob::SE2StateSpace>()->setBounds(bounds);
+
   if (steeringType == Steering::STEER_TYPE_REEDS_SHEPP)
     PlannerSettings::steering =
         new ReedsSheppSteering(PlannerSettings::CarTurningRadius);

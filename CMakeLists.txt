@@ -15,6 +15,9 @@ endif()
 add_subdirectory(chomp)
 include_directories(chomp)
 
+add_subdirectory(steering_functions)
+include_directories(steering_functions)
+
 # add the binary tree to the search path for include files
 # so that we will find GripsConfig.h
 include_directories("${PROJECT_BINARY_DIR}")
@@ -42,7 +45,7 @@ find_package(Qt5 COMPONENTS Core Widgets Charts Svg)
 include_directories( ${CMAKE_BINARY_DIR} )
 set(CMAKE_AUTOMOC ON)
 
-set(EXTRA_LIB ${EXTRA_LIB} ${SBPL_LIBRARIES} chomp mzcommon)
+set(EXTRA_LIB ${EXTRA_LIB} ${SBPL_LIBRARIES} chomp mzcommon -lompl steering_functions)
 
 if (Qt5_FOUND)
     set(EXTRA_LIB ${EXTRA_LIB} Qt5::Core Qt5::Widgets Qt5::Charts Qt5::Svg)
@@ -81,21 +84,21 @@ link_directories(base/)
 link_directories(steer_functions/)
 
 if (Qt5_FOUND)
-    add_executable(homotopy_test mainHomotopy.cpp ${ALL_SRC})
-    target_link_libraries(homotopy_test -lompl ${EXTRA_LIB})
+#    add_executable(homotopy_test mainHomotopy.cpp ${ALL_SRC})
+#    target_link_libraries(homotopy_test ${EXTRA_LIB})
 
-    add_executable(benchmark mainBenchmark.cpp ${ALL_SRC})
-    target_link_libraries(benchmark -lompl ${EXTRA_LIB})
+#    add_executable(benchmark mainBenchmark.cpp ${ALL_SRC})
+#    target_link_libraries(benchmark ${EXTRA_LIB})
 
     add_executable(grips_params mainGripsParameters.cpp ${ALL_SRC})
-    target_link_libraries(grips_params -lompl ${EXTRA_LIB})
+    target_link_libraries(grips_params ${EXTRA_LIB})
 
     add_executable(shortening_test mainShortening.cpp ${ALL_SRC})
-    target_link_libraries(shortening_test -lompl ${EXTRA_LIB})
+    target_link_libraries(shortening_test ${EXTRA_LIB})
 
     add_executable(visual_compare mainVisualCompare.cpp ${ALL_SRC})
-    target_link_libraries(visual_compare -lompl ${EXTRA_LIB})
+    target_link_libraries(visual_compare ${EXTRA_LIB})
 endif (Qt5_FOUND)
 
 add_executable(showcase mainShowcase.cpp ${ALL_SRC})
-target_link_libraries(showcase -lompl ${EXTRA_LIB})
+target_link_libraries(showcase ${EXTRA_LIB})
