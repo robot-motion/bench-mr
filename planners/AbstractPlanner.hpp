@@ -179,34 +179,7 @@ protected:
   og::SimpleSetup *ss{nullptr};
 
   AbstractPlanner() {
-    ob::RealVectorBounds bounds(2);
-    bounds.setLow(0, 0);
-    bounds.setLow(1, 0);
-    bounds.setHigh(0, PlannerSettings::environment->width());
-    bounds.setHigh(1, PlannerSettings::environment->height());
-    ob::StateSpacePtr space;
-
-    // Construct the robot state space in which we're planning.
-    if (PlannerSettings::steeringType == Steering::STEER_TYPE_REEDS_SHEPP)
-      space = ob::StateSpacePtr(
-          new ob::ReedsSheppStateSpace(PlannerSettings::CarTurningRadius));
-    else if (PlannerSettings::steeringType == Steering::STEER_TYPE_POSQ)
-      space = ob::StateSpacePtr(new POSQStateSpace());
-    else if (PlannerSettings::steeringType == Steering::STEER_TYPE_DUBINS)
-      space = ob::StateSpacePtr(
-          new ob::DubinsStateSpace(PlannerSettings::CarTurningRadius));
-    else if (PlannerSettings::steeringType == Steering::STEER_TYPE_LINEAR)
-      space = ob::StateSpacePtr(new ob::SE2StateSpace);
-#ifdef G1_AVAILABLE
-    else if (PlannerSettings::steeringType == Steering::STEER_TYPE_CLOTHOID)
-      space = ob::StateSpacePtr(new G1ClothoidStateSpace());
-#endif
-
-    //        space->setLongestValidSegmentFraction(0.1);
-    //        space->as<ob::RealVectorStateSpace>()->setBounds(bounds);
-    space->as<ob::SE2StateSpace>()->setBounds(bounds);
-
-    ss = new og::SimpleSetup(space);
+    ss = new og::SimpleSetup(PlannerSettings::stateSpace);
     const ob::SpaceInformationPtr si = ss->getSpaceInformation();
 
     // Construct a space information instance for this state space
@@ -239,12 +212,12 @@ protected:
 #endif
 
     // Set our robot's starting state
-    ob::ScopedState<> start(space);
+    ob::ScopedState<> start(PlannerSettings::stateSpace);
     start[0] = PlannerSettings::environment->start().x;
     start[1] = PlannerSettings::environment->start().y;
     start[2] = 0;
     // Set our robot's goal state
-    ob::ScopedState<> goal(space);
+    ob::ScopedState<> goal(PlannerSettings::stateSpace);
     goal[0] = PlannerSettings::environment->goal().x;
     goal[1] = PlannerSettings::environment->goal().y;
     goal[2] = 0;
@@ -261,7 +234,7 @@ protected:
     ob::OptimizationObjectivePtr oo(
         new ob::PathLengthOptimizationObjective(si));
     oo->setCostThreshold(
-        ob::Cost(100000.0)); // TODO finish after first solution has been found
+        ob::Cost(100000.0));  // TODO finish after first solution has been found
     ss->setOptimizationObjective(oo);
     ss->setup();
   }

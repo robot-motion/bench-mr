@@ -58,6 +58,7 @@ class PlannerUtils {
           //  || GNode_base::isblock(path[i].x + dx * j + .5, path[i].y + dy * j
           //  + .5))
           {
+#if QT_SUPPORT
 //                        QtVisualizer::drawNode(path[i].x + dx * j, path[i].y +
 //                        dy * j,
 //                                               QColor(255*.8, 255*0, 255*.9),
@@ -65,19 +66,23 @@ class PlannerUtils {
 #ifdef DEBUG
             // QtVisualizer::drawPath(path, QColor(250, 0, 0, 70));
 #endif
+#endif
             return true;
           }
         }
       }
     }
+#if QT_SUPPORT
 #ifdef DEBUG
     // QtVisualizer::drawPath(path, QColor(70, 150, 0, 120));
+#endif
 #endif
     return false;
   }
 
   static bool collides(const GNode &a, const GNode &b) {
     auto *traj = new Trajectory();
+//    PlannerSettings::stateSpace->distance()
     PlannerSettings::steering->Steer(&a, &b, traj);
     auto path = traj->getPath();
     delete traj;
@@ -90,8 +95,10 @@ class PlannerUtils {
     collisions.clear();
     for (unsigned int i = 1; i < path.size(); ++i) {
       if (GNode_base::isblock(path[i].x, path[i].y)) {
+#if QT_SUPPORT
 #ifdef DEBUG
         // QtVisualizer::drawPath(path, QColor(255, 100, 0, 170));
+#endif
 #endif
         collisions.emplace_back(path[i]);
         continue;
@@ -113,12 +120,14 @@ class PlannerUtils {
           //  || GNode_base::isblock(path[i].x + dx * j + .5, path[i].y + dy * j
           //  + .5))
           {
+#if QT_SUPPORT
 //                        QtVisualizer::drawNode(path[i].x + dx * j, path[i].y +
 //                        dy * j,
 //                                               QColor(255*.8, 255*0, 255*.9),
 //                                               0.3);
 #ifdef DEBUG
             // QtVisualizer::drawPath(path, QColor(250, 0, 0, 70));
+#endif
 #endif
             collisions.emplace_back(path[j]);
             continue;
