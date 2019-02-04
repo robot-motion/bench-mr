@@ -225,6 +225,7 @@ class Environment {
       unsigned int width = DefaultWidth, unsigned int height = DefaultHeight,
       int borderSize = 1);
   static Environment *createSimple();
+  static Environment *createFromMovingAiFile(const std::string &filename);
 
   nlohmann::json asJSON() const;
 
