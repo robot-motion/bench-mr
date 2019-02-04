@@ -28,6 +28,14 @@ void printStats(const PathStatistics &stats) {
 }
 
 int main(int argc, char **argv) {
+    PlannerSettings::environment = Environment::createRandomCorridor(
+            50, 50, 3,
+            30,  // 1540486476); //1540445576); //1502484532); //1502407983);
+            // //1502323408); //1502316103); //1502231684); //1502227898);
+            // //1501893283); //1501892155);//1501089540); //1501089410
+            // );//1500660612);// 1500551721);// 1500550472);
+            (unsigned int)(time(nullptr) + 123));
+
   PlannerSettings::steeringType = Steering::STEER_TYPE_REEDS_SHEPP;
   //    PlannerSettings::CarTurningRadius = 1.5;
   PlannerSettings::initializeSteering();
@@ -47,13 +55,6 @@ int main(int argc, char **argv) {
   //    PlannerSettings::environment = Environment::createRandom(50, 50, 0.1,
   //    1542671305);
 
-  PlannerSettings::environment = Environment::createRandomCorridor(
-      50, 50, 3,
-      30,  // 1540486476); //1540445576); //1502484532); //1502407983);
-           // //1502323408); //1502316103); //1502231684); //1502227898);
-           // //1501893283); //1501892155);//1501089540); //1501089410
-           // );//1500660612);// 1500551721);// 1500550472);
-      (unsigned int)(time(nullptr) + 123));
 
   Log::instantiateRun();
 
