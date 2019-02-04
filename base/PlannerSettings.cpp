@@ -39,22 +39,21 @@ void PlannerSettings::initializeSteering() {
   bounds.setLow(1, 0);
   bounds.setHigh(0, PlannerSettings::environment->width());
   bounds.setHigh(1, PlannerSettings::environment->height());
-  ob::StateSpacePtr space;
 
   // Construct the robot state space in which we're planning.
   if (PlannerSettings::steeringType == Steering::STEER_TYPE_REEDS_SHEPP)
-    space = ob::StateSpacePtr(
+    PlannerSettings::stateSpace = ob::StateSpacePtr(
         new ob::ReedsSheppStateSpace(PlannerSettings::CarTurningRadius));
   else if (PlannerSettings::steeringType == Steering::STEER_TYPE_POSQ)
-    space = ob::StateSpacePtr(new POSQStateSpace());
+    PlannerSettings::stateSpace = ob::StateSpacePtr(new POSQStateSpace());
   else if (PlannerSettings::steeringType == Steering::STEER_TYPE_DUBINS)
-    space = ob::StateSpacePtr(
+    PlannerSettings::stateSpace = ob::StateSpacePtr(
         new ob::DubinsStateSpace(PlannerSettings::CarTurningRadius));
   else if (PlannerSettings::steeringType == Steering::STEER_TYPE_LINEAR)
-    space = ob::StateSpacePtr(new ob::SE2StateSpace);
+    PlannerSettings::stateSpace = ob::StateSpacePtr(new ob::SE2StateSpace);
 #ifdef G1_AVAILABLE
   else if (PlannerSettings::steeringType == Steering::STEER_TYPE_CLOTHOID)
-    space = ob::StateSpacePtr(new G1ClothoidStateSpace());
+    PlannerSettings::stateSpace = ob::StateSpacePtr(new G1ClothoidStateSpace());
 #else
   else if (PlannerSettings::steeringType == Steering::STEER_TYPE_CLOTHOID) {
     OMPL_ERROR("G1 Clothoid steering is not available in this release!");
@@ -64,7 +63,7 @@ void PlannerSettings::initializeSteering() {
   }
 #endif
 
-  space->as<ob::SE2StateSpace>()->setBounds(bounds);
+  PlannerSettings::stateSpace->as<ob::SE2StateSpace>()->setBounds(bounds);
 
   if (steeringType == Steering::STEER_TYPE_REEDS_SHEPP)
     PlannerSettings::steering =
