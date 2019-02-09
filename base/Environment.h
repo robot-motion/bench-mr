@@ -2,6 +2,7 @@
 
 #include <ctime>
 #include <iostream>
+#include <vector>
 
 #include <utils/json.hpp>
 #include "Trajectory.h"
@@ -225,7 +226,9 @@ class Environment {
       unsigned int width = DefaultWidth, unsigned int height = DefaultHeight,
       int borderSize = 1);
   static Environment *createSimple();
-  static Environment *createFromMovingAiFile(const std::string &filename);
+
+  static Environment *createFromMovingAiFile(int map_width, int map_height, int start_x, int start_y, int goal_x, int goal_y,
+  std::vector<std::vector<char>> mapFileGrid);
 
   nlohmann::json asJSON() const;
 
