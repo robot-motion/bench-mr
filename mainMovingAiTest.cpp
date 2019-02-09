@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
 
   ScenarioLoader* maLoader = new ScenarioLoader(scene_name);
 
-  for (unsigned int i = 0; i < 1/*maLoader->getSize()*/; ++i) {
+  for (unsigned int i = 0; i < maLoader->getSize(); ++i) {
     //        PlannerSettings::environment = Environment::createRandom(50, 50,
     //        0.1, 1542671305 + i);
 
