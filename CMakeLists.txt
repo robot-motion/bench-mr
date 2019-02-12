@@ -16,7 +16,7 @@ add_subdirectory(chomp)
 include_directories(chomp)
 
 add_subdirectory(steering_functions)
-include_directories(steering_functions)
+include_directories(steering_functions/include)
 
 # add the binary tree to the search path for include files
 # so that we will find GripsConfig.h

@@ -28,6 +28,10 @@ struct PlannerSettings {
   static ompl::base::SpaceInformationPtr spaceInfo;
   static ompl::base::OptimizationObjectivePtr objective;
 
+  // HC/CC steer function settings
+  static double ccKappa;
+  static double ccSigma;
+
   /**
    * Distance between states sampled using the steer function for collision
    * detection, rendering and evaluation.

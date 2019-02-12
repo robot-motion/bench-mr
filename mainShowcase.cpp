@@ -101,39 +101,38 @@ int main(int argc, char **argv) {
     //                Log::serializeTrajectory(chompPlanner.solutionTrajectory())}
     //        };
 
-    //        auto *thetaStar = new ThetaStar;
-    //        if (thetaStar->run()) {
-    //            std::vector<Tpoint> path = thetaStar->solutionPath();
-    //            thetaStarStats = PathEvaluation::evaluate(path, "Theta*",
-    //            Qt::black);
-    //
-    //            std::vector<GNode> trajectory =
-    //            thetaStar->solutionTrajectory(); gripsTrajectory = trajectory;
-    //            PostSmoothing::smooth(gripsTrajectory, path);
-    //            gripsPath =
-    //            PlannerUtils::toSteeredTrajectoryPoints(gripsTrajectory);
-    //            gripsStats = PathEvaluation::evaluate(gripsPath, "GRIPS",
-    //            Qt::red);
-    //        } else {
-    //            OMPL_ERROR("Theta* couldn't find a solution.");
-    //        }
-    //        info["plans"]["thetaStar"] = {
-    //                {"curvature", thetaStarStats.curvature},
-    //                {"pathLength", thetaStarStats.pathLength},
-    //                {"steps", thetaStar->steps()},
-    //                {"time", thetaStar->planningTime()},
-    //                {"meanClearingDistance",
-    //                thetaStarStats.meanClearingDistance},
-    //                {"medianClearingDistance",
-    //                thetaStarStats.medianClearingDistance},
-    //                {"minClearingDistance",
-    //                thetaStarStats.minClearingDistance},
-    //                {"maxClearingDistance",
-    //                thetaStarStats.maxClearingDistance},
-    //                {"path", Log::serializePath(thetaStar->solutionPath())},
-    //                {"trajectory",
-    //                Log::serializeTrajectory(thetaStar->solutionTrajectory())}
-    //        };
+            auto *thetaStar = new ThetaStar;
+            if (thetaStar->run()) {
+//                std::vector<Point> path = thetaStar->solutionPath();
+                thetaStarStats = PathEvaluation::evaluate(thetaStar->solution(), "Theta*");
+
+//                std::vector<GNode> trajectory =
+//                thetaStar->solutionTrajectory(); gripsTrajectory = trajectory;
+//                PostSmoothing::smooth(gripsTrajectory, path);
+//                gripsPath =
+//                PlannerUtils::toSteeredTrajectoryPoints(gripsTrajectory);
+//                gripsStats = PathEvaluation::evaluate(gripsPath, "GRIPS",
+//                Qt::red);
+            } else {
+                OMPL_ERROR("Theta* couldn't find a solution.");
+            }
+            info["plans"]["thetaStar"] = {
+                    {"curvature", thetaStarStats.curvature},
+                    {"pathLength", thetaStarStats.pathLength},
+                    {"steps", thetaStar->steps()},
+                    {"time", thetaStar->planningTime()},
+                    {"meanClearingDistance",
+                    thetaStarStats.meanClearingDistance},
+                    {"medianClearingDistance",
+                    thetaStarStats.medianClearingDistance},
+                    {"minClearingDistance",
+                    thetaStarStats.minClearingDistance},
+                    {"maxClearingDistance",
+                    thetaStarStats.maxClearingDistance},
+                    {"path", Log::serializePath(thetaStar->solutionPath())},
+                    {"trajectory",
+                    Log::serializeTrajectory(thetaStar->solution())}
+            };
     //        info["plans"]["grips"] = {
     //                {"curvature", gripsStats.curvature},
     //                {"pathLength", gripsStats.pathLength},
@@ -202,26 +201,26 @@ int main(int argc, char **argv) {
     //        delete smoothThetaStar;
 
     OMPL_INFORM("Starting planner");
-    auto *sbplPlanner = new SbplPlanner(SbplPlanner::SbplType::SBPL_ARASTAR);
-    if (sbplPlanner->run()) {
-      sbplStats =
-          PathEvaluation::evaluate(sbplPlanner->solution(), "SBPL (ANA*)");
-#if QT_SUPPORT
-      sbplStats.color = Qt::darkGreen;
-#endif
-    }
-    info["plans"]["sbpl"] = {
-        {"curvature", sbplStats.curvature},
-        {"pathLength", sbplStats.pathLength},
-        {"steps", std::nan("N/A")},
-        {"time", sbplPlanner->planningTime()},
-        {"meanClearingDistance", sbplStats.meanClearingDistance},
-        {"medianClearingDistance", sbplStats.medianClearingDistance},
-        {"minClearingDistance", sbplStats.minClearingDistance},
-        {"maxClearingDistance", sbplStats.maxClearingDistance},
-        {"path", Log::serializePath(sbplPlanner->solutionPath())},
-        {"trajectory", Log::serializeTrajectory(sbplPlanner->solution())}};
-    delete sbplPlanner;
+//    auto *sbplPlanner = new SbplPlanner(SbplPlanner::SbplType::SBPL_ARASTAR);
+//    if (sbplPlanner->run()) {
+//      sbplStats =
+//          PathEvaluation::evaluate(sbplPlanner->solution(), "SBPL (ANA*)");
+//#if QT_SUPPORT
+//      sbplStats.color = Qt::darkGreen;
+//#endif
+//    }
+//    info["plans"]["sbpl"] = {
+//        {"curvature", sbplStats.curvature},
+//        {"pathLength", sbplStats.pathLength},
+//        {"steps", std::nan("N/A")},
+//        {"time", sbplPlanner->planningTime()},
+//        {"meanClearingDistance", sbplStats.meanClearingDistance},
+//        {"medianClearingDistance", sbplStats.medianClearingDistance},
+//        {"minClearingDistance", sbplStats.minClearingDistance},
+//        {"maxClearingDistance", sbplStats.maxClearingDistance},
+//        {"path", Log::serializePath(sbplPlanner->solutionPath())},
+//        {"trajectory", Log::serializeTrajectory(sbplPlanner->solution())}};
+//    delete sbplPlanner;
 
     //        printStats(thetaStarStats);
     //        std::cout << "\tSteps:\t\t\t" << thetaStar->steps() << std::endl;
