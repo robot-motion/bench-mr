@@ -7,9 +7,9 @@
 
 #include "Environment.h"
 #include "PlannerSettings.h"
+#include "PlannerUtils.hpp"
 
 #ifdef QT_SUPPORT
-#include "PlannerUtils.hpp"
 #include "gui/QtVisualizer.h"
 
 #endif
