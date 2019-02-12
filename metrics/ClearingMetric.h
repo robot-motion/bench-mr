@@ -5,9 +5,10 @@
 
 class ClearingMetric : public TMetric<ClearingMetric> {
  public:
-  static std::vector<double> clearingDistances(const Trajectory *trajectory) {
+  static std::vector<double> clearingDistances(
+      const ompl::geometric::PathGeometric &trajectory) {
     std::vector<double> clearings;
-    std::vector<Tpoint> path = trajectory->getPath();
+    const auto path = Point::fromPath(trajectory);
 
     for (auto &p : path)
       clearings.push_back(
@@ -16,8 +17,8 @@ class ClearingMetric : public TMetric<ClearingMetric> {
     return clearings;
   }
 
-  static double evaluateMetric(const Trajectory *trajectory, double,
-                               bool visualize = false) {
+  static double evaluateMetric(const ompl::geometric::PathGeometric &trajectory,
+                               double, bool visualize = false) {
     return stat::mean(clearingDistances(trajectory));
   }
 };

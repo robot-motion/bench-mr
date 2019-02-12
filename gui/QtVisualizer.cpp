@@ -15,11 +15,9 @@
 
 #include "QtVisualizer.h"
 #include "base/PlannerSettings.h"
-#include "base/gnode.h"
 
-int argc = 0;
 
-QApplication *QtVisualizer::_app = new QApplication(argc, nullptr);
+QApplication *QtVisualizer::_app = nullptr;
 QMainWindow *QtVisualizer::_window = nullptr;
 VisualizationView *QtVisualizer::_view = nullptr;
 QGraphicsScene *QtVisualizer::_scene = nullptr;
@@ -32,6 +30,8 @@ int QtVisualizer::_statsTextTop = -2;
 bool QtVisualizer::_showStartGoal = true;
 
 void QtVisualizer::initialize() {
+  int argc = 0;
+  _app = new QApplication(argc, nullptr);
   _statsTextTop = 0;
   _window = new QMainWindow;
   _scene = new QGraphicsScene;
@@ -46,7 +46,7 @@ void QtVisualizer::initialize() {
   _view->setMinimumSize(500, 500);
 
   //    _window->setWindowFlags(Qt::WindowStaysOnTopHint);
-  _window->setWindowTitle(QString("Theta* Trajectory Planning"));
+  _window->setWindowTitle(QString("Motion Planning Visualizer"));
 }
 
 QtVisualizer::~QtVisualizer() {
@@ -139,31 +139,36 @@ void QtVisualizer::visualize(Environment *environment, int run,
   }
 }
 
-void QtVisualizer::drawNode(const GNode &node, QColor color, double radius,
-                            bool drawArrow) {
+void QtVisualizer::drawNode(const ompl::base::State *node, const QColor &color,
+                            double radius, bool drawArrow) {
+  const auto *node2d = node->as<ompl::base::SE2StateSpace::StateType>();
   if (drawArrow) {
     QPen pen(color);
     pen.setWidthF(radius * 0.5);
-    _scene->addLine(node.x_r, node.y_r,
-                    node.x_r + std::cos(node.theta) * radius * 5.,
-                    node.y_r + std::sin(node.theta) * radius * 5., pen);
+    _scene->addLine(node2d->getX(), node2d->getY(),
+                    node2d->getX() + std::cos(node2d->getYaw()) * radius * 5.,
+                    node2d->getY() + std::sin(node2d->getYaw()) * radius * 5.,
+                    pen);
   }
-  drawNode(node.x_r, node.y_r, color, radius);
+  drawNode(node2d->getX(), node2d->getY(), color, radius);
 }
 
-void QtVisualizer::drawNode(const Tpoint &point, QColor color, double radius) {
-  drawNode(point.x, point.y, std::move(color), radius);
+void QtVisualizer::drawNode(const Point &point, const QColor &color,
+                            double radius) {
+  drawNode(point.x, point.y, color, radius);
 }
 
-void QtVisualizer::drawNode(double x, double y, QColor color, double radius) {
+void QtVisualizer::drawNode(double x, double y, const QColor &color,
+                            double radius) {
   QPen pen(color);
   pen.setWidthF(0.);
   _scene->addEllipse(x - radius, y - radius, 2 * radius, 2 * radius, pen,
                      QBrush(color));
 }
 
-void QtVisualizer::drawNode(double x, double y, double theta, QColor color,
-                            double radius, bool drawArrow) {
+void QtVisualizer::drawNode(double x, double y, double theta,
+                            const QColor &color, double radius,
+                            bool drawArrow) {
   if (drawArrow) {
     QPen pen(color);
     pen.setWidthF(radius * 0.5);
@@ -173,43 +178,41 @@ void QtVisualizer::drawNode(double x, double y, double theta, QColor color,
   drawNode(x, y, color, radius);
 }
 
-void QtVisualizer::drawTrajectory(std::vector<GNode> nodes, const QColor &color,
-                                  float penWidth, Qt::PenStyle penStyle) {
-  std::vector<Tpoint> path;
-  for (unsigned int i = 1; i < nodes.size(); ++i) {
-    auto *traj = new Trajectory();
-    PlannerSettings::steering->Steer(&nodes[i - 1], &nodes[i], traj);
-    auto tpath = traj->getPath();
-    path.insert(path.end(), tpath.begin(), tpath.end());
-    delete traj;
-  }
-  drawPath(path, color, penWidth, penStyle);
-}
-
-void QtVisualizer::drawTrajectory(const GNode &a, const GNode &b,
+void QtVisualizer::drawTrajectory(const ompl::geometric::PathGeometric &path,
                                   const QColor &color, float penWidth,
                                   Qt::PenStyle penStyle) {
-  auto *traj = new Trajectory();
-  PlannerSettings::steering->Steer(&a, &b, traj);
-  auto path = traj->getPath();
   drawPath(path, color, penWidth, penStyle);
 }
 
-void QtVisualizer::drawPath(std::vector<GNode> nodes, const QColor &color,
-                            float penWidth, Qt::PenStyle penStyle) {
-  if (nodes.empty()) return;
+void QtVisualizer::drawTrajectory(const ompl::base::State *a,
+                                  const ompl::base::State *b,
+                                  const QColor &color, float penWidth,
+                                  Qt::PenStyle penStyle) {
+  ompl::geometric::PathGeometric path(PlannerSettings::spaceInfo, a, b);
+  drawPath(path, color, penWidth, penStyle);
+}
+
+void QtVisualizer::drawPath(const ompl::geometric::PathGeometric &p,
+                            const QColor &color, float penWidth,
+                            Qt::PenStyle penStyle) {
+  ompl::geometric::PathGeometric path(p);
+  if (path.getStates().empty()) return;
   QPen pen(color);
   pen.setWidthF(0.05f * penWidth);
   pen.setStyle(penStyle);
   QPainterPath pp;
-  pp.moveTo(nodes[0].x_r, nodes[0].y_r);
-  for (unsigned int i = 1; i < nodes.size(); ++i)
-    pp.lineTo(nodes[i].x_r, nodes[i].y_r);
+  const auto *start = path.getStates()[0]->as<State>();
+  pp.moveTo(start->getX(), start->getY());
+  for (const auto *state : path.getStates()) {
+    const auto *s = state->as<State>();
+    pp.lineTo(s->getX(), s->getY());
+  }
   _scene->addPath(pp, pen);
 }
 
-void QtVisualizer::drawPath(std::vector<Tpoint> nodes, QColor color,
-                            float penWidth, Qt::PenStyle penStyle) {
+void QtVisualizer::drawPath(const std::vector<Point> &nodes,
+                            const QColor &color, float penWidth,
+                            Qt::PenStyle penStyle) {
   if (nodes.empty()) return;
   QPen pen(color);
   pen.setWidthF(0.05f * penWidth);
@@ -221,7 +224,7 @@ void QtVisualizer::drawPath(std::vector<Tpoint> nodes, QColor color,
   _scene->addPath(pp, pen);
 }
 
-void QtVisualizer::drawPath(std::vector<Tpoint> nodes, QPen pen) {
+void QtVisualizer::drawPath(const std::vector<Point> &nodes, QPen pen) {
   if (nodes.empty()) return;
   pen.setWidthF(pen.widthF() * 0.05f);
   QPainterPath pp;
@@ -231,13 +234,15 @@ void QtVisualizer::drawPath(std::vector<Tpoint> nodes, QPen pen) {
   _scene->addPath(pp, pen);
 }
 
-void QtVisualizer::drawNodes(std::vector<GNode> nodes, bool drawArrows,
-                             QColor color, double radius) {
-  for (auto &node : nodes) drawNode(node, color, radius, drawArrows);
+void QtVisualizer::drawNodes(ompl::geometric::PathGeometric path,
+                             bool drawArrows, const QColor &color,
+                             double radius) {
+  for (const auto *node : path.getStates())
+    drawNode(node, color, radius, drawArrows);
 }
 
 void QtVisualizer::drawLabel(const std::string &text, double x, double y,
-                             QColor color, float size) {
+                             const QColor &color, float size) {
   QFont font("Consolas", 12);
   auto *textItem = _scene->addText(QString::fromStdString(text), font);
   textItem->setPos(x, y);
@@ -324,8 +329,8 @@ void QtVisualizer::drawStats(const PathStatistics &stats) {
   _statsTextTop += 0.5;
 }
 
-void QtVisualizer::drawNodes(std::vector<Tpoint> nodes, QColor color,
-                             double radius) {
+void QtVisualizer::drawNodes(const std::vector<Point> &nodes,
+                             const QColor &color, double radius) {
   for (auto &node : nodes) drawNode(node, color, radius);
 }
 

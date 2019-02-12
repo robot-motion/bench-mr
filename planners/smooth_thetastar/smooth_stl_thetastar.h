@@ -29,6 +29,10 @@ DAMAGE.
 
 #pragma once
 
+#pragma warning "SmoothThetaStar is not supported at the moment."
+
+#if 0
+
 // used for text debugging
 #include <assert.h>
 #include <stdio.h>
@@ -46,6 +50,7 @@ DAMAGE.
 
 #include <ompl/util/Console.h>
 #include <unistd.h>
+#include <planners/thetastar/stl_thetastar.h>
 
 #include "../base/PlannerSettings.h"
 
@@ -1030,3 +1035,4 @@ class SmoothThetaStarSearch : public ThetaStarSearch<UserState> {
 
   bool m_CancelRequest;
 };
+#endif

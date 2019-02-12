@@ -3,12 +3,14 @@
 #include <cmath>
 
 #include "PlannerSettings.h"
-#include "base/Trajectory.h"
-#include "base/gnode.h"
+#include "Primitives.h"
 
 #if QT_SUPPORT
 #include "gui/QtVisualizer.h"
 #endif
+
+namespace ob = ompl::base;
+namespace og = ompl::geometric;
 
 class PlannerUtils {
  public:
@@ -19,23 +21,37 @@ class PlannerUtils {
     return x;
   }
 
-  static double slope(const Tpoint &a, const Tpoint &b) {
+  static double slope(const Point &a, const Point &b) {
     double dy = b.y - a.y;
     double dx = b.x - a.x;
     double x = std::atan2(dy, dx);
     return x;
   }
 
-  static double slope(const GNode &a, const GNode &b) {
-    double dy = b.y_r - a.y_r;
-    double dx = b.x_r - a.x_r;
+  static double slope(const ompl::base::State *a, const ompl::base::State *b) {
+    double dy = b->as<State>()->getY() - a->as<State>()->getY();
+    double dx = b->as<State>()->getX() - a->as<State>()->getX();
     double x = std::atan2(dy, dx);
     return x;
   }
 
-  static bool collides(const std::vector<Tpoint> &path) {
+  static bool equals(const ompl::base::State *a, const ompl::base::State *b) {
+    double dy = b->as<State>()->getY() - a->as<State>()->getY();
+    double dx = b->as<State>()->getX() - a->as<State>()->getX();
+    double dt = b->as<State>()->getYaw() - a->as<State>()->getYaw();
+    return std::abs(dx) <= PlannerSettings::stateEqualityTolerance &&
+           std::abs(dy) <= PlannerSettings::stateEqualityTolerance &&
+           std::abs(dt) <= PlannerSettings::stateEqualityTolerance;
+  }
+
+  static std::vector<Point> toSteeredPoints(const ob::State *a,
+                                            const ob::State *b) {
+    return Point::fromPath(og::PathGeometric(PlannerSettings::spaceInfo, a, b));
+  }
+
+  static bool collides(const std::vector<Point> &path) {
     for (unsigned int i = 0; i < path.size(); ++i) {
-      if (GNode_base::isblock(path[i].x, path[i].y)) {
+      if (PlannerSettings::environment->occupied(path[i].x, path[i].y)) {
 #ifdef DEBUG
         // QtVisualizer::drawPath(path, QColor(255, 100, 0, 170));
 #endif
@@ -54,8 +70,10 @@ class PlannerUtils {
         auto steps = (int)(size / std::sqrt(dx * dx + dy * dy));
 
         for (int j = 1; j <= steps; ++j) {
-          if (GNode_base::isblock(path[i].x + dx * j, path[i].y + dy * j))
-          //  || GNode_base::isblock(path[i].x + dx * j + .5, path[i].y + dy * j
+          if (PlannerSettings::environment->occupied(path[i].x + dx * j,
+                                                     path[i].y + dy * j))
+          //  || PlannerSettings::environment->occupied(path[i].x + dx * j + .5,
+          //  path[i].y + dy * j
           //  + .5))
           {
 #if QT_SUPPORT
@@ -80,21 +98,18 @@ class PlannerUtils {
     return false;
   }
 
-  static bool collides(const GNode &a, const GNode &b) {
-    auto *traj = new Trajectory();
-//    PlannerSettings::stateSpace->distance()
-    PlannerSettings::steering->Steer(&a, &b, traj);
-    auto path = traj->getPath();
-    delete traj;
-    bool c = collides(path);
-    return c;
+  static bool collides(const ompl::base::State *a, const ompl::base::State *b) {
+    ompl::geometric::PathGeometric p(PlannerSettings::spaceInfo, a, b);
+    p.interpolate();
+    const auto path = Point::fromPath(p);
+    return collides(path);
   }
 
-  static bool collides(const std::vector<Tpoint> &path,
-                       std::vector<Tpoint> &collisions) {
+  static bool collides(const std::vector<Point> &path,
+                       std::vector<Point> &collisions) {
     collisions.clear();
     for (unsigned int i = 1; i < path.size(); ++i) {
-      if (GNode_base::isblock(path[i].x, path[i].y)) {
+      if (PlannerSettings::environment->occupied(path[i].x, path[i].y)) {
 #if QT_SUPPORT
 #ifdef DEBUG
         // QtVisualizer::drawPath(path, QColor(255, 100, 0, 170));
@@ -116,8 +131,10 @@ class PlannerUtils {
         auto steps = (int)(size / std::sqrt(dx * dx + dy * dy));
 
         for (int j = 1; j <= steps; ++j) {
-          if (GNode_base::isblock(path[i].x + dx * j, path[i].y + dy * j))
-          //  || GNode_base::isblock(path[i].x + dx * j + .5, path[i].y + dy * j
+          if (PlannerSettings::environment->occupied(path[i].x + dx * j,
+                                                     path[i].y + dy * j))
+          //  || PlannerSettings::environment->occupied(path[i].x + dx * j + .5,
+          //  path[i].y + dy * j
           //  + .5))
           {
 #if QT_SUPPORT
@@ -141,70 +158,88 @@ class PlannerUtils {
     return !collisions.empty();
   }
 
-  static bool collides(const GNode &a, const GNode &b,
-                       std::vector<Tpoint> &collisions) {
-    auto *traj = new Trajectory();
-    PlannerSettings::steering->Steer(&a, &b, traj);
-    auto path = traj->getPath();
-    delete traj;
+  static bool collides(const ompl::base::State *a, const ompl::base::State *b,
+                       std::vector<Point> &collisions) {
+    ompl::geometric::PathGeometric p(PlannerSettings::spaceInfo, a, b);
+    p.interpolate();
+    const auto path = Point::fromPath(p);
     return collides(path, collisions);
   }
 
-  static void updateAngles(std::vector<GNode> &path, bool AverageAngles = true,
-                           bool preventCollisions = true) {
-    if (path.size() < 2) return;
+  static ompl::geometric::PathGeometric interpolated(
+      ompl::geometric::PathGeometric path) {
+    path.interpolate();
+    return path;
+  }
 
-    double theta_old = path[0].theta;
-    path[0].theta = slope(path[0], path[1]);
-    if (preventCollisions && collides(path[0], path[1]))
-      path[0].theta = theta_old;  // revert setting
-    for (int i = 1; i < path.size() - 1; ++i) {
-      theta_old = path[i].theta;
+  static void updateAngles(ompl::geometric::PathGeometric &path,
+                           bool AverageAngles = true,
+                           bool preventCollisions = true) {
+    if (path.getStateCount() < 2) return;
+
+    double theta_old = path.getStates()[0]->as<State>()->getYaw();
+    path.getStates()[0]->as<State>()->setYaw(
+        slope(path.getStates()[0], path.getStates()[1]));
+    if (preventCollisions && collides(path.getStates()[0], path.getStates()[1]))
+      path.getStates()[0]->as<State>()->setYaw(theta_old);  // revert setting
+    for (int i = 1; i < path.getStateCount() - 1; ++i) {
+      theta_old = path.getStates()[i]->as<State>()->getYaw();
       if (AverageAngles) {
-        double l = slope(path[i - 1], path[i]);
-        double r = slope(path[i], path[i + 1]);
+        double l = slope(path.getStates()[i - 1], path.getStates()[i]);
+        double r = slope(path.getStates()[i], path.getStates()[i + 1]);
         if (std::abs(l - r) >= M_PI) {
           if (l > r)
             l += 2. * M_PI;
           else
             r += 2. * M_PI;
         }
-        path[i].theta = (l + r) * 0.5;
+        path.getStates()[i]->as<State>()->setYaw((l + r) * 0.5);
       } else
-        path[i].theta = slope(path[i - 1], path[i]);
+        path.getStates()[i]->as<State>()->setYaw(
+            slope(path.getStates()[i - 1], path.getStates()[i]));
 
       if (preventCollisions &&
-          (collides(path[i - 1], path[i]) || collides(path[i], path[i + 1])))
-        path[i].theta = theta_old;  // revert setting
+          (collides(path.getStates()[i - 1], path.getStates()[i]) ||
+           collides(path.getStates()[i], path.getStates()[i + 1])))
+        path.getStates()[i]->as<State>()->setYaw(theta_old);  // revert setting
     }
-    theta_old = path[path.size() - 1].theta;
-    path[path.size() - 1].theta =
-        slope(path[path.size() - 2], path[path.size() - 1]);
+    theta_old =
+        path.getStates()[path.getStateCount() - 1]->as<State>()->getYaw();
+    path.getStates()[path.getStateCount() - 1]->as<State>()->setYaw(
+        slope(path.getStates()[path.getStateCount() - 2],
+              path.getStates()[path.getStateCount() - 1]));
     if (preventCollisions &&
-        collides(path[path.size() - 1], path[path.size() - 2]))
-      path[path.size() - 1].theta = theta_old;  // revert setting
+        collides(path.getStates()[path.getStateCount() - 1],
+                 path.getStates()[path.getStateCount() - 2]))
+      path.getStates()[path.getStateCount() - 1]->as<State>()->setYaw(
+          theta_old);  // revert setting
   }
 
-  static void gradientDescent(std::vector<GNode> &path, unsigned int rounds,
-                              double eta, double discount = 1.) {
+  static void gradientDescent(ompl::geometric::PathGeometric &path,
+                              unsigned int rounds, double eta,
+                              double discount = 1.) {
     double dx, dy;
     for (int round = 0; round < rounds; ++round) {
       // gradient descent along distance field, excluding start/end nodes
-      for (int i = 1; i < path.size() - 1; ++i) {
+      for (int i = 1; i < path.getStateCount() - 1; ++i) {
         // compute gradient
-        PlannerSettings::environment->distanceGradient(path[i].x_r, path[i].y_r,
-                                                       dx, dy, 1.);
+        PlannerSettings::environment->distanceGradient(
+            path.getStates()[i]->as<State>()->getX(),
+            path.getStates()[i]->as<State>()->getY(), dx, dy, 1.);
         double distance = PlannerSettings::environment->bilinearDistance(
-            path[i].x_r, path[i].y_r);
+            path.getStates()[i]->as<State>()->getX(),
+            path.getStates()[i]->as<State>()->getY());
         distance = std::max(.1, distance);
-        path[i].x_r -= eta * dx / distance;
-        path[i].y_r += eta * dy / distance;
+        path.getStates()[i]->as<State>()->setX(
+            path.getStates()[i]->as<State>()->getX() - eta * dx / distance);
+        path.getStates()[i]->as<State>()->setY(
+            path.getStates()[i]->as<State>()->getY() + eta * dy / distance);
       }
       eta *= discount;
     }
   }
 
-  static void gradientDescent(std::vector<Tpoint> &path, unsigned int rounds,
+  static void gradientDescent(std::vector<Point> &path, unsigned int rounds,
                               double eta, double discount = 1.) {
     double dx, dy;
     for (int round = 0; round < rounds; ++round) {
@@ -223,13 +258,13 @@ class PlannerUtils {
     }
   }
 
-  static std::vector<Tpoint> linearInterpolate(const Tpoint &a, const Tpoint &b,
-                                               double dt = 0.1) {
-    std::vector<Tpoint> points;
+  static std::vector<Point> linearInterpolate(const Point &a, const Point &b,
+                                              double dt = 0.1) {
+    std::vector<Point> points;
     double dx = (b.x - a.x);
     double dy = (b.y - a.y);
     double size = std::sqrt(dx * dx + dy * dy);
-    if (size == 0) return std::vector<Tpoint>{a};
+    if (size == 0) return std::vector<Point>{a};
     dx = dx / size * dt;
     dy = dy / size * dt;
     auto steps = (int)(size / std::sqrt(dx * dx + dy * dy));
@@ -242,65 +277,17 @@ class PlannerUtils {
     return points;
   }
 
-  static std::vector<Tpoint> linearInterpolate(const GNode &a, const GNode &b,
-                                               double dt = 0.1) {
-    return linearInterpolate(Tpoint(a.x_r, a.y_r), Tpoint(b.x_r, b.y_r), dt);
+  static std::vector<Point> linearInterpolate(ompl::base::State *a,
+                                              ompl::base::State *b,
+                                              double dt = 0.1) {
+    return linearInterpolate(
+        Point(a->as<State>()->getX(), a->as<State>()->getY()),
+        Point(b->as<State>()->getX(), b->as<State>()->getY()), dt);
   }
 
-  static std::vector<Tpoint> toTrajectoryPoints(
-      const std::vector<GNode> &path) {
-    std::vector<Tpoint> points;
-    for (auto &gnode : path) points.emplace_back(Tpoint(gnode.x_r, gnode.y_r));
-    return points;
-  }
-
-  static std::vector<Tpoint> toSteeredTrajectoryPoints(
-      const std::vector<GNode> &path) {
-    std::vector<Tpoint> points;
-    for (unsigned int i = 0; i < path.size() - 1; ++i) {
-      auto *traj = new Trajectory();
-      PlannerSettings::steering->Steer(&path[i], &path[i + 1], traj);
-      auto tpath = traj->getPath();
-      delete traj;
-
-      // avoid duplications (messes up metrics computations, angle estimation,
-      // etc.)
-      if (path[i].x_r != tpath[0].x && path[i].y_r != tpath[0].y)
-        points.emplace_back(path[i].x_r, path[i].y_r);
-
-      points.insert(points.end(), tpath.begin(), tpath.end());
-
-      if (path[i + 1].x_r != tpath.back().x &&
-          path[i + 1].y_r != tpath.back().y)
-        points.emplace_back(path[i + 1].x_r, path[i + 1].y_r);
-    }
-    return points;
-  }
-
-  static std::vector<Tpoint> toSteeredTrajectoryPoints(const GNode &a,
-                                                       const GNode &b) {
-    auto *traj = new Trajectory();
-    PlannerSettings::steering->Steer(&a, &b, traj);
-    auto tpath = traj->getPath();
-    delete traj;
-    return tpath;
-  }
-
-  static Trajectory toSteeredTrajectory(const std::vector<GNode> &path) {
-    return Trajectory(toSteeredTrajectoryPoints(path));
-  }
-
-  static Tpoint centroid(const std::vector<Tpoint> &points) {
-    double x = 0, y = 0;
-    for (auto &p : points) {
-      x += p.x;
-      y += p.y;
-    }
-    return Tpoint(x / points.size(), y / points.size());
-  }
-
-  static GNode closestPoint(Tpoint x, const std::vector<Tpoint> &points) {
-    if (points.size() == 1) return GNode(points[0].x, points[0].y);
+  static ompl::base::State *closestPoint(Point x,
+                                         const std::vector<Point> &points) {
+    if (points.size() == 1) return points[0].toState();
     unsigned int closest = 0;
     double dist = points[closest].distanceSquared(x);
     for (unsigned int i = 1; i < points.size() - 1; ++i) {
@@ -317,10 +304,10 @@ class PlannerUtils {
       theta = slope(points[0], points[1]);
     else
       theta = slope(points[closest - 1], points[closest + 1]);
-    return GNode(points[closest].x, points[closest].y, theta);
+    return points[closest].toState(theta);
   }
 
-  static double totalLength(const std::vector<Tpoint> &path) {
+  static double totalLength(const std::vector<Point> &path) {
     double l = 0;
     for (size_t i = 1; i < path.size(); ++i) {
       const double dx = (path[i].x - path[i - 1].x);
@@ -330,9 +317,9 @@ class PlannerUtils {
     return l;
   }
 
-  static std::vector<Tpoint> equidistantSampling(
-      const std::vector<Tpoint> &path, size_t targetSize) {
-    std::vector<Tpoint> result;
+  static std::vector<Point> equidistantSampling(const std::vector<Point> &path,
+                                                size_t targetSize) {
+    std::vector<Point> result;
     const double total = totalLength(path);
     const double targetSegment = total / targetSize;
     result.emplace_back(path[0]);
@@ -358,7 +345,7 @@ class PlannerUtils {
           static_cast<unsigned int>(std::floor((segment + l) / targetSegment));
       for (unsigned int j = 0; j < segmentSteps; ++j) {
         const double alpha = start + j * targetSegment;
-        const Tpoint p(path[i - 1].x + dx * alpha, path[i - 1].y + dy * alpha);
+        const Point p(path[i - 1].x + dx * alpha, path[i - 1].y + dy * alpha);
         result.emplace_back(p);
       }
       sofar += segmentSteps * targetSegment;

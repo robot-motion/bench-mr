@@ -27,7 +27,7 @@ class Table : public QAbstractTableModel {
     return tableView;
   }
 
-  std::string str() {
+  std::string str() const {
     std::vector<int> columnSizes(header.size() + 1, 0);
     for (auto &row : rows)
       columnSizes[0] = std::max((int)row.first.length(), columnSizes[0]);
@@ -49,7 +49,7 @@ class Table : public QAbstractTableModel {
     return ss.str();
   }
 
-  std::string latex() {
+  std::string latex() const {
     std::vector<int> columnSizes(header.size() + 1, 0);
     for (auto &row : rows)
       columnSizes[0] = std::max((int)row.first.length(), columnSizes[0]);

@@ -2,7 +2,6 @@
 #include <base/PlannerUtils.hpp>
 #include <utility>
 
-#include "AbstractPlanner.hpp"
 #include "ThetaStar.h"
 
 #define DEBUG_LISTS 0
@@ -13,8 +12,6 @@
 
 ThetaStar::ThetaStar()
     : AbstractPlanner(), ob::Planner(ss->getSpaceInformation(), "Theta*") {
-  curr_traj = new Trajectory();
-
   srand((unsigned int)(time(nullptr)));
 
   /// Euclidean Cost
@@ -32,8 +29,6 @@ ThetaStar::ThetaStar()
 ThetaStar::ThetaStar(bool astar, std::string name)
     : AbstractPlanner(),
       ob::Planner(ss->getSpaceInformation(), std::move(name)) {
-  curr_traj = new Trajectory();
-
   srand((unsigned int)(time(nullptr)));
 
   /// Euclidean Cost
@@ -245,7 +240,7 @@ ob::PlannerStatus ThetaStar::run() {
   return ob::Planner::solve(PlannerSettings::PlanningTime);
 }
 
-og::PathGeometric ThetaStar::geometricPath() const {
+og::PathGeometric ThetaStar::solution() const {
   og::PathGeometric path(ss->getSpaceInformation());
   auto gnodes = global_paths[0];
   if (gnodes.empty()) {
@@ -260,14 +255,6 @@ og::PathGeometric ThetaStar::geometricPath() const {
     path.append(state);
   }
   return path;
-}
-
-std::vector<GNode> ThetaStar::solutionTrajectory() const {
-  return global_paths[0];
-}
-
-std::vector<Tpoint> ThetaStar::solutionPath() const {
-  return PlannerUtils::toSteeredTrajectory(global_paths[0]).getPath();
 }
 
 bool ThetaStar::hasReachedGoalExactly() const { return true; }
@@ -304,10 +291,9 @@ ob::PlannerStatus ThetaStar::solve(const ob::PlannerTerminationCondition &ptc) {
       pdef_->getStartState(0)->as<ob::SE2StateSpace::StateType>();
   GNode startNode(startState->getX(), startState->getY());
 
-  curr_traj->reset();
   global_paths.clear();
 
-  PlannerSettings::steering->clearInternalData();
+//  PlannerSettings::steering->clearInternalData();
 
   OMPL_DEBUG("Theta*: Generate a new global path");
   Stopwatch sw;
@@ -325,13 +311,8 @@ ob::PlannerStatus ThetaStar::solve(const ob::PlannerTerminationCondition &ptc) {
 
   for (auto &gnodes : global_paths) {
     auto path(std::make_shared<og::PathGeometric>(ss->getSpaceInformation()));
-    for (auto &node : gnodes) {
-      auto *state =
-          ss->getStateSpace()->allocState()->as<ob::SE2StateSpace::StateType>();
-      state->setXY(node.x_r, node.y_r);
-      state->setYaw(node.theta);
-      path->append(state);
-    }
+    for (auto &node : gnodes)
+      path->append(base::StateFromXYT(node.x_r, node.y_r, node.theta));
     pdef_->addSolutionPath(path, false, 0.0, getName());
   }
 

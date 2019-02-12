@@ -4,9 +4,9 @@
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
 
 #include "Environment.h"
-#include "steer_functions/steer_base.h"
 
-typedef Steer_base SteerFunction;
+#include "steer_functions/Steering.h"
+
 
 //#define DEBUG 1
 #define STATS
@@ -21,10 +21,12 @@ struct PlannerSettings {
 
   static int numberEdges;
 
-  // steering function settings
-  static Steering::SteeringType steeringType;
+  static double stateEqualityTolerance;
+
+
   static ompl::base::StateSpacePtr stateSpace;
-  static SteerFunction *steering;
+  static ompl::base::SpaceInformationPtr spaceInfo;
+  static ompl::base::OptimizationObjectivePtr objective;
 
   /**
    * Distance between states sampled using the steer function for collision
@@ -32,6 +34,7 @@ struct PlannerSettings {
    */
   static double samplingResolution;
 
+  static Steering::SteeringType steeringType;
   static void initializeSteering();
 
   static double CarTurningRadius;

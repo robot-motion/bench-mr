@@ -1,6 +1,5 @@
 #pragma once
 
-#include <base/gnode.h>
 #include <unordered_map>
 
 #include <metrics/CurvatureMetric.h>
@@ -29,20 +28,21 @@ class PathEvaluation {
   static void initialize();
 
 #if QT_SUPPORT
-  static PathStatistics add(AbstractPlanner *planner, std::string label,
-                            QColor color = Qt::black);
+  static PathStatistics add(AbstractPlanner *planner, const std::string &label,
+                            const QColor &color = Qt::black);
 
-  static PathStatistics evaluate(const std::vector<Tpoint> &path,
-                                 std::string label, QColor color = Qt::black);
+  static PathStatistics evaluate(const ompl::geometric::PathGeometric &path,
+                                 const std::string &label,
+                                 const QColor &color = Qt::black);
 #else
   static PathStatistics add(AbstractPlanner *planner, std::string label);
 
-  static PathStatistics evaluate(const std::vector<Tpoint> &path,
-                                 std::string label);
+  static PathStatistics evaluate(const ompl::geometric::PathGeometric &path,
+                                 const std::string &label);
 #endif
 
   static std::vector<double> computeObstacleDistances(
-      const std::vector<Tpoint> &path);
+      const std::vector<Point> &path);
 
  private:
   PathEvaluation() = default;

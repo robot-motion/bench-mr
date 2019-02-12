@@ -19,13 +19,12 @@
 #include "steer_functions/POSQ/POSQStateSpace.h"
 
 #include "base/TimedResult.hpp"
-#include "base/gnode.h"
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
 
 class AbstractPlanner {
-public:
+ public:
   static const unsigned int BSPLINE_MAX_STEPS = 5;
   static constexpr double BSPLINE_EPSILON = 0.005;
 
@@ -41,24 +40,16 @@ public:
 
   virtual ob::PlannerStatus run() = 0;
 
-  virtual std::vector<GNode> solutionTrajectory() const = 0;
-  virtual std::vector<Tpoint> solutionPath() const = 0;
-  virtual og::PathGeometric geometricPath() const {
-    og::PathGeometric path(ss->getSpaceInformation());
-    const auto solution = solutionTrajectory();
-    if (solution.empty()) {
-      OMPL_ERROR((name() + ": The computed path contains no GNodes!").c_str());
-      return path;
-    }
-    for (auto &node : solution) {
-      auto *state =
-          ss->getStateSpace()->allocState()->as<ob::SE2StateSpace::StateType>();
-      state->setXY(node.x_r, node.y_r);
-      state->setYaw(node.theta);
-      path.append(state);
-    }
-    return path;
+  virtual std::vector<Point> solutionPath() const {
+    auto path = solution();
+    path.interpolate();
+    return Point::fromPath(path);
   }
+
+  /**
+   * Returns the solution of the planner, which is a sparse PathGeometric.
+   */
+  virtual og::PathGeometric solution() const = 0;
 
   virtual bool hasReachedGoalExactly() const = 0;
   virtual double planningTime() const = 0;
@@ -66,7 +57,7 @@ public:
   virtual TimedResult shortcutPath() const {
     TimedResult r;
     r.status = ss->getLastPlannerStatus();
-    og::PathGeometric path = geometricPath();
+    og::PathGeometric path = solution();
     //        ss->getSpaceInformation()->setStateValidityCheckingResolution(0.2);
     og::PathSimplifier ps(ss->getSpaceInformation(), ss->getGoal());
 
@@ -78,18 +69,14 @@ public:
     // have to reduce resolution
     path.interpolate();
     //        ss->getSpaceInformation()->setStateValidityCheckingResolution(0.05);
-    for (auto *state : path.getStates()) {
-      const auto *s = state->as<ob::SE2StateSpace::StateType>();
-      double x = s->getX(), y = s->getY();
-      r.trajectory.emplace_back(x, y);
-    }
+    r.trajectory = path;
     return r;
   }
 
   virtual TimedResult smoothBSpline() const {
     TimedResult r;
     r.status = ss->getLastPlannerStatus();
-    og::PathGeometric path = geometricPath();
+    og::PathGeometric path = solution();
     //        ss->getSpaceInformation()->setStateValidityCheckingResolution(0.2);
     og::PathSimplifier ps(ss->getSpaceInformation(), ss->getGoal());
 
@@ -100,18 +87,14 @@ public:
     // have to reduce resolution
     path.interpolate();
     //        ss->getSpaceInformation()->setStateValidityCheckingResolution(0.05);
-    for (auto *state : path.getStates()) {
-      const auto *s = state->as<ob::SE2StateSpace::StateType>();
-      double x = s->getX(), y = s->getY();
-      r.trajectory.emplace_back(x, y);
-    }
+    r.trajectory = path;
     return r;
   }
 
   virtual TimedResult simplifyMax() const {
     TimedResult r;
     r.status = ss->getLastPlannerStatus();
-    og::PathGeometric path = geometricPath();
+    og::PathGeometric path = solution();
     og::PathSimplifier ps(ss->getSpaceInformation(), ss->getGoal());
 
     r.start();
@@ -119,11 +102,7 @@ public:
     r.stop();
 
     path.interpolate();
-    for (auto *state : path.getStates()) {
-      const auto *s = state->as<ob::SE2StateSpace::StateType>();
-      double x = s->getX(), y = s->getY();
-      r.trajectory.emplace_back(x, y);
-    }
+    r.trajectory = path;
     return r;
   }
 
@@ -159,11 +138,7 @@ public:
       auto path = ss->getSolutionPath();
       path.interpolate();
       //        ss->getSpaceInformation()->setStateValidityCheckingResolution(0.05);
-      for (auto *state : path.getStates()) {
-        const auto *s = state->as<ob::SE2StateSpace::StateType>();
-        double x = s->getX(), y = s->getY();
-        r.trajectory.emplace_back(x, y);
-      }
+      r.trajectory = path;
     } else
       std::cout << "No solution found." << std::endl;
 
@@ -175,7 +150,7 @@ public:
     //            delete ss;
   }
 
-protected:
+ protected:
   og::SimpleSetup *ss{nullptr};
 
   AbstractPlanner() {
@@ -239,6 +214,6 @@ protected:
     ss->setup();
   }
 
-protected:
+ protected:
   virtual ob::Planner *omplPlanner() { return nullptr; }
 };

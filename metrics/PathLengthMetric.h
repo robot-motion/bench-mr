@@ -7,13 +7,13 @@
 
 class PathLengthMetric : public TMetric<PathLengthMetric> {
  public:
-  static double evaluateMetric(const Trajectory *trajectory, double) {
+  static double evaluateMetric(const ompl::geometric::PathGeometric &trajectory, double) {
     double xold_, yold_, dist_, dx_, dy_, s;
     xold_ = 0;
     yold_ = 0;
     dist_ = 0;
 
-    std::vector<Tpoint> path = trajectory->getPath();
+    const auto path = Point::fromPath(trajectory);
     /// Save the path!!
     for (std::size_t i = 0; i < path.size(); i++) {
       if (i == 0) {

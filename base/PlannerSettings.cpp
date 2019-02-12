@@ -1,12 +1,11 @@
+#include <memory>
+
 #include "PlannerSettings.h"
-#include "steer_functions/Dubins/DubinsSteering.h"
-#include "steer_functions/Linear/LinearSteering.h"
-#include "steer_functions/POSQ/POSQSteering.h"
-#include "steer_functions/ReedsShepp/ReedsSheppSteering.h"
 
 #include <ompl/base/spaces/DubinsStateSpace.h>
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
 #include <ompl/base/spaces/SE2StateSpace.h>
+#include <ompl/base/objectives/PathLengthOptimizationObjective.h>
 #include "steer_functions/POSQ/POSQStateSpace.h"
 
 #ifdef G1_AVAILABLE
@@ -17,16 +16,19 @@ Environment *PlannerSettings::environment = nullptr;
 
 int PlannerSettings::numberEdges = 10;
 
+double PlannerSettings::stateEqualityTolerance = 1e-4;
+
 // steering function settings
 Steering::SteeringType PlannerSettings::steeringType =
     Steering::STEER_TYPE_REEDS_SHEPP;
 double PlannerSettings::CarTurningRadius = 4;
 double PlannerSettings::LinearSteeringDelta = 3.0;
 
-static double samplingResolution = 0.2;
+double PlannerSettings::samplingResolution = 0.2;
 
-SteerFunction *PlannerSettings::steering = nullptr;
 ompl::base::StateSpacePtr PlannerSettings::stateSpace(nullptr);
+ompl::base::SpaceInformationPtr PlannerSettings::spaceInfo{nullptr};
+ompl::base::OptimizationObjectivePtr PlannerSettings::objective{nullptr};
 
 bool PlannerSettings::VisualizeSmoothing1 = true;
 bool PlannerSettings::VisualizeSmoothing2 = true;
@@ -65,27 +67,32 @@ void PlannerSettings::initializeSteering() {
 
   PlannerSettings::stateSpace->as<ob::SE2StateSpace>()->setBounds(bounds);
 
-  if (steeringType == Steering::STEER_TYPE_REEDS_SHEPP)
-    PlannerSettings::steering =
-        new ReedsSheppSteering(PlannerSettings::CarTurningRadius);
-  else if (steeringType == Steering::STEER_TYPE_POSQ)
-    PlannerSettings::steering = new POSQSteering;
-  else if (steeringType == Steering::STEER_TYPE_LINEAR)
-    PlannerSettings::steering = new LinearSteering;
-  else if (steeringType == Steering::STEER_TYPE_DUBINS)
-    PlannerSettings::steering =
-        new DubinsSteering(PlannerSettings::CarTurningRadius);
-#ifdef G1_AVAILABLE
-  else if (steeringType == Steering::STEER_TYPE_CLOTHOID)
-    PlannerSettings::steering = new ClothoidSteering;
-#else
-  else if (steeringType == Steering::STEER_TYPE_CLOTHOID) {
-    OMPL_ERROR("G1 Clothoid steering is not available in this release!");
-    OMPL_ERROR(
-        "Select a steering type other than STEER_TYPE_CLOTHOID in "
-        "PlannerSettings.");
-  }
-#endif
+  spaceInfo = std::make_shared<ompl::base::SpaceInformation>(PlannerSettings::stateSpace);
+  objective = ompl::base::OptimizationObjectivePtr(new ob::PathLengthOptimizationObjective(spaceInfo));
+
+  OMPL_INFORM("Initialized steer function");
+
+//  if (steeringType == Steering::STEER_TYPE_REEDS_SHEPP)
+//    PlannerSettings::steering =
+//        new ReedsSheppSteering(PlannerSettings::CarTurningRadius);
+//  else if (steeringType == Steering::STEER_TYPE_POSQ)
+//    PlannerSettings::steering = new POSQSteering;
+//  else if (steeringType == Steering::STEER_TYPE_LINEAR)
+//    PlannerSettings::steering = new LinearSteering;
+//  else if (steeringType == Steering::STEER_TYPE_DUBINS)
+//    PlannerSettings::steering =
+//        new DubinsSteering(PlannerSettings::CarTurningRadius);
+//#ifdef G1_AVAILABLE
+//  else if (steeringType == Steering::STEER_TYPE_CLOTHOID)
+//    PlannerSettings::steering = new ClothoidSteering;
+//#else
+//  else if (steeringType == Steering::STEER_TYPE_CLOTHOID) {
+//    OMPL_ERROR("G1 Clothoid steering is not available in this release!");
+//    OMPL_ERROR(
+//        "Select a steering type other than STEER_TYPE_CLOTHOID in "
+//        "PlannerSettings.");
+//  }
+//#endif
 }
 
 bool PlannerSettings::estimateTheta = true;

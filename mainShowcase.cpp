@@ -1,16 +1,13 @@
 //#define DEBUG 1 // TODO activate DEBUG in PlannerSettings.h
 
-#include <planners/Chomp.h>
-#include <planners/ThetaStar.h>
 #include "base/PlannerSettings.h"
-
-#include "steer_functions/POSQ/POSQSteering.h"
 
 #include "metrics/PathLengthMetric.h"
 
 #include "planners/OMPLPlanner.hpp"
-#include "planners/SbplPlanner.h"
-#include "planners/SmoothThetaStar.h"
+#include "planners/chomp/Chomp.h"
+#include "planners/sbpl/SbplPlanner.h"
+#include "planners/thetastar/ThetaStar.h"
 
 #include "gui/PathEvaluation.h"
 #if QT_SUPPORT
@@ -28,13 +25,13 @@ void printStats(const PathStatistics &stats) {
 }
 
 int main(int argc, char **argv) {
-    PlannerSettings::environment = Environment::createRandomCorridor(
-            50, 50, 3,
-            30,  // 1540486476); //1540445576); //1502484532); //1502407983);
-            // //1502323408); //1502316103); //1502231684); //1502227898);
-            // //1501893283); //1501892155);//1501089540); //1501089410
-            // );//1500660612);// 1500551721);// 1500550472);
-            (unsigned int)(time(nullptr) + 123));
+  PlannerSettings::environment = Environment::createRandomCorridor(
+      50, 50, 3,
+      30,  // 1540486476); //1540445576); //1502484532); //1502407983);
+      // //1502323408); //1502316103); //1502231684); //1502227898);
+      // //1501893283); //1501892155);//1501089540); //1501089410
+      // );//1500660612);// 1500551721);// 1500550472);
+      (unsigned int)(time(nullptr) + 123));
 
   PlannerSettings::steeringType = Steering::STEER_TYPE_REEDS_SHEPP;
   //    PlannerSettings::CarTurningRadius = 1.5;
@@ -55,7 +52,6 @@ int main(int argc, char **argv) {
   //    PlannerSettings::environment = Environment::createRandom(50, 50, 0.1,
   //    1542671305);
 
-
   Log::instantiateRun();
 
   for (unsigned int i = 0; i < 10; ++i) {
@@ -75,7 +71,7 @@ int main(int argc, char **argv) {
     PathStatistics thetaStarStats, rrtStarStats, gripsStats,
         smoothThetaStarStats, sbplStats, chompStats;
 
-    std::vector<Tpoint> gripsPath;
+    std::vector<Point> gripsPath;
     std::vector<GNode> gripsTrajectory;
 
     auto info = nlohmann::json(
@@ -205,10 +201,11 @@ int main(int argc, char **argv) {
     //        };
     //        delete smoothThetaStar;
 
+    OMPL_INFORM("Starting planner");
     auto *sbplPlanner = new SbplPlanner(SbplPlanner::SbplType::SBPL_ARASTAR);
     if (sbplPlanner->run()) {
-      std::vector<Tpoint> path = sbplPlanner->solutionPath();
-      sbplStats = PathEvaluation::evaluate(path, "SBPL (ANA*)");
+      sbplStats =
+          PathEvaluation::evaluate(sbplPlanner->solution(), "SBPL (ANA*)");
 #if QT_SUPPORT
       sbplStats.color = Qt::darkGreen;
 #endif
@@ -222,11 +219,8 @@ int main(int argc, char **argv) {
         {"medianClearingDistance", sbplStats.medianClearingDistance},
         {"minClearingDistance", sbplStats.minClearingDistance},
         {"maxClearingDistance", sbplStats.maxClearingDistance},
-        {"path", sbplPlanner->solutionTrajectory().empty()
-                     ? Log::serializePath({})
-                     : Log::serializePath(sbplPlanner->solutionPath())},
-        {"trajectory",
-         Log::serializeTrajectory(sbplPlanner->solutionTrajectory())}};
+        {"path", Log::serializePath(sbplPlanner->solutionPath())},
+        {"trajectory", Log::serializeTrajectory(sbplPlanner->solution())}};
     delete sbplPlanner;
 
     //        printStats(thetaStarStats);
