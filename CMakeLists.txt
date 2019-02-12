@@ -41,9 +41,9 @@ link_directories(${SBPL_LIBRARY_DIRS})
 # set(QT_QMAKE_EXECUTABLE "/home/eric/Qt/5.11.1/gcc_64/bin/qmake")
 # set(CMAKE_PREFIX_PATH /home/eric/Qt/5.11.1/gcc_64;${CMAKE_PREFIX_PATH})
 
-find_package(Qt5 COMPONENTS Core Widgets Charts Svg)
-include_directories( ${CMAKE_BINARY_DIR} )
-set(CMAKE_AUTOMOC ON)
+# find_package(Qt5 COMPONENTS Core Widgets Charts Svg)
+# include_directories( ${CMAKE_BINARY_DIR} )
+# set(CMAKE_AUTOMOC ON)
 
 set(EXTRA_LIB ${EXTRA_LIB} ${SBPL_LIBRARIES} chomp mzcommon -lompl steering_functions)
 
@@ -102,3 +102,7 @@ endif (Qt5_FOUND)
 
 add_executable(showcase mainShowcase.cpp ${ALL_SRC})
 target_link_libraries(showcase ${EXTRA_LIB})
+
+# test compiling moving AI test
+add_executable(movingAi mainMovingAiTest.cpp ${ALL_SRC})
+target_link_libraries(movingAi ${EXTRA_LIB})
