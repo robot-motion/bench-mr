@@ -38,9 +38,9 @@
 
 // Adapted by Luigi Palmieri CR/AER to combine it with POSQSteering
 
-#include <boost/math/constants/constants.hpp>
 #include <ompl/base/MotionValidator.h>
 #include <ompl/base/spaces/SE2StateSpace.h>
+#include <boost/math/constants/constants.hpp>
 
 #include "POSQ.hpp"
 
@@ -48,7 +48,7 @@
  */
 
 class POSQStateSpace : public ompl::base::SE2StateSpace {
-public:
+ public:
   POSQStateSpace() { initialize(); }
 
   ~POSQStateSpace() override { delete state_space_; }
@@ -78,11 +78,11 @@ public:
   void sanityChecks() const override {
     std::cout << "sanity check!!!!" << std::endl;
     double zero = std::numeric_limits<double>::epsilon();
-    double eps = .1; // rarely such a large error will occur
+    double eps = .1;  // rarely such a large error will occur
     ompl::base::StateSpace::sanityChecks(zero, eps, ~STATESPACE_INTERPOLATION);
   }
 
-protected:
+ protected:
   // virtual void interpolate(const State *from, double t, State *state) const;
 
   /** \brief Object from the steering function workspace*/
@@ -90,7 +90,7 @@ protected:
 };
 
 class POSQMotionValidator : public ompl::base::MotionValidator {
-public:
+ public:
   POSQMotionValidator(const ompl::base::SpaceInformationPtr &si)
       : ompl::base::MotionValidator(si) {
     defaultSettings();
@@ -99,11 +99,11 @@ public:
   ~POSQMotionValidator() override = default;
   bool checkMotion(const ompl::base::State *s1,
                    const ompl::base::State *s2) const override;
-  bool
-  checkMotion(const ompl::base::State *s1, const ompl::base::State *s2,
-              std::pair<ompl::base::State *, double> &lastValid) const override;
+  bool checkMotion(
+      const ompl::base::State *s1, const ompl::base::State *s2,
+      std::pair<ompl::base::State *, double> &lastValid) const override;
 
-private:
+ private:
   POSQStateSpace *stateSpace_;
   void defaultSettings();
 };

@@ -6,7 +6,7 @@
 #include <utility>
 
 #include "base/PathStatistics.hpp"
-#include "base/Trajectory.h"
+#include "base/Primitives.h"
 
 struct LegendEntry {
   std::string label;
@@ -52,37 +52,37 @@ class QtVisualizer {
   static void visualize(Environment *environment, int run,
                         bool renderDistances = false);
 
-  static void drawNode(const GNode &node, QColor color = Qt::red,
+  static void drawNode(const ompl::base::State *state, const QColor &color = Qt::red,
                        double radius = 0.3, bool drawArrow = true);
-  static void drawNode(const Tpoint &point, QColor color = Qt::red,
+  static void drawNode(const Point &point, const QColor &color = Qt::red,
                        double radius = 0.3);
-  static void drawNode(double x, double y, QColor color = Qt::red,
+  static void drawNode(double x, double y, const QColor &color = Qt::red,
                        double radius = 0.3);
-  static void drawNode(double x, double y, double theta, QColor color = Qt::red,
+  static void drawNode(double x, double y, double theta, const QColor &color = Qt::red,
                        double radius = 0.3, bool drawArrow = true);
 
-  static void drawTrajectory(std::vector<GNode> nodes,
+  static void drawTrajectory(const ompl::geometric::PathGeometric &path,
                              const QColor &color = Qt::white,
                              float penWidth = 1.f,
                              Qt::PenStyle penStyle = Qt::PenStyle::SolidLine);
-  static void drawTrajectory(const GNode &a, const GNode &b,
+  static void drawTrajectory(const ompl::base::State *a, const ompl::base::State *b,
                              const QColor &color = Qt::white,
                              float penWidth = 1.f,
                              Qt::PenStyle penStyle = Qt::PenStyle::SolidLine);
-  static void drawPath(std::vector<GNode> nodes,
+  static void drawPath(const ompl::geometric::PathGeometric &path,
                        const QColor &color = Qt::white, float penWidth = 1.f,
                        Qt::PenStyle penStyle = Qt::PenStyle::SolidLine);
-  static void drawPath(std::vector<Tpoint> nodes, QColor color = Qt::white,
+  static void drawPath(const std::vector<Point> &nodes, const QColor &color = Qt::white,
                        float penWidth = 1.f,
                        Qt::PenStyle penStyle = Qt::PenStyle::SolidLine);
-  static void drawPath(std::vector<Tpoint> nodes, QPen pen);
-  static void drawNodes(std::vector<GNode> nodes, bool drawArrows = false,
-                        QColor color = Qt::red, double radius = 0.3);
-  static void drawNodes(std::vector<Tpoint> nodes, QColor color = Qt::red,
+  static void drawPath(const std::vector<Point> &nodes, QPen pen);
+  static void drawNodes(ompl::geometric::PathGeometric path, bool drawArrows = false,
+                        const QColor &color = Qt::red, double radius = 0.3);
+  static void drawNodes(const std::vector<Point> &nodes, const QColor &color = Qt::red,
                         double radius = 0.3);
 
   static void drawLabel(const std::string &text, double x, double y,
-                        QColor color = Qt::black, float size = 1.f);
+                        const QColor &color = Qt::black, float size = 1.f);
 
   static void drawStats(const PathStatistics &stats);
 

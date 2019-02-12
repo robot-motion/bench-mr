@@ -1,6 +1,6 @@
-#include <base/Trajectory.h>
-#include <base/gnode.h>
 #include <chrono>
+
+#include <base/Primitives.h>
 
 #include "base/PathStatistics.hpp"
 
@@ -19,10 +19,10 @@ class Log {
 
   static std::string filename();
 
-  static std::vector<std::vector<double> > serializePath(
-      const std::vector<Tpoint> &path);
-  static std::vector<std::vector<double> > serializeTrajectory(
-      const std::vector<GNode> &traj);
+  static std::vector<std::array<double, 2>> serializePath(
+      const std::vector<Point> &path);
+  static std::vector<std::array<double, 3>> serializeTrajectory(
+      const ompl::geometric::PathGeometric &traj);
 
  private:
   static nlohmann::json _json;

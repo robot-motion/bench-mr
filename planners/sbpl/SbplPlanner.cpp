@@ -1,7 +1,8 @@
 #include "SbplPlanner.h"
 #include <base/PlannerUtils.hpp>
 
-SbplPlanner::SbplPlanner(SbplPlanner::SbplType type) {
+SbplPlanner::SbplPlanner(SbplPlanner::SbplType type)
+    : _solution(og::PathGeometric(PlannerSettings::spaceInfo)) {
   _env = new EnvironmentNAVXYTHETALAT;
 
   // set the perimeter of the robot (it is given with 0,0,0 robot ref. point for
@@ -115,15 +116,15 @@ SbplPlanner::SbplPlanner(SbplPlanner::SbplType type) {
     std::cout << "goalTheta: " << (orientations.second * 180. / M_PI)
               << " deg   " << goalTheta << std::endl;
 
-    //#if DEBUG
-    #if QT_SUPPORT
+//#if DEBUG
+#if QT_SUPPORT
     QtVisualizer::drawNode(PlannerSettings::environment->start().x,
                            PlannerSettings::environment->start().y,
                            orientations.first);
     QtVisualizer::drawNode(PlannerSettings::environment->goal().x,
                            PlannerSettings::environment->goal().y,
                            orientations.second);
-    #endif
+#endif
     //#endif
   }
 
@@ -180,11 +181,12 @@ ob::PlannerStatus SbplPlanner::run() {
     _env->ConvertStateIDPathintoXYThetaPath(&stateIDs, &xythetaPath);
     for (auto &xyt : xythetaPath) {
       if (std::abs(xyt.x) < 1e-3 && std::abs(xyt.y) < 1e-3) continue;
-      _solution.emplace_back(GNode(xyt.x / PlannerSettings::sbplResolution /
-                                       PlannerSettings::sbplScaling,
-                                   xyt.y / PlannerSettings::sbplResolution /
-                                       PlannerSettings::sbplScaling,
-                                   xyt.theta));
+      _solution.append(
+          base::StateFromXYT(xyt.x / PlannerSettings::sbplResolution /
+                                 PlannerSettings::sbplScaling,
+                             xyt.y / PlannerSettings::sbplResolution /
+                                 PlannerSettings::sbplScaling,
+                             xyt.theta));
     }
   } else {
     OMPL_WARN("SBPL found no solution.");
@@ -192,19 +194,16 @@ ob::PlannerStatus SbplPlanner::run() {
   return {result == 1, false};
 }
 
-std::vector<GNode> SbplPlanner::solutionTrajectory() const { return _solution; }
-
-std::vector<Tpoint> SbplPlanner::solutionPath() const {
-  // SBPL already returns all the steered points
-  std::vector<Tpoint> p;
-  for (auto &node : _solution) p.emplace_back(Tpoint(node.x_r, node.y_r));
-  return p;
-}
+og::PathGeometric SbplPlanner::solution() const { return _solution; }
 
 bool SbplPlanner::hasReachedGoalExactly() const {
-  return !_solution.empty() &&
-         _solution.back().x_r == PlannerSettings::environment->goal().x &&
-         _solution.back().y_r == PlannerSettings::environment->goal().y;
+  if (_solution.getStateCount() == 0) return false;
+  const auto *last =
+      _solution
+          .getState(static_cast<unsigned int>(_solution.getStateCount() - 1))
+          ->as<State>();
+  return last->getX() == PlannerSettings::environment->goal().x &&
+         last->getY() == PlannerSettings::environment->goal().y;
 }
 
 double SbplPlanner::planningTime() const { return _planningTime; }

@@ -3,24 +3,25 @@
 #include <cmath>
 #include <vector>
 
-#include "TrajectoryMetric.h"
+#include "../TrajectoryMetric.h"
 
+#pragma warning "The PeaksMetric is not supported at the moment."
+
+#if 0
 class PeaksMetric : public TMetric<PeaksMetric> {
  public:
-  static const bool MoreIsBetter = false;
-
-  static double evaluateMetric(const Trajectory *trajectory, double dt) {
+  static double evaluateMetric(const ompl::geometric::PathGeometric &trajectory,
+                               double dt) {
     double pmetric = 0;
 
     double v_x[60000];
     double v_y[60000];
 
     double acca[60000];
+      const auto path = Point::fromPath(trajectory);
 
     /// Integration along the found trajectory
 #if TESTM > 0
-    std::vector<Tpoint> path = traj->getPath();
-
     v_x[0] = (path[+1].x - path[0].x) / (dt);
     v_y[0] = (path[+1].y - path[0].y) / (dt);
     int acnt = 0;
@@ -40,19 +41,20 @@ class PeaksMetric : public TMetric<PeaksMetric> {
         pmetric++;
     }
 #else
+    std::vector<double> vvec(path.size());
 
-    std::vector<Tpoint> path = trajectory->getPath();
-    std::vector<double> vvec;
-
-    for (auto va : trajectory->getV()) {
-      vvec.push_back(va);
-    }
+    // for (auto va : trajectory->getV()) {
+    //   vvec.push_back(va);
+    // }
 
     int acnt = 0;
     double mean_acc = 0;
     for (std::size_t i = 1; i < path.size() - 1; i++) {
-      v_x[i] = vvec[i] * std::cos(path[i].z);
-      v_y[i] = vvec[i] * std::sin(path[i].z);
+      v_x[i] = vvec[i] * std::cos(0);
+      v_y[i] = vvec[i] * std::sin(0);
+      // TODO this is supposed to be:
+      // v_x[i] = vvec[i] * std::cos(path[i].z);
+      // v_y[i] = vvec[i] * std::sin(path[i].z);
       acca[i - 1] = std::sqrt(v_x[i] * v_x[i] + v_y[i] * v_y[i]);
       acnt++;
       mean_acc += std::sqrt(v_x[i] * v_x[i] + v_y[i] * v_y[i]);
@@ -107,3 +109,4 @@ class PeaksMetric : public TMetric<PeaksMetric> {
     return peakkk;
   }
 };
+#endif

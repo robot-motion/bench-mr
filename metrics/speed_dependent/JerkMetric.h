@@ -3,11 +3,15 @@
 #include <cmath>
 #include <vector>
 
-#include "TrajectoryMetric.h"
+#include "../TrajectoryMetric.h"
 
+#pragma warning "The JerkMetric is not supported at the moment."
+
+#if 0
 class JerkMetric : public TMetric<JerkMetric> {
  public:
-  static double evaluateMetric(const Trajectory *trajectory, double dt) {
+  static double evaluateMetric(const ompl::geometric::PathGeometric &trajectory,
+                               double dt) {
     /// Change dt according to the one used in the motion planning unit
     double pjerk = 0;
     double jerk_ = 0;
@@ -39,7 +43,7 @@ class JerkMetric : public TMetric<JerkMetric> {
     }
     Vmax = vel[maxV];
 
-    std::vector<Tpoint> path = trajectory->getPath();
+    const auto path = Point::fromPath(trajectory);
 
     if (path.size() > 3) {
       for (std::size_t i = 0; i < path.size() - 1; i++) {
@@ -77,3 +81,4 @@ class JerkMetric : public TMetric<JerkMetric> {
 
   static const bool MoreIsBetter = false;
 };
+#endif

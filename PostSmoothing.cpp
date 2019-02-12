@@ -19,8 +19,8 @@ double PostSmoothing::smoothingTime = 0;
 Stopwatch PostSmoothing::stopWatch;
 
 bool PostSmoothing::smooth(
-    std::vector<GNode> &path,
-    const std::vector<Tpoint> &originalPathIntermediaries) {
+    ompl::geometric::PathGeometric &path,
+    const std::vector<Point> &originalPathIntermediaries) {
   const bool AverageAngles = true;
 
   insertedNodes = 0;
@@ -45,15 +45,16 @@ bool PostSmoothing::smooth(
        ++round) {
     beginRound(ROUND_GD);
     // gradient descent along distance field
-    for (int i = 1; i < path.size() - 1; ++i) {
+    for (auto i = 1u; i < path.getStateCount() - 1; ++i) {
       // compute gradient
-      PlannerSettings::environment->distanceGradient(path[i].x_r, path[i].y_r,
-                                                     dx, dy, 1.);
-      double distance = PlannerSettings::environment->bilinearDistance(
-          path[i].x_r, path[i].y_r);
+      auto *s = path.getState(i)->as<State>();
+      PlannerSettings::environment->distanceGradient(s->getX(), s->getY(), dx,
+                                                     dy, 1.);
+      double distance =
+          PlannerSettings::environment->bilinearDistance(s->getX(), s->getY());
       distance = std::max(.1, distance);
-      path[i].x_r -= eta * dx / distance;
-      path[i].y_r += eta * dy / distance;
+      s->setX(s->getX() - eta * dx / distance);
+      s->setY(s->getY() + eta * dy / distance);
     }
     eta *= PlannerSettings::gripsEtaDiscount;  // discount factor
 
@@ -67,25 +68,26 @@ bool PostSmoothing::smooth(
 #endif
 
     // add/remove nodes if necessary
-    auto tpath = PlannerUtils::toSteeredTrajectoryPoints(path[0], path[1]);
+    auto tpath =
+        PlannerUtils::toSteeredPoints(path.getState(0u), path.getState(1u));
     double lastDistance =
         PlannerSettings::environment->bilinearDistance(tpath[0].x, tpath[0].y);
     double lastDistance2 =
         PlannerSettings::environment->bilinearDistance(tpath[1].x, tpath[1].y);
     double lastDifference = lastDistance2 - lastDistance;
-    std::vector<GNode> npath;
-    Tpoint lastNodePosition(tpath[0].x, tpath[0].y);
+    ompl::geometric::PathGeometric npath(PlannerSettings::spaceInfo);
+    Point lastNodePosition(tpath[0].x, tpath[0].y);
 
-    for (int i = 0; i < path.size() - 1; ++i) {
-      auto current = new GNode(path[i]);
-      auto next = new GNode(path[i + 1]);
+    for (auto i = 0u; i < path.getStateCount() - 1; ++i) {
+      const auto *current = path.getState(i)->as<State>();
+      const auto *next = path.getState(i + 1)->as<State>();
 
-      lastNodePosition = Tpoint(current->x_r, current->y_r);
-      Tpoint nextNodePosition = Tpoint(next->x_r, next->y_r);
+      lastNodePosition = Point(current);
+      const Point nextNodePosition(next);
 
-      npath.push_back(path[i]);
+      npath.append(path.getState(i));
 
-      tpath = PlannerUtils::toSteeredTrajectoryPoints(path[i], path[i + 1]);
+      tpath = PlannerUtils::toSteeredPoints(current, next);
 
       for (auto &p : tpath) {
         double distance =
@@ -97,8 +99,8 @@ bool PostSmoothing::smooth(
             nextNodePosition.distance(p.x, p.y) >=
                 PlannerSettings::gripsMinNodeDistance) {
           // local minimum
-          npath.emplace_back(GNode(p.x, p.y));
-          lastNodePosition = Tpoint(p.x, p.y);
+          npath.append(p.toState());
+          lastNodePosition = Point(p.x, p.y);
 
           ++insertedNodes;
 #ifdef DEBUG
@@ -111,7 +113,8 @@ bool PostSmoothing::smooth(
         lastDistance = distance;
       }
     }
-    npath.push_back(path[path.size() - 1]);
+    npath.append(
+        path.getState(static_cast<unsigned int>(path.getStateCount() - 1)));
     path = npath;
 
     PlannerUtils::updateAngles(path, AverageAngles);
@@ -129,7 +132,7 @@ bool PostSmoothing::smooth(
   size_t lastPathLength;
   unsigned int pruningRound = 1;
   int fixes = 0;
-  nodesPerRound.push_back((int)(path.size()));
+  nodesPerRound.push_back((int)(path.getStateCount()));
   do {
     beginRound(ROUND_PRUNING);
     if (pruningRound >= PlannerSettings::gripsMaxPruningRounds) {
@@ -142,7 +145,7 @@ bool PostSmoothing::smooth(
       return false;
     }
 
-    lastPathLength = path.size();
+    lastPathLength = path.getStateCount();
     OMPL_DEBUG("#### PRUNING ROUND %i", pruningRound++);
     ++pruningRounds;
 
@@ -152,24 +155,26 @@ bool PostSmoothing::smooth(
     std::vector<unsigned int> unremovable;
 
     std::vector<unsigned int> local_unremovable{0};
-    for (unsigned int i = 1; i < path.size() - 1; ++i) {
-      if (PlannerUtils::collides(path[i - 1], path[i + 1])) {
+    for (unsigned int i = 1; i < path.getStateCount() - 1; ++i) {
+      if (PlannerUtils::collides(path.getState(i - 1), path.getState(i + 1))) {
         local_unremovable.push_back(i);
 
 #ifdef DEBUG
         OMPL_DEBUG("%i <--> %i WOULD COLLIDE (%.2f %.2f)", i - 1, i + 1,
-                   path[i].x_r, path[i].y_r);
+                   path.getState(i).x_r, path.getState(i).y_r);
 #endif
       }
     }
-    local_unremovable.push_back((unsigned int)(path.size() - 1));
+    local_unremovable.push_back((unsigned int)(path.getStateCount() - 1));
     unremovable = local_unremovable;
 
 #ifdef DEBUG
 #if QT_SUPPORT
     for (auto i : unremovable) {
-      QtVisualizer::drawNode(path[i].x_r, path[i].y_r, Qt::darkRed, 0.4);
-      OMPL_INFORM("UNREMOVABLE %.2f %.2f", path[i].x_r, path[i].y_r);
+      QtVisualizer::drawNode(path.getState(i).x_r, path.getState(i).y_r,
+                             Qt::darkRed, 0.4);
+      OMPL_INFORM("UNREMOVABLE %.2f %.2f", path.getState(i).x_r,
+                  path.getState(i).y_r);
     }
 #endif
 #endif
@@ -178,22 +183,26 @@ bool PostSmoothing::smooth(
 
 #ifdef DEBUG
 #if QT_SUPPORT
-    for (unsigned int i = 0; i < path.size(); ++i) {
-      QtVisualizer::drawNode(path[i], QColor(0, 0, 0, 100), 0.3, false);
-      //            QtVisualizer::drawLabel(std::to_string(i), path[i].x_r +
-      //            0.2, path[i].y_r + 0.2);
+    for (unsigned int i = 0; i < path.getStateCount()(); ++i) {
+      QtVisualizer::drawNode(path.getState(i), QColor(0, 0, 0, 100), 0.3,
+                             false);
+      //            QtVisualizer::drawLabel(std::to_string(i),
+      //            path.getState(i).x_r + 0.2, path.getState(i).y_r + 0.2);
     }
 #endif
 #endif
 
     // compute final trajectory
-    std::vector<GNode> finalPath;
+    ompl::geometric::PathGeometric finalPath(PlannerSettings::spaceInfo);
     for (unsigned int ui = 1; ui < unremovable.size(); ++ui) {
       const auto i = unremovable[ui - 1];
       const auto j = unremovable[ui];
 
-      if (finalPath.empty() || path[i] != finalPath.back())
-        finalPath.push_back(path[i]);
+      if (finalPath.getStateCount() == 0 ||
+          !PlannerUtils::equals(path.getState(i),
+                                finalPath.getState(static_cast<unsigned int>(
+                                    finalPath.getStateCount() - 1))))
+        finalPath.append(path.getState(i));
 
       if (j - i <= 1) continue;  // no intermediary nodes
 
@@ -209,30 +218,33 @@ bool PostSmoothing::smooth(
       // run Bellman-Ford to determine best path from source (i) to sink (j)
       for (auto u = i; u <= j - 1; ++u) {
         for (auto v = u + 1; v <= j; ++v) {
-          if (PlannerUtils::collides(path[u], path[v]))
+          if (PlannerUtils::collides(path.getState(u), path.getState(v)))
             continue;  // a break has the same effect for linear steering and
                        // would be more efficient
 
           double edgeWeight =
-              PathLengthMetric::evaluate(std::vector<GNode>{path[u], path[v]});
+              PathLengthMetric::evaluate(ompl::geometric::PathGeometric(
+                  PlannerSettings::spaceInfo, path.getState(u),
+                  path.getState(v)));
 
 #ifdef DEBUG
 #if QT_SUPPORT
-//                    double dX = path[v].x_r - path[u].x_r;
-//                    double dY = path[v].y_r - path[u].y_r;
+//                    double dX = path.getState(v).x_r - path.getState(u).x_r;
+//                    double dY = path.getState(v).y_r - path.getState(u).y_r;
 //                    double rad = std::atan2(dY, dX);
 //                    double plusMinus = v % 2 == 0 ? 1 : -1;
-//                    double x = (path[u].x_r + path[v].x_r) * 0.5 + plusMinus *
-//                    std::pow(edgeWeight, .7)*std::cos(M_PI_2 + rad); double y
-//                    = (path[u].y_r + path[v].y_r) * 0.5 + plusMinus *
+//                    double x = (path.getState(u).x_r + path.getState(v).x_r) *
+//                    0.5 + plusMinus * std::pow(edgeWeight, .7)*std::cos(M_PI_2
+//                    + rad); double y = (path.getState(u).y_r +
+//                    path.getState(v).y_r) * 0.5 + plusMinus *
 //                    std::pow(edgeWeight, .7)*std::sin(M_PI_2 + rad);
 //                    QtVisualizer::drawPath(vector<Tpoint>({
-//                                                                  Tpoint(path[u].x_r,
-//                                                                  path[u].y_r),
+//                                                                  Tpoint(path.getState(u).x_r,
+//                                                                  path.getState(u).y_r),
 //                                                                  Tpoint(x,
 //                                                                  y),
-//                                                                  Tpoint(path[v].x_r,
-//                                                                  path[v].y_r)}),
+//                                                                  Tpoint(path.getState(v).x_r,
+//                                                                  path.getState(v).y_r)}),
 //                                                                  Qt::black);
 //                    QtVisualizer::drawLabel(std::to_string(edgeWeight), x-2,
 //                    y, Qt::black);
@@ -246,10 +258,14 @@ bool PostSmoothing::smooth(
       }
 
       unsigned int k = j - i;
-      auto insertPosition = finalPath.size();
+      auto insertPosition = finalPath.getStateCount();
       while (k > 0) {
-        if (path[k + i] != finalPath.back())
-          finalPath.insert(finalPath.begin() + insertPosition, path[k + i]);
+        if (!PlannerUtils::equals(path.getState(k + i),
+                                  finalPath.getState(static_cast<unsigned int>(
+                                      finalPath.getStateCount() - 1))))
+          finalPath.getStates().insert(
+              finalPath.getStates().begin() + insertPosition,
+              path.getState(k + i));
         if (k == predecessors[k]) {
           OMPL_ERROR("Failed to prune path due to loop in shortest path.");
           break;
@@ -257,19 +273,22 @@ bool PostSmoothing::smooth(
         k = predecessors[k];
       }
     }
-    if (path.back() != finalPath.back()) finalPath.push_back(path.back());
+    if (!PlannerUtils::equals(path.getStates().back(),
+                              finalPath.getStates().back()))
+      finalPath.append(path.getStates().back());
 
     path = finalPath;
-    nodesPerRound.push_back((int)path.size());
+    nodesPerRound.push_back((int)path.getStateCount());
     endRound(path);
 
-    if (lastPathLength != path.size())
+    if (lastPathLength != path.getStateCount())
       OMPL_DEBUG(
-          "Continuing pruning because lastPathLength (%i) != path.size() (%i)",
-          (int)lastPathLength, (int)path.size());
+          "Continuing pruning because lastPathLength (%i) != "
+          "path.getStateCount() (%i)",
+          (int)lastPathLength, (int)path.getStateCount());
     if (fixes > 0)
       OMPL_DEBUG("Continuing pruning because fixes (%i) > 0", fixes);
-  } while (lastPathLength != path.size() || fixes > 0);
+  } while (lastPathLength != path.getStateCount() || fixes > 0);
 
   stopWatch.stop();
   smoothingTime += stopWatch.time;
@@ -301,28 +320,29 @@ void PostSmoothing::beginRound(PostSmoothing::RoundType type) {
 #endif
 }
 
-void PostSmoothing::endRound(const std::vector<GNode> &path) {
+void PostSmoothing::endRound(const ompl::geometric::PathGeometric &path) {
 #ifdef STATS
   stopWatch.pause();
   static std::vector<double> nodeDistances, trajDistances;
   roundStats.stopWatch.stop();
   roundStats.time = roundStats.stopWatch.time;
-  roundStats.pathLength = PathLengthMetric::evaluate(path);
+  roundStats.pathLength = path.length();
   roundStats.maxCurvature = CurvatureMetric::evaluate(path);
-  roundStats.nodes = (int)path.size();
+  roundStats.nodes = (int)path.getStateCount();
   nodeDistances.clear();
-  for (auto &p : path)
-    nodeDistances.push_back(
-        PlannerSettings::environment->bilinearDistance(p.x_r, p.y_r));
+  for (auto i = 0u; i < path.getStateCount(); ++i)
+    nodeDistances.push_back(PlannerSettings::environment->bilinearDistance(
+        Point(path.getState(i))));
   roundStats.medianNodeObstacleDistance = stat::median(nodeDistances);
   roundStats.meanNodeObstacleDistance = stat::mean(nodeDistances);
   roundStats.minNodeObstacleDistance = stat::min(nodeDistances);
   roundStats.maxNodeObstacleDistance = stat::max(nodeDistances);
   roundStats.stdNodeObstacleDistance = stat::std(nodeDistances);
   trajDistances.clear();
-  for (auto &p : PlannerUtils::toSteeredTrajectoryPoints(path))
-    trajDistances.push_back(
-        PlannerSettings::environment->bilinearDistance(p.x, p.y));
+  const auto interpolated = PlannerUtils::interpolated(path);
+  for (auto i = 0u; i < interpolated.getStateCount(); ++i)
+    trajDistances.push_back(PlannerSettings::environment->bilinearDistance(
+        Point(interpolated.getState(i))));
   roundStats.medianTrajObstacleDistance = stat::median(trajDistances);
   roundStats.meanTrajObstacleDistance = stat::mean(trajDistances);
   roundStats.minTrajObstacleDistance = stat::min(trajDistances);

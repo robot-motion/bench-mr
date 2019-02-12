@@ -67,7 +67,7 @@ file(GLOB Base base/*)
 file(GLOB Utils utils/*)
 file(GLOB_RECURSE Steer steer_functions/*)
 file(GLOB Metrics metrics/*)
-file(GLOB Planners planners/*)
+file(GLOB_RECURSE Planners planners/*)
 
 if (Qt5_FOUND)
     file(GLOB GUI_SRC gui/*.?pp)

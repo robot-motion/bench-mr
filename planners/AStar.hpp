@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ThetaStar.h"
+#include "thetastar/ThetaStar.h"
 
 class AStar : public ThetaStar {
  public:

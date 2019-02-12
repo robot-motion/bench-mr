@@ -32,7 +32,7 @@ class OMPLSimplifier : public AbstractPlanner {
   }
 
   std::vector<GNode> solutionTrajectory() const { return _path; }
-  std::vector<Tpoint> solutionPath() const { return _steered; }
+  std::vector<TrajectoryPoint> solutionPath() const { return _steered; }
   og::PathGeometric geometricPath() const { return *_geometric; }
 
   bool hasReachedGoalExactly() const { return true; }
@@ -42,6 +42,6 @@ class OMPLSimplifier : public AbstractPlanner {
 
  private:
   const std::vector<GNode> _path{};
-  std::vector<Tpoint> _steered{};
+  std::vector<TrajectoryPoint> _steered{};
   og::PathGeometric *_geometric{};
 };

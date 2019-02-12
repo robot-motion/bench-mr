@@ -32,9 +32,7 @@
 
 #include "base/PlannerSettings.h"
 #include "base/PlannerUtils.hpp"
-#include "base/gnode.h"
 #include "planners/AbstractPlanner.hpp"
-#include "steer_functions/POSQ/POSQStateSpace.h"
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
@@ -69,38 +67,10 @@ class OMPLPlanner : public AbstractPlanner {
 
   std::string name() const override { return _omplPlanner->getName(); }
 
-  std::vector<GNode> solutionTrajectory() const override {
-    std::vector<GNode> gnodes;
-    og::PathGeometric path = ss->getSolutionPath();
-    auto &states = path.getStates();
-    for (auto *state : path.getStates()) {
-      const auto *s = state->as<ob::SE2StateSpace::StateType>();
-      double x = s->getX(), y = s->getY();
-      gnodes.emplace_back(GNode(x, y, s->getYaw()));
-    }
-    PlannerUtils::updateAngles(gnodes, true);
-    return gnodes;
-  }
-
-  std::vector<Tpoint> solutionPath() const override {
-    og::PathGeometric path = ss->getSolutionPath();
-    path.interpolate();
-    std::vector<Tpoint> points;
-    for (auto *state : path.getStates()) {
-      // Extract the robot's (x,y) position from its state
-      const auto *s = state->as<ob::SE2StateSpace::StateType>();
-      double x = s->getX(), y = s->getY();
-      points.emplace_back(x, y);
-    }
-    return points;
-  }
+  og::PathGeometric solution() const override { return ss->getSolutionPath(); }
 
   bool hasReachedGoalExactly() const override {
     return ss->haveExactSolutionPath();
-  }
-
-  inline og::PathGeometric geometricPath() const override {
-    return ss->getSolutionPath();
   }
 
   double planningTime() const override {

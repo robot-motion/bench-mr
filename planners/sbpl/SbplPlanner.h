@@ -5,7 +5,10 @@
 
 #include <sbpl/headers.h>
 
-#include "AbstractPlanner.hpp"
+#include "../AbstractPlanner.hpp"
+
+namespace ob = ompl::base;
+namespace og = ompl::geometric;
 
 class SbplPlanner : public AbstractPlanner {
  public:
@@ -20,8 +23,7 @@ class SbplPlanner : public AbstractPlanner {
 
   ob::PlannerStatus run() override;
 
-  std::vector<GNode> solutionTrajectory() const override;
-  std::vector<Tpoint> solutionPath() const override;
+  og::PathGeometric solution() const override;
 
   bool hasReachedGoalExactly() const override;
   double planningTime() const override;
@@ -29,6 +31,6 @@ class SbplPlanner : public AbstractPlanner {
  private:
   SBPLPlanner *_sbPlanner;
   EnvironmentNAVXYTHETALAT *_env;
-  std::vector<GNode> _solution;
+  og::PathGeometric _solution;
   double _planningTime;
 };

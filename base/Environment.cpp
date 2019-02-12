@@ -3,13 +3,15 @@
 #include <fstream>
 
 #include <ompl/util/Console.h>
-#include <planners/ThetaStar.h>
+#include <planners/thetastar/ThetaStar.h>
 
 #include "Environment.h"
 #include "PlannerSettings.h"
 
 #ifdef QT_SUPPORT
+#include "PlannerUtils.hpp"
 #include "gui/QtVisualizer.h"
+
 #endif
 
 #if XML_SUPPORT
@@ -93,14 +95,14 @@ Environment *Environment::createRandomCorridor(unsigned int width,
     environment->_grid[i] = true;
   }
 
-  std::vector<Tpoint> positions({Tpoint(width / 2, height / 2)});
+  std::vector<Point> positions({Point(width / 2, height / 2)});
   for (int k = 0; k < branches; ++k) {
     int x = 2 + rand() % (width - 2);
     int y = 2 + rand() % (height - 2);
 
     // find closest vertex
     double minDistance = std::numeric_limits<double>::max();
-    Tpoint closest;
+    Point closest;
     for (auto &pos : positions) {
       double d = pos.distance(x, y);
       if (d < minDistance) {
@@ -177,13 +179,13 @@ Environment *Environment::createRandom(unsigned int width, unsigned int height,
   do {
     x = int(rand() * 1. / RAND_MAX * (width / 8.));
     y = int(rand() * 1. / RAND_MAX * (height / 8.));
-    environment->_start = Tpoint(x, y);
+    environment->_start = Point(x, y);
   } while (environment->occupied(x, y));
 
   do {
     x = int(width * 7. / 8. + rand() * 1. / RAND_MAX * (width / 8.));
     y = int(height * 7. / 8. + rand() * 1. / RAND_MAX * (height / 8.));
-    environment->_goal = Tpoint(x, y);
+    environment->_goal = Point(x, y);
   } while (environment->occupied(x, y));
 
   return environment;
@@ -328,8 +330,8 @@ void Environment::publish(ros::NodeHandle &nodeHandle) const {
 }
 #endif
 
-bool Environment::collides(const Trajectory &trajectory) {
-  for (auto &p : trajectory.getPath()) {
+bool Environment::collides(const ompl::geometric::PathGeometric &trajectory) {
+  for (auto &p : Point::fromPath(PlannerUtils::interpolated(trajectory))) {
     if (occupied(p.x, p.y)) {
 #ifdef DEBUG
       QtVisualizer::drawNode(p.x, p.y, QColor(255, 255, 0, 150), .5);
@@ -344,6 +346,11 @@ bool Environment::collides(const Trajectory &trajectory) {
 bool Environment::collides(double x, double y) {
   return occupied(
       x, y);  // || _checker->check_collision_state_circle(x, y, 0) == 0;
+}
+
+bool Environment::collides(const ompl::base::State *state) {
+  const auto *s = state->as<State>();
+  return collides(s->getX(), s->getY());
 }
 
 std::vector<Rectangle> Environment::obstacles() const {
@@ -394,8 +401,8 @@ void Environment::computeDistances() {
 Environment *Environment::createSimple() {
   auto *environment = new Environment(0, DefaultWidth, DefaultHeight);
   environment->fill(Rectangle(18, 18, 34, 34), true);
-  environment->_start = Tpoint(18, 45, 0);
-  environment->_goal = Tpoint(45, 18, 0);
+  environment->_start = Point(18, 45);
+  environment->_goal = Point(45, 18);
   environment->_type = "simple";
   return environment;
 }
@@ -422,7 +429,7 @@ std::pair<double, double> Environment::estimateStartGoalOrientations() const {
   PlannerSettings::initializeSteering();
   auto *thetaStar = new ThetaStar;
   if (thetaStar->run()) {
-    std::vector<Tpoint> path = thetaStar->solutionPath();
+    std::vector<Point> path = thetaStar->solutionPath();
 #if QT_SUPPORT
     QtVisualizer::drawPath(path, Qt::black);
 #endif

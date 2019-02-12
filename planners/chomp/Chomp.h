@@ -7,7 +7,7 @@
 #include <chomp/chomputil.h>
 #include <mzcommon/DtGrid.h>
 
-#include "AbstractPlanner.hpp"
+#include "../AbstractPlanner.hpp"
 
 using chomp::MatX;
 
@@ -19,9 +19,8 @@ class ChompPlanner : public AbstractPlanner {
 
   ob::PlannerStatus run() override;
 
-  std::vector<GNode> solutionTrajectory() const override;
-
-  std::vector<Tpoint> solutionPath() const override;
+  og::PathGeometric solution() const override;
+  std::vector<Point> solutionPath() const override;
 
   bool hasReachedGoalExactly() const override;
 
@@ -30,7 +29,7 @@ class ChompPlanner : public AbstractPlanner {
  private:
   static Map2D *_map;
   Stopwatch _timer;
-  std::vector<Tpoint> _path;
+  std::vector<Point> _path;
 
   void _initializeStraightLine(int N, const Map2D &map, const vec2f &p0,
                                const vec2f &p1, MatX &xi, MatX &q0, MatX &q1);

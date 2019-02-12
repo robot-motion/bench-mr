@@ -5,7 +5,6 @@
 #include "base/PlannerSettings.h"
 #include "base/PlannerUtils.hpp"
 #include "base/TimedResult.hpp"
-#include "base/gnode.h"
 
 #include "metrics/CurvatureMetric.h"
 #include "metrics/PathLengthMetric.h"
@@ -58,12 +57,13 @@ class PostSmoothing {
   static std::vector<RoundStats> statsPerRound;
   static double smoothingTime;
 
-  static bool smooth(std::vector<GNode> &path,
-                     const std::vector<Tpoint> &originalPathIntermediaries);
+  static bool smooth(ompl::geometric::PathGeometric &path,
+                     const std::vector<Point> &originalPathIntermediaries);
 
-  static bool smooth(std::vector<GNode> &path) {
-    auto intermediary = PlannerUtils::toSteeredTrajectoryPoints(path);
-    smooth(path, intermediary);
+  static bool smooth(ompl::geometric::PathGeometric &path) {
+    auto intermediary = ompl::geometric::PathGeometric(path);
+    intermediary.interpolate();
+    smooth(path, Point::fromPath(intermediary));
   }
 
  private:
@@ -99,7 +99,7 @@ class PostSmoothing {
 
   static void beginRound(RoundType type = ROUND_UNKOWN);
 
-  static void endRound(const std::vector<GNode> &path);
+  static void endRound(const ompl::geometric::PathGeometric &path);
 
   static Stopwatch stopWatch;
 };

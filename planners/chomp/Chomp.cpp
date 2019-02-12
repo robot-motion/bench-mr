@@ -1,7 +1,6 @@
 #include "Chomp.h"
+#include <planners/thetastar/ThetaStar.h>
 #include <base/PlannerUtils.hpp>
-
-#include "ThetaStar.h"
 
 Map2D *ChompPlanner::_map = new Map2D;
 
@@ -161,7 +160,7 @@ ob::PlannerStatus ChompPlanner::run() {
     } else {
       pi = chomper.xi.row(i);
     }
-    _path.emplace_back(Tpoint(pi(0), pi(1)));
+    _path.emplace_back(Point(pi(0), pi(1)));
   }
 
   OMPL_INFORM("CHOMP solution has %i nodes.", _path.size());
@@ -174,13 +173,13 @@ ob::PlannerStatus ChompPlanner::run() {
   return {!_path.empty(), false};
 }
 
-std::vector<GNode> ChompPlanner::solutionTrajectory() const {
-  vector<GNode> t;
-  for (auto &p : _path) t.emplace_back(GNode(p.x, p.y));
-  return t;
+og::PathGeometric ChompPlanner::solution() const {
+  og::PathGeometric path(PlannerSettings::spaceInfo);
+  for (auto &p : _path) path.append(base::StateFromXYT(p.x, p.y, 0));
+  return path;
 }
 
-std::vector<Tpoint> ChompPlanner::solutionPath() const { return _path; }
+std::vector<Point> ChompPlanner::solutionPath() const { return _path; }
 
 bool ChompPlanner::hasReachedGoalExactly() const { return true; }
 

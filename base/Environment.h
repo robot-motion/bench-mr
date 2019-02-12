@@ -4,7 +4,8 @@
 #include <iostream>
 
 #include <utils/json.hpp>
-#include "Trajectory.h"
+
+#include "Primitives.h"
 
 #define ROS_SUPPORT 0
 #define XML_SUPPORT 0
@@ -12,23 +13,6 @@
 #if ROS_SUPPORT
 #include <ros/ros.h>
 #endif
-
-struct Rectangle {
-  double x1{0}, y1{0};
-  double x2{0}, y2{0};
-
-  Rectangle() = default;
-  Rectangle(double x1, double y1, double x2, double y2)
-      : x1(x1), y1(y1), x2(x2), y2(y2) {}
-
-  inline double x() const { return std::min(x1, x2); }
-
-  inline double y() const { return std::min(y1, y2); }
-
-  inline double width() const { return std::abs(x1 - x2); }
-
-  inline double height() const { return std::abs(y1 - y2); }
-};
 
 class Environment {
  public:
@@ -43,11 +27,11 @@ class Environment {
 
   unsigned int seed() const { return _seed; }
 
-  void setStart(Tpoint point) { _start = point; }
-  Tpoint start() const { return _start; }
+  void setStart(Point point) { _start = point; }
+  Point start() const { return _start; }
 
-  void setGoal(Tpoint point) { _goal = point; }
-  Tpoint goal() const { return _goal; }
+  void setGoal(Point point) { _goal = point; }
+  Point goal() const { return _goal; }
 
   bool empty() const { return _empty; }
 
@@ -60,8 +44,10 @@ class Environment {
   inline bool occupied(double x, double y, bool fast = false) {
     if (x < 0 || y < 0 || x > _width || y > _height) return true;
     if (!fast) {
+#if QT_SUPPORT
       //            bool o = bilinearDistance(x, y) <= 0.05;
       //            QtVisualizer::drawNode(x, y, o ? Qt::red : Qt::darkGreen);
+#endif
       return _grid[coord2key(x, y)] || bilinearDistance(x, y) <= 0.1;
     }
     return _grid[coord2key(x, y)] || _grid[coord2key(x + .15, y)] ||
@@ -144,7 +130,7 @@ class Environment {
            (bl * u_opposite + br * u_ratio) * v_ratio;
   }
 
-  double bilinearDistance(const Tpoint &point) {
+  double bilinearDistance(const Point &point) {
     return bilinearDistance(point.x, point.y);
   }
 
@@ -210,7 +196,9 @@ class Environment {
                                    double y2) const;
 
   bool collides(double x, double y);
-  bool collides(const Trajectory &trajectory);
+  bool collides(const ob::State *state);
+  bool collides(const Point &p) { return collides(p.x, p.y); }
+  bool collides(const ompl::geometric::PathGeometric &trajectory);
 
   static Environment *createRandom(
       unsigned int width = DefaultWidth, unsigned int height = DefaultHeight,
@@ -263,8 +251,8 @@ class Environment {
   void computeDistances();
 
  private:
-  Tpoint _start;
-  Tpoint _goal;
+  Point _start;
+  Point _goal;
   bool *_grid{nullptr};
   double *_distances{nullptr};
   unsigned int _width{0}, _height{0};

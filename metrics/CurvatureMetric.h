@@ -18,10 +18,10 @@ class CurvatureMetric : public TMetric<CurvatureMetric> {
    * @param planner The planner holding the steering function.
    * @return Maximum curvature.
    */
-  static double evaluateMetric(const Trajectory *trajectory, double,
-                               bool visualize = false) {
+  static double evaluateMetric(const ompl::geometric::PathGeometric &trajectory,
+                               double, bool visualize = false) {
     //        return evaluateMetricOLD(trajectory, 0.1);
-    std::vector<Tpoint> path = trajectory->getPath();
+    const auto path = Point::fromPath(trajectory);
 
     double x1, x2, x3, y1, y2, y3, v1x, v2x, v1y, v2y, v1, v2;
     double infinity = std::numeric_limits<double>::max();

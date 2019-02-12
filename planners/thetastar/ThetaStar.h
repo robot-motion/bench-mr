@@ -3,20 +3,22 @@
 #include <ompl/geometric/PathGeometric.h>
 #include <algorithm>
 
-#include "base/Environment.h"
-#include "base/Trajectory.h"
+#include "../base/Environment.h"
+#include "../AbstractPlanner.hpp"
 
-#include "AbstractPlanner.hpp"
+#include "stl_thetastar.h"
+#include "gnode.h"
+
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
 
-class SmoothThetaStar : public AbstractPlanner, public ob::Planner {
+class ThetaStar : public AbstractPlanner, public ob::Planner {
  public:
-  SmoothThetaStar();
-  ~SmoothThetaStar() override = default;
+  ThetaStar();
+  virtual ~ThetaStar();
 
-  std::string name() const override { return "Smooth Theta*"; }
+  std::string name() const override { return "Theta*"; }
 
   bool initialize();
 
@@ -25,17 +27,13 @@ class SmoothThetaStar : public AbstractPlanner, public ob::Planner {
 
   ob::PlannerStatus run() override;
 
-  std::vector<GNode> solutionTrajectory() const override;
-  std::vector<Tpoint> solutionPath() const override;
-  og::PathGeometric geometricPath() const override;
+  og::PathGeometric solution() const override;
 
   bool hasReachedGoalExactly() const override;
-  double planningTime() const;
+  double planningTime() const override;
   unsigned int steps() const;
 
  private:
-  Trajectory *curr_traj;
-
   bool COST_SEARCH;
   bool USE_ASTAR;
   bool USE_GRANDPARENT;
@@ -48,7 +46,7 @@ class SmoothThetaStar : public AbstractPlanner, public ob::Planner {
   bool search(std::vector<std::vector<GNode> > &paths, GNode start, GNode goal);
 
  protected:
-  explicit SmoothThetaStar(bool astar, std::string name);
+  explicit ThetaStar(bool astar, std::string name);
 
   inline ob::Planner *omplPlanner() override { return this; }
 };

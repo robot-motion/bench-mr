@@ -3,13 +3,15 @@
 #include <cmath>
 #include <vector>
 
-#include "TrajectoryMetric.h"
+#include "../TrajectoryMetric.h"
 
+#pragma warning "The SpeedArcLengthMetric is not supported at the moment."
+
+#if 0
 class SpeedArcLengthMetric : public TMetric<SpeedArcLengthMetric> {
  public:
-  static const bool MoreIsBetter = false;
-
-  static double evaluateMetric(const Trajectory *trajectory, double dt) {
+  static double evaluateMetric(const ompl::geometric::PathGeometric &trajectory,
+                               double dt) {
     double metric = 0;
     double T = 0;
 
@@ -45,7 +47,7 @@ class SpeedArcLengthMetric : public TMetric<SpeedArcLengthMetric> {
     //    cout<<"Debug VMAX: "<<Vmax<<endl;
     //    cout<<"Debug T: "<<T<<endl;
 
-    std::vector<Tpoint> path = trajectory->getPath();
+    const auto path = Point::fromPath(trajectory);
 
     for (std::size_t i = 0; i < path.size() - 1; i++) {
       v_x[i] = (path[i + 1].x - path[i].x) / dt;
@@ -69,3 +71,4 @@ class SpeedArcLengthMetric : public TMetric<SpeedArcLengthMetric> {
     return metric;
   }
 };
+#endif

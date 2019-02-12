@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
   if (!planner->run()) return EXIT_FAILURE;
 
   std::vector<GNode> path = planner->solutionTrajectory();
-  std::vector<Tpoint> trajectory = planner->solutionPath();
+  std::vector<TrajectoryPoint> trajectory = planner->solutionPath();
 
   QtVisualizer::drawPath(PlannerUtils::toSteeredTrajectoryPoints(path),
                          Qt::black, 4);

@@ -2,11 +2,10 @@
 
 #include <ompl/util/Console.h>
 
-#include "gnode_base.h"
+#include "../../base/PlannerSettings.h"
 
-#include "PlannerSettings.h"
-#include "Trajectory.h"
-#include "planners/stl_thetastar.h"
+#include "gnode_base.h"
+#include "stl_thetastar.h"
 
 // Gnode class which includes useful methods for the Thetastar search
 class GNode : public GNode_base {
@@ -360,7 +359,7 @@ class GNode : public GNode_base {
   /// int GetMap(double x, double y)
   /// get the cell enclosing the node
   /// ============================================================================================
-  Tpoint getCell() { return Tpoint(std::round(x), std::round(y), 0); }
+  Point getCell() { return Point(std::round(x), std::round(y)); }
 
   /// ============================================================================================
   /// int GetMap(double x, double y)
@@ -623,18 +622,24 @@ class GNode : public GNode_base {
   /// ============================================================================================
   float GetCostTraj(GNode &successor) {
     // return successor.steer_cost;
-    double res = PlannerSettings::steering->getBestCost(
-        this->x, this->y, successor.x, successor.y);
-    if (res < 0) {
-      OMPL_ERROR(
-          "Failing to compute the cost.. strange no lineofsight %d %d %d %d "
-          "cost: %f, yaw: %f",
-          this->x, this->y, successor.x, successor.y, res,
-          PlannerSettings::steering->getBestYaw(this->x, this->y, successor.x,
-                                                successor.y));
-      return 0;
-    } else
-      return res;
+    return static_cast<float>(
+        PlannerSettings::objective
+            ->motionCost(base::StateFromXY(x, y),
+                         base::StateFromXY(successor.x, successor.y))
+            .value());
+
+    //    double res = PlannerSettings::steering->getBestCost(
+    //        this->x, this->y, successor.x, successor.y);
+    //    if (res < 0) {
+    //      OMPL_ERROR(
+    //          "Failing to compute the cost.. strange no lineofsight %d %d %d
+    //          %d " "cost: %f, yaw: %f", this->x, this->y, successor.x,
+    //          successor.y, res, PlannerSettings::steering->getBestYaw(this->x,
+    //          this->y, successor.x,
+    //                                                successor.y));
+    //      return 0;
+    //    } else
+    //      return res;
   }
 
   // ============================================================================================
@@ -643,19 +648,26 @@ class GNode : public GNode_base {
   /// successor
   /// ============================================================================================
   double GetCostTrajFromParent(GNode &parent, GNode &successor) {
-    double res = PlannerSettings::steering->getBestCost(
-        parent.x, parent.y, successor.x, successor.y);
-
-    if (res < 0) {
-      OMPL_ERROR(
-          "Failing to compute the cost.. strange no PARENTlineofsight %d %d %d "
-          "%d cost: %f, yaw: %f",
-          parent.x, parent.y, successor.x, successor.y, res,
-          PlannerSettings::steering->getBestYaw(parent.x, parent.y, successor.x,
-                                                successor.y));
-      return 0;
-    } else
-      return res;
+    return static_cast<float>(
+        PlannerSettings::objective
+            ->motionCost(base::StateFromXY(parent.x, parent.y),
+                         base::StateFromXY(successor.x, successor.y))
+            .value());
+    //    double res = PlannerSettings::steering->getBestCost(
+    //        parent.x, parent.y, successor.x, successor.y);
+    //
+    //    if (res < 0) {
+    //      OMPL_ERROR(
+    //          "Failing to compute the cost.. strange no PARENTlineofsight %d
+    //          %d %d "
+    //          "%d cost: %f, yaw: %f",
+    //          parent.x, parent.y, successor.x, successor.y, res,
+    //          PlannerSettings::steering->getBestYaw(parent.x, parent.y,
+    //          successor.x,
+    //                                                successor.y));
+    //      return 0;
+    //    } else
+    //      return res;
   }
 
   /// ============================================================================================
@@ -695,15 +707,5 @@ class GNode : public GNode_base {
     //        return res;
 
     return line(successor, parent_node);
-  }
-
-  /// ============================================================================================
-  /// steerVis(GNode *parent_node)
-  /// generates the the trajectory to connect the parent_node to the currente
-  /// node. Used to generate the trajectory to visualize.
-  /// ============================================================================================
-  bool steerVis(GNode *parent_node, GNode *succ, GNode *pp_node,
-                Trajectory *traj) {
-    return PlannerSettings::steering->Steer(parent_node, succ, traj);
   }
 };

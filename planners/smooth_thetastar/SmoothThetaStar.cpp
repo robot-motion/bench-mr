@@ -1,3 +1,6 @@
+#pragma warning "SmoothThetaStar is not supported at the moment."
+
+#if 0
 #include "SmoothThetaStar.h"
 #include <base/PlannerUtils.hpp>
 #include "smooth_stl_thetastar.h"
@@ -351,7 +354,7 @@ std::vector<GNode> SmoothThetaStar::solutionTrajectory() const {
   return global_paths[0];
 }
 
-std::vector<Tpoint> SmoothThetaStar::solutionPath() const {
+std::vector<TrajectoryPoint> SmoothThetaStar::solutionPath() const {
   return PlannerUtils::toSteeredTrajectory(global_paths[0]).getPath();
 }
 
@@ -426,3 +429,4 @@ ob::PlannerStatus SmoothThetaStar::solve(
 }
 
 unsigned int SmoothThetaStar::steps() const { return _steps; }
+#endif
