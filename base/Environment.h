@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 
+#include <utils/ScenarioLoader.h>
 #include <utils/json.hpp>
 
 #include "Primitives.h"
@@ -215,8 +216,7 @@ class Environment {
       int borderSize = 1);
   static Environment *createSimple();
 
-  static Environment *createFromMovingAiFile(int map_width, int map_height, int start_x, int start_y, int goal_x, int goal_y,
-  std::vector<std::vector<char>> mapFileGrid);
+  static Environment *createFromMovingAiScenario(Scenario &scenario);
 
   nlohmann::json asJSON() const;
 

@@ -25,7 +25,7 @@ std::vector<Point> Point::fromPath(const ompl::geometric::PathGeometric &p,
                                    bool interpolate) {
   ompl::geometric::PathGeometric path(p);
   if (interpolate) path.interpolate();
-  std::vector<Point> result(path.getStateCount());
+  std::vector<Point> result;
   for (const auto *state : path.getStates()) result.emplace_back(Point(state));
   return result;
 }

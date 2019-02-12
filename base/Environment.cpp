@@ -408,33 +408,28 @@ Environment *Environment::createSimple() {
   return environment;
 }
 
-//Moving Ai File test Constructor
-Environment *Environment::createFromMovingAiFile(int map_width, int map_height, int start_x, int start_y, int goal_x, int goal_y,
-  std::vector<std::vector<char>> mapFileGrid){
-    auto *environment = new Environment(0, (unsigned int)map_width, (unsigned int)map_height);
-    //set start and goal points
-    environment->_start = Tpoint((double)start_x, (double)start_y);
-    environment->_goal = Tpoint((double)goal_x, (double)goal_y);
-    environment->_width = (unsigned int)map_width;
-    environment->_height = (unsigned int)map_height;
-    environment->_type = "moving_ai";
+// Moving Ai File test Constructor
+Environment *Environment::createFromMovingAiScenario(Scenario &scenario){
+  auto *environment = new Environment(0, scenario.map_width, scenario.map_height);
+  // set start and goal points
+  environment->_start = Point(scenario.start_x, scenario.start_y);
+  environment->_goal = Point(scenario.goal_x, scenario.goal_y);
+  environment->_width = scenario.map_width;
+  environment->_height = scenario.map_height;
+  environment->_type = "moving_ai " + scenario.mapName;
 
-    //construct map
-    for(int x=0; x<map_width; x++){
-      for(int y=0; y<map_height; y++){
-        bool isOb = true;
-        if(mapFileGrid[x][y] == '.'){
-          isOb = false;
-        }
+  // construct map
+  const auto &grid = scenario.getMap();
+  for (int x = 0; x < scenario.map_width; x++) {
+    for (int y = 0; y < scenario.map_height; y++)
+      environment->fill(x, y, grid[x][y] != '.');
+  }
 
-        environment->fill((double)x, (double)y, isOb);
-        // std::cout << "Filling: " << x << " | " << y << " with " << isOb << std::endl;
-      }
-    }
+  std::cout << "Loaded map " << scenario.mapName << std::endl;
+  environment->print();
 
-    return environment;
+  return environment;
 }
-
 
 double Environment::obstacleRatio() const {
   int occ = 0;

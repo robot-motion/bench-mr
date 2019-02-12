@@ -42,7 +42,6 @@ class AbstractPlanner {
 
   virtual std::vector<Point> solutionPath() const {
     auto path = solution();
-    path.interpolate();
     return Point::fromPath(path);
   }
 
@@ -145,11 +144,6 @@ class AbstractPlanner {
     return r;
   }
 
-  virtual ~AbstractPlanner() {
-    //        if (ss != nullptr)
-    //            delete ss;
-  }
-
  protected:
   og::SimpleSetup *ss{nullptr};
 
@@ -163,7 +157,7 @@ class AbstractPlanner {
     // Set the object used to check which states in the space are valid
     //        si->setStateValidityChecker(ob::StateValidityCheckerPtr(new
     //        ValidityChecker(si))); si->setup();
-    ss->setStateValidityChecker([](const ob::State *state) {
+    ss->setStateValidityChecker([&](const ob::State *state) -> bool {
       const auto *s = state->as<ob::SE2StateSpace::StateType>();
       const double x = s->getX(), y = s->getY();
       return !PlannerSettings::environment->occupied(x, y);
