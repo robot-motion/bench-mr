@@ -7,3 +7,6 @@
 [submodule "steering_functions"]
 	path = steering_functions
 	url = https://github.com/eric-heiden/steering_functions.git
+[submodule "omplapp"]
+	path = omplapp
+	url = https://github.com/eric-heiden/omplapp.git

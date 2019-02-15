@@ -160,6 +160,7 @@ class AbstractPlanner {
     ss->setStateValidityChecker([&](const ob::State *state) -> bool {
       const auto *s = state->as<ob::SE2StateSpace::StateType>();
       const double x = s->getX(), y = s->getY();
+      s->getYaw();
       return !PlannerSettings::environment->occupied(x, y);
     });
 

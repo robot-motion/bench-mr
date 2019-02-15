@@ -15,8 +15,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 add_subdirectory(chomp)
 include_directories(chomp)
 
-add_subdirectory(steering_functions)
-include_directories(steering_functions/include)
+#add_subdirectory(steering_functions)
+#include_directories(steering_functions/include)
 
 # add the binary tree to the search path for include files
 # so that we will find GripsConfig.h
@@ -26,6 +26,8 @@ include_directories("${PROJECT_BINARY_DIR}")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
 find_package(Eigen3 REQUIRED NO_MODULE)
 include_directories(${EIGEN3_INCLUDE_DIR})
 
@@ -33,6 +35,10 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(SBPL REQUIRED sbpl)
 include_directories(${SBPL_INCLUDE_DIRS})
 link_directories(${SBPL_LIBRARY_DIRS})
+
+
+find_package(FCL REQUIRED)
+find_package(Assimp REQUIRED)
 
 # set(Qt5Core_DIR "/home/eric/Qt/5.11.1/gcc_64/lib")
 # set(Qt5Widgets_DIR "/home/eric/Qt/5.11.1/gcc_64/lib")
@@ -45,7 +51,7 @@ link_directories(${SBPL_LIBRARY_DIRS})
 # include_directories( ${CMAKE_BINARY_DIR} )
 # set(CMAKE_AUTOMOC ON)
 
-set(EXTRA_LIB ${EXTRA_LIB} ${SBPL_LIBRARIES} chomp mzcommon -lompl steering_functions)
+set(EXTRA_LIB ${EXTRA_LIB} ${SBPL_LIBRARIES} chomp mzcommon -lompl)
 
 if (Qt5_FOUND)
     set(EXTRA_LIB ${EXTRA_LIB} Qt5::Core Qt5::Widgets Qt5::Charts Qt5::Svg)
@@ -106,3 +112,7 @@ target_link_libraries(showcase ${EXTRA_LIB})
 # test compiling moving AI test
 add_executable(movingAi mainMovingAiTest.cpp ${ALL_SRC})
 target_link_libraries(movingAi ${EXTRA_LIB})
+
+
+add_executable(fcl_test mainFCLTest.cpp ${ALL_SRC})
+target_link_libraries(fcl_test ${EXTRA_LIB} -lompl_app -lompl_app_base ${FCL_LIBRARIES} -lassimp)

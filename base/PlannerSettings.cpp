@@ -6,7 +6,7 @@
 #include <ompl/base/spaces/DubinsStateSpace.h>
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
 #include <ompl/base/spaces/SE2StateSpace.h>
-#include <steering_functions/include/ompl_state_spaces/CurvatureStateSpace.hpp>
+//#include <steering_functions/include/ompl_state_spaces/CurvatureStateSpace.hpp>
 #include "steer_functions/POSQ/POSQStateSpace.h"
 
 #ifdef G1_AVAILABLE
@@ -57,11 +57,11 @@ void PlannerSettings::initializeSteering() {
         new ob::DubinsStateSpace(PlannerSettings::CarTurningRadius));
   else if (PlannerSettings::steeringType == Steering::STEER_TYPE_LINEAR)
     PlannerSettings::stateSpace = ob::StateSpacePtr(new ob::SE2StateSpace);
-  else if (PlannerSettings::steeringType == Steering::STEER_TYPE_CC_DUBINS)
-    PlannerSettings::stateSpace =
-        ob::StateSpacePtr(new hc_cc_spaces::CCDubinsStateSpace(
-            PlannerSettings::ccKappa, PlannerSettings::ccSigma,
-            PlannerSettings::samplingResolution));
+//  else if (PlannerSettings::steeringType == Steering::STEER_TYPE_CC_DUBINS)
+//    PlannerSettings::stateSpace =
+//        ob::StateSpacePtr(new hc_cc_spaces::CCDubinsStateSpace(
+//            PlannerSettings::ccKappa, PlannerSettings::ccSigma,
+//            PlannerSettings::samplingResolution));
 #ifdef G1_AVAILABLE
   else if (PlannerSettings::steeringType == Steering::STEER_TYPE_CLOTHOID)
     PlannerSettings::stateSpace = ob::StateSpacePtr(new G1ClothoidStateSpace());

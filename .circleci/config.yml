@@ -26,7 +26,8 @@ jobs:
           command: 'pushd . && git clone https://github.com/sbpl/sbpl.git && cd sbpl && mkdir build && cd build && cmake .. && make -j4 && sudo make install && popd'
       - run:
           name: Build and install OMPL
-          command: 'pushd . && cd ompl && mkdir build && cd build && cmake .. && make -j4 && sudo make install && popd'
+          command: 'wget http://ompl.kavrakilab.org/install-ompl-ubuntu.sh && chmod +x install-ompl-ubuntu.sh && sudo ./install-ompl-ubuntu.sh'
+          # command: 'pushd . && cd ompl && mkdir build && cd build && cmake .. && make -j4 && sudo make install && popd'
       - run:
           name: Creating Build Files
           command: 'cmake -H. -Bbuild'
