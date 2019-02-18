@@ -18,21 +18,23 @@ class GNode : public GNode_base {
     steer_cost = 0;
     steer = false;
 
-    nEdges = PlannerSettings::numberEdges;
+    nEdges = settings.smoothThetaStar.number_edges;
     READ_OR = 0;
     CHECK_SUCCESSOR = 0;
 
-    orientations = new double[PlannerSettings::numberEdges];
-    costs = new double[PlannerSettings::numberEdges];
+    orientations = new double[settings.smoothThetaStar.number_edges];
+    costs = new double[settings.smoothThetaStar.number_edges];
 
-    for (int i = 0; i < PlannerSettings::numberEdges; i++) costs[i] = 0;
+    for (int i = 0; i < settings.smoothThetaStar.number_edges; i++)
+      costs[i] = 0;
 
-    for (int i = 0; i < PlannerSettings::numberEdges; i++) orientations[i] = 0;
+    for (int i = 0; i < settings.smoothThetaStar.number_edges; i++)
+      orientations[i] = 0;
 
-    goal_x = (int)PlannerSettings::environment->goal().x;
-    goal_y = (int)PlannerSettings::environment->goal().y;
-    start_x = (int)PlannerSettings::environment->start().x;
-    start_y = (int)PlannerSettings::environment->start().y;
+    goal_x = (int)settings.environment->goal().x;
+    goal_y = (int)settings.environment->goal().y;
+    start_x = (int)settings.environment->start().x;
+    start_y = (int)settings.environment->start().y;
     hasParent = false;
     parent = new GNode_base();
     child = new GNode_base();
@@ -45,23 +47,25 @@ class GNode : public GNode_base {
     theta = 0;
     steer_cost = 0;
     steer = false;
-    nEdges = PlannerSettings::numberEdges;
+    nEdges = settings.smoothThetaStar.number_edges;
     READ_OR = 0;
     CHECK_SUCCESSOR = 0;
     x_r = xx;
     y_r = yy;
 
-    orientations = new double[PlannerSettings::numberEdges];
-    costs = new double[PlannerSettings::numberEdges];
+    orientations = new double[settings.smoothThetaStar.number_edges];
+    costs = new double[settings.smoothThetaStar.number_edges];
 
-    for (int i = 0; i < PlannerSettings::numberEdges; i++) costs[i] = 1000;
+    for (int i = 0; i < settings.smoothThetaStar.number_edges; i++)
+      costs[i] = 1000;
 
-    for (int i = 0; i < PlannerSettings::numberEdges; i++) orientations[i] = 0;
+    for (int i = 0; i < settings.smoothThetaStar.number_edges; i++)
+      orientations[i] = 0;
 
-    goal_x = (int)PlannerSettings::environment->goal().x;
-    goal_y = (int)PlannerSettings::environment->goal().y;
-    start_x = (int)PlannerSettings::environment->start().x;
-    start_y = (int)PlannerSettings::environment->start().y;
+    goal_x = (int)settings.environment->goal().x;
+    goal_y = (int)settings.environment->goal().y;
+    start_x = (int)settings.environment->start().x;
+    start_y = (int)settings.environment->start().y;
     hasParent = false;
     parent = new GNode_base();
     child = new GNode_base();
@@ -74,23 +78,25 @@ class GNode : public GNode_base {
 
     steer_cost = 0;
     steer = false;
-    nEdges = PlannerSettings::numberEdges;
+    nEdges = settings.smoothThetaStar.number_edges;
     READ_OR = 0;
     CHECK_SUCCESSOR = 0;
     x_r = xx;
     y_r = yy;
 
-    orientations = new double[PlannerSettings::numberEdges];
-    costs = new double[PlannerSettings::numberEdges];
+    orientations = new double[settings.smoothThetaStar.number_edges];
+    costs = new double[settings.smoothThetaStar.number_edges];
 
-    for (int i = 0; i < PlannerSettings::numberEdges; i++) costs[i] = 1000;
+    for (int i = 0; i < settings.smoothThetaStar.number_edges; i++)
+      costs[i] = 1000;
 
-    for (int i = 0; i < PlannerSettings::numberEdges; i++) orientations[i] = 0;
+    for (int i = 0; i < settings.smoothThetaStar.number_edges; i++)
+      orientations[i] = 0;
 
-    goal_x = (int)PlannerSettings::environment->goal().x;
-    goal_y = (int)PlannerSettings::environment->goal().y;
-    start_x = (int)PlannerSettings::environment->start().x;
-    start_y = (int)PlannerSettings::environment->start().y;
+    goal_x = (int)settings.environment->goal().x;
+    goal_y = (int)settings.environment->goal().y;
+    start_x = (int)settings.environment->start().x;
+    start_y = (int)settings.environment->start().y;
     hasParent = false;
     parent = new GNode_base();
     child = new GNode_base();
@@ -103,26 +109,28 @@ class GNode : public GNode_base {
 
     steer_cost = 0;
     steer = type;
-    nEdges = PlannerSettings::numberEdges;
+    nEdges = settings.smoothThetaStar.number_edges;
     READ_OR = 0;
     CHECK_SUCCESSOR = 0;
     x_r = xx;
     y_r = yy;
 
-    orientations = new double[PlannerSettings::numberEdges];
-    costs = new double[PlannerSettings::numberEdges];
+    orientations = new double[settings.smoothThetaStar.number_edges];
+    costs = new double[settings.smoothThetaStar.number_edges];
 
-    for (int i = 0; i < PlannerSettings::numberEdges; i++) costs[i] = 1000;
+    for (int i = 0; i < settings.smoothThetaStar.number_edges; i++)
+      costs[i] = 1000;
 
-    for (int i = 0; i < PlannerSettings::numberEdges; i++) orientations[i] = 0;
+    for (int i = 0; i < settings.smoothThetaStar.number_edges; i++)
+      orientations[i] = 0;
 
     parent = new GNode_base();
     child = new GNode_base();
 
-    goal_x = (int)PlannerSettings::environment->goal().x;
-    goal_y = (int)PlannerSettings::environment->goal().y;
-    start_x = (int)PlannerSettings::environment->start().x;
-    start_y = (int)PlannerSettings::environment->start().y;
+    goal_x = (int)settings.environment->goal().x;
+    goal_y = (int)settings.environment->goal().y;
+    start_x = (int)settings.environment->start().x;
+    start_y = (int)settings.environment->start().y;
     hasParent = false;
   }
 
@@ -133,26 +141,28 @@ class GNode : public GNode_base {
 
     steer_cost = steer_c;
     steer = type;
-    nEdges = PlannerSettings::numberEdges;
+    nEdges = settings.smoothThetaStar.number_edges;
     READ_OR = 0;
     CHECK_SUCCESSOR = 0;
     x_r = xx;
     y_r = yy;
 
-    orientations = new double[PlannerSettings::numberEdges];
-    costs = new double[PlannerSettings::numberEdges];
+    orientations = new double[settings.smoothThetaStar.number_edges];
+    costs = new double[settings.smoothThetaStar.number_edges];
 
-    for (int i = 0; i < PlannerSettings::numberEdges; i++) costs[i] = 1000;
+    for (int i = 0; i < settings.smoothThetaStar.number_edges; i++)
+      costs[i] = 1000;
 
-    for (int i = 0; i < PlannerSettings::numberEdges; i++) orientations[i] = 0;
+    for (int i = 0; i < settings.smoothThetaStar.number_edges; i++)
+      orientations[i] = 0;
 
     parent = new GNode_base();
     child = new GNode_base();
 
-    goal_x = (int)PlannerSettings::environment->goal().x;
-    goal_y = (int)PlannerSettings::environment->goal().y;
-    start_x = (int)PlannerSettings::environment->start().x;
-    start_y = (int)PlannerSettings::environment->start().y;
+    goal_x = (int)settings.environment->goal().x;
+    goal_y = (int)settings.environment->goal().y;
+    start_x = (int)settings.environment->start().x;
+    start_y = (int)settings.environment->start().y;
     hasParent = false;
   }
 
@@ -164,29 +174,29 @@ class GNode : public GNode_base {
 
     steer_cost = steer_c;
     steer = type;
-    nEdges = PlannerSettings::numberEdges;
+    nEdges = settings.smoothThetaStar.number_edges;
     READ_OR = 0;
     CHECK_SUCCESSOR = 0;
     x_r = xx;
     y_r = yy;
 
-    orientations = new double[PlannerSettings::numberEdges];
-    costs = new double[PlannerSettings::numberEdges];
+    orientations = new double[settings.smoothThetaStar.number_edges];
+    costs = new double[settings.smoothThetaStar.number_edges];
 
-    for (int i = 0; i < PlannerSettings::numberEdges; i++) {
+    for (int i = 0; i < settings.smoothThetaStar.number_edges; i++) {
       costs[i] = c[i];
     }
 
-    for (int i = 0; i < PlannerSettings::numberEdges; i++)
+    for (int i = 0; i < settings.smoothThetaStar.number_edges; i++)
       orientations[i] = orien[i];
 
     parent = new GNode_base();
     child = new GNode_base();
 
-    goal_x = (int)PlannerSettings::environment->goal().x;
-    goal_y = (int)PlannerSettings::environment->goal().y;
-    start_x = (int)PlannerSettings::environment->start().x;
-    start_y = (int)PlannerSettings::environment->start().y;
+    goal_x = (int)settings.environment->goal().x;
+    goal_y = (int)settings.environment->goal().y;
+    start_x = (int)settings.environment->start().x;
+    start_y = (int)settings.environment->start().y;
     hasParent = false;
   }
 
@@ -201,27 +211,27 @@ class GNode : public GNode_base {
 
     steer_cost = steer_c;
     steer = type;
-    nEdges = PlannerSettings::numberEdges;
+    nEdges = settings.smoothThetaStar.number_edges;
     READ_OR = 0;
     CHECK_SUCCESSOR = 0;
 
-    orientations = new double[PlannerSettings::numberEdges];
-    costs = new double[PlannerSettings::numberEdges];
+    orientations = new double[settings.smoothThetaStar.number_edges];
+    costs = new double[settings.smoothThetaStar.number_edges];
 
-    for (int i = 0; i < PlannerSettings::numberEdges; i++) {
+    for (int i = 0; i < settings.smoothThetaStar.number_edges; i++) {
       costs[i] = c[i];
     }
 
-    for (int i = 0; i < PlannerSettings::numberEdges; i++)
+    for (int i = 0; i < settings.smoothThetaStar.number_edges; i++)
       orientations[i] = orien[i];
 
     parent = new GNode_base();
     child = new GNode_base();
 
-    goal_x = (int)PlannerSettings::environment->goal().x;
-    goal_y = (int)PlannerSettings::environment->goal().y;
-    start_x = (int)PlannerSettings::environment->start().x;
-    start_y = (int)PlannerSettings::environment->start().y;
+    goal_x = (int)settings.environment->goal().x;
+    goal_y = (int)settings.environment->goal().y;
+    start_x = (int)settings.environment->start().x;
+    start_y = (int)settings.environment->start().y;
   }
 
   GNode(const GNode &n) {
@@ -242,14 +252,14 @@ class GNode : public GNode_base {
     READ_OR = n.READ_OR;
     CHECK_SUCCESSOR = n.CHECK_SUCCESSOR;
 
-    orientations = new double[PlannerSettings::numberEdges];
-    costs = new double[PlannerSettings::numberEdges];
+    orientations = new double[settings.smoothThetaStar.number_edges];
+    costs = new double[settings.smoothThetaStar.number_edges];
 
-    for (int i = 0; i < PlannerSettings::numberEdges; i++) {
+    for (int i = 0; i < settings.smoothThetaStar.number_edges; i++) {
       costs[i] = n.costs[i];
     }
 
-    for (int i = 0; i < PlannerSettings::numberEdges; i++)
+    for (int i = 0; i < settings.smoothThetaStar.number_edges; i++)
       orientations[i] = n.orientations[i];
 
     parent = n.parent;
@@ -281,14 +291,15 @@ class GNode : public GNode_base {
     READ_OR = n.READ_OR;
     CHECK_SUCCESSOR = n.CHECK_SUCCESSOR;
 
-    orientations = new double[PlannerSettings::numberEdges];
-    costs = new double[PlannerSettings::numberEdges];
+    orientations = new double[settings.smoothThetaStar.number_edges];
+    costs = new double[settings.smoothThetaStar.number_edges];
 
-    for (int i = 0; i < PlannerSettings::numberEdges; i++) {
+    for (int i = 0; i < settings.smoothThetaStar.number_edges; i++) {
       costs[i] = 0;
     }
 
-    for (int i = 0; i < PlannerSettings::numberEdges; i++) orientations[i] = 0;
+    for (int i = 0; i < settings.smoothThetaStar.number_edges; i++)
+      orientations[i] = 0;
 
     parent = n.parent;
     child = n.child;
@@ -322,9 +333,9 @@ class GNode : public GNode_base {
   /// ============================================================================================
   double *getLineCost() {
     double *local_cost;
-    local_cost = new double[PlannerSettings::numberEdges];
+    local_cost = new double[settings.smoothThetaStar.number_edges];
     local_cost[0] = 1;
-    for (int i = 1; i < PlannerSettings::numberEdges; i++) {
+    for (int i = 1; i < settings.smoothThetaStar.number_edges; i++) {
       local_cost[i] = 1000;
     }
 
@@ -366,7 +377,7 @@ class GNode : public GNode_base {
   /// Check in the Map, the value associated to the position (x,y)
   /// ============================================================================================
   int GetMap(double x, double y) {
-    if (PlannerSettings::environment->occupied(x, y))
+    if (settings.environment->occupied(x, y))
       return 1;
     else
       return 0;
@@ -623,18 +634,18 @@ class GNode : public GNode_base {
   float GetCostTraj(GNode &successor) {
     // return successor.steer_cost;
     return static_cast<float>(
-        PlannerSettings::objective
+        settings.ompl.objective
             ->motionCost(base::StateFromXY(x, y),
                          base::StateFromXY(successor.x, successor.y))
             .value());
 
-    //    double res = PlannerSettings::steering->getBestCost(
+    //    double res = settings.steering->getBestCost(
     //        this->x, this->y, successor.x, successor.y);
     //    if (res < 0) {
     //      OMPL_ERROR(
     //          "Failing to compute the cost.. strange no lineofsight %d %d %d
     //          %d " "cost: %f, yaw: %f", this->x, this->y, successor.x,
-    //          successor.y, res, PlannerSettings::steering->getBestYaw(this->x,
+    //          successor.y, res, settings.steering->getBestYaw(this->x,
     //          this->y, successor.x,
     //                                                successor.y));
     //      return 0;
@@ -649,11 +660,11 @@ class GNode : public GNode_base {
   /// ============================================================================================
   double GetCostTrajFromParent(GNode &parent, GNode &successor) {
     return static_cast<float>(
-        PlannerSettings::objective
+        settings.ompl.objective
             ->motionCost(base::StateFromXY(parent.x, parent.y),
                          base::StateFromXY(successor.x, successor.y))
             .value());
-    //    double res = PlannerSettings::steering->getBestCost(
+    //    double res = settings.steering->getBestCost(
     //        parent.x, parent.y, successor.x, successor.y);
     //
     //    if (res < 0) {
@@ -662,7 +673,7 @@ class GNode : public GNode_base {
     //          %d %d "
     //          "%d cost: %f, yaw: %f",
     //          parent.x, parent.y, successor.x, successor.y, res,
-    //          PlannerSettings::steering->getBestYaw(parent.x, parent.y,
+    //          settings.steering->getBestYaw(parent.x, parent.y,
     //          successor.x,
     //                                                successor.y));
     //      return 0;
@@ -699,7 +710,7 @@ class GNode : public GNode_base {
   /// ============================================================================================
   bool lineofsight(GNode *parent_node, GNode *successor) {
     // TODO reactivate?
-    //        bool res = PlannerSettings::steering->Steer(parent_node,
+    //        bool res = settings.steering->Steer(parent_node,
     //        successor);
     //
     //        successor->setParent(parent_node);

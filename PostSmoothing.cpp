@@ -40,23 +40,23 @@ bool PostSmoothing::smooth(
   PlannerUtils::updateAngles(path, AverageAngles);
 
   double dx, dy;
-  double eta = PlannerSettings::gripsEta;  // gradient descent step size
-  for (int round = 0; round < PlannerSettings::gripsGradientDescentRounds;
+  double eta = settings.grips.eta;  // gradient descent step size
+  for (int round = 0; round < settings.grips.gradient_descent_rounds;
        ++round) {
     beginRound(ROUND_GD);
     // gradient descent along distance field
     for (auto i = 1u; i < path.getStateCount() - 1; ++i) {
       // compute gradient
       auto *s = path.getState(i)->as<State>();
-      PlannerSettings::environment->distanceGradient(s->getX(), s->getY(), dx,
+      settings.environment->distanceGradient(s->getX(), s->getY(), dx,
                                                      dy, 1.);
       double distance =
-          PlannerSettings::environment->bilinearDistance(s->getX(), s->getY());
+          settings.environment->bilinearDistance(s->getX(), s->getY());
       distance = std::max(.1, distance);
       s->setX(s->getX() - eta * dx / distance);
       s->setY(s->getY() + eta * dy / distance);
     }
-    eta *= PlannerSettings::gripsEtaDiscount;  // discount factor
+    eta *= settings.grips.eta_discount;  // discount factor
 
     PlannerUtils::updateAngles(path, AverageAngles);
 
@@ -71,11 +71,11 @@ bool PostSmoothing::smooth(
     auto tpath =
         PlannerUtils::toSteeredPoints(path.getState(0u), path.getState(1u));
     double lastDistance =
-        PlannerSettings::environment->bilinearDistance(tpath[0].x, tpath[0].y);
+        settings.environment->bilinearDistance(tpath[0].x, tpath[0].y);
     double lastDistance2 =
-        PlannerSettings::environment->bilinearDistance(tpath[1].x, tpath[1].y);
+        settings.environment->bilinearDistance(tpath[1].x, tpath[1].y);
     double lastDifference = lastDistance2 - lastDistance;
-    ompl::geometric::PathGeometric npath(PlannerSettings::spaceInfo);
+    ompl::geometric::PathGeometric npath(settings.ompl.space_info);
     Point lastNodePosition(tpath[0].x, tpath[0].y);
 
     for (auto i = 0u; i < path.getStateCount() - 1; ++i) {
@@ -91,13 +91,13 @@ bool PostSmoothing::smooth(
 
       for (auto &p : tpath) {
         double distance =
-            PlannerSettings::environment->bilinearDistance(p.x, p.y);
+            settings.environment->bilinearDistance(p.x, p.y);
         double difference = distance - lastDistance;
         if (lastDifference < 0 && difference > 0 &&
             lastNodePosition.distance(p.x, p.y) >=
-                PlannerSettings::gripsMinNodeDistance &&
+                settings.grips.min_node_distance &&
             nextNodePosition.distance(p.x, p.y) >=
-                PlannerSettings::gripsMinNodeDistance) {
+                settings.grips.min_node_distance) {
           // local minimum
           npath.append(p.toState());
           lastNodePosition = Point(p.x, p.y);
@@ -135,13 +135,13 @@ bool PostSmoothing::smooth(
   nodesPerRound.push_back((int)(path.getStateCount()));
   do {
     beginRound(ROUND_PRUNING);
-    if (pruningRound >= PlannerSettings::gripsMaxPruningRounds) {
+    if (pruningRound >= settings.grips.max_pruning_rounds) {
       OMPL_ERROR(
           "Giving up pruning after %i rounds. The smoothed trajectory most "
           "likely collides.",
           pruningRound);
       stopWatch.stop();
-      smoothingTime = stopWatch.time;
+      smoothingTime = stopWatch.elapsed();
       return false;
     }
 
@@ -193,7 +193,7 @@ bool PostSmoothing::smooth(
 #endif
 
     // compute final trajectory
-    ompl::geometric::PathGeometric finalPath(PlannerSettings::spaceInfo);
+    ompl::geometric::PathGeometric finalPath(settings.ompl.space_info);
     for (unsigned int ui = 1; ui < unremovable.size(); ++ui) {
       const auto i = unremovable[ui - 1];
       const auto j = unremovable[ui];
@@ -224,7 +224,7 @@ bool PostSmoothing::smooth(
 
           double edgeWeight =
               PathLengthMetric::evaluate(ompl::geometric::PathGeometric(
-                  PlannerSettings::spaceInfo, path.getState(u),
+                  settings.ompl.space_info, path.getState(u),
                   path.getState(v)));
 
 #ifdef DEBUG
@@ -291,7 +291,7 @@ bool PostSmoothing::smooth(
   } while (lastPathLength != path.getStateCount() || fixes > 0);
 
   stopWatch.stop();
-  smoothingTime += stopWatch.time;
+  smoothingTime += stopWatch.elapsed();
 
 #ifdef DEBUG
 #if QT_SUPPORT
@@ -303,8 +303,8 @@ bool PostSmoothing::smooth(
 
   OMPL_INFORM("Path Length after our PS: %f", PathLengthMetric::evaluate(path));
 //    OMPL_INFORM("Speed Arc Length: %f", SpeedArcLengthMetric::evaluate(path,
-//    this, PlannerSettings::steering)); OMPL_INFORM("Peaks: %f",
-//    PeaksMetric::evaluate(path, this, PlannerSettings::steering));
+//    this, settings.steering)); OMPL_INFORM("Peaks: %f",
+//    PeaksMetric::evaluate(path, this, settings.steering));
 #endif
 #endif
   OMPL_INFORM("Post-smoothing SUCCEEDED after %i pruning rounds.",
@@ -325,13 +325,13 @@ void PostSmoothing::endRound(const ompl::geometric::PathGeometric &path) {
   stopWatch.pause();
   static std::vector<double> nodeDistances, trajDistances;
   roundStats.stopWatch.stop();
-  roundStats.time = roundStats.stopWatch.time;
+  roundStats.time = roundStats.stopWatch.elapsed();
   roundStats.pathLength = path.length();
   roundStats.maxCurvature = CurvatureMetric::evaluate(path);
   roundStats.nodes = (int)path.getStateCount();
   nodeDistances.clear();
   for (auto i = 0u; i < path.getStateCount(); ++i)
-    nodeDistances.push_back(PlannerSettings::environment->bilinearDistance(
+    nodeDistances.push_back(settings.environment->bilinearDistance(
         Point(path.getState(i))));
   roundStats.medianNodeObstacleDistance = stat::median(nodeDistances);
   roundStats.meanNodeObstacleDistance = stat::mean(nodeDistances);
@@ -341,7 +341,7 @@ void PostSmoothing::endRound(const ompl::geometric::PathGeometric &path) {
   trajDistances.clear();
   const auto interpolated = PlannerUtils::interpolated(path);
   for (auto i = 0u; i < interpolated.getStateCount(); ++i)
-    trajDistances.push_back(PlannerSettings::environment->bilinearDistance(
+    trajDistances.push_back(settings.environment->bilinearDistance(
         Point(interpolated.getState(i))));
   roundStats.medianTrajObstacleDistance = stat::median(trajDistances);
   roundStats.meanTrajObstacleDistance = stat::mean(trajDistances);
@@ -349,6 +349,6 @@ void PostSmoothing::endRound(const ompl::geometric::PathGeometric &path) {
   roundStats.maxTrajObstacleDistance = stat::max(trajDistances);
   roundStats.stdTrajObstacleDistance = stat::std(trajDistances);
   statsPerRound.push_back(roundStats);
-  stopWatch.resume();
+  stopWatch.start();
 #endif
 }

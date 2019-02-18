@@ -17,16 +17,16 @@
 namespace og = ompl::geometric;
 
 int main(int argc, char **argv) {
-  PlannerSettings::steeringType = Steering::STEER_TYPE_REEDS_SHEPP;
-  PlannerSettings::initializeSteering();
+  settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
+  settings.initializeSteering();
 
   QtVisualizer::initialize();
   QtVisualizer::showStartGoal(false);
 
-  PlannerSettings::environment =
+  settings.environment =
       Environment::createRandomCorridor(50, 50, 3, 30, 123);
 
-  QtVisualizer::visualize(PlannerSettings::environment, 0);
+  QtVisualizer::visualize(settings.environment, 0);
 
   auto *planner = new RRTPlanner;
   if (!planner->run()) return EXIT_FAILURE;

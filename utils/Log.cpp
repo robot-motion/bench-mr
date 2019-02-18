@@ -20,54 +20,10 @@ void Log::instantiateRun() {
        {
            {"time", tstr},
        }},
-      {"settings",
-       {{"steering", Steering::to_string(PlannerSettings::steeringType)},
-        {"carTurningRadius", PlannerSettings::CarTurningRadius},
-        {"estimateTheta", PlannerSettings::estimateTheta},
-        {"grips",
-         {{"minNodeDistance", PlannerSettings::gripsMinNodeDistance},
-          {"eta", PlannerSettings::gripsEta},
-          {"etaDiscount", PlannerSettings::gripsEtaDiscount},
-          {"gdRounds", PlannerSettings::gripsGradientDescentRounds},
-          {"pruningRounds", PlannerSettings::gripsMaxPruningRounds},
-          {"minimizePathLength", PostSmoothing::MINIMIZE_PATHLENGTH},
-          {"fixCollisions", PostSmoothing::FIX_COLLISIONS}}},
-        {"smoothThetaStar",
-         {{"gdOpenNodes", PlannerSettings::gradientDescentOpenNodes},
-          {"annealedGdOpenNodes",
-           PlannerSettings::annealedGradientDescentOpenNodes},
-          {"eta", PlannerSettings::gradientDescentEta},
-          {"etaDiscount", PlannerSettings::gradientDescentEtaDiscount},
-          {"gdRounds", PlannerSettings::gradientDescentRounds},
-          {"gdCurrent", PlannerSettings::gradientDescentCurrent},
-          {"gdSuccessors", PlannerSettings::gradientDescentSuccessors},
-          {"averageAngles", PlannerSettings::averageAngles}}},
-        {"sbpl",
-         {{"sbplSearchUntilFirstSolution",
-           PlannerSettings::sbplSearchUntilFirstSolution},
-          {"sbplInitialSolutionEps", PlannerSettings::sbplInitialSolutionEps},
-          {"sbplFordwardVelocity", PlannerSettings::sbplFordwardVelocity},
-          {"sbplTimeToTurn45DegsInPlace",
-           PlannerSettings::sbplTimeToTurn45DegsInPlace},
-          {"sbplMotionPrimitiveFilename",
-           PlannerSettings::sbplMotionPrimitiveFilename},
-          {"sbplGoalToleranceX", PlannerSettings::sbplGoalToleranceX},
-          {"sbplGoalToleranceY", PlannerSettings::sbplGoalToleranceY},
-          {"sbplGoalToleranceTheta", PlannerSettings::sbplGoalToleranceTheta},
-          {"sbplResolution", PlannerSettings::sbplResolution},
-          {"sbplNumThetaDirs", PlannerSettings::sbplNumThetaDirs},
-          {"sbplScaling", PlannerSettings::sbplScaling}}},
-        {"chomp",
-         {{"chompNodes", PlannerSettings::chompNodes},
-          {"chompAlpha", PlannerSettings::chompAlpha},
-          {"chompEpsilon", PlannerSettings::chompEpsilon},
-          {"chompGamma", PlannerSettings::chompGamma},
-          {"chompErrorTolerance", PlannerSettings::chompErrorTolerance},
-          {"chompMaxIterations", PlannerSettings::chompMaxIterations},
-          {"chompObjectiveType", PlannerSettings::chompObjectiveType},
-          {"chompInitialization", PlannerSettings::chompInitialization}}}}},
-      //            {"environment", PlannerSettings::environment->asJSON()},
       {"runs", nlohmann::json::array()}};
+
+  _currentRun.update(nlohmann::json(settings));
+  _currentRun["settings"]["steering"] = Steering::to_string(settings.steer.steering_type);
 }
 
 void Log::log(const PathStatistics &stats) {
@@ -154,10 +110,10 @@ void Log::storeRun() { _json["runs"].push_back(_currentRun); }
 
 std::string Log::filename() {
   return _currentRun["settings"]["steering"].get<std::string>() + " " +
-         std::to_string(PlannerSettings::environment->width()) + "x" +
-         std::to_string(PlannerSettings::environment->height()) + " " +
-         PlannerSettings::environment->generatorType() + " " +
-         std::to_string(PlannerSettings::environment->seed()) + " " +
+         std::to_string(settings.environment->width()) + "x" +
+         std::to_string(settings.environment->height()) + " " +
+         settings.environment->generatorType() + " " +
+         std::to_string(settings.environment->seed()) + " " +
          _currentRun["globals"]["time"].get<std::string>();
 }
 

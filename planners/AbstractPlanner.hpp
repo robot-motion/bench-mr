@@ -115,7 +115,7 @@ class AbstractPlanner {
     planner->as<og::AnytimePathShortening>()->addPlanner(optimizingPlanner);
     this->ss->setPlanner(planner);
     this->ss->setup();
-    auto solved = this->ss->solve(PlannerSettings::PlanningTime);
+    auto solved = this->ss->solve(settings.ompl.max_planning_time);
     std::cout << "OMPL anytime path shortening planning status: "
               << solved.asString().c_str() << std::endl;
 
@@ -148,7 +148,7 @@ class AbstractPlanner {
   og::SimpleSetup *ss{nullptr};
 
   AbstractPlanner() {
-    ss = new og::SimpleSetup(PlannerSettings::stateSpace);
+    ss = new og::SimpleSetup(settings.ompl.state_space);
     const ob::SpaceInformationPtr si = ss->getSpaceInformation();
 
     // Construct a space information instance for this state space
@@ -160,17 +160,17 @@ class AbstractPlanner {
     ss->setStateValidityChecker([&](const ob::State *state) -> bool {
       const auto *s = state->as<ob::SE2StateSpace::StateType>();
       const double x = s->getX(), y = s->getY();
-      return !PlannerSettings::environment->occupied(x, y);
+      return !settings.environment->occupied(x, y);
     });
 
     //        si->setStateValidityCheckingResolution(0.005);
-    if (PlannerSettings::steeringType == Steering::STEER_TYPE_POSQ) {
+    if (settings.steer.steering_type == Steering::STEER_TYPE_POSQ) {
       ob::MotionValidatorPtr motionValidator(new POSQMotionValidator(si));
       si->setMotionValidator(motionValidator);
       si->setStateValidityCheckingResolution(0.002);
     }
 #ifdef G1_AVAILABLE
-    else if (PlannerSettings::steeringType == Steering::STEER_TYPE_CLOTHOID) {
+    else if (settings.steer.steering_type == Steering::STEER_TYPE_CLOTHOID) {
       ob::MotionValidatorPtr motionValidator(
           new G1ClothoidStateSpaceValidator(si));
       si->setMotionValidator(motionValidator);
@@ -181,19 +181,19 @@ class AbstractPlanner {
 #endif
 
     // Set our robot's starting state
-    ob::ScopedState<> start(PlannerSettings::stateSpace);
-    start[0] = PlannerSettings::environment->start().x;
-    start[1] = PlannerSettings::environment->start().y;
+    ob::ScopedState<> start(settings.ompl.state_space);
+    start[0] = settings.environment->start().x;
+    start[1] = settings.environment->start().y;
     start[2] = 0;
     // Set our robot's goal state
-    ob::ScopedState<> goal(PlannerSettings::stateSpace);
-    goal[0] = PlannerSettings::environment->goal().x;
-    goal[1] = PlannerSettings::environment->goal().y;
+    ob::ScopedState<> goal(settings.ompl.state_space);
+    goal[0] = settings.environment->goal().x;
+    goal[1] = settings.environment->goal().y;
     goal[2] = 0;
 
-    if (PlannerSettings::estimateTheta) {
+    if (settings.estimate_theta) {
       const auto thetas =
-          PlannerSettings::environment->estimateStartGoalOrientations();
+          settings.environment->estimateStartGoalOrientations();
       start[2] = thetas.first;
       goal[2] = thetas.second;
     }

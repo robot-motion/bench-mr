@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 
 project(mpb)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -17,6 +17,9 @@ include_directories(chomp)
 
 add_subdirectory(steering_functions)
 include_directories(steering_functions/include)
+
+add_subdirectory(params)
+include_directories(params/include)
 
 # add the binary tree to the search path for include files
 # so that we will find GripsConfig.h

@@ -446,11 +446,11 @@ std::string Environment::generatorType() const { return _type; }
 std::pair<double, double> Environment::estimateStartGoalOrientations() const {
   auto result =
       std::make_pair<double, double>(std::nan("start"), std::nan("goal"));
-  const auto cacheSteeringType = PlannerSettings::steeringType;
-  const auto cacheEstimateTheta = PlannerSettings::estimateTheta;
-  PlannerSettings::steeringType = Steering::STEER_TYPE_LINEAR;
-  PlannerSettings::estimateTheta = false;
-  PlannerSettings::initializeSteering();
+  const auto cacheSteeringType = settings.steer.steering_type;
+  const auto cacheEstimateTheta = settings.estimate_theta;
+  settings.steer.steering_type = Steering::STEER_TYPE_LINEAR;
+  settings.estimate_theta = false;
+  settings.steer.initializeSteering();
   auto *thetaStar = new ThetaStar;
   if (thetaStar->run()) {
     std::vector<Point> path = thetaStar->solutionPath();
@@ -463,9 +463,9 @@ std::pair<double, double> Environment::estimateStartGoalOrientations() const {
         std::atan2(path[n].y - path[n - 1].y, path[n].x - path[n - 1].x);
   }
   delete thetaStar;
-  PlannerSettings::steeringType = cacheSteeringType;
-  PlannerSettings::estimateTheta = cacheEstimateTheta;
-  PlannerSettings::initializeSteering();
+  settings.steer.steering_type = cacheSteeringType;
+  settings.estimate_theta = cacheEstimateTheta;
+  settings.steer.initializeSteering();
   return result;
 }
 

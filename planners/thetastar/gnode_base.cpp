@@ -7,10 +7,10 @@
 #endif
 
 bool GNode_base::isblock(double x, double y) {
-  //    bool c = PlannerSettings::environment->collides(x, y);
+  //    bool c = settings.environment->collides(x, y);
   //    QtVisualizer::drawNode(x, y, c ? Qt::red : Qt::darkGreen, 0.05);
   //    return c;
-  return PlannerSettings::environment->collides(x, y);
+  return settings.environment->collides(x, y);
 }
 
 bool GNode_base::line(double x0, double y0, double y1, double x1) {

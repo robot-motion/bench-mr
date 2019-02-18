@@ -1,4 +1,5 @@
 #pragma once
+#include <nlohmann/json.hpp>
 #include <string>
 
 namespace Steering {
@@ -33,4 +34,17 @@ inline std::string to_string(Steering::SteeringType t) {
       return "CC Reeds-Shepp";
   }
 }
+
+// clang-format off
+//NLOHMANN_JSON_SERIALIZE_ENUM(SteeringType, {
+//  {STEER_TYPE_REEDS_SHEPP, "Reeds-Shepp"},
+//  {STEER_TYPE_DUBINS, "Dubins"},
+//  {STEER_TYPE_LINEAR, "Linear"},
+//  {STEER_TYPE_POSQ, "POSQ"},
+//  {STEER_TYPE_CLOTHOID, "Clothoid"},
+//  {STEER_TYPE_CC_DUBINS, "CC Dubins"},
+//  {STEER_TYPE_HC_REEDS_SHEPP, "HC Reeds-Shepp"},
+//  {STEER_TYPE_CC_REEDS_SHEPP, "CC Reeds-Shepp"}
+//})
+// clang-format on
 }  // namespace Steering
