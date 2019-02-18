@@ -48,7 +48,7 @@ class OMPLPlanner : public AbstractPlanner {
     ss->setPlanner(_omplPlanner);
     ss->setup();
 
-    auto solved = ss->solve(PlannerSettings::PlanningTime);
+    auto solved = ss->solve(settings.ompl.max_planning_time);
     OMPL_INFORM("OMPL %s planning status: %s", _omplPlanner->getName().c_str(),
                 solved.asString().c_str());
 

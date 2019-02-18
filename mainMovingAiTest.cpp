@@ -27,7 +27,7 @@ void printStats(const PathStatistics &stats) {
 }
 
 int main(int argc, char **argv) {
-  PlannerSettings::environment = Environment::createRandomCorridor(
+  settings.environment = Environment::createRandomCorridor(
       50, 50, 3,
       30,  // 1540486476); //1540445576); //1502484532); //1502407983);
       // //1502323408); //1502316103); //1502231684); //1502227898);
@@ -35,9 +35,9 @@ int main(int argc, char **argv) {
       // );//1500660612);// 1500551721);// 1500550472);
       (unsigned int)(time(nullptr) + 123));
 
-  PlannerSettings::steeringType = Steering::STEER_TYPE_LINEAR;
-  //    PlannerSettings::CarTurningRadius = 1.5;
-  PlannerSettings::initializeSteering();
+  settings.steer.steering_type = Steering::STEER_TYPE_LINEAR;
+  //    settings.CarTurningRadius = 1.5;
+  settings.steer.initializeSteering();
   PathEvaluation::initialize();
 
 #if QT_SUPPORT
@@ -47,11 +47,11 @@ int main(int argc, char **argv) {
   //    std::vector<Rectangle> obstacles;
   //    obstacles.emplace_back(Rectangle(10, 0, 15, 14));
   //    obstacles.emplace_back(Rectangle(26, 10, 31, 25));
-  //    PlannerSettings::environment =
+  //    settings.environment =
   //    Environment::createFromObstacles(obstacles, 40, 25);
-  //    PlannerSettings::environment->setStart(Point(5, 3));
-  //    PlannerSettings::environment->setGoal(Point(36, 22));
-  //    PlannerSettings::environment = Environment::createRandom(50, 50, 0.1,
+  //    settings.environment->setStart(Point(5, 3));
+  //    settings.environment->setGoal(Point(36, 22));
+  //    settings.environment = Environment::createRandom(50, 50, 0.1,
   //    1542671305);
 
   Log::instantiateRun();
@@ -72,10 +72,10 @@ int main(int argc, char **argv) {
   unsigned int counter = 0;
   for (auto &scenario : scenarioLoader.scenarios()) {
     // create environment
-    PlannerSettings::environment =
+    settings.environment =
         Environment::createFromMovingAiScenario(scenario);
 #if QT_SUPPORT
-    QtVisualizer::visualize(PlannerSettings::environment, 0);
+    QtVisualizer::visualize(settings.environment, 0);
 #endif
     PathStatistics thetaStarStats, rrtStarStats, gripsStats,
         smoothThetaStarStats, sbplStats, chompStats;
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
 
     auto info =
         nlohmann::json({{"plans", {}},
-                        {"environment", PlannerSettings::environment->asJSON()},
+                        {"environment", settings.environment->asJSON()},
                         {"optimalDistance", scenario.optimal_length}});
 
     //        ChompPlanner chompPlanner;

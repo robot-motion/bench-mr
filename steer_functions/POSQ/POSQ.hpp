@@ -146,10 +146,10 @@ public:
     //           Kphi    = -1;
     //        **/
     //        Krho = 25.2; //15.5; //0.2;
-    //        Kv = 0.2; //13.8;// .2; //0.01; //PlannerSettings::Kv;
+    //        Kv = 0.2; //13.8;// .2; //0.01; //settings.Kv;
     //
     //        Vmax = Krho;
-    //        RhoEndCondition = 0.015; //PlannerSettings::rhoEndcondition;
+    //        RhoEndCondition = 0.015; //settings.rhoEndcondition;
 
     Kalpha = 6.91;
     Kbeta = -1;
@@ -159,10 +159,10 @@ public:
        Kphi    = -1;
     **/
     Krho = 2; // 15.5; //0.2;
-    Kv = 1.2; // 13.8;// .2; //0.01; //PlannerSettings::Kv;
+    Kv = 1.2; // 13.8;// .2; //0.01; //settings.Kv;
 
     Vmax = Krho;
-    RhoEndCondition = 0.1; // PlannerSettings::rhoEndcondition;
+    RhoEndCondition = 0.1; // settings.rhoEndcondition;
 
     //////////////////////////////////////////////////////////////////////////////////
     // Luigi's values:
@@ -257,10 +257,10 @@ public:
     //           Kphi    = -1;
     //        **/
     //        Krho = 0.2; //15.5; //0.2;
-    //        Kv = 0.2; //13.8;// .2; //0.01; //PlannerSettings::Kv;
+    //        Kv = 0.2; //13.8;// .2; //0.01; //settings.Kv;
     //
     //        Vmax = Krho;
-    //        RhoEndCondition = 0.15; //PlannerSettings::rhoEndcondition;
+    //        RhoEndCondition = 0.15; //settings.rhoEndcondition;
 
     if (Kalpha + Kbeta - Krho * Kv <= 0)
       std::cerr << "K_alpha + K_phi - K_rho K_v = "

@@ -28,7 +28,7 @@ class OMPLAnytimePathShortening : public OMPLPlanner<PLANNER> {
     planner->as<og::AnytimePathShortening>()->addPlanner(optimizingPlanner);
     this->ss->setPlanner(planner);
     this->ss->setup();
-    auto solved = this->ss->solve(PlannerSettings::PlanningTime);
+    auto solved = this->ss->solve(settings.ompl.max_planning_time);
     OMPL_INFORM("OMPL anytime path shortening planning status: %s",
                 solved.asString().c_str());
 

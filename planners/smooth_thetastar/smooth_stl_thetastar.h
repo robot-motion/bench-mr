@@ -390,22 +390,22 @@ class SmoothThetaStarSearch : public ThetaStarSearch<UserState> {
           (*successor)->parent = NULL;
         }
 
-        if (PlannerSettings::gradientDescentSuccessors) {
+        if (settings.gradientDescentSuccessors) {
           double dx, dy;
-          double eta = PlannerSettings::gradientDescentEta;
-          for (auto i = 0u; i < PlannerSettings::gradientDescentRounds; ++i) {
+          double eta = settings.gradientDescentEta;
+          for (auto i = 0u; i < settings.gradientDescentRounds; ++i) {
             double x = (*successor)->m_UserState.x_r;
             double y = (*successor)->m_UserState.y_r;
-            PlannerSettings::environment->distanceGradient(x, y, dx, dy, 1.);
+            settings.environment->distanceGradient(x, y, dx, dy, 1.);
             double distance =
-                PlannerSettings::environment->bilinearDistance(x, y);
+                settings.environment->bilinearDistance(x, y);
             distance = std::max(.1, distance);
             (*successor)->m_UserState.x_r -= eta * dx / distance;
             (*successor)->m_UserState.y_r += eta * dy / distance;
-            eta *= PlannerSettings::gradientDescentEtaDiscount;
+            eta *= settings.gradientDescentEtaDiscount;
           }
 
-          if (!PlannerSettings::environment->collides(
+          if (!settings.environment->collides(
                   (*successor)->m_UserState.x_r,
                   (*successor)->m_UserState.y_r)) {
             if (!m_connectGrandParent)

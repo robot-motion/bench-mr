@@ -24,7 +24,7 @@ std::vector<double> PathEvaluation::computeObstacleDistances(
   std::vector<double> distances;
   for (unsigned int i = 0; i < path.size() - 1; ++i) {
     for (auto &point : PlannerUtils::linearInterpolate(path[i], path[i + 1])) {
-      double distance = PlannerSettings::environment->bilinearDistance(point);
+      double distance = settings.environment->bilinearDistance(point);
       distances.push_back(distance);
     }
   }
@@ -167,7 +167,7 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner,
   //  if (!smoothed1.trajectory.empty()) {
   //    auto omplSmoothedTraj = new Trajectory(smoothed1.trajectory);
   //    stats.omplSmoothing1Collides =
-  //        PlannerSettings::environment->collides(*omplSmoothedTraj);
+  //        settings.environment->collides(*omplSmoothedTraj);
   //    if (stats.omplSmoothing1Collides)
   //      OMPL_WARN("%s collides with smoothed B-spline", label.c_str());
   //    else if (stats.exactGoalPath) {
@@ -183,7 +183,7 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner,
   //      if (stats.omplSmoothing1Time > _maxTime)
   //        _maxTime = stats.omplSmoothing1Time;
   //#if QT_SUPPORT
-  //      if (PlannerSettings::VisualizeSmoothing1) {
+  //      if (settings.VisualizeSmoothing1) {
   //        int h, s, l, a;
   //        color.getHsl(&h, &s, &l, &a);
   //        QPen sPen(QColor::fromHsl((h - 40 + 360) % 360, s, l * 0.8,
@@ -205,7 +205,7 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner,
   //  (!smoothed2.trajectory.empty()) {
   //    auto omplSmoothedTraj = new Trajectory(smoothed2.trajectory);
   //    stats.omplSmoothing2Collides =
-  //        PlannerSettings::environment->collides(*omplSmoothedTraj);
+  //        settings.environment->collides(*omplSmoothedTraj);
   //    if (stats.omplSmoothing2Collides)
   //      OMPL_WARN("%s collides with simplify max", label.c_str());
   //    else if (stats.exactGoalPath) {
@@ -221,7 +221,7 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner,
   //      if (stats.omplSmoothing2Time > _maxTime)
   //        _maxTime = stats.omplSmoothing2Time;
   //#if QT_SUPPORT
-  //      if (PlannerSettings::VisualizeSmoothing2) {
+  //      if (settings.VisualizeSmoothing2) {
   //        int h, s, l, a;
   //        color.getHsl(&h, &s, &l, &a);
   //
@@ -259,7 +259,7 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner,
   //  if (!smoothed3.trajectory.empty()) {
   //    auto omplSmoothedTraj = new Trajectory(smoothed3.trajectory);
   //    stats.omplSmoothing3Collides =
-  //        PlannerSettings::environment->collides(*omplSmoothedTraj);
+  //        settings.environment->collides(*omplSmoothedTraj);
   //    if (stats.omplSmoothing3Collides)
   //      OMPL_WARN("%s collides with shortcut", label.c_str());
   //    else if (stats.exactGoalPath) {
@@ -275,7 +275,7 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner,
   //      if (stats.omplSmoothing3Time > _maxTime)
   //        _maxTime = stats.omplSmoothing3Time;
   //#if QT_SUPPORT
-  //      if (PlannerSettings::VisualizeSmoothing3) {
+  //      if (settings.VisualizeSmoothing3) {
   //        int h, s, l, a;
   //        color.getHsl(&h, &s, &l, &a);
   //        QPen sPen(QColor::fromHsl((h + 30) % 360, s, l * 0.8), 1.5f,
@@ -301,7 +301,7 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner,
   //        (smoothed4.status == ob::PlannerStatus::EXACT_SOLUTION);
   //    auto omplSmoothedTraj = new Trajectory(smoothed4.trajectory);
   //    stats.omplSmoothing4Collides =
-  //        PlannerSettings::environment->collides(*omplSmoothedTraj);
+  //        settings.environment->collides(*omplSmoothedTraj);
   //    if (stats.omplSmoothing4Collides)
   //      OMPL_WARN("%s collides with Anytime PS", label.c_str());
   //    else if (stats.exactGoalSmoothedPath) {
@@ -317,7 +317,7 @@ PathStatistics PathEvaluation::add(AbstractPlanner *planner,
   //      if (stats.omplSmoothing4Time > _maxTime)
   //        _maxTime = stats.omplSmoothing4Time;
   //#if QT_SUPPORT
-  //      if (PlannerSettings::VisualizeSmoothing4) {
+  //      if (settings.VisualizeSmoothing4) {
   //        int h, s, l, a;
   //        color.getHsl(&h, &s, &l, &a);
   //        QPen sPen(QColor::fromHsl((h - 40 + 360) % 360, s, l * 0.8), 1.5f,
