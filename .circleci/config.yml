@@ -14,16 +14,13 @@ jobs:
           command: 'apt-get update && sudo apt-get install -y gcc g++ build-essential wget unzip git python-dev autotools-dev m4 libicu-dev build-essential libbz2-dev libasio-dev libeigen3-dev freeglut3-dev expat libcairo2-dev'
       - run:
           name: Install CMAKE and Boost
-          command: 'apt-get update && sudo apt-get install -y cmake libboost-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-filesystem-dev'
+          command: 'apt-get update && sudo apt-get install -y cmake libboost-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-filesystem-dev nlohmann-json-dev'
       - run:
           name: Build and install libccd 1.4
           command: 'pushd . && wget https://github.com/danfis/libccd/archive/v1.4.zip && unzip v1.4.zip && cd libccd-1.4/src && echo "#define CCD_FLOAT" | cat - ccd/vec3.h > /tmp/out && mv /tmp/out ccd/vec3.h && make -j4 && sudo make install && popd'
       - run:
           name: Check out git submodules
           command: 'git submodule init && git submodule update'
-      - run:
-          name: Install nlohmann/json
-          command: 'pushd . && mkdir params/nlohmann && cd params/nlohmann && wget https://github.com/nlohmann/json/releases/download/v3.5.0/json.hpp && popd'
       - run:
           name: Build and install SBPL
           command: 'pushd . && git clone https://github.com/sbpl/sbpl.git && cd sbpl && mkdir build && cd build && cmake .. && make -j4 && sudo make install && popd'
