@@ -42,4 +42,5 @@ CMakeFiles*
 cmake-*
 
 # stats / binary files
-bin/
+bin/*
+!bin/parking
