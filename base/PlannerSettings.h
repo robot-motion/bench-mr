@@ -20,6 +20,10 @@ enum ChompInitialization { STRAIGHT_LINE, THETA_STAR, THETA_STAR_X_CLEARING };
 // clang-format on
 }  // namespace chomp
 
+namespace sbpl {
+enum Planner { SBPL_ARASTAR, SBPL_ADSTAR, SBPL_RSTAR, SBPL_ANASTAR };
+}
+
 /**
  * Global settings.
  */
@@ -28,10 +32,23 @@ inline struct GlobalSettings : public Group {
   Environment *environment{nullptr};
 
   /**
+   * For maps with more cells than this threshold, a fast, approximate algorithm
+   * is used to compute the obstacle distance field (necessary for clearance
+   * evaluations and GRIPS).
+   */
+  Property<unsigned int> fast_odf_threshold{100 * 100, "fast_odf_threshold",
+                                            this};
+
+  /**
    * Whether to estimate the orientation of the start and goal states for
    * planners that need them (e.g. SBPL).
    */
   Property<bool> estimate_theta{true, "estimate_theta", this};
+
+  /**
+   * Whether to compute stats on clearing distances of the found solutions.
+   */
+  Property<bool> evaluate_clearing{true, "evaluate_clearing", this};
 
   /**
    * Settings related to OMPL.
@@ -45,12 +62,16 @@ inline struct GlobalSettings : public Group {
 
     Property<double> state_equality_tolerance{1e-4, "state_equality_tolerance",
                                               this};
-    Property<double> max_planning_time{15.0, "max_planning_time", this};
+    Property<double> max_planning_time{15, "max_planning_time", this};
   } ompl{"ompl", this};
 
   struct SteerSettings : public Group {
     using Group::Group;
 
+    /**
+     * Initializes OMPL state space, space information and optimization
+     * objective for the given steer function settings.
+     */
     void initializeSteering() const;
 
     Property<Steering::SteeringType> steering_type{
@@ -63,7 +84,7 @@ inline struct GlobalSettings : public Group {
      * Distance between states sampled using the steer function for collision
      * detection, rendering and evaluation.
      */
-    Property<double> sampling_resolution{0.1, "sampling_resolution", this};
+    Property<double> sampling_resolution{0.02, "sampling_resolution", this};
 
     struct HC_CC_Settings : public Group {
       using Group::Group;
@@ -86,11 +107,13 @@ inline struct GlobalSettings : public Group {
      * How much deviation from optimal solution is acceptable (>1)? Ignored by
      * planners that don't have notion of epsilon, 1 means optimal search.
      */
-    Property<double> initial_solution_eps{3, "initial_solution_eps", this};
+    Property<double> initial_solution_eps{30, "initial_solution_eps", this};
     Property<double> fordward_velocity{0.4, "fordward_velocity",
                                        this};  // in meters/sec
     Property<double> time_to_turn_45_degs_in_place{
         0.6, "time_to_turn_45_degs_in_place", this};  // in sec
+    //    Property<std::string> motion_primitive_filename{
+    //        "./sbpl_mprim/pr2.mprim", "motion_primitive_filename", this};
     Property<std::string> motion_primitive_filename{
         "./sbpl_mprim/unicycle_0.125.mprim", "motion_primitive_filename", this};
 
@@ -106,18 +129,22 @@ inline struct GlobalSettings : public Group {
      * XXX Important: resolution must match resolution in motion primitive
      * definition file.
      */
+    //    Property<double> resolution{0.025, "resolution", this};
     Property<double> resolution{0.125, "resolution", this};
 
     /**
      * Scale environment to accommodate extents of SBPL's motion primitives.
+     * Intuition: the smaller this number the larger the turning radius.
      */
-    Property<double> scaling{5, "scaling", this};
+    Property<double> scaling{1, "scaling", this};
 
     /**
      * XXX Important: number of theta directions must match resolution in motion
      * primitive definition file.
      */
     Property<unsigned int> num_theta_dirs{16u, "num_theta_dirs", this};
+
+    Property<sbpl::Planner> planner{sbpl::SBPL_ARASTAR, "planner", this};
   } sbpl{"sbpl", this};
 
   struct ChompSettings : public Group {

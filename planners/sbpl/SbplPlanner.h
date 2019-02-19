@@ -12,11 +12,9 @@ namespace og = ompl::geometric;
 
 class SbplPlanner : public AbstractPlanner {
  public:
-  enum SbplType { SBPL_ARASTAR, SBPL_ADSTAR, SBPL_RSTAR, SBPL_ANASTAR };
-
   const static bool ForwardSearch = true;
 
-  SbplPlanner(SbplType type);
+  SbplPlanner();
   virtual ~SbplPlanner();
 
   std::string name() const override { return "SBPL"; }

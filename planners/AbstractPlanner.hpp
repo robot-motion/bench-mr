@@ -149,7 +149,7 @@ class AbstractPlanner {
 
   AbstractPlanner() {
     ss = new og::SimpleSetup(settings.ompl.state_space);
-    const ob::SpaceInformationPtr si = ss->getSpaceInformation();
+    auto si = ss->getSpaceInformation();
 
     // Construct a space information instance for this state space
     //        si->setStateValidityCheckingResolution(0.005);
@@ -167,7 +167,6 @@ class AbstractPlanner {
     if (settings.steer.steering_type == Steering::STEER_TYPE_POSQ) {
       ob::MotionValidatorPtr motionValidator(new POSQMotionValidator(si));
       si->setMotionValidator(motionValidator);
-      si->setStateValidityCheckingResolution(0.002);
     }
 #ifdef G1_AVAILABLE
     else if (settings.steer.steering_type == Steering::STEER_TYPE_CLOTHOID) {
@@ -179,21 +178,21 @@ class AbstractPlanner {
       // which causes problems in Clothoid steering
     }
 #endif
+    si->setStateValidityCheckingResolution(settings.steer.sampling_resolution);
 
     // Set our robot's starting state
-    ob::ScopedState<> start(settings.ompl.state_space);
+    ob::ScopedState<ob::SE2StateSpace> start(settings.ompl.state_space);
     start[0] = settings.environment->start().x;
     start[1] = settings.environment->start().y;
     start[2] = 0;
     // Set our robot's goal state
-    ob::ScopedState<> goal(settings.ompl.state_space);
+    ob::ScopedState<ob::SE2StateSpace> goal(settings.ompl.state_space);
     goal[0] = settings.environment->goal().x;
     goal[1] = settings.environment->goal().y;
     goal[2] = 0;
 
     if (settings.estimate_theta) {
-      const auto thetas =
-          settings.environment->estimateStartGoalOrientations();
+      const auto thetas = settings.environment->estimateStartGoalOrientations();
       start[2] = thetas.first;
       goal[2] = thetas.second;
     }

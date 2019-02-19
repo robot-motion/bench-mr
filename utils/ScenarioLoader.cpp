@@ -36,9 +36,14 @@ void ScenarioLoader::load(const string& fileName) {
     if (line.empty()) continue;
     stringstream ss(line);
     Scenario scenario;
-    ss >> scenario.bucket >> scenario.mapName >> scenario.map_width >>
+    scenario.filename = fileName;
+    ss >> scenario.id >> scenario.mapName >> scenario.map_width >>
         scenario.map_height >> scenario.start_x >> scenario.start_y >>
         scenario.goal_x >> scenario.goal_y >> scenario.optimal_length;
+    // flip y coordinates of start and goal
+//    scenario.start_y = scenario.map_height - scenario.start_y;
+//    scenario.goal_y = scenario.map_height - scenario.goal_y;
+
     _scenarios.push_back(scenario);
   }
 }

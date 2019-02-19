@@ -1,7 +1,7 @@
 #include "SbplPlanner.h"
 #include <base/PlannerUtils.hpp>
 
-SbplPlanner::SbplPlanner(SbplPlanner::SbplType type)
+SbplPlanner::SbplPlanner()
     : _solution(og::PathGeometric(settings.ompl.space_info)) {
   _env = new EnvironmentNAVXYTHETALAT;
 
@@ -63,17 +63,17 @@ SbplPlanner::SbplPlanner(SbplPlanner::SbplType type)
     throw SBPL_Exception("ERROR: InitializeMDPCfg failed");
   }
 
-  switch (type) {
-    case SBPL_ARASTAR:
+  switch (settings.sbpl.planner) {
+    case sbpl::SBPL_ARASTAR:
       _sbPlanner = new ARAPlanner(_env, ForwardSearch);
       break;
-    case SBPL_ADSTAR:
+    case sbpl::SBPL_ADSTAR:
       _sbPlanner = new ADPlanner(_env, ForwardSearch);
       break;
-    case SBPL_RSTAR:
+    case sbpl::SBPL_RSTAR:
       _sbPlanner = new RSTARPlanner(_env, ForwardSearch);
       break;
-    case SBPL_ANASTAR:
+      case sbpl::SBPL_ANASTAR:
       _sbPlanner = new anaPlanner(_env, ForwardSearch);
       break;
   }
@@ -145,6 +145,7 @@ ob::PlannerStatus SbplPlanner::run() {
   _solution.clear();
   std::vector<int> stateIDs;
   Stopwatch stopwatch;
+  _sbPlanner->force_planning_from_scratch_and_free_memory();
   stopwatch.start();
   OMPL_DEBUG("Replanning");
   if (dynamic_cast<ARAPlanner *>(_sbPlanner) != nullptr) {
