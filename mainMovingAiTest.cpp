@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
       // );//1500660612);// 1500551721);// 1500550472);
       (unsigned int)(time(nullptr) + 123));
 
-  settings.steer.steering_type = Steering::STEER_TYPE_LINEAR;
+  settings.steer.steering_type = Steering::STEER_TYPE_DUBINS;
   //    settings.CarTurningRadius = 1.5;
   settings.steer.initializeSteering();
   PathEvaluation::initialize();
@@ -70,23 +70,30 @@ int main(int argc, char **argv) {
   scenarioLoader.load(scene_name);
 
   unsigned int counter = 0;
+  std::cout << "Loaded " << scenarioLoader.scenarios().size() << " scenarios."
+            << std::endl;
   for (auto &scenario : scenarioLoader.scenarios()) {
+    if (counter++ < 929) continue;
+
+    std::cout << "##############################################" << std::endl;
+    std::cout << "# Scenario " << counter << std::endl;
+    std::cout << "##############################################" << std::endl;
+
     // create environment
-    settings.environment =
-        Environment::createFromMovingAiScenario(scenario);
+    settings.environment = Environment::createFromMovingAiScenario(scenario);
+    settings.steer.initializeSteering();
 #if QT_SUPPORT
     QtVisualizer::visualize(settings.environment, 0);
 #endif
     PathStatistics thetaStarStats, rrtStarStats, gripsStats,
-        smoothThetaStarStats, sbplStats, chompStats;
+        smoothThetaStarStats, sbplStats, chompStats, rrtStats;
 
     std::vector<Point> gripsPath;
     std::vector<GNode> gripsTrajectory;
 
-    auto info =
-        nlohmann::json({{"plans", {}},
-                        {"environment", settings.environment->asJSON()},
-                        {"optimalDistance", scenario.optimal_length}});
+    auto info = nlohmann::json({{"plans", {}},
+                                {"environment", settings.environment->asJSON()},
+                                {"optimalDistance", scenario.optimal_length}});
 
     //        ChompPlanner chompPlanner;
     //        if (chompPlanner.run()) {
@@ -111,38 +118,39 @@ int main(int argc, char **argv) {
     //                Log::serializeTrajectory(chompPlanner.solution())}
     //        };
 
-            auto *thetaStar = new ThetaStar;
-            if (thetaStar->run()) {
-//                std::vector<Point> path = thetaStar->solutionPath();
-                thetaStarStats = PathEvaluation::evaluate(thetaStar->solution(), "Theta*");
-
-//                std::vector<GNode> trajectory =
-//                thetaStar->solution(); gripsTrajectory = trajectory;
-//                PostSmoothing::smooth(gripsTrajectory, path);
-//                gripsPath =
-//                PlannerUtils::toSteeredTrajectoryPoints(gripsTrajectory);
-//                gripsStats = PathEvaluation::evaluate(gripsPath, "GRIPS",
-//                Qt::red);
-            } else {
-                OMPL_ERROR("Theta* couldn't find a solution.");
-            }
-            info["plans"]["thetaStar"] = {
-                    {"curvature", thetaStarStats.curvature},
-                    {"pathLength", thetaStarStats.pathLength},
-                    {"steps", thetaStar->steps()},
-                    {"time", thetaStar->planningTime()},
-                    {"meanClearingDistance",
-                    thetaStarStats.meanClearingDistance},
-                    {"medianClearingDistance",
-                    thetaStarStats.medianClearingDistance},
-                    {"minClearingDistance",
-                    thetaStarStats.minClearingDistance},
-                    {"maxClearingDistance",
-                    thetaStarStats.maxClearingDistance},
-                    {"path", Log::serializePath(thetaStar->solutionPath())},
-                    {"trajectory",
-                    Log::serializeTrajectory(thetaStar->solution())}
-            };
+    //            auto *thetaStar = new ThetaStar;
+    //            if (thetaStar->run()) {
+    ////                std::vector<Point> path = thetaStar->solutionPath();
+    //                thetaStarStats =
+    //                PathEvaluation::evaluate(thetaStar->solution(), "Theta*");
+    //
+    ////                std::vector<GNode> trajectory =
+    ////                thetaStar->solution(); gripsTrajectory = trajectory;
+    ////                PostSmoothing::smooth(gripsTrajectory, path);
+    ////                gripsPath =
+    //// PlannerUtils::toSteeredTrajectoryPoints(gripsTrajectory); / gripsStats
+    ///= PathEvaluation::evaluate(gripsPath, "GRIPS", /                Qt::red);
+    //            } else {
+    //                OMPL_ERROR("Theta* couldn't find a solution.");
+    //            }
+    //            info["plans"]["thetaStar"] = {
+    //                    {"curvature", thetaStarStats.curvature},
+    //                    {"pathLength", thetaStarStats.pathLength},
+    //                    {"steps", thetaStar->steps()},
+    //                    {"time", thetaStar->planningTime()},
+    //                    {"meanClearingDistance",
+    //                    thetaStarStats.meanClearingDistance},
+    //                    {"medianClearingDistance",
+    //                    thetaStarStats.medianClearingDistance},
+    //                    {"minClearingDistance",
+    //                    thetaStarStats.minClearingDistance},
+    //                    {"maxClearingDistance",
+    //                    thetaStarStats.maxClearingDistance},
+    //                    {"path",
+    //                    Log::serializePath(thetaStar->solutionPath())},
+    //                    {"trajectory",
+    //                    Log::serializeTrajectory(thetaStar->solution())}
+    //            };
     //        info["plans"]["grips"] = {
     //                {"curvature", gripsStats.curvature},
     //                {"pathLength", gripsStats.pathLength},
@@ -159,33 +167,51 @@ int main(int argc, char **argv) {
     //        };
     //        delete thetaStar;
     //
-//            auto *rrtStar = new RRTstarPlanner;
-//            if (rrtStar->run()) {
-//                rrtStarStats = PathEvaluation::evaluate(rrtStar->solution(), "RRT*");
-//#if QT_SUPPORT
-//                rrtStarStats.color = Qt::red;
-//#endif
-//            } else {
-//                OMPL_ERROR("RRT* couldn't find a solution.");
-//            }
-//            info["plans"]["rrtStar"] = {
-//                    {"curvature", rrtStarStats.curvature},
-//                    {"pathLength", rrtStarStats.pathLength},
-//                    {"steps", std::nan("N/A")},
-//                    {"time", rrtStar->planningTime()},
-//                    {"meanClearingDistance",
-//                    rrtStarStats.meanClearingDistance},
-//                    {"medianClearingDistance",
-//                    rrtStarStats.medianClearingDistance},
-//                    {"minClearingDistance", rrtStarStats.minClearingDistance},
-//                    {"maxClearingDistance", rrtStarStats.maxClearingDistance},
-//                    {"path", Log::serializePath(rrtStar->solutionPath())},
-//                    {"trajectory",
-//                    Log::serializeTrajectory(rrtStar->solution())}
-//            };
-//            delete rrtStar;
+    auto *rrtStar = new RRTstarPlanner;
+    if (rrtStar->run()) {
+      rrtStarStats = PathEvaluation::evaluate(rrtStar->solution(), "RRT*");
+#if QT_SUPPORT
+      rrtStarStats.color = Qt::red;
+#endif
+    } else {
+      OMPL_ERROR("RRT* couldn't find a solution.");
+    }
+    info["plans"]["rrtStar"] = {
+        {"curvature", rrtStarStats.curvature},
+        {"pathLength", rrtStarStats.pathLength},
+        {"steps", std::nan("N/A")},
+        {"time", rrtStar->planningTime()},
+        {"meanClearingDistance", rrtStarStats.meanClearingDistance},
+        {"medianClearingDistance", rrtStarStats.medianClearingDistance},
+        {"minClearingDistance", rrtStarStats.minClearingDistance},
+        {"maxClearingDistance", rrtStarStats.maxClearingDistance},
+        {"path", Log::serializePath(rrtStar->solutionPath())},
+        {"trajectory", Log::serializeTrajectory(rrtStar->solution())}};
+    delete rrtStar;
 
-    auto *sbplPlanner = new SbplPlanner(SbplPlanner::SbplType::SBPL_ARASTAR);
+    auto *rrt = new RRTPlanner;
+    if (rrt->run()) {
+      rrtStats = PathEvaluation::evaluate(rrt->solution(), "RRT");
+#if QT_SUPPORT
+      rrtStats.color = Qt::red;
+#endif
+    } else {
+      OMPL_ERROR("RRT couldn't find a solution.");
+    }
+    info["plans"]["rrt"] = {
+        {"curvature", rrtStats.curvature},
+        {"pathLength", rrtStats.pathLength},
+        {"steps", std::nan("N/A")},
+        {"time", rrt->planningTime()},
+        {"meanClearingDistance", rrtStats.meanClearingDistance},
+        {"medianClearingDistance", rrtStats.medianClearingDistance},
+        {"minClearingDistance", rrtStats.minClearingDistance},
+        {"maxClearingDistance", rrtStats.maxClearingDistance},
+        {"path", Log::serializePath(rrt->solutionPath())},
+        {"trajectory", Log::serializeTrajectory(rrt->solution())}};
+    delete rrt;
+
+    auto *sbplPlanner = new SbplPlanner;
     if (sbplPlanner->run()) {
       sbplStats =
           PathEvaluation::evaluate(sbplPlanner->solution(), "SBPL (ANA*)");
@@ -219,8 +245,8 @@ int main(int argc, char **argv) {
     //
     Log::log(info);
 
-    if (++counter > 10)
-        break;
+    //    if (++counter > 10)
+    //        break;
   }
 
   Log::save();

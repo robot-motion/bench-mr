@@ -26,9 +26,10 @@
 #endif
 
 Environment::Environment(unsigned int seed, unsigned int width,
-                         unsigned int height)
+                         unsigned int height, double voxelSize)
     : _width(width),
       _height(height),
+      _voxelSize(voxelSize),
       _empty(false),
       _seed(seed),
       _distances(nullptr),
@@ -50,6 +51,7 @@ Environment::Environment(const Environment &environment) : _distances(nullptr) {
   _width = environment._width;
   _height = environment._height;
   _empty = environment._empty;
+  _voxelSize = environment._voxelSize;
   _corridorRadius = environment._corridorRadius;
   _type = environment._type;
 }
@@ -381,20 +383,134 @@ std::vector<Rectangle> Environment::obstacles(double x1, double y1, double x2,
 
 void Environment::computeDistances() {
   _distances = new double[(_width + 1) * (_height + 1)];
-  for (int x = 0; x <= _width; ++x) {
-    for (int y = 0; y <= _height; ++y) {
-      double minDistance = std::numeric_limits<double>::max();
-      if (_grid[coord2key(x, y)]) minDistance = 0;
+  if (_width * _height > settings.fast_odf_threshold) {
+    // more efficient, but less accurate Dead Reckoning Algorithm
+    //
+    // The "Dead reckoning" signed distance transform
+    // George J. Grevera
+    // Journal Computer Vision and Image Understanding (2004)
+    //
+    // http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.102.7988
 
-      for (int dx = 0; dx <= _width; ++dx) {
-        for (int dy = 0; dy <= _height; ++dy) {
-          if (occupied((double)dx, (double)dy, true)) {
-            double d = std::sqrt(std::pow(dx - x, 2) + std::pow(dy - y, 2));
-            minDistance = std::min(d, minDistance);
-          }
+    static const double d1{
+        1};  // horizontal/vertical distance between two adjacent cells
+    static const double d2{
+        std::sqrt(2.)};  // diagonal distance between two cells
+
+    // border points corresponding to each cell
+    auto *P = new Point[(_width + 1) * (_height + 1)];
+
+    // initialize distances, immediate interior & exterior elements
+    for (int y = 0; y <= _height; ++y) {
+      for (int x = 0; x <= _width; ++x) {
+        const auto key = coord2key(x, y);
+        bool here = _grid[key];
+        if ((x > 0 && _grid[coord2key(x - 1, y)] != here) ||
+            (x < _width && _grid[coord2key(x + 1, y)] != here) ||
+            (y > 0 && _grid[coord2key(x, y - 1)] != here) ||
+            (y < _height && _grid[coord2key(x, y + 1)] != here)) {
+          _distances[key] = 0;
+          P[key] = Point(x, y);
+        } else {
+          _distances[key] = std::numeric_limits<double>::max();
+          P[key] = Point(-1, -1);
         }
       }
-      _distances[coord2key(x, y)] = minDistance;
+    }
+
+    // first pass
+    for (int y = 0; y <= _height; ++y) {
+      for (int x = 0; x <= _width; ++x) {
+        const auto key = coord2key(x, y);
+        auto &d = _distances[key];
+
+        if (x > 0 && y > 0 && _distances[coord2key(x - 1, y - 1)] + d2 < d) {
+          P[key] = P[coord2key(x - 1, y - 1)];
+          const double dx = x - P[key].x;
+          const double dy = y - P[key].y;
+          d = std::sqrt(dx * dx + dy * dy);
+        }
+        if (y > 0 && _distances[coord2key(x, y - 1)] + d1 < d) {
+          P[key] = P[coord2key(x, y - 1)];
+          const double dx = x - P[key].x;
+          const double dy = y - P[key].y;
+          d = std::sqrt(dx * dx + dy * dy);
+        }
+        if (x < _width && y > 0 &&
+            _distances[coord2key(x + 1, y - 1)] + d2 < d) {
+          P[key] = P[coord2key(x + 1, y - 1)];
+          const double dx = x - P[key].x;
+          const double dy = y - P[key].y;
+          d = std::sqrt(dx * dx + dy * dy);
+        }
+        if (x > 0 && _distances[coord2key(x - 1, y)] + d1 < d) {
+          P[key] = P[coord2key(x - 1, y)];
+          const double dx = x - P[key].x;
+          const double dy = y - P[key].y;
+          d = std::sqrt(dx * dx + dy * dy);
+        }
+      }
+    }
+
+    // final pass
+    for (int y = _height; y >= 0; --y) {
+      for (int x = _width; x >= 0; --x) {
+        const auto key = coord2key(x, y);
+        auto &d = _distances[key];
+
+        if (x < _width && _distances[coord2key(x + 1, y)] + d1 < d) {
+          P[key] = P[coord2key(x + 1, y)];
+          const double dx = x - P[key].x;
+          const double dy = y - P[key].y;
+          d = std::sqrt(dx * dx + dy * dy);
+        }
+        if (x > 0 && y < _height &&
+            _distances[coord2key(x - 1, y + 1)] + d2 < d) {
+          P[key] = P[coord2key(x - 1, y + 1)];
+          const double dx = x - P[key].x;
+          const double dy = y - P[key].y;
+          d = std::sqrt(dx * dx + dy * dy);
+        }
+        if (y < _height && _distances[coord2key(x, y + 1)] + d1 < d) {
+          P[key] = P[coord2key(x, y + 1)];
+          const double dx = x - P[key].x;
+          const double dy = y - P[key].y;
+          d = std::sqrt(dx * dx + dy * dy);
+        }
+        if (x < _width && y < _height && y < _height &&
+            _distances[coord2key(x + 1, y + 1)] + d2 < d) {
+          P[key] = P[coord2key(x + 1, y + 1)];
+          const double dx = x - P[key].x;
+          const double dy = y - P[key].y;
+          d = std::sqrt(dx * dx + dy * dy);
+        }
+      }
+    }
+
+    // indicate inside (0)
+    for (int y = 0; y <= _height; ++y) {
+      for (int x = 0; x <= _width; ++x) {
+        const auto key = coord2key(x, y);
+        if (_grid[key]) _distances[key] = 0;
+      }
+    }
+  } else {
+    // Brute-Force Algorithm
+    for (int x = 0; x <= _width; ++x) {
+      for (int y = 0; y <= _height; ++y) {
+        double minDistance = std::numeric_limits<double>::max();
+        if (_grid[coord2key(x, y)]) minDistance = 0;
+
+        for (int dx = 0; dx <= _width; ++dx) {
+          for (int dy = 0; dy <= _height; ++dy) {
+            if (occupied((double)dx, (double)dy)) {
+              double d = std::sqrt(std::pow(dx - x, 2) + std::pow(dy - y, 2));
+              minDistance = std::min(d, minDistance);
+            }
+          }
+        }
+        _distances[coord2key(x, y)] = minDistance;
+      }
     }
   }
 }
@@ -409,8 +525,9 @@ Environment *Environment::createSimple() {
 }
 
 // Moving Ai File test Constructor
-Environment *Environment::createFromMovingAiScenario(Scenario &scenario){
-  auto *environment = new Environment(0, scenario.map_width, scenario.map_height);
+Environment *Environment::createFromMovingAiScenario(Scenario &scenario) {
+  auto *environment =
+      new Environment(0, scenario.map_width, scenario.map_height);
   // set start and goal points
   environment->_start = Point(scenario.start_x, scenario.start_y);
   environment->_goal = Point(scenario.goal_x, scenario.goal_y);
@@ -422,10 +539,11 @@ Environment *Environment::createFromMovingAiScenario(Scenario &scenario){
   const auto &grid = scenario.getMap();
   for (int x = 0; x < scenario.map_width; x++) {
     for (int y = 0; y < scenario.map_height; y++)
-      environment->fill(x, y, grid[x][y] != '.');
+      // XXX the map is transposed!
+      environment->fill(y, x, grid[x][y] != '.');
   }
 
-  std::cout << "Loaded map " << scenario.mapName << std::endl;
+  std::cout << "Loaded scenario " << scenario << std::endl;
   environment->print();
 
   return environment;
@@ -503,7 +621,7 @@ void Environment::mapData(unsigned char *data, double resolution) {
     for (unsigned int y = 0; y <= h; ++y) {
       for (unsigned int x = 0; x <= w; ++x)
         data[x + y * w] = static_cast<unsigned char>(
-            occupied(x * resolution, y * resolution, true) ? 20u : 0u);
+            occupied(x * resolution, y * resolution) ? 20u : 0u);
     }
   }
   OMPL_DEBUG("Generated SBPL map data");

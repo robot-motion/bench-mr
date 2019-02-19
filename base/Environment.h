@@ -25,7 +25,6 @@ class Environment {
 
   static const unsigned int DefaultWidth = 50;
   static const unsigned int DefaultHeight = 50;
-  static constexpr double VoxelSize = 1.0;
 
   unsigned int seed() const { return _seed; }
 
@@ -38,20 +37,21 @@ class Environment {
   bool empty() const { return _empty; }
 
   unsigned int width() const { return _width; }
-
   unsigned int height() const { return _height; }
+  double voxelSize() const { return _voxelSize; }
 
   inline bool occupied(unsigned int index) const { return _grid[index]; }
-
-  inline bool occupied(double x, double y, bool fast = false) {
+  inline bool occupied(double x, double y) {
+    //    std::cout << "occupied ?   " << x << "\t" << y << std::endl;
     if (x < 0 || y < 0 || x > _width || y > _height) return true;
-    if (!fast) {
-#if QT_SUPPORT
-      //            bool o = bilinearDistance(x, y) <= 0.05;
-      //            QtVisualizer::drawNode(x, y, o ? Qt::red : Qt::darkGreen);
-#endif
-      return _grid[coord2key(x, y)] || bilinearDistance(x, y) <= 0.1;
-    }
+    //    if (!fastCollisionCheck) {
+    //#if QT_SUPPORT
+    //      //            bool o = bilinearDistance(x, y) <= 0.05;
+    //      //            QtVisualizer::drawNode(x, y, o ? Qt::red :
+    //      Qt::darkGreen);
+    //#endif
+    //      return _grid[coord2key(x, y)] || bilinearDistance(x, y) <= 0.1;
+    //    }
     return _grid[coord2key(x, y)] || _grid[coord2key(x + .15, y)] ||
            _grid[coord2key(x, y + .15)] || _grid[coord2key(x + .15, y + .15)] ||
            _grid[coord2key(x - .15, y)] || _grid[coord2key(x, y - .15)] ||
@@ -237,7 +237,8 @@ class Environment {
   }
 
  protected:
-  Environment(unsigned int seed, unsigned int width, unsigned int height);
+  Environment(unsigned int seed, unsigned int width, unsigned int height,
+              double voxelSize = 1.);
 
   inline unsigned int coord2key(double x, double y) const {
     return (unsigned int)std::max(0., std::floor(y) * _width + std::floor(x));
@@ -256,9 +257,13 @@ class Environment {
  private:
   Point _start;
   Point _goal;
+
+  // true means occupied
   bool *_grid{nullptr};
+
   double *_distances{nullptr};
   unsigned int _width{0}, _height{0};
+  double _voxelSize{1.0};
   bool _empty{true};
   unsigned int _seed{0};
   std::string _type{"undefined"};

@@ -357,11 +357,13 @@ PathStatistics PathEvaluation::evaluate(
   stats.pathLength = PathLengthMetric::evaluate(path);
   stats.curvature = CurvatureMetric::evaluate(path);
 
-  auto clearings = ClearingMetric::clearingDistances(path);
-  stats.meanClearingDistance = stat::mean(clearings);
-  stats.medianClearingDistance = stat::median(clearings);
-  stats.minClearingDistance = stat::min(clearings);
-  stats.maxClearingDistance = stat::max(clearings);
+  if (settings.evaluate_clearing) {
+    auto clearings = ClearingMetric::clearingDistances(path);
+    stats.meanClearingDistance = stat::mean(clearings);
+    stats.medianClearingDistance = stat::median(clearings);
+    stats.minClearingDistance = stat::min(clearings);
+    stats.maxClearingDistance = stat::max(clearings);
+  }
 
   std::cout << label << std::endl;
   std::cout << "  Path length:   \t" << stats.pathLength << std::endl;
