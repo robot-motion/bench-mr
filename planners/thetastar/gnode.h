@@ -377,7 +377,7 @@ class GNode : public GNode_base {
   /// Check in the Map, the value associated to the position (x,y)
   /// ============================================================================================
   int GetMap(double x, double y) {
-    if (settings.environment->occupied(x, y))
+    if (settings.environment->collides(x, y))
       return 1;
     else
       return 0;
@@ -608,7 +608,7 @@ class GNode : public GNode_base {
     delete (pr8);
 
     if (cnt_successors < 1) {
-      OMPL_DEBUG("GNode has no successors!");
+//      OMPL_DEBUG("GNode has no successors!");
       return false;
     } else {
       return true;

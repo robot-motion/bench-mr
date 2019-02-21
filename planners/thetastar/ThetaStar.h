@@ -3,7 +3,7 @@
 #include <ompl/geometric/PathGeometric.h>
 #include <algorithm>
 
-#include "../base/Environment.h"
+#include "base/GridMaze.h"
 #include "../AbstractPlanner.hpp"
 
 #include "stl_thetastar.h"

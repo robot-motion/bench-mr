@@ -10,3 +10,6 @@
 [submodule "params"]
 	path = params
 	url = https://github.com/eric-heiden/params.git
+[submodule "collision2d"]
+	path = collision2d
+	url = https://github.com/eric-heiden/collision2d.git

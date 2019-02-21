@@ -157,11 +157,24 @@ class AbstractPlanner {
     // Set the object used to check which states in the space are valid
     //        si->setStateValidityChecker(ob::StateValidityCheckerPtr(new
     //        ValidityChecker(si))); si->setup();
-    ss->setStateValidityChecker([&](const ob::State *state) -> bool {
-      const auto *s = state->as<ob::SE2StateSpace::StateType>();
-      const double x = s->getX(), y = s->getY();
-      return !settings.environment->occupied(x, y);
-    });
+    if (settings.collision_model == robot::ROBOT_POINT) {
+      ss->setStateValidityChecker([&](const ob::State *state) -> bool {
+        const auto *s = state->as<ob::SE2StateSpace::StateType>();
+        const double x = s->getX(), y = s->getY();
+        return !settings.environment->collides(x, y);
+      });
+    } else {
+      if (settings.robot_shape.value().points.size() < 3) {
+        OMPL_ERROR(
+            "Robot shape is empty or not convex. Cannot perform polygon-based "
+            "collision detection.");
+        return;
+      }
+      ss->setStateValidityChecker([&](const ob::State *state) -> bool {
+        return !settings.environment->collides(
+            settings.robot_shape.value().transformed(state));
+      });
+    }
 
     //        si->setStateValidityCheckingResolution(0.005);
     if (settings.steer.steering_type == Steering::STEER_TYPE_POSQ) {
@@ -180,24 +193,8 @@ class AbstractPlanner {
 #endif
     si->setStateValidityCheckingResolution(settings.steer.sampling_resolution);
 
-    // Set our robot's starting state
-    ob::ScopedState<ob::SE2StateSpace> start(settings.ompl.state_space);
-    start[0] = settings.environment->start().x;
-    start[1] = settings.environment->start().y;
-    start[2] = 0;
-    // Set our robot's goal state
-    ob::ScopedState<ob::SE2StateSpace> goal(settings.ompl.state_space);
-    goal[0] = settings.environment->goal().x;
-    goal[1] = settings.environment->goal().y;
-    goal[2] = 0;
-
-    if (settings.estimate_theta) {
-      const auto thetas = settings.environment->estimateStartGoalOrientations();
-      start[2] = thetas.first;
-      goal[2] = thetas.second;
-    }
-
-    ss->setStartAndGoalStates(start, goal);
+    ss->setStartAndGoalStates(settings.environment->startScopedState(),
+                              settings.environment->goalScopedState());
 
     ob::OptimizationObjectivePtr oo(
         new ob::PathLengthOptimizationObjective(si));

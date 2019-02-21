@@ -12,12 +12,6 @@
 #endif
 
 void GlobalSettings::SteerSettings::initializeSteering() const {
-  ob::RealVectorBounds bounds(2);
-  bounds.setLow(0, 0);
-  bounds.setLow(1, 0);
-  bounds.setHigh(0, settings.environment->width());
-  bounds.setHigh(1, settings.environment->height());
-
   // Construct the robot state space in which we're planning.
   if (steering_type == Steering::STEER_TYPE_REEDS_SHEPP)
     settings.ompl.state_space =
@@ -33,6 +27,14 @@ void GlobalSettings::SteerSettings::initializeSteering() const {
     settings.ompl.state_space =
         ob::StateSpacePtr(new hc_cc_spaces::CCDubinsStateSpace(
             hc_cc.kappa, hc_cc.sigma, sampling_resolution));
+  else if (steering_type == Steering::STEER_TYPE_CC_REEDS_SHEPP)
+    settings.ompl.state_space =
+        ob::StateSpacePtr(new hc_cc_spaces::CCReedsSheppStateSpace(
+            hc_cc.kappa, hc_cc.sigma, sampling_resolution));
+  else if (steering_type == Steering::STEER_TYPE_HC_REEDS_SHEPP)
+    settings.ompl.state_space =
+        ob::StateSpacePtr(new hc_cc_spaces::HCReedsSheppStateSpace(
+            hc_cc.kappa, hc_cc.sigma, sampling_resolution));
 #ifdef G1_AVAILABLE
   else if (steering_type == Steering::STEER_TYPE_CLOTHOID)
     settings.ompl.state_space = ob::StateSpacePtr(new G1ClothoidStateSpace());
@@ -45,7 +47,8 @@ void GlobalSettings::SteerSettings::initializeSteering() const {
   }
 #endif
 
-  settings.ompl.state_space->as<ob::SE2StateSpace>()->setBounds(bounds);
+  settings.ompl.state_space->as<ob::SE2StateSpace>()->setBounds(
+      settings.environment->bounds());
 
   settings.ompl.space_info =
       std::make_shared<ompl::base::SpaceInformation>(settings.ompl.state_space);

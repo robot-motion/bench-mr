@@ -51,7 +51,7 @@ class PlannerUtils {
 
   static bool collides(const std::vector<Point> &path) {
     for (unsigned int i = 0; i < path.size(); ++i) {
-      if (settings.environment->occupied(path[i].x, path[i].y)) {
+      if (settings.environment->collides(path[i].x, path[i].y)) {
 #ifdef DEBUG
         // QtVisualizer::drawPath(path, QColor(255, 100, 0, 170));
 #endif
@@ -70,11 +70,8 @@ class PlannerUtils {
         auto steps = (int)(size / std::sqrt(dx * dx + dy * dy));
 
         for (int j = 1; j <= steps; ++j) {
-          if (settings.environment->occupied(path[i].x + dx * j,
+          if (settings.environment->collides(path[i].x + dx * j,
                                                      path[i].y + dy * j))
-          //  || settings.environment->occupied(path[i].x + dx * j + .5,
-          //  path[i].y + dy * j
-          //  + .5))
           {
 #if QT_SUPPORT
 //                        QtVisualizer::drawNode(path[i].x + dx * j, path[i].y +
@@ -109,7 +106,7 @@ class PlannerUtils {
                        std::vector<Point> &collisions) {
     collisions.clear();
     for (unsigned int i = 1; i < path.size(); ++i) {
-      if (settings.environment->occupied(path[i].x, path[i].y)) {
+      if (settings.environment->collides(path[i].x, path[i].y)) {
 #if QT_SUPPORT
 #ifdef DEBUG
         // QtVisualizer::drawPath(path, QColor(255, 100, 0, 170));
@@ -131,9 +128,9 @@ class PlannerUtils {
         auto steps = (int)(size / std::sqrt(dx * dx + dy * dy));
 
         for (int j = 1; j <= steps; ++j) {
-          if (settings.environment->occupied(path[i].x + dx * j,
+          if (settings.environment->collides(path[i].x + dx * j,
                                                      path[i].y + dy * j))
-          //  || settings.environment->occupied(path[i].x + dx * j + .5,
+          //  || settings.environment->collides(path[i].x + dx * j + .5,
           //  path[i].y + dy * j
           //  + .5))
           {
@@ -291,7 +288,7 @@ class PlannerUtils {
     unsigned int closest = 0;
     double dist = points[closest].distanceSquared(x);
     for (unsigned int i = 1; i < points.size() - 1; ++i) {
-      if (settings.environment->occupied(points[i].x, points[i].y))
+      if (settings.environment->collides(points[i].x, points[i].y))
         continue;
       const double d = points[i].distanceSquared(x);
       if (d < dist) {

@@ -71,13 +71,15 @@ ob::PlannerStatus ChompPlanner::run() {
   OMPL_DEBUG("Computing CHOMP grid...");
   _map->grid.clear();
   const float csz = 1.f;
-  const Environment &env = *settings.environment;
+  Environment &env = *settings.environment;
   vec3f min(0, 0, 0);
-  vec3f max(env.width(), env.height(), 1.f);
+  vec3f max(static_cast<float>(env.width()), static_cast<float>(env.height()),
+            1.f);
   _map->grid.resize(min, max, DtGridf::AXIS_Z, csz);
   for (unsigned int y = 0; y <= env.height(); ++y) {
     for (unsigned int x = 0; x <= env.width(); ++x) {
-      _map->grid(vec3u(x, y, 0)) = (env.occupiedCell(x, y) ? -1 : 1);
+      _map->grid(vec3u(x, y, 0)) =
+          (env.collides((double)x, (double)y) ? -1 : 1);
     }
   }
   _map->grid.computeDistsFromBinary();
@@ -100,19 +102,16 @@ ob::PlannerStatus ChompPlanner::run() {
   switch (settings.chomp.initialization) {
     case chomp::STRAIGHT_LINE:
       OMPL_DEBUG("Initializing CHOMP nodes using straight line...");
-      _initializeStraightLine(settings.chomp.nodes, *_map, p0, p1, xi,
-                              q0, q1);
+      _initializeStraightLine(settings.chomp.nodes, *_map, p0, p1, xi, q0, q1);
       break;
     case chomp::THETA_STAR:
       OMPL_DEBUG("Initializing CHOMP nodes using Theta*...");
-      _initializeThetaStar(settings.chomp.nodes, p0, p1, xi, q0, q1,
-                           false);
+      _initializeThetaStar(settings.chomp.nodes, p0, p1, xi, q0, q1, false);
       break;
     case chomp::THETA_STAR_X_CLEARING:
       OMPL_DEBUG(
           "Initializing CHOMP nodes using Theta* (with extra clearing)...");
-      _initializeThetaStar(settings.chomp.nodes, p0, p1, xi, q0, q1,
-                           true);
+      _initializeThetaStar(settings.chomp.nodes, p0, p1, xi, q0, q1, true);
       break;
   }
 

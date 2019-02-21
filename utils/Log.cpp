@@ -15,15 +15,15 @@ void Log::instantiateRun() {
   std::strftime(mbstr, sizeof(mbstr), "%F %T", std::localtime(&time));
   std::string tstr(mbstr);
   tstr = tstr.substr(0, tstr.length() - 1);
-  _currentRun = {
-      {"globals",
-       {
-           {"time", tstr},
-       }},
-      {"runs", nlohmann::json::array()}};
+  _currentRun = {{"globals",
+                  {
+                      {"time", tstr},
+                  }},
+                 {"runs", nlohmann::json::array()}};
 
   _currentRun.update(nlohmann::json(settings));
-  _currentRun["settings"]["steering"] = Steering::to_string(settings.steer.steering_type);
+  _currentRun["settings"]["steering"] =
+      Steering::to_string(settings.steer.steering_type);
 }
 
 void Log::log(const PathStatistics &stats) {
@@ -112,8 +112,7 @@ std::string Log::filename() {
   return _currentRun["settings"]["steering"].get<std::string>() + " " +
          std::to_string(settings.environment->width()) + "x" +
          std::to_string(settings.environment->height()) + " " +
-         settings.environment->generatorType() + " " +
-         std::to_string(settings.environment->seed()) + " " +
+         settings.environment->name() + " " +
          _currentRun["globals"]["time"].get<std::string>();
 }
 
@@ -125,7 +124,8 @@ std::vector<std::array<double, 2>> Log::serializePath(
 }
 
 std::vector<std::array<double, 3>> Log::serializeTrajectory(
-    const ompl::geometric::PathGeometric &traj) {
+    const ompl::geometric::PathGeometric &t) {
+  const auto traj = PlannerUtils::interpolated(t);
   std::vector<std::array<double, 3>> r;
   for (auto i = 0u; i < traj.getStateCount(); ++i) {
     const auto *s = traj.getState(i)->as<State>();

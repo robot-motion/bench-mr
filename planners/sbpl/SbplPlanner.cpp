@@ -51,7 +51,7 @@ SbplPlanner::SbplPlanner()
       _env->UpdateCost(
           ix, iy,
           static_cast<unsigned char>(
-              settings.environment->occupied(ix / settings.sbpl.scaling,
+              settings.environment->collides(ix / settings.sbpl.scaling,
                                              iy / settings.sbpl.scaling)
                   ? 20u
                   : 1u));
@@ -73,7 +73,7 @@ SbplPlanner::SbplPlanner()
     case sbpl::SBPL_RSTAR:
       _sbPlanner = new RSTARPlanner(_env, ForwardSearch);
       break;
-      case sbpl::SBPL_ANASTAR:
+    case sbpl::SBPL_ANASTAR:
       _sbPlanner = new anaPlanner(_env, ForwardSearch);
       break;
   }
@@ -82,32 +82,35 @@ SbplPlanner::SbplPlanner()
 
   int startTheta = 0, goalTheta = 0;
   if (settings.estimate_theta) {
-    auto orientations = settings.environment->estimateStartGoalOrientations();
     // handle weird behavior when start and goal nodes appear on different sides
     // as usual
     // TODO verify
     if (settings.environment->start().x < settings.environment->goal().x) {
-      startTheta = static_cast<int>(std::round((orientations.first) / M_PI *
-                                               settings.sbpl.num_theta_dirs)) %
-                   settings.sbpl.num_theta_dirs;
-      goalTheta = static_cast<int>(std::round((orientations.second) / M_PI *
-                                              settings.sbpl.num_theta_dirs)) %
-                  settings.sbpl.num_theta_dirs;
-    } else {
       startTheta =
-          static_cast<int>(std::round((orientations.first + M_PI / 2) / M_PI *
-                                      settings.sbpl.num_theta_dirs)) %
+          static_cast<int>(std::round((settings.environment->startTheta()) /
+                                      M_PI * settings.sbpl.num_theta_dirs)) %
           settings.sbpl.num_theta_dirs;
       goalTheta =
-          static_cast<int>(std::round((orientations.second + M_PI / 2) / M_PI *
-                                      settings.sbpl.num_theta_dirs)) %
+          static_cast<int>(std::round((settings.environment->goalTheta()) /
+                                      M_PI * settings.sbpl.num_theta_dirs)) %
           settings.sbpl.num_theta_dirs;
+    } else {
+      startTheta = static_cast<int>(std::round(
+                       (settings.environment->startTheta() + M_PI / 2) / M_PI *
+                       settings.sbpl.num_theta_dirs)) %
+                   settings.sbpl.num_theta_dirs;
+      goalTheta = static_cast<int>(std::round(
+                      (settings.environment->goalTheta() + M_PI / 2) / M_PI *
+                      settings.sbpl.num_theta_dirs)) %
+                  settings.sbpl.num_theta_dirs;
     }
 
-    std::cout << "startTheta: " << (orientations.first * 180. / M_PI)
-              << " deg   " << startTheta << std::endl;
-    std::cout << "goalTheta: " << (orientations.second * 180. / M_PI)
-              << " deg   " << goalTheta << std::endl;
+    std::cout << "startTheta: "
+              << (settings.environment->startTheta() * 180. / M_PI) << " deg   "
+              << startTheta << std::endl;
+    std::cout << "goalTheta: "
+              << (settings.environment->goalTheta() * 180. / M_PI) << " deg   "
+              << goalTheta << std::endl;
 
 //#if DEBUG
 #if QT_SUPPORT

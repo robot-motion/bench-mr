@@ -1,5 +1,4 @@
-//#define DEBUG 1 // TODO activate DEBUG in PlannerSettings.h
-
+#include <base/PolygonMaze.h>
 #include "base/PlannerSettings.h"
 
 #include "metrics/PathLengthMetric.h"
@@ -54,69 +53,60 @@ void evaluate(nlohmann::json &info) {
 }
 
 int main(int argc, char **argv) {
-  settings.steer.steering_type = Steering::STEER_TYPE_POSQ;
   PathEvaluation::initialize();
 
 #if QT_SUPPORT
   QtVisualizer::initialize();
 #endif
 
-  Log::instantiateRun();
-
-  if (argc < 2) {
+  if (argc < 3) {
     OMPL_ERROR(
-        "Missing Parameter. Enter .scen file name after execute command.");
-    return 1;
+        "Missing Parameter(s). Provide SVG files for the maze and the robot.");
+    return EXIT_FAILURE;
   }
 
-  const std::string scene_name = argv[1];
+  const std::string maze_filename = argv[1];
+  const std::string robot_filename = argv[2];
 
-  ScenarioLoader scenarioLoader;
-  scenarioLoader.load(scene_name);
+  auto maze = PolygonMaze::loadFromSvg(maze_filename);
+  maze.setStart({0, -50});
+  std::cout << "Start collides? " << std::boolalpha
+            << maze.collides(maze.start().x, maze.start().y) << std::endl;
+  std::cout << "Goal collides?  " << std::boolalpha
+            << maze.collides(maze.goal().x, maze.goal().y) << std::endl;
+  maze.setGoal({200, -150});
+  settings.environment = &maze;
+  settings.environment->setThetas(M_PI/2, 0);
 
-  unsigned int counter = 0;
-  std::cout << "Loaded " << scenarioLoader.scenarios().size() << " scenarios."
-            << std::endl;
-  for (auto &scenario : scenarioLoader.scenarios()) {
-    if (counter++ < 925) continue;
+  settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
+  settings.steer.car_turning_radius = 50;
+  settings.steer.initializeSteering();
 
-    std::cout << "##############################################" << std::endl;
-    std::cout << "# Scenario " << counter << std::endl;
-    std::cout << "##############################################" << std::endl;
+  settings.collision_model = robot::ROBOT_POLYGON;
+  settings.robot_shape = SvgPolygonLoader::load(robot_filename)[0];
+  settings.robot_shape.value().center();
+  for (auto &p : settings.robot_shape.value().points)
+    std::cout << p << std::endl;
 
-    // create environment
-    settings.environment = GridMaze::createFromMovingAiScenario(scenario);
-    settings.steer.initializeSteering();
-#if QT_SUPPORT
-    QtVisualizer::visualize(settings.environment, 0);
-#endif
-    PathStatistics thetaStarStats, rrtStarStats, gripsStats,
-        smoothThetaStarStats, sbplStats, chompStats, rrtStats;
+  std::vector<Point> gripsPath;
+  std::vector<GNode> gripsTrajectory;
 
-    std::vector<Point> gripsPath;
-    std::vector<GNode> gripsTrajectory;
+  auto info = nlohmann::json({{"plans", {}}, {"environment", maze}});
 
-    auto info = nlohmann::json({{"plans", {}},
-                                {"environment", settings.environment},
-                                {"optimalDistance", scenario.optimal_length}});
+  Log::instantiateRun();
+  //  evaluate<ChompPlanner>(info);
+//    evaluate<ThetaStar>(info);
+//  evaluate<RRTPlanner>(info);
+  evaluate<RRTstarPlanner>(info);
+  evaluate<RRTsharpPlanner>(info);
+  evaluate<InformedRRTstarPlanner>(info);
+  evaluate<SORRTstarPlanner>(info);
+  //  evaluate<CForestPlanner>(info);
+  //  evaluate<SbplPlanner>(info);
 
-    evaluate<ChompPlanner>(info);
-    evaluate<ThetaStar>(info);
-    evaluate<RRTPlanner>(info);
-    evaluate<RRTstarPlanner>(info);
-    evaluate<RRTsharpPlanner>(info);
-    evaluate<InformedRRTstarPlanner>(info);
-    evaluate<SORRTstarPlanner>(info);
-    evaluate<CForestPlanner>(info);
-    evaluate<SbplPlanner>(info);
+  Log::log(info);
 
-    Log::log(info);
-
-    //    if (++counter > 10)
-    //        break;
-  }
-
-  Log::save();
+  Log::save("parking.json");
 
 #if DEBUG
   QtVisualizer::show();

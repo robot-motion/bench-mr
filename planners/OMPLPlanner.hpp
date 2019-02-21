@@ -40,11 +40,12 @@ namespace og = ompl::geometric;
 template <class PLANNER>
 class OMPLPlanner : public AbstractPlanner {
  public:
-  OMPLPlanner() = default;
-
-  ob::PlannerStatus run() override {
+  OMPLPlanner() {
     const ob::SpaceInformationPtr si = ss->getSpaceInformation();
     _omplPlanner = ob::PlannerPtr(new PLANNER(si));
+  }
+
+  ob::PlannerStatus run() override {
     ss->setPlanner(_omplPlanner);
     ss->setup();
 
