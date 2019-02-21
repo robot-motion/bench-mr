@@ -4,7 +4,7 @@
 #include "steer_functions/POSQ/POSQSteering.h"
 #include "steer_functions/ReedsShepp/ReedsSheppSteering.h"
 
-#include "base/Environment.h"
+#include "base/GridMaze.h"
 #include "base/gnode.h"
 
 #include "metrics/PathLengthMetric.h"

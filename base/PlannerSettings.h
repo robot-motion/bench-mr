@@ -4,7 +4,6 @@
 #include <params.hpp>
 
 #include "Environment.h"
-
 #include "steer_functions/Steering.h"
 
 using namespace params;
@@ -22,6 +21,10 @@ enum ChompInitialization { STRAIGHT_LINE, THETA_STAR, THETA_STAR_X_CLEARING };
 
 namespace sbpl {
 enum Planner { SBPL_ARASTAR, SBPL_ADSTAR, SBPL_RSTAR, SBPL_ANASTAR };
+}
+
+namespace robot {
+enum Model { ROBOT_POINT, ROBOT_POLYGON };
 }
 
 /**
@@ -43,12 +46,20 @@ inline struct GlobalSettings : public Group {
    * Whether to estimate the orientation of the start and goal states for
    * planners that need them (e.g. SBPL).
    */
-  Property<bool> estimate_theta{true, "estimate_theta", this};
+  Property<bool> estimate_theta{false, "estimate_theta", this};
 
   /**
    * Whether to compute stats on clearing distances of the found solutions.
    */
   Property<bool> evaluate_clearing{true, "evaluate_clearing", this};
+
+  /**
+   * Which model is used for collision checking.
+   */
+  Property<robot::Model> collision_model{robot::ROBOT_POINT, "collision_model",
+                                         this};
+
+  Property<Polygon> robot_shape{Polygon(), "robot_shape", this};
 
   /**
    * Settings related to OMPL.
@@ -84,7 +95,7 @@ inline struct GlobalSettings : public Group {
      * Distance between states sampled using the steer function for collision
      * detection, rendering and evaluation.
      */
-    Property<double> sampling_resolution{0.02, "sampling_resolution", this};
+    Property<double> sampling_resolution{0.013, "sampling_resolution", this};
 
     struct HC_CC_Settings : public Group {
       using Group::Group;
@@ -115,7 +126,7 @@ inline struct GlobalSettings : public Group {
     //    Property<std::string> motion_primitive_filename{
     //        "./sbpl_mprim/pr2.mprim", "motion_primitive_filename", this};
     Property<std::string> motion_primitive_filename{
-        "./sbpl_mprim/unicycle_0.125.mprim", "motion_primitive_filename", this};
+        "./sbpl_mprim/unicycle_0.25.mprim", "motion_primitive_filename", this};
 
     /**
      * These tolerances are most likely ignored by SPBL at the moment.
@@ -130,13 +141,13 @@ inline struct GlobalSettings : public Group {
      * definition file.
      */
     //    Property<double> resolution{0.025, "resolution", this};
-    Property<double> resolution{0.125, "resolution", this};
+    Property<double> resolution{0.25, "resolution", this};
 
     /**
      * Scale environment to accommodate extents of SBPL's motion primitives.
      * Intuition: the smaller this number the larger the turning radius.
      */
-    Property<double> scaling{1, "scaling", this};
+    Property<double> scaling{1.5, "scaling", this};
 
     /**
      * XXX Important: number of theta directions must match resolution in motion
@@ -150,12 +161,12 @@ inline struct GlobalSettings : public Group {
   struct ChompSettings : public Group {
     using Group::Group;
 
-    Property<unsigned int> nodes{127u, "nodes", this};
+    Property<unsigned int> nodes{300u, "nodes", this};
     Property<double> alpha{0.05, "alpha", this};
     /**
      * Obstacle importance.
      */
-    Property<float> epsilon{2, "epsilon", this};
+    Property<float> epsilon{4, "epsilon", this};
     Property<double> gamma{0.8, "gamma", this};
     Property<double> error_tolerance{1e-6, "error_tolerance", this};
     /**

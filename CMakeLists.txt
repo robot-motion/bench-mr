@@ -81,7 +81,7 @@ else (Qt5_FOUND)
 endif (Qt5_FOUND)
 
 #file(GLOB_RECURSE CHOMP_SRC chomp/*)
-set(ALL_SRC ${Base} ${Utils} ${Steer} ${Metrics} ${Planners} ${EXTRA_SRC} PostSmoothing.cpp chomp/chomp/Map2D.cpp)
+set(ALL_SRC ${Base} ${Utils} ${Steer} ${Metrics} ${Planners} ${EXTRA_SRC} PostSmoothing.cpp chomp/chomp/Map2D.cpp base/Environment.h)
 
 link_directories(base/)
 link_directories(steer_functions/)
@@ -106,6 +106,8 @@ endif (Qt5_FOUND)
 add_executable(showcase mainShowcase.cpp ${ALL_SRC})
 target_link_libraries(showcase ${EXTRA_LIB})
 
-# test compiling moving AI test
+add_executable(parking mainParking.cpp ${ALL_SRC})
+target_link_libraries(parking ${EXTRA_LIB})
+
 add_executable(movingAi mainMovingAiTest.cpp ${ALL_SRC})
 target_link_libraries(movingAi ${EXTRA_LIB})
