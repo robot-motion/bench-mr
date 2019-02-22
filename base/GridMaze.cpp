@@ -72,6 +72,7 @@ void GridMaze::fill(double x, double y, bool value) {
 }
 
 void GridMaze::fill(Rectangle r, bool value) {
+  r.correct();
   for (int x = (int)std::round(std::max(0., std::min(r.x1, r.x2)));
        x <= std::round(std::min(width(), std::max(r.x1, r.x2))); ++x) {
     for (int y = (int)std::round(std::max(0., std::min(r.y1, r.y2)));
@@ -98,19 +99,18 @@ GridMaze *GridMaze::createRandomCorridor(unsigned int width,
   auto *environment = new GridMaze(seed, width, height);
   environment->_type = "corridor";
 
-  for (unsigned int i = 0; i <= environment->cells(); ++i) {
+  for (unsigned int i = 0; i <= environment->cells(); ++i)
     environment->_grid[i] = true;
-  }
 
-  std::vector<Point> positions({Point(width / 2., height / 2.)});
+  std::vector<Point> positions{Point(width / 2., height / 2.)};
   for (int k = 0; k < branches; ++k) {
-    int x = 2 + rand() % (width - 2);
-    int y = 2 + rand() % (height - 2);
+    const int x = 2 + rand() % (width - 2);
+    const int y = 2 + rand() % (height - 2);
 
     // find closest vertex
     double minDistance = std::numeric_limits<double>::max();
     Point closest;
-    for (auto &pos : positions) {
+    for (const auto &pos : positions) {
       double d = pos.distance(x, y);
       if (d < minDistance) {
         minDistance = d;
@@ -125,7 +125,7 @@ GridMaze *GridMaze::createRandomCorridor(unsigned int width,
                     closest.x + radius,
                     std::max(closest.y, (double)y) + radius),
           false);
-      positions.emplace_back(closest.x, y);
+      positions.emplace_back(Point(closest.x, y));
     } else {
       // connect horizontally
       environment->fill(
@@ -133,12 +133,10 @@ GridMaze *GridMaze::createRandomCorridor(unsigned int width,
                     std::max(closest.x, (double)x) + radius,
                     closest.y + radius),
           false);
-      positions.emplace_back(x, closest.y);
+      positions.emplace_back(Point(x, closest.y));
     }
   }
   environment->fillBorder(true, borderSize);
-
-  environment->computeDistances();
 
   // find start / goal positions
   double max_dist = 0;
@@ -161,8 +159,7 @@ GridMaze *GridMaze::createRandomCorridor(unsigned int width,
     }
   }
 
-  environment->computeDistances();
-  std::cout << environment << std::endl;
+  std::cout << *environment << std::endl;
   return environment;
 }
 

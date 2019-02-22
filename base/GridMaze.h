@@ -86,16 +86,17 @@ class GridMaze : public Environment {
     for (unsigned int y = 0; y <= m._voxels_y; ++y) {
       for (unsigned int x = 0; x <= m._voxels_x; ++x) {
         if (std::round(m._goal.x) == x && std::round(m._goal.y) == y)
-          stream << "G";
+          stream << 'G';
         else if (std::round(m._start.x) == x && std::round(m._start.y) == y)
-          stream << "S";
+          stream << 'S';
         else if (m.occupiedCell(x, y))
-          stream << "#";
+          stream << '#';
         else
-          stream << " ";
+          stream << ' ';
       }
       stream << std::endl;
     }
+    return stream;
   }
 
   /**
@@ -144,8 +145,8 @@ class GridMaze : public Environment {
   std::string generatorType() const;
 
   unsigned int cells(double resolution = 1) const {
-    return static_cast<unsigned int>((width() / resolution + 1) *
-                                     (height() / resolution + 1));
+    return static_cast<unsigned int>((_voxels_x + 1) *
+                                     (_voxels_y + 1));
   }
 
   unsigned int voxels_x() const { return _voxels_x; }

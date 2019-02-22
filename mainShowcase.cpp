@@ -19,18 +19,6 @@
 namespace og = ompl::geometric;
 
 int main(int argc, char **argv) {
-  global::settings.environment = GridMaze::createRandomCorridor(
-      50, 50, 3,
-      30,  // 1540486476); //1540445576); //1502484532); //1502407983);
-      // //1502323408); //1502316103); //1502231684); //1502227898);
-      // //1501893283); //1501892155);//1501089540); //1501089410
-      // );//1500660612);// 1500551721);// 1500550472);
-      (unsigned int)(time(nullptr) + 123));
-
-  global::settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
-  //    global::settings.CarTurningRadius = 1.5;
-  global::settings.steer.initializeSteering();
-
 #if QT_SUPPORT
   QtVisualizer::initialize();
 #endif
@@ -48,16 +36,18 @@ int main(int argc, char **argv) {
   Log::instantiateRun();
 
   for (unsigned int i = 0; i < 10; ++i) {
-    //        global::settings.environment = Environment::createRandom(50, 50,
-    //        0.1, 1542671305 + i);
     global::settings.environment = GridMaze::createRandomCorridor(
-        50, 50, 3, 30,
-        1540486476 + i +
-            1);  // 1540486476); //1540445576); //1502484532); //1502407983);
-                 // //1502323408); //1502316103); //1502231684); //1502227898);
-                 // //1501893283); //1501892155);//1501089540); //1501089410
-                 // );//1500660612);// 1500551721);// 1500550472);
-    //                                                                         (unsigned int) (time(nullptr) + 123));
+        50, 50, 3,
+        30,  // 1540486476); //1540445576); //1502484532); //1502407983);
+        // //1502323408); //1502316103); //1502231684); //1502227898);
+        // //1501893283); //1501892155);//1501089540); //1501089410
+        // );//1500660612);// 1500551721);// 1500550472);
+        (unsigned int)(time(nullptr) + 123));
+
+    global::settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
+    //    global::settings.CarTurningRadius = 1.5;
+    global::settings.steer.initializeSteering();
+
 #if QT_SUPPORT
     QtVisualizer::visualize(global::settings.environment, 0);
 #endif
@@ -68,8 +58,7 @@ int main(int argc, char **argv) {
     std::vector<GNode> gripsTrajectory;
 
     auto info = nlohmann::json(
-        {{"plans", {}},
-         {"environment", *global::settings.environment}});
+        {{"plans", {}}, {"environment", *global::settings.environment}});
 
     //        ChompPlanner chompPlanner;
     //        if (chompPlanner.run()) {
@@ -82,11 +71,14 @@ int main(int argc, char **argv) {
     //                {"path_length", chompStats.path_length},
     //                {"steps", std::nan("N/A")},
     //                {"time", chompPlanner.planningTime()},
-    //                {"mean_clearing_distance", chompStats.mean_clearing_distance},
+    //                {"mean_clearing_distance",
+    //                chompStats.mean_clearing_distance},
     //                {"median_clearing_distance",
     //                chompStats.median_clearing_distance},
-    //                {"min_clearing_distance", chompStats.min_clearing_distance},
-    //                {"max_clearing_distance", chompStats.max_clearing_distance},
+    //                {"min_clearing_distance",
+    //                chompStats.min_clearing_distance},
+    //                {"max_clearing_distance",
+    //                chompStats.max_clearing_distance},
     //                {"path", chompPlanner.solutionTrajectory().empty() ?
     //                Log::serializePath({}) :
     //                Log::serializePath(chompPlanner.solutionPath())},
@@ -94,49 +86,47 @@ int main(int argc, char **argv) {
     //                Log::serializeTrajectory(chompPlanner.solutionTrajectory())}
     //        };
 
-            auto *thetaStar = new ThetaStar;
-            if (thetaStar->run()) {
-//                std::vector<Point> path = thetaStar->solutionPath();
-                PathEvaluation::evaluate(thetaStarStats, thetaStar->solution(), thetaStar);
+    auto *thetaStar = new ThetaStar;
+    if (thetaStar->run()) {
+      //                std::vector<Point> path = thetaStar->solutionPath();
+      PathEvaluation::evaluate(thetaStarStats, thetaStar->solution(),
+                               thetaStar);
 
-//                std::vector<GNode> trajectory =
-//                thetaStar->solutionTrajectory(); gripsTrajectory = trajectory;
-//                PostSmoothing::smooth(gripsTrajectory, path);
-//                gripsPath =
-//                PlannerUtils::toSteeredTrajectoryPoints(gripsTrajectory);
-//                gripsStats = PathEvaluation::evaluate(gripsPath, "GRIPS",
-//                Qt::red);
-            } else {
-                OMPL_ERROR("Theta* couldn't find a solution.");
-            }
-            info["plans"]["thetaStar"] = {
-                    {"curvature", thetaStarStats.curvature},
-                    {"path_length", thetaStarStats.path_length},
-                    {"steps", thetaStar->steps()},
-                    {"time", thetaStar->planningTime()},
-                    {"mean_clearing_distance",
-                    thetaStarStats.mean_clearing_distance},
-                    {"median_clearing_distance",
-                    thetaStarStats.median_clearing_distance},
-                    {"min_clearing_distance",
-                    thetaStarStats.min_clearing_distance},
-                    {"max_clearing_distance",
-                    thetaStarStats.max_clearing_distance},
-                    {"path", Log::serializePath(thetaStar->solutionPath())},
-                    {"trajectory",
-                    Log::serializeTrajectory(thetaStar->solution())}
-            };
+      //                std::vector<GNode> trajectory =
+      //                thetaStar->solutionTrajectory(); gripsTrajectory =
+      //                trajectory; PostSmoothing::smooth(gripsTrajectory,
+      //                path); gripsPath =
+      //                PlannerUtils::toSteeredTrajectoryPoints(gripsTrajectory);
+      //                gripsStats = PathEvaluation::evaluate(gripsPath,
+      //                "GRIPS", Qt::red);
+    } else {
+      OMPL_ERROR("Theta* couldn't find a solution.");
+    }
+    info["plans"]["thetaStar"] = {
+        {"curvature", thetaStarStats.curvature},
+        {"path_length", thetaStarStats.path_length},
+        {"steps", thetaStar->steps()},
+        {"time", thetaStar->planningTime()},
+        {"mean_clearing_distance", thetaStarStats.mean_clearing_distance},
+        {"median_clearing_distance", thetaStarStats.median_clearing_distance},
+        {"min_clearing_distance", thetaStarStats.min_clearing_distance},
+        {"max_clearing_distance", thetaStarStats.max_clearing_distance},
+        {"path", Log::serializePath(thetaStar->solutionPath())},
+        {"trajectory", Log::serializeTrajectory(thetaStar->solution())}};
     //        info["plans"]["grips"] = {
     //                {"curvature", gripsStats.curvature},
     //                {"path_length", gripsStats.path_length},
     //                {"steps", thetaStar->steps()},
     //                {"time", PostSmoothing::smoothingTime +
     //                thetaStar->planningTime()},
-    //                {"mean_clearing_distance", gripsStats.mean_clearing_distance},
+    //                {"mean_clearing_distance",
+    //                gripsStats.mean_clearing_distance},
     //                {"median_clearing_distance",
     //                gripsStats.median_clearing_distance},
-    //                {"min_clearing_distance", gripsStats.min_clearing_distance},
-    //                {"max_clearing_distance", gripsStats.max_clearing_distance},
+    //                {"min_clearing_distance",
+    //                gripsStats.min_clearing_distance},
+    //                {"max_clearing_distance",
+    //                gripsStats.max_clearing_distance},
     //                {"path", Log::serializePath(gripsPath)},
     //                {"trajectory", Log::serializeTrajectory(gripsTrajectory)}
     //        };
@@ -159,8 +149,10 @@ int main(int argc, char **argv) {
     //                rrtStarStats.mean_clearing_distance},
     //                {"median_clearing_distance",
     //                rrtStarStats.median_clearing_distance},
-    //                {"min_clearing_distance", rrtStarStats.min_clearing_distance},
-    //                {"max_clearing_distance", rrtStarStats.max_clearing_distance},
+    //                {"min_clearing_distance",
+    //                rrtStarStats.min_clearing_distance},
+    //                {"max_clearing_distance",
+    //                rrtStarStats.max_clearing_distance},
     //                {"path", Log::serializePath(rrtStar->solutionPath())},
     //                {"trajectory",
     //                Log::serializeTrajectory(rrtStar->solutionTrajectory())}
@@ -194,26 +186,29 @@ int main(int argc, char **argv) {
     //        delete smoothThetaStar;
 
     OMPL_INFORM("Starting planner");
-//    auto *sbplPlanner = new SbplPlanner(SbplPlanner::SbplType::SBPL_ARASTAR);
-//    if (sbplPlanner->run()) {
-//      sbplStats =
-//          PathEvaluation::evaluate(sbplPlanner->solution(), "SBPL (ANA*)");
-//#if QT_SUPPORT
-//      sbplStats.color = Qt::darkGreen;
-//#endif
-//    }
-//    info["plans"]["sbpl"] = {
-//        {"curvature", sbplStats.curvature},
-//        {"path_length", sbplStats.path_length},
-//        {"steps", std::nan("N/A")},
-//        {"time", sbplPlanner->planningTime()},
-//        {"mean_clearing_distance", sbplStats.mean_clearing_distance},
-//        {"median_clearing_distance", sbplStats.median_clearing_distance},
-//        {"min_clearing_distance", sbplStats.min_clearing_distance},
-//        {"max_clearing_distance", sbplStats.max_clearing_distance},
-//        {"path", Log::serializePath(sbplPlanner->solutionPath())},
-//        {"trajectory", Log::serializeTrajectory(sbplPlanner->solution())}};
-//    delete sbplPlanner;
+    //    auto *sbplPlanner = new
+    //    SbplPlanner(SbplPlanner::SbplType::SBPL_ARASTAR); if
+    //    (sbplPlanner->run()) {
+    //      sbplStats =
+    //          PathEvaluation::evaluate(sbplPlanner->solution(), "SBPL
+    //          (ANA*)");
+    //#if QT_SUPPORT
+    //      sbplStats.color = Qt::darkGreen;
+    //#endif
+    //    }
+    //    info["plans"]["sbpl"] = {
+    //        {"curvature", sbplStats.curvature},
+    //        {"path_length", sbplStats.path_length},
+    //        {"steps", std::nan("N/A")},
+    //        {"time", sbplPlanner->planningTime()},
+    //        {"mean_clearing_distance", sbplStats.mean_clearing_distance},
+    //        {"median_clearing_distance", sbplStats.median_clearing_distance},
+    //        {"min_clearing_distance", sbplStats.min_clearing_distance},
+    //        {"max_clearing_distance", sbplStats.max_clearing_distance},
+    //        {"path", Log::serializePath(sbplPlanner->solutionPath())},
+    //        {"trajectory",
+    //        Log::serializeTrajectory(sbplPlanner->solution())}};
+    //    delete sbplPlanner;
 
     //        printStats(thetaStarStats);
     //        std::cout << "\tSteps:\t\t\t" << thetaStar->steps() << std::endl;
