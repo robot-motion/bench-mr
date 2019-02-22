@@ -52,7 +52,7 @@ DAMAGE.
 #include <unistd.h>
 #include <planners/thetastar/stl_thetastar.h>
 
-#include "../base/PlannerSettings.h"
+#include "../base/Plannerglobal::settings.h"
 
 using namespace std;
 
@@ -390,22 +390,22 @@ class SmoothThetaStarSearch : public ThetaStarSearch<UserState> {
           (*successor)->parent = NULL;
         }
 
-        if (settings.gradientDescentSuccessors) {
+        if (global::settings.gradientDescentSuccessors) {
           double dx, dy;
-          double eta = settings.gradientDescentEta;
-          for (auto i = 0u; i < settings.gradientDescentRounds; ++i) {
+          double eta = global::settings.gradientDescentEta;
+          for (auto i = 0u; i < global::settings.gradientDescentRounds; ++i) {
             double x = (*successor)->m_UserState.x_r;
             double y = (*successor)->m_UserState.y_r;
-            settings.environment->distanceGradient(x, y, dx, dy, 1.);
+            global::settings.environment->distanceGradient(x, y, dx, dy, 1.);
             double distance =
-                settings.environment->bilinearDistance(x, y);
+                global::settings.environment->bilinearDistance(x, y);
             distance = std::max(.1, distance);
             (*successor)->m_UserState.x_r -= eta * dx / distance;
             (*successor)->m_UserState.y_r += eta * dy / distance;
-            eta *= settings.gradientDescentEtaDiscount;
+            eta *= global::settings.gradientDescentEtaDiscount;
           }
 
-          if (!settings.environment->collides(
+          if (!global::settings.environment->collides(
                   (*successor)->m_UserState.x_r,
                   (*successor)->m_UserState.y_r)) {
             if (!m_connectGrandParent)

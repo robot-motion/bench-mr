@@ -2,6 +2,8 @@
 #include <chrono>
 #include <fstream>
 
+#include <params.hpp>
+
 #include "base/PlannerSettings.h"
 #include "base/PlannerUtils.hpp"
 #include "base/TimedResult.hpp"
@@ -9,34 +11,57 @@
 #include "metrics/CurvatureMetric.h"
 #include "metrics/PathLengthMetric.h"
 
+using namespace params;
 class PostSmoothing {
  public:
   static const bool MINIMIZE_PATHLENGTH = true;  // otherwise minimize curvature
-
   static const bool FIX_COLLISIONS = false;
 
   enum RoundType { ROUND_GD, ROUND_PRUNING, ROUND_ORIGINAL, ROUND_UNKOWN };
 
-  struct RoundStats {
-    double pathLength = -1;
-    double maxCurvature = -1;
-    double time = -1;
-    int nodes = -1;
-    double medianNodeObstacleDistance = -1;
-    double meanNodeObstacleDistance = -1;
-    double minNodeObstacleDistance = -1;
-    double maxNodeObstacleDistance = -1;
-    double stdNodeObstacleDistance = -1;
-    double medianTrajObstacleDistance = -1;
-    double meanTrajObstacleDistance = -1;
-    double minTrajObstacleDistance = -1;
-    double maxTrajObstacleDistance = -1;
-    double stdTrajObstacleDistance = -1;
-    RoundType type = ROUND_UNKOWN;
+  struct RoundStats : public Group {
+    Property<double> path_length{std::numeric_limits<double>::quiet_NaN(),
+                                 "path_length", this};
+    Property<double> max_curvature{std::numeric_limits<double>::quiet_NaN(),
+                                   "max_curvature", this};
+    Property<double> time{std::numeric_limits<double>::quiet_NaN(), "time",
+                          this};
+    Property<int> nodes{-1, "nodes", this};
+    Property<double> median_node_obstacle_distance{
+        std::numeric_limits<double>::quiet_NaN(),
+        "median_node_obstacle_distance", this};
+    Property<double> mean_node_obstacle_distance{
+        std::numeric_limits<double>::quiet_NaN(), "mean_node_obstacle_distance",
+        this};
+    Property<double> min_node_obstacle_distance{
+        std::numeric_limits<double>::quiet_NaN(), "min_node_obstacle_distance",
+        this};
+    Property<double> max_node_obstacle_distance{
+        std::numeric_limits<double>::quiet_NaN(), "max_node_obstacle_distance",
+        this};
+    Property<double> std_node_obstacle_distance{
+        std::numeric_limits<double>::quiet_NaN(), "std_node_obstacle_distance",
+        this};
+    Property<double> median_traj_obstacle_distance{
+        std::numeric_limits<double>::quiet_NaN(),
+        "median_traj_obstacle_distance", this};
+    Property<double> mean_traj_obstacle_distance{
+        std::numeric_limits<double>::quiet_NaN(), "mean_traj_obstacle_distance",
+        this};
+    Property<double> min_traj_obstacle_distance{
+        std::numeric_limits<double>::quiet_NaN(), "min_traj_obstacle_distance",
+        this};
+    Property<double> max_traj_obstacle_distance{
+        std::numeric_limits<double>::quiet_NaN(), "max_traj_obstacle_distance",
+        this};
+    Property<double> std_traj_obstacle_distance{
+        std::numeric_limits<double>::quiet_NaN(), "std_traj_obstacle_distance",
+        this};
+    Property<RoundType> type{ROUND_UNKOWN, "type", this};
     TimedResult stopWatch;
 
     std::string typeName() const {
-      switch (type) {
+      switch (type.value()) {
         case ROUND_GD:
           return "gd";
         case ROUND_PRUNING:
@@ -47,6 +72,8 @@ class PostSmoothing {
           return "unknown";
       }
     }
+
+    RoundStats() : Group("round") {}
   };
 
   static int insertedNodes;

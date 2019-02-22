@@ -22,17 +22,17 @@ namespace og = ompl::geometric;
 int main(int argc, char **argv) {
   PathEvaluation::initialize();
 
-  settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
-  settings.CarTurningRadius = 5;
-  settings.initializeSteering();
+  global::settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
+  global::settings.CarTurningRadius = 5;
+  global::settings.initializeSteering();
 
   QtVisualizer::initialize();
   QtVisualizer::showStartGoal(false);
 
   std::vector<Rectangle> obstacles;
-  settings.environment = Environment::createFromObstacles(obstacles);
+  global::settings.environment = Environment::createFromObstacles(obstacles);
 
-  QtVisualizer::visualize(settings.environment, 0);
+  QtVisualizer::visualize(global::settings.environment, 0);
 
   std::vector<GNode> path{GNode(5, 25, 0), GNode(15, 10, 0), GNode(25, 35, 0),
                           GNode(35, 10, 0), GNode(45, 25, 0)};

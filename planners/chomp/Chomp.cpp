@@ -34,9 +34,9 @@ void ChompPlanner::_initializeThetaStar(int N, const vec2f &p0, const vec2f &p1,
   q0 << p0.x(), p0.y();
   q1 << p1.x(), p1.y();
 
-  Steering::SteeringType stCopy = settings.steer.steering_type;
-  settings.steer.steering_type = Steering::SteeringType::STEER_TYPE_LINEAR;
-  settings.steer.initializeSteering();
+  Steering::SteeringType stCopy = global::settings.steer.steering_type;
+  global::settings.steer.steering_type = Steering::SteeringType::STEER_TYPE_LINEAR;
+  global::settings.steer.initializeSteering();
   auto *thetaStar = new ThetaStar;
   if (thetaStar->run()) {
     auto path = thetaStar->solutionPath();
@@ -62,8 +62,8 @@ void ChompPlanner::_initializeThetaStar(int N, const vec2f &p0, const vec2f &p1,
   delete thetaStar;
 
   // revert steering function
-  settings.steer.steering_type = stCopy;
-  settings.steer.initializeSteering();
+  global::settings.steer.steering_type = stCopy;
+  global::settings.steer.initializeSteering();
 }
 
 ob::PlannerStatus ChompPlanner::run() {
@@ -71,7 +71,7 @@ ob::PlannerStatus ChompPlanner::run() {
   OMPL_DEBUG("Computing CHOMP grid...");
   _map->grid.clear();
   const float csz = 1.f;
-  Environment &env = *settings.environment;
+  Environment &env = *global::settings.environment;
   vec3f min(0, 0, 0);
   vec3f max(static_cast<float>(env.width()), static_cast<float>(env.height()),
             1.f);
@@ -83,35 +83,35 @@ ob::PlannerStatus ChompPlanner::run() {
     }
   }
   _map->grid.computeDistsFromBinary();
-  _map->eps = settings.chomp.epsilon;
+  _map->eps = global::settings.chomp.epsilon;
 
   MatX q0, q1, xi;
 
   Map2DCHelper mhelper(*_map);
-  chomp::ChompCollGradHelper cghelper(&mhelper, settings.chomp.gamma);
+  chomp::ChompCollGradHelper cghelper(&mhelper, global::settings.chomp.gamma);
 
-  vec2f p0(static_cast<float>(settings.environment->start().x),
-           static_cast<float>(settings.environment->start().y));
-  vec2f p1(static_cast<float>(settings.environment->goal().x),
-           static_cast<float>(settings.environment->goal().y));
+  vec2f p0(static_cast<float>(global::settings.environment->start().x),
+           static_cast<float>(global::settings.environment->start().y));
+  vec2f p1(static_cast<float>(global::settings.environment->goal().x),
+           static_cast<float>(global::settings.environment->goal().y));
   if (p0.x() == p0.y() && p0 == p1) {
     p0 = _map->grid.bbox().p0.trunc();
     p1 = _map->grid.bbox().p1.trunc();
   }
 
-  switch (settings.chomp.initialization) {
+  switch (global::settings.chomp.initialization) {
     case chomp::STRAIGHT_LINE:
       OMPL_DEBUG("Initializing CHOMP nodes using straight line...");
-      _initializeStraightLine(settings.chomp.nodes, *_map, p0, p1, xi, q0, q1);
+      _initializeStraightLine(global::settings.chomp.nodes, *_map, p0, p1, xi, q0, q1);
       break;
     case chomp::THETA_STAR:
       OMPL_DEBUG("Initializing CHOMP nodes using Theta*...");
-      _initializeThetaStar(settings.chomp.nodes, p0, p1, xi, q0, q1, false);
+      _initializeThetaStar(global::settings.chomp.nodes, p0, p1, xi, q0, q1, false);
       break;
     case chomp::THETA_STAR_X_CLEARING:
       OMPL_DEBUG(
           "Initializing CHOMP nodes using Theta* (with extra clearing)...");
-      _initializeThetaStar(settings.chomp.nodes, p0, p1, xi, q0, q1, true);
+      _initializeThetaStar(global::settings.chomp.nodes, p0, p1, xi, q0, q1, true);
       break;
   }
 
@@ -128,16 +128,16 @@ ob::PlannerStatus ChompPlanner::run() {
   //        _path.emplace_back(Tpoint(pi(0), pi(1)));
   //    }
   //
-  //    if (_path.size() != settings.chomp.nodes)
+  //    if (_path.size() != global::settings.chomp.nodes)
   //        OMPL_WARN("CHOMP terminated with %d nodes although %d nodes are
-  //        requested.", _path.size(), settings.chomp.nodes);
+  //        requested.", _path.size(), global::settings.chomp.nodes);
 
   OMPL_DEBUG("Running CHOMP...");
-  chomp::Chomp chomper(nullptr, xi, q0, q1, n, settings.chomp.alpha,
-                       settings.chomp.error_tolerance,
-                       settings.chomp.max_iterations,
-                       settings.chomp.max_iterations);
-  chomper.objective_type = settings.chomp.objective_type;
+  chomp::Chomp chomper(nullptr, xi, q0, q1, n, global::settings.chomp.alpha,
+                       global::settings.chomp.error_tolerance,
+                       global::settings.chomp.max_iterations,
+                       global::settings.chomp.max_iterations);
+  chomper.objective_type = global::settings.chomp.objective_type;
   chomper.ghelper = &cghelper;
 
   chomp::DebugChompObserver dobs;
@@ -173,7 +173,7 @@ ob::PlannerStatus ChompPlanner::run() {
 }
 
 og::PathGeometric ChompPlanner::solution() const {
-  og::PathGeometric path(settings.ompl.space_info);
+  og::PathGeometric path(global::settings.ompl.space_info);
   for (auto &p : _path) path.append(base::StateFromXYT(p.x, p.y, 0));
   return path;
 }

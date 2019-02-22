@@ -1,4 +1,4 @@
-//#define DEBUG 1 // TODO activate DEBUG in PlannerSettings.h
+//#define DEBUG 1 // TODO activate DEBUG in Plannerglobal::settings.h
 
 #include "base/PlannerSettings.h"
 
@@ -20,12 +20,12 @@ namespace og = ompl::geometric;
 
 void printStats(const PathStatistics &stats) {
   std::cout << stats.planner << std::endl;
-  std::cout << "\tPath length:   \t" << stats.pathLength << std::endl;
+  std::cout << "\tPath length:   \t" << stats.path_length << std::endl;
   std::cout << "\tMax curvature: \t" << stats.curvature << std::endl;
 }
 
 int main(int argc, char **argv) {
-  settings.environment = Environment::createRandomCorridor(
+  global::settings.environment = GridMaze::createRandomCorridor(
       50, 50, 3,
       30,  // 1540486476); //1540445576); //1502484532); //1502407983);
       // //1502323408); //1502316103); //1502231684); //1502227898);
@@ -33,9 +33,9 @@ int main(int argc, char **argv) {
       // );//1500660612);// 1500551721);// 1500550472);
       (unsigned int)(time(nullptr) + 123));
 
-  settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
-  //    settings.CarTurningRadius = 1.5;
-  settings.steer.initializeSteering();
+  global::settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
+  //    global::settings.CarTurningRadius = 1.5;
+  global::settings.steer.initializeSteering();
   PathEvaluation::initialize();
 
 #if QT_SUPPORT
@@ -45,19 +45,19 @@ int main(int argc, char **argv) {
   //    std::vector<Rectangle> obstacles;
   //    obstacles.emplace_back(Rectangle(10, 0, 15, 14));
   //    obstacles.emplace_back(Rectangle(26, 10, 31, 25));
-  //    settings.environment =
+  //    global::settings.environment =
   //    Environment::createFromObstacles(obstacles, 40, 25);
-  //    settings.environment->setStart(Tpoint(5, 3));
-  //    settings.environment->setGoal(Tpoint(36, 22));
-  //    settings.environment = Environment::createRandom(50, 50, 0.1,
+  //    global::settings.environment->setStart(Tpoint(5, 3));
+  //    global::settings.environment->setGoal(Tpoint(36, 22));
+  //    global::settings.environment = Environment::createRandom(50, 50, 0.1,
   //    1542671305);
 
   Log::instantiateRun();
 
   for (unsigned int i = 0; i < 10; ++i) {
-    //        settings.environment = Environment::createRandom(50, 50,
+    //        global::settings.environment = Environment::createRandom(50, 50,
     //        0.1, 1542671305 + i);
-    settings.environment = Environment::createRandomCorridor(
+    global::settings.environment = GridMaze::createRandomCorridor(
         50, 50, 3, 30,
         1540486476 + i +
             1);  // 1540486476); //1540445576); //1502484532); //1502407983);
@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
                  // );//1500660612);// 1500551721);// 1500550472);
     //                                                                         (unsigned int) (time(nullptr) + 123));
 #if QT_SUPPORT
-    QtVisualizer::visualize(settings.environment, 0);
+    QtVisualizer::visualize(global::settings.environment, 0);
 #endif
     PathStatistics thetaStarStats, rrtStarStats, gripsStats,
         smoothThetaStarStats, sbplStats, chompStats;
@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
 
     auto info = nlohmann::json(
         {{"plans", {}},
-         {"environment", settings.environment->asJSON()}});
+         {"environment", *global::settings.environment}});
 
     //        ChompPlanner chompPlanner;
     //        if (chompPlanner.run()) {
@@ -86,14 +86,14 @@ int main(int argc, char **argv) {
     //        }
     //        info["plans"]["chomp"] = {
     //                {"curvature", chompStats.curvature},
-    //                {"pathLength", chompStats.pathLength},
+    //                {"path_length", chompStats.path_length},
     //                {"steps", std::nan("N/A")},
     //                {"time", chompPlanner.planningTime()},
-    //                {"meanClearingDistance", chompStats.meanClearingDistance},
-    //                {"medianClearingDistance",
-    //                chompStats.medianClearingDistance},
-    //                {"minClearingDistance", chompStats.minClearingDistance},
-    //                {"maxClearingDistance", chompStats.maxClearingDistance},
+    //                {"mean_clearing_distance", chompStats.mean_clearing_distance},
+    //                {"median_clearing_distance",
+    //                chompStats.median_clearing_distance},
+    //                {"min_clearing_distance", chompStats.min_clearing_distance},
+    //                {"max_clearing_distance", chompStats.max_clearing_distance},
     //                {"path", chompPlanner.solutionTrajectory().empty() ?
     //                Log::serializePath({}) :
     //                Log::serializePath(chompPlanner.solutionPath())},
@@ -104,7 +104,7 @@ int main(int argc, char **argv) {
             auto *thetaStar = new ThetaStar;
             if (thetaStar->run()) {
 //                std::vector<Point> path = thetaStar->solutionPath();
-                thetaStarStats = PathEvaluation::evaluate(thetaStar->solution(), "Theta*");
+                PathEvaluation::evaluate(thetaStarStats, thetaStar->solution(), thetaStar);
 
 //                std::vector<GNode> trajectory =
 //                thetaStar->solutionTrajectory(); gripsTrajectory = trajectory;
@@ -118,32 +118,32 @@ int main(int argc, char **argv) {
             }
             info["plans"]["thetaStar"] = {
                     {"curvature", thetaStarStats.curvature},
-                    {"pathLength", thetaStarStats.pathLength},
+                    {"path_length", thetaStarStats.path_length},
                     {"steps", thetaStar->steps()},
                     {"time", thetaStar->planningTime()},
-                    {"meanClearingDistance",
-                    thetaStarStats.meanClearingDistance},
-                    {"medianClearingDistance",
-                    thetaStarStats.medianClearingDistance},
-                    {"minClearingDistance",
-                    thetaStarStats.minClearingDistance},
-                    {"maxClearingDistance",
-                    thetaStarStats.maxClearingDistance},
+                    {"mean_clearing_distance",
+                    thetaStarStats.mean_clearing_distance},
+                    {"median_clearing_distance",
+                    thetaStarStats.median_clearing_distance},
+                    {"min_clearing_distance",
+                    thetaStarStats.min_clearing_distance},
+                    {"max_clearing_distance",
+                    thetaStarStats.max_clearing_distance},
                     {"path", Log::serializePath(thetaStar->solutionPath())},
                     {"trajectory",
                     Log::serializeTrajectory(thetaStar->solution())}
             };
     //        info["plans"]["grips"] = {
     //                {"curvature", gripsStats.curvature},
-    //                {"pathLength", gripsStats.pathLength},
+    //                {"path_length", gripsStats.path_length},
     //                {"steps", thetaStar->steps()},
     //                {"time", PostSmoothing::smoothingTime +
     //                thetaStar->planningTime()},
-    //                {"meanClearingDistance", gripsStats.meanClearingDistance},
-    //                {"medianClearingDistance",
-    //                gripsStats.medianClearingDistance},
-    //                {"minClearingDistance", gripsStats.minClearingDistance},
-    //                {"maxClearingDistance", gripsStats.maxClearingDistance},
+    //                {"mean_clearing_distance", gripsStats.mean_clearing_distance},
+    //                {"median_clearing_distance",
+    //                gripsStats.median_clearing_distance},
+    //                {"min_clearing_distance", gripsStats.min_clearing_distance},
+    //                {"max_clearing_distance", gripsStats.max_clearing_distance},
     //                {"path", Log::serializePath(gripsPath)},
     //                {"trajectory", Log::serializeTrajectory(gripsTrajectory)}
     //        };
@@ -159,15 +159,15 @@ int main(int argc, char **argv) {
     //        }
     //        info["plans"]["rrtStar"] = {
     //                {"curvature", rrtStarStats.curvature},
-    //                {"pathLength", rrtStarStats.pathLength},
+    //                {"path_length", rrtStarStats.path_length},
     //                {"steps", std::nan("N/A")},
     //                {"time", rrtStar->planningTime()},
-    //                {"meanClearingDistance",
-    //                rrtStarStats.meanClearingDistance},
-    //                {"medianClearingDistance",
-    //                rrtStarStats.medianClearingDistance},
-    //                {"minClearingDistance", rrtStarStats.minClearingDistance},
-    //                {"maxClearingDistance", rrtStarStats.maxClearingDistance},
+    //                {"mean_clearing_distance",
+    //                rrtStarStats.mean_clearing_distance},
+    //                {"median_clearing_distance",
+    //                rrtStarStats.median_clearing_distance},
+    //                {"min_clearing_distance", rrtStarStats.min_clearing_distance},
+    //                {"max_clearing_distance", rrtStarStats.max_clearing_distance},
     //                {"path", Log::serializePath(rrtStar->solutionPath())},
     //                {"trajectory",
     //                Log::serializeTrajectory(rrtStar->solutionTrajectory())}
@@ -182,17 +182,17 @@ int main(int argc, char **argv) {
     //        }
     //        info["plans"]["smoothThetaStar"] = {
     //                {"curvature", smoothThetaStarStats.curvature},
-    //                {"pathLength", smoothThetaStarStats.pathLength},
+    //                {"path_length", smoothThetaStarStats.path_length},
     //                {"steps", smoothThetaStar->steps()},
     //                {"time", smoothThetaStar->planningTime()},
-    //                {"meanClearingDistance",
-    //                smoothThetaStarStats.meanClearingDistance},
-    //                {"medianClearingDistance",
-    //                        smoothThetaStarStats.medianClearingDistance},
-    //                {"minClearingDistance",
-    //                smoothThetaStarStats.minClearingDistance},
-    //                {"maxClearingDistance",
-    //                smoothThetaStarStats.maxClearingDistance},
+    //                {"mean_clearing_distance",
+    //                smoothThetaStarStats.mean_clearing_distance},
+    //                {"median_clearing_distance",
+    //                        smoothThetaStarStats.median_clearing_distance},
+    //                {"min_clearing_distance",
+    //                smoothThetaStarStats.min_clearing_distance},
+    //                {"max_clearing_distance",
+    //                smoothThetaStarStats.max_clearing_distance},
     //                {"path",
     //                Log::serializePath(smoothThetaStar->solutionPath())},
     //                {"trajectory",
@@ -211,13 +211,13 @@ int main(int argc, char **argv) {
 //    }
 //    info["plans"]["sbpl"] = {
 //        {"curvature", sbplStats.curvature},
-//        {"pathLength", sbplStats.pathLength},
+//        {"path_length", sbplStats.path_length},
 //        {"steps", std::nan("N/A")},
 //        {"time", sbplPlanner->planningTime()},
-//        {"meanClearingDistance", sbplStats.meanClearingDistance},
-//        {"medianClearingDistance", sbplStats.medianClearingDistance},
-//        {"minClearingDistance", sbplStats.minClearingDistance},
-//        {"maxClearingDistance", sbplStats.maxClearingDistance},
+//        {"mean_clearing_distance", sbplStats.mean_clearing_distance},
+//        {"median_clearing_distance", sbplStats.median_clearing_distance},
+//        {"min_clearing_distance", sbplStats.min_clearing_distance},
+//        {"max_clearing_distance", sbplStats.max_clearing_distance},
 //        {"path", Log::serializePath(sbplPlanner->solutionPath())},
 //        {"trajectory", Log::serializeTrajectory(sbplPlanner->solution())}};
 //    delete sbplPlanner;
@@ -237,7 +237,7 @@ int main(int argc, char **argv) {
   }
 
   Log::save();
-  //    settings.environment->saveSbplConfigFile("env_" +
+  //    global::settings.environment->saveSbplConfigFile("env_" +
   //    Log::filename() + ".cfg");
 
 #if DEBUG

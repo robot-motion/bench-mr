@@ -27,10 +27,11 @@ namespace robot {
 enum Model { ROBOT_POINT, ROBOT_POLYGON };
 }
 
+namespace PlannerSettings {
 /**
- * Global settings.
+ * Global global::settings.
  */
-inline struct GlobalSettings : public Group {
+struct GlobalSettings : public Group {
   using Group::Group;
   Environment *environment{nullptr};
 
@@ -73,6 +74,7 @@ inline struct GlobalSettings : public Group {
 
     Property<double> state_equality_tolerance{1e-4, "state_equality_tolerance",
                                               this};
+    Property<double> cost_threshold{100, "cost_threshold", this};
     Property<double> max_planning_time{15, "max_planning_time", this};
   } ompl{"ompl", this};
 
@@ -81,7 +83,7 @@ inline struct GlobalSettings : public Group {
 
     /**
      * Initializes OMPL state space, space information and optimization
-     * objective for the given steer function settings.
+     * objective for the given steer function global::settings.
      */
     void initializeSteering() const;
 
@@ -229,4 +231,9 @@ inline struct GlobalSettings : public Group {
      */
     Property<int> number_edges{10, "number_edges", this};
   } smoothThetaStar{"smooth_theta_star", this};
-} settings{"settings"};
+};
+}  // namespace PlannerSettings
+
+struct global {
+ static PlannerSettings::GlobalSettings settings;
+};

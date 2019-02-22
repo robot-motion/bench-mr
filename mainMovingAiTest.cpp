@@ -1,4 +1,4 @@
-//#define DEBUG 1 // TODO activate DEBUG in PlannerSettings.h
+//#define DEBUG 1 // TODO activate DEBUG in Plannerglobal::settings.h
 
 #include "base/PlannerSettings.h"
 
@@ -22,39 +22,30 @@ namespace og = ompl::geometric;
 
 void printStats(const PathStatistics &stats) {
   std::cout << stats.planner << std::endl;
-  std::cout << "\tPath length:   \t" << stats.pathLength << std::endl;
+  std::cout << "\tPath length:   \t" << stats.path_length << std::endl;
   std::cout << "\tMax curvature: \t" << stats.curvature << std::endl;
 }
 
 template <class PLANNER>
 void evaluate(nlohmann::json &info) {
   PLANNER planner;
-  PathStatistics stats;
-  stats.planner = planner.name();
+  PathStatistics stats(planner.name());
   auto &j = info["plans"][planner.name()];
   OMPL_INFORM(("Running " + planner.name() + "...").c_str());
   if (planner.run()) {
-    stats = PathEvaluation::evaluate(planner.solution(), planner.name());
+    PathEvaluation::evaluate(stats, planner.solution(), &planner);
+    stats.path_found = true;
     j["path"] = Log::serializePath(planner.solutionPath());
-    j["smoothness"] = planner.solution().smoothness();
   } else {
     j["path"] = Log::serializePath({});
-    j["smoothness"] = std::numeric_limits<double>::quiet_NaN();
   }
-  printStats(stats);
-  j["curvature"] = stats.curvature;
-  j["pathLength"] = stats.pathLength;
-  j["steps"] = std::nan("N/A");
-  j["time"] = planner.planningTime();
-  j["meanClearingDistance"] = stats.meanClearingDistance;
-  j["medianClearingDistance"] = stats.medianClearingDistance;
-  j["minClearingDistance"] = stats.minClearingDistance;
-  j["maxClearingDistance"] = stats.maxClearingDistance;
+  std::cout << stats << std::endl;
   j["trajectory"] = Log::serializeTrajectory(planner.solution());
+  j.update(stats);
 }
 
 int main(int argc, char **argv) {
-  settings.steer.steering_type = Steering::STEER_TYPE_POSQ;
+  global::settings.steer.steering_type = Steering::STEER_TYPE_POSQ;
   PathEvaluation::initialize();
 
 #if QT_SUPPORT
@@ -85,10 +76,11 @@ int main(int argc, char **argv) {
     std::cout << "##############################################" << std::endl;
 
     // create environment
-    settings.environment = GridMaze::createFromMovingAiScenario(scenario);
-    settings.steer.initializeSteering();
+    global::settings.environment =
+        GridMaze::createFromMovingAiScenario(scenario);
+    global::settings.steer.initializeSteering();
 #if QT_SUPPORT
-    QtVisualizer::visualize(settings.environment, 0);
+    QtVisualizer::visualize(global::settings.environment, 0);
 #endif
     PathStatistics thetaStarStats, rrtStarStats, gripsStats,
         smoothThetaStarStats, sbplStats, chompStats, rrtStats;
@@ -97,7 +89,7 @@ int main(int argc, char **argv) {
     std::vector<GNode> gripsTrajectory;
 
     auto info = nlohmann::json({{"plans", {}},
-                                {"environment", settings.environment},
+                                {"environment", *global::settings.environment},
                                 {"optimalDistance", scenario.optimal_length}});
 
     evaluate<ChompPlanner>(info);

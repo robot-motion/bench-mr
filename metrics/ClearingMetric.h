@@ -12,7 +12,7 @@ class ClearingMetric : public TMetric<ClearingMetric> {
 
     for (auto &p : path)
       clearings.push_back(
-          settings.environment->bilinearDistance(p.x, p.y));
+          global::settings.environment->bilinearDistance(p.x, p.y));
 
     return clearings;
   }

@@ -101,43 +101,43 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths,
       //            else
       //                QtVisualizer::drawNode(*p);
 
-      if (p && settings.gradientDescentCurrent) {
-        double eta = settings.gradientDescentEta;
-        for (auto i = 0u; i < settings.gradientDescentRounds; ++i) {
-          settings.environment->distanceGradient(p->x_r, p->y_r, dx, dy,
+      if (p && global::settings.gradientDescentCurrent) {
+        double eta = global::settings.gradientDescentEta;
+        for (auto i = 0u; i < global::settings.gradientDescentRounds; ++i) {
+          global::settings.environment->distanceGradient(p->x_r, p->y_r, dx, dy,
                                                          1.);
           double distance =
-              settings.environment->bilinearDistance(p->x_r, p->y_r);
+              global::settings.environment->bilinearDistance(p->x_r, p->y_r);
           distance = std::max(.1, distance);
           p->x_r -= eta * dx / distance;
           p->y_r += eta * dy / distance;
-          eta *= settings.gradientDescentEtaDiscount;
+          eta *= global::settings.gradientDescentEtaDiscount;
         }
       }
 
       counter = 0;
-      if (settings.gradientDescentOpenNodes) {
+      if (global::settings.gradientDescentOpenNodes) {
 #if DEBUG
         QtVisualizer::saveScene();
 #endif
         while (p) {
-          settings.environment->distanceGradient(p->x_r, p->y_r, dx, dy,
+          global::settings.environment->distanceGradient(p->x_r, p->y_r, dx, dy,
                                                          1.);
           double distance =
-              settings.environment->bilinearDistance(p->x_r, p->y_r);
+              global::settings.environment->bilinearDistance(p->x_r, p->y_r);
           distance = std::max(.1, distance);
 
           double gdFactor = 1;
-          if (settings.annealedGradientDescentOpenNodes) {
+          if (global::settings.annealedGradientDescentOpenNodes) {
             gdFactor =
                 (double)(counter + 1) / thetastarsearch.openList().size();
             if (distance < Environment::VoxelSize) gdFactor = 1.;
           }
 
           p->x_r -=
-              settings.gradientDescentEta * dx / distance * gdFactor;
+              global::settings.gradientDescentEta * dx / distance * gdFactor;
           p->y_r +=
-              settings.gradientDescentEta * dy / distance * gdFactor;
+              global::settings.gradientDescentEta * dy / distance * gdFactor;
 
 #if DEBUG
           QtVisualizer::drawNode(*p, Qt::cyan, 0.15, false);
@@ -154,7 +154,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths,
       }
 #endif
 
-      if (settings.averageAngles) {
+      if (global::settings.averageAngles) {
         SmoothThetaStarSearch<GNode>::Node *node =
             thetastarsearch
                 .GetCurrentBestRawNode();  // thetastarsearch.GetSolutionStart();
@@ -193,7 +193,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths,
             path[0]->m_UserState.theta = theta_old;  // revert setting
           for (int i = 1; i < path.size() - 1; ++i) {
             theta_old = path[i]->m_UserState.theta;
-            if (settings.averageAngles) {
+            if (global::settings.averageAngles) {
               double l = PlannerUtils::slope(path[i - 1]->m_UserState,
                                              path[i]->m_UserState);
               double r = PlannerUtils::slope(path[i]->m_UserState,
@@ -291,7 +291,7 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths,
         steps++;
       }
 
-      if (settings.averageAngles) {
+      if (global::settings.averageAngles) {
         PlannerUtils::updateAngles(sol);
       }
 
@@ -320,17 +320,17 @@ bool SmoothThetaStar::search(std::vector<std::vector<GNode> > &paths,
 
 ob::PlannerStatus SmoothThetaStar::run() {
   ob::ScopedState<> start(ss->getStateSpace());
-  start[0] = settings.environment->start().x;
-  start[1] = settings.environment->start().y;
+  start[0] = global::settings.environment->start().x;
+  start[1] = global::settings.environment->start().y;
   start[2] = 0;
   ob::ScopedState<> goal(ss->getStateSpace());
-  goal[0] = settings.environment->goal().x;
-  goal[1] = settings.environment->goal().y;
+  goal[0] = global::settings.environment->goal().x;
+  goal[1] = global::settings.environment->goal().y;
   goal[2] = 0;
 
   pdef_->setStartAndGoalStates(start, goal);
 
-  return ob::Planner::solve(settings.PlanningTime);
+  return ob::Planner::solve(global::settings.PlanningTime);
 }
 
 og::PathGeometric SmoothThetaStar::geometricPath() const {
@@ -397,7 +397,7 @@ ob::PlannerStatus SmoothThetaStar::solve(
   curr_traj->reset();
   global_paths.clear();
 
-  settings.steering->clearInternalData();
+  global::settings.steering->clearInternalData();
 
   OMPL_DEBUG("SmoothTheta*: Generate a new global path");
   Stopwatch sw;

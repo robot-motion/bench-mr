@@ -3,7 +3,7 @@
 #include "PlannerUtils.hpp"
 
 ompl::base::State *base::StateFromXYT(double x, double y, double theta) {
-  ompl::base::State *state = settings.ompl.state_space->allocState();
+  ompl::base::State *state = global::settings.ompl.state_space->allocState();
   state->as<State>()->setX(x);
   state->as<State>()->setY(y);
   state->as<State>()->setYaw(theta);
@@ -11,7 +11,7 @@ ompl::base::State *base::StateFromXYT(double x, double y, double theta) {
 }
 
 ompl::base::State *base::StateFromXY(double x, double y) {
-  ompl::base::State *state = settings.ompl.state_space->allocState();
+  ompl::base::State *state = global::settings.ompl.state_space->allocState();
   state->as<State>()->setX(x);
   state->as<State>()->setY(y);
   return state;

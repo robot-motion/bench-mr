@@ -397,7 +397,7 @@ std::vector<Rectangle> GridMaze::obstacles(double x1, double y1, double x2,
 
 void GridMaze::computeDistances() {
   _distances = new double[(_voxels_x + 1) * (_voxels_y + 1)];
-  if (_voxels_x * _voxels_y > settings.fast_odf_threshold) {
+  if (_voxels_x * _voxels_y > global::settings.fast_odf_threshold) {
     // more efficient, but less accurate Dead Reckoning Algorithm
     //
     // The "Dead reckoning" signed distance transform
