@@ -34,5 +34,5 @@ jobs:
           name: Build mpb
           command: 'pushd . && cd build && make && popd'
       - run:
-          name: Run showace
+          name: Run showcace
           command: 'pushd . && cd bin && ./showcase && popd'
