@@ -7,7 +7,7 @@
 
 #include "metrics/PathLengthMetric.h"
 
-#include "gui/PathEvaluation.h"
+#include "utils/PathEvaluation.hpp"
 #include "gui/QtVisualizer.h"
 
 #include "planners/AStar.hpp"

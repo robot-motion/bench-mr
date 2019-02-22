@@ -17,7 +17,7 @@ Benchmarking motion planners for wheeled mobile robots in cluttered environments
     
 2.  Create build and log folders
     ```bash
-    mkdir build && mkdir build/log
+    mkdir build
     ```
 
 3.  Build project
@@ -28,10 +28,12 @@ Benchmarking motion planners for wheeled mobile robots in cluttered environments
     ```
 
 4.  Run demo
+    
+    *All executables will be generated in the `bin` directory in the project home folder.*
     ```bash
     ./showcase
     ```
-    This will output a line similar to
+    This will eventually output a line similar to
     ```
     Info:    Saved path statistics log file /home/$USER/...
     ```

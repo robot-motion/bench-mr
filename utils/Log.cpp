@@ -21,7 +21,7 @@ void Log::instantiateRun() {
                   }},
                  {"runs", nlohmann::json::array()}};
 
-  _currentRun.update(nlohmann::json(global::settings));
+  _currentRun["settings"] = nlohmann::json(global::settings)["settings"];
   _currentRun["settings"]["steering"] =
       Steering::to_string(global::settings.steer.steering_type);
 }
