@@ -9,7 +9,7 @@
 #include "planners/sbpl/SbplPlanner.h"
 #include "planners/thetastar/ThetaStar.h"
 
-#include "gui/PathEvaluation.h"
+#include "utils/PathEvaluation.hpp"
 #if QT_SUPPORT
 #include "gui/QtVisualizer.h"
 #endif
@@ -17,12 +17,6 @@
 #include "PostSmoothing.h"
 
 namespace og = ompl::geometric;
-
-void printStats(const PathStatistics &stats) {
-  std::cout << stats.planner << std::endl;
-  std::cout << "\tPath length:   \t" << stats.path_length << std::endl;
-  std::cout << "\tMax curvature: \t" << stats.curvature << std::endl;
-}
 
 int main(int argc, char **argv) {
   global::settings.environment = GridMaze::createRandomCorridor(
@@ -36,7 +30,6 @@ int main(int argc, char **argv) {
   global::settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
   //    global::settings.CarTurningRadius = 1.5;
   global::settings.steer.initializeSteering();
-  PathEvaluation::initialize();
 
 #if QT_SUPPORT
   QtVisualizer::initialize();

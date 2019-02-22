@@ -9,7 +9,7 @@
 #include "planners/OMPLPlanner.hpp"
 #include "planners/ThetaStar.h"
 
-#include "gui/PathEvaluation.h"
+#include "utils/PathEvaluation.hpp"
 
 #include "PostSmoothing.h"
 #include "planners/OMPLSimplifier.hpp"
