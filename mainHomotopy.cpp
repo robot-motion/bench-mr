@@ -1,4 +1,4 @@
-#include "base/PlannerSettings.h"
+#include "PlannerSettings.h"
 #include "gui/PathEvaluation.h"
 #include "gui/QtVisualizer.h"
 #include "planners/AStar.hpp"
@@ -8,26 +8,26 @@ namespace og = ompl::geometric;
 int main(int argc, char **argv) {
   PathEvaluation::initialize();
 
-  settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
-  settings.CarTurningRadius = 3.5;
-  settings.initializeSteering();
+  global::settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
+  global::settings.CarTurningRadius = 3.5;
+  global::settings.initializeSteering();
 
-  settings.VisualizeSmoothing1 = false;
-  settings.VisualizeSmoothing2 = false;
-  settings.VisualizeSmoothing3 = false;
-  settings.VisualizeSmoothing4 = false;
+  global::settings.VisualizeSmoothing1 = false;
+  global::settings.VisualizeSmoothing2 = false;
+  global::settings.VisualizeSmoothing3 = false;
+  global::settings.VisualizeSmoothing4 = false;
 
   PathStatisticsAggregator statsAggregator{};
 
   QtVisualizer::initialize();
 
-  settings.environment = Environment::createRandom(
+  global::settings.environment = Environment::createRandom(
       Environment::DefaultWidth, Environment::DefaultHeight, 0.1, 1234);
-  settings.environment->setStart(Tpoint(2, 12));
-  settings.environment->setGoal(
+  global::settings.environment->setStart(Tpoint(2, 12));
+  global::settings.environment->setGoal(
       Tpoint(Environment::DefaultWidth - 1, Environment::DefaultHeight - 12));
 
-  QtVisualizer::visualize(settings.environment, 0);
+  QtVisualizer::visualize(global::settings.environment, 0);
 
   statsAggregator.add(PathEvaluation::add(new ThetaStar, "Theta*", Qt::black));
   statsAggregator.add(PathEvaluation::add(new AStar, "A*", Qt::gray));

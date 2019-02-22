@@ -227,17 +227,17 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start,
 
 ob::PlannerStatus ThetaStar::run() {
   ob::ScopedState<> start(ss->getStateSpace());
-  start[0] = settings.environment->start().x;
-  start[1] = settings.environment->start().y;
+  start[0] = global::settings.environment->start().x;
+  start[1] = global::settings.environment->start().y;
   start[2] = 0;
   ob::ScopedState<> goal(ss->getStateSpace());
-  goal[0] = settings.environment->goal().x;
-  goal[1] = settings.environment->goal().y;
+  goal[0] = global::settings.environment->goal().x;
+  goal[1] = global::settings.environment->goal().y;
   goal[2] = 0;
 
   pdef_->setStartAndGoalStates(start, goal);
 
-  return ob::Planner::solve(settings.ompl.max_planning_time);
+  return ob::Planner::solve(global::settings.ompl.max_planning_time);
 }
 
 og::PathGeometric ThetaStar::solution() const {
@@ -293,7 +293,7 @@ ob::PlannerStatus ThetaStar::solve(const ob::PlannerTerminationCondition &ptc) {
 
   global_paths.clear();
 
-//  settings.steering->clearInternalData();
+//  global::settings.steering->clearInternalData();
 
   OMPL_DEBUG("Theta*: Generate a new global path");
   Stopwatch sw;

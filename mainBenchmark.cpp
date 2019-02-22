@@ -30,9 +30,9 @@ int main(int argc, char **argv) {
   std::vector<double> speedArcLengthMetrics;
   std::vector<double> peaksMetrics;
 
-  settings.steer.steering_type = Steering::STEER_TYPE_DUBINS;
-  settings.CarTurningRadius = 1.5;
-  settings.initializeSteering();
+  global::settings.steer.steering_type = Steering::STEER_TYPE_DUBINS;
+  global::settings.CarTurningRadius = 1.5;
+  global::settings.initializeSteering();
 
   const unsigned int RUNS = 20;
   unsigned int totalRun = 0;
@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 
       QtVisualizer::initialize();
 
-      //        settings.environment =
+      //        global::settings.environment =
       //        Environment::createRandomCorridor(150, 150, 6, 300,
       //        //1502484532); //1502407983); //1502323408); //1502316103);
       //        //1502231684); //1502227898); //1501893283);
@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
       //        1500551721);// 1500550472);
       //                                                                         (unsigned int) (time(nullptr) + totalRun));
 
-      settings.environment = Environment::createRandomCorridor(
+      global::settings.environment = Environment::createRandomCorridor(
           50, 50, 5,
           40, // 1502484532); //1502407983); //1502323408); //1502316103);
               // //1502231684); //1502227898); //1501893283);
@@ -61,11 +61,11 @@ int main(int argc, char **argv) {
               // 1500551721);// 1500550472);
           (unsigned int)(time(nullptr) + totalRun));
 
-      //            settings.environment = Environment::createRandom(50,
+      //            global::settings.environment = Environment::createRandom(50,
       //            50, .05);
-      //        settings.environment = Environment::createSimple();
+      //        global::settings.environment = Environment::createSimple();
 
-      QtVisualizer::visualize(settings.environment, run);
+      QtVisualizer::visualize(global::settings.environment, run);
 
       // one run before each benchmark to avoid problems (bug in OMPL?)
       RRTPlanner rrtPlanner;

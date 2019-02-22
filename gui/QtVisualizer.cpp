@@ -14,7 +14,7 @@
 #include <utility>
 
 #include "QtVisualizer.h"
-#include "base/PlannerSettings.h"
+#include "PlannerSettings.h"
 
 
 QApplication *QtVisualizer::_app = nullptr;
@@ -188,7 +188,7 @@ void QtVisualizer::drawTrajectory(const ompl::base::State *a,
                                   const ompl::base::State *b,
                                   const QColor &color, float penWidth,
                                   Qt::PenStyle penStyle) {
-  ompl::geometric::PathGeometric path(settings.ompl.space_info, a, b);
+  ompl::geometric::PathGeometric path(global::settings.ompl.space_info, a, b);
   drawPath(path, color, penWidth, penStyle);
 }
 
@@ -340,7 +340,7 @@ void QtVisualizer::addLegendEntry(LegendEntry entry) {
 }
 
 void QtVisualizer::drawLegend() {
-  double x = settings.environment->width() + 3;
+  double x = global::settings.environment->width() + 3;
   double y = 0;
   _scene->addRect(x, y, 10,
                   (_legend.size() + (_showStartGoal ? 2 : 0)) * 1. + 0.2,

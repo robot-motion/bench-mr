@@ -21,35 +21,26 @@ namespace og = ompl::geometric;
 
 void printStats(const PathStatistics &stats) {
   std::cout << stats.planner << std::endl;
-  std::cout << "\tPath length:   \t" << stats.pathLength << std::endl;
+  std::cout << "\tPath length:   \t" << stats.path_length << std::endl;
   std::cout << "\tMax curvature: \t" << stats.curvature << std::endl;
 }
 
 template <class PLANNER>
 void evaluate(nlohmann::json &info) {
   PLANNER planner;
-  PathStatistics stats;
-  stats.planner = planner.name();
+  PathStatistics stats(planner.name());
   auto &j = info["plans"][planner.name()];
   OMPL_INFORM(("Running " + planner.name() + "...").c_str());
   if (planner.run()) {
-    stats = PathEvaluation::evaluate(planner.solution(), planner.name());
+    PathEvaluation::evaluate(stats, planner.solution(), &planner);
+    stats.path_found = true;
     j["path"] = Log::serializePath(planner.solutionPath());
-    j["smoothness"] = planner.solution().smoothness();
   } else {
     j["path"] = Log::serializePath({});
-    j["smoothness"] = std::numeric_limits<double>::quiet_NaN();
   }
-  printStats(stats);
-  j["curvature"] = stats.curvature;
-  j["pathLength"] = stats.pathLength;
-  j["steps"] = std::nan("N/A");
-  j["time"] = planner.planningTime();
-  j["meanClearingDistance"] = stats.meanClearingDistance;
-  j["medianClearingDistance"] = stats.medianClearingDistance;
-  j["minClearingDistance"] = stats.minClearingDistance;
-  j["maxClearingDistance"] = stats.maxClearingDistance;
+  std::cout << stats << std::endl;
   j["trajectory"] = Log::serializeTrajectory(planner.solution());
+  j.update(stats);
 }
 
 int main(int argc, char **argv) {
@@ -75,17 +66,17 @@ int main(int argc, char **argv) {
   std::cout << "Goal collides?  " << std::boolalpha
             << maze.collides(maze.goal().x, maze.goal().y) << std::endl;
   maze.setGoal({200, -150});
-  settings.environment = &maze;
-  settings.environment->setThetas(M_PI/2, 0);
+  global::settings.environment = &maze;
+  global::settings.environment->setThetas(M_PI/2, M_PI);
 
-  settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
-  settings.steer.car_turning_radius = 50;
-  settings.steer.initializeSteering();
+  global::settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
+  global::settings.steer.car_turning_radius = 100;
+  global::settings.steer.initializeSteering();
 
-  settings.collision_model = robot::ROBOT_POLYGON;
-  settings.robot_shape = SvgPolygonLoader::load(robot_filename)[0];
-  settings.robot_shape.value().center();
-  for (auto &p : settings.robot_shape.value().points)
+  global::settings.collision_model = robot::ROBOT_POLYGON;
+  global::settings.robot_shape = SvgPolygonLoader::load(robot_filename)[0];
+  global::settings.robot_shape.value().center();
+  for (auto &p : global::settings.robot_shape.value().points)
     std::cout << p << std::endl;
 
   std::vector<Point> gripsPath;
@@ -98,9 +89,9 @@ int main(int argc, char **argv) {
 //    evaluate<ThetaStar>(info);
 //  evaluate<RRTPlanner>(info);
   evaluate<RRTstarPlanner>(info);
-  evaluate<RRTsharpPlanner>(info);
-  evaluate<InformedRRTstarPlanner>(info);
-  evaluate<SORRTstarPlanner>(info);
+//  evaluate<RRTsharpPlanner>(info);
+//  evaluate<InformedRRTstarPlanner>(info);
+//  evaluate<SORRTstarPlanner>(info);
   //  evaluate<CForestPlanner>(info);
   //  evaluate<SbplPlanner>(info);
 

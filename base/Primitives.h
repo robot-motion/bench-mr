@@ -254,6 +254,11 @@ struct Polygon {
     return v;
   }
 
+  friend std::ostream &operator<<(std::ostream &stream, const Polygon &p) {
+    for (const auto &point : p.points) stream << point << ' ';
+    return stream;
+  }
+
  private:
   static bool is_number(const std::string &s) {
     try {

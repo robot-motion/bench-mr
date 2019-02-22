@@ -115,7 +115,7 @@ class AbstractPlanner {
     planner->as<og::AnytimePathShortening>()->addPlanner(optimizingPlanner);
     this->ss->setPlanner(planner);
     this->ss->setup();
-    auto solved = this->ss->solve(settings.ompl.max_planning_time);
+    auto solved = this->ss->solve(global::settings.ompl.max_planning_time);
     std::cout << "OMPL anytime path shortening planning status: "
               << solved.asString().c_str() << std::endl;
 
@@ -148,7 +148,7 @@ class AbstractPlanner {
   og::SimpleSetup *ss{nullptr};
 
   AbstractPlanner() {
-    ss = new og::SimpleSetup(settings.ompl.state_space);
+    ss = new og::SimpleSetup(global::settings.ompl.state_space);
     auto si = ss->getSpaceInformation();
 
     // Construct a space information instance for this state space
@@ -157,32 +157,32 @@ class AbstractPlanner {
     // Set the object used to check which states in the space are valid
     //        si->setStateValidityChecker(ob::StateValidityCheckerPtr(new
     //        ValidityChecker(si))); si->setup();
-    if (settings.collision_model == robot::ROBOT_POINT) {
+    if (global::settings.collision_model == robot::ROBOT_POINT) {
       ss->setStateValidityChecker([&](const ob::State *state) -> bool {
         const auto *s = state->as<ob::SE2StateSpace::StateType>();
         const double x = s->getX(), y = s->getY();
-        return !settings.environment->collides(x, y);
+        return !global::settings.environment->collides(x, y);
       });
     } else {
-      if (settings.robot_shape.value().points.size() < 3) {
+      if (global::settings.robot_shape.value().points.size() < 3) {
         OMPL_ERROR(
             "Robot shape is empty or not convex. Cannot perform polygon-based "
             "collision detection.");
         return;
       }
       ss->setStateValidityChecker([&](const ob::State *state) -> bool {
-        return !settings.environment->collides(
-            settings.robot_shape.value().transformed(state));
+        return !global::settings.environment->collides(
+            global::settings.robot_shape.value().transformed(state));
       });
     }
 
     //        si->setStateValidityCheckingResolution(0.005);
-    if (settings.steer.steering_type == Steering::STEER_TYPE_POSQ) {
+    if (global::settings.steer.steering_type == Steering::STEER_TYPE_POSQ) {
       ob::MotionValidatorPtr motionValidator(new POSQMotionValidator(si));
       si->setMotionValidator(motionValidator);
     }
 #ifdef G1_AVAILABLE
-    else if (settings.steer.steering_type == Steering::STEER_TYPE_CLOTHOID) {
+    else if (global::settings.steer.steering_type == Steering::STEER_TYPE_CLOTHOID) {
       ob::MotionValidatorPtr motionValidator(
           new G1ClothoidStateSpaceValidator(si));
       si->setMotionValidator(motionValidator);
@@ -191,15 +191,14 @@ class AbstractPlanner {
       // which causes problems in Clothoid steering
     }
 #endif
-    si->setStateValidityCheckingResolution(settings.steer.sampling_resolution);
+    si->setStateValidityCheckingResolution(global::settings.steer.sampling_resolution);
 
-    ss->setStartAndGoalStates(settings.environment->startScopedState(),
-                              settings.environment->goalScopedState());
+    ss->setStartAndGoalStates(global::settings.environment->startScopedState(),
+                              global::settings.environment->goalScopedState());
 
     ob::OptimizationObjectivePtr oo(
         new ob::PathLengthOptimizationObjective(si));
-    oo->setCostThreshold(
-        ob::Cost(100000.0));  // TODO finish after first solution has been found
+    oo->setCostThreshold(ob::Cost(global::settings.ompl.cost_threshold));
     ss->setOptimizationObjective(oo);
     ss->setup();
   }

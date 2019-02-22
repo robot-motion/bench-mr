@@ -1,4 +1,4 @@
-#include "base/PlannerSettings.h"
+#include "PlannerSettings.h"
 
 #include "steer_functions/POSQ/POSQSteering.h"
 
@@ -14,16 +14,16 @@
 namespace og = ompl::geometric;
 
 int main(int argc, char **argv) {
-  settings.steer.steering_type = Steering::STEER_TYPE_POSQ;
-  settings.initializeSteering();
+  global::settings.steer.steering_type = Steering::STEER_TYPE_POSQ;
+  global::settings.initializeSteering();
 
   QtVisualizer::initialize();
   QtVisualizer::showStartGoal(false);
 
-  settings.environment =
+  global::settings.environment =
       Environment::createRandomCorridor(50, 50, 3, 30, 123);
 
-  QtVisualizer::visualize(settings.environment, 0);
+  QtVisualizer::visualize(global::settings.environment, 0);
 
   auto *planner = new ThetaStar;
   if (!planner->run()) return EXIT_FAILURE;
@@ -47,9 +47,9 @@ int main(int argc, char **argv) {
   for (auto eta : {0.25, 0.5, 0.75}) {
     for (auto etaDiscount : {0.5, 0.8, 0.95}) {
       for (auto gdRounds : {3u, 5u, 10u}) {
-        settings.gripsEta = eta;
-        settings.gripsEtaDiscount = etaDiscount;
-        settings.gripsGradientDescentRounds = gdRounds;
+        global::settings.gripsEta = eta;
+        global::settings.gripsEtaDiscount = etaDiscount;
+        global::settings.gripsGradientDescentRounds = gdRounds;
 
         std::cout << "$ " << eta << " $ & $ " << etaDiscount << " $ & "
                   << gdRounds << " & ";

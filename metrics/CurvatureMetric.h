@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "TrajectoryMetric.h"
-#include "base/PlannerSettings.h"
+#include "../base/PlannerSettings.h"
 
 #if QT_SUPPORT
 #include "gui/QtVisualizer.h"

@@ -27,19 +27,21 @@ class PathEvaluation {
  public:
   static void initialize();
 
-#if QT_SUPPORT
-  static PathStatistics add(AbstractPlanner *planner, const std::string &label,
-                            const QColor &color = Qt::black);
+  //#if QT_SUPPORT
+  //  static PathStatistics add(AbstractPlanner *planner, const std::string
+  //  &label,
+  //                            const QColor &color = Qt::black);
+  //
+  //  static PathStatistics evaluate(const ompl::geometric::PathGeometric &path,
+  //                                 const std::string &label,
+  //                                 const QColor &color = Qt::black);
+  //#else
+  //  static PathStatistics add(AbstractPlanner *planner, std::string label);
 
-  static PathStatistics evaluate(const ompl::geometric::PathGeometric &path,
-                                 const std::string &label,
-                                 const QColor &color = Qt::black);
-#else
-  static PathStatistics add(AbstractPlanner *planner, std::string label);
-
-  static PathStatistics evaluate(const ompl::geometric::PathGeometric &path,
-                                 const std::string &label);
-#endif
+  static PathStatistics evaluate(PathStatistics &stats,
+                                 const ompl::geometric::PathGeometric &path,
+                                 const AbstractPlanner *planner);
+  //#endif
 
   static std::vector<double> computeObstacleDistances(
       const std::vector<Point> &path);

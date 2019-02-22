@@ -51,13 +51,13 @@ bool Environment::distanceGradient(double x, double y, double &dx, double &dy,
 }
 
 void Environment::estimateStartGoalOrientations() {
-  const auto cacheSteeringType = settings.steer.steering_type;
-  const auto cacheEstimateTheta = settings.estimate_theta;
-  const auto cacheCollisionMode = settings.collision_model;
-  settings.steer.steering_type = Steering::STEER_TYPE_LINEAR;
-  settings.estimate_theta = false;
-  settings.collision_model = robot::ROBOT_POINT;
-  settings.steer.initializeSteering();
+  const auto cacheSteeringType = global::settings.steer.steering_type;
+  const auto cacheEstimateTheta = global::settings.estimate_theta;
+  const auto cacheCollisionMode = global::settings.collision_model;
+  global::settings.steer.steering_type = Steering::STEER_TYPE_LINEAR;
+  global::settings.estimate_theta = false;
+  global::settings.collision_model = robot::ROBOT_POINT;
+  global::settings.steer.initializeSteering();
   auto *thetaStar = new ThetaStar;
   if (thetaStar->run()) {
     std::vector<Point> path = thetaStar->solutionPath();
@@ -71,14 +71,14 @@ void Environment::estimateStartGoalOrientations() {
     _thetas_defined = true;
   }
   delete thetaStar;
-  settings.steer.steering_type = cacheSteeringType;
-  settings.estimate_theta = cacheEstimateTheta;
-  settings.collision_model = cacheCollisionMode;
-  settings.steer.initializeSteering();
+  global::settings.steer.steering_type = cacheSteeringType;
+  global::settings.estimate_theta = cacheEstimateTheta;
+  global::settings.collision_model = cacheCollisionMode;
+  global::settings.steer.initializeSteering();
 }
 
 ompl::base::ScopedState<ob::SE2StateSpace> Environment::startScopedState() const {
-  ompl::base::ScopedState<ob::SE2StateSpace> state(settings.ompl.state_space);
+  ompl::base::ScopedState<ob::SE2StateSpace> state(global::settings.ompl.state_space);
   state[0] = _start.x;
   state[1] = _start.y;
   state[2] = _start_theta;
@@ -86,7 +86,7 @@ ompl::base::ScopedState<ob::SE2StateSpace> Environment::startScopedState() const
 }
 
 ompl::base::ScopedState<ob::SE2StateSpace> Environment::goalScopedState() const {
-  ompl::base::ScopedState<ob::SE2StateSpace> state(settings.ompl.state_space);
+  ompl::base::ScopedState<ob::SE2StateSpace> state(global::settings.ompl.state_space);
   state[0] = _goal.x;
   state[1] = _goal.y;
   state[2] = _goal_theta;

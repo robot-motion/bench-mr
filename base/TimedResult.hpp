@@ -13,7 +13,7 @@ class TimedResult : public Stopwatch {
 
   explicit TimedResult(
       const ompl::geometric::PathGeometric &trajectory =
-          ompl::geometric::PathGeometric(settings.ompl.space_info),
+          ompl::geometric::PathGeometric(global::settings.ompl.space_info),
       double time = 0)
       : trajectory(trajectory) {
     this->elapsed_ = time;

@@ -1,63 +1,43 @@
 #pragma once
 
-#if QT_SUPPORT
-#include <QtCore/Qt>
-#include <QtGui/QColor>
-#endif
-
-#include <cmath>
 #include <algorithm>
+#include <cmath>
+#include <iostream>
 #include <string>
 #include <utility>
 #include <vector>
 
-struct PathStatistics {
-  double planningTime{0};
-  double ourSmoothingTime{-1};
-  double omplSmoothing1Time{-1};
-  double omplSmoothing2Time{-1};
-  double omplSmoothing3Time{-1};
-  double omplSmoothing4Time{-1};
-  bool pathFound{false};
-  bool omplSmoothing4Found{false};
-  bool pathCollides{true};
-  bool ourSmoothingCollides{true};
-  bool omplSmoothing1Collides{true};
-  bool omplSmoothing2Collides{true};
-  bool omplSmoothing3Collides{true};
-  bool omplSmoothing4Collides{true};
-  bool exactGoalPath{true};
-  bool exactGoalSmoothedPath{true};
-  double pathLength{0};
-  double ourSmoothingPathLength{-1};
-  double omplSmoothing1PathLength{-1};
-  double omplSmoothing2PathLength{-1};
-  double omplSmoothing3PathLength{-1};
-  double omplSmoothing4PathLength{-1};
-  double curvature{0};
-  double ourSmoothingCurvature{-1};
-  double omplSmoothing1Curvature{-1};
-  double omplSmoothing2Curvature{-1};
-  double omplSmoothing3Curvature{-1};
-  double omplSmoothing4Curvature{-1};
-  double meanClearingDistance{-1};
-  double medianClearingDistance{-1};
-  double minClearingDistance{-1};
-  double maxClearingDistance{-1};
+#include <params.hpp>
 
-  std::string planner;
-#if QT_SUPPORT
-  QColor color;
-#endif
+using namespace params;
 
-#if QT_SUPPORT
-  explicit PathStatistics(std::string planner = "UNKNOWN",
-                          QColor color = Qt::white)
-      : planner(std::move(planner)), color(std::move(color)) {}
-#else
-  explicit PathStatistics(std::string planner = "UNKNOWN")
-      : planner(std::move(planner)) {}
-#endif
+struct PathStatistics : public Group {
+  Property<double> planning_time{std::numeric_limits<double>::quiet_NaN(),
+                                 "planning_time", this};
+  Property<bool> path_found{false, "path_found", this};
+  Property<bool> path_collides{true, "path_collides", this};
+  Property<bool> exact_goal_path{true, "exact_goal_path", this};
+  Property<double> path_length{std::numeric_limits<double>::quiet_NaN(),
+                               "path_length", this};
+  Property<double> curvature{std::numeric_limits<double>::quiet_NaN(),
+                             "curvature", this};
+  Property<double> smoothness{std::numeric_limits<double>::quiet_NaN(),
+                              "smoothness", this};
+  Property<double> mean_clearing_distance{
+      std::numeric_limits<double>::quiet_NaN(), "mean_clearing_distance", this};
+  Property<double> median_clearing_distance{
+      std::numeric_limits<double>::quiet_NaN(), "median_clearing_distance",
+      this};
+  Property<double> min_clearing_distance{
+      std::numeric_limits<double>::quiet_NaN(), "min_clearing_distance", this};
+  Property<double> max_clearing_distance{
+      std::numeric_limits<double>::quiet_NaN(), "max_clearing_distance", this};
+  Property<std::string> planner{"UNKNOWN", "planner", this};
+
+  explicit PathStatistics(const std::string &planner = "UNKNOWN")
+      : Group("stats") {
+    this->planner = planner;
+  }
 };
 
 namespace stat {

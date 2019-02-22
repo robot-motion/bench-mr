@@ -39,19 +39,19 @@ class PlannerUtils {
     double dy = b->as<State>()->getY() - a->as<State>()->getY();
     double dx = b->as<State>()->getX() - a->as<State>()->getX();
     double dt = b->as<State>()->getYaw() - a->as<State>()->getYaw();
-    return std::abs(dx) <= settings.ompl.state_equality_tolerance &&
-           std::abs(dy) <= settings.ompl.state_equality_tolerance &&
-           std::abs(dt) <= settings.ompl.state_equality_tolerance;
+    return std::abs(dx) <= global::settings.ompl.state_equality_tolerance &&
+           std::abs(dy) <= global::settings.ompl.state_equality_tolerance &&
+           std::abs(dt) <= global::settings.ompl.state_equality_tolerance;
   }
 
   static std::vector<Point> toSteeredPoints(const ob::State *a,
                                             const ob::State *b) {
-    return Point::fromPath(og::PathGeometric(settings.ompl.space_info, a, b));
+    return Point::fromPath(og::PathGeometric(global::settings.ompl.space_info, a, b));
   }
 
   static bool collides(const std::vector<Point> &path) {
     for (unsigned int i = 0; i < path.size(); ++i) {
-      if (settings.environment->collides(path[i].x, path[i].y)) {
+      if (global::settings.environment->collides(path[i].x, path[i].y)) {
 #ifdef DEBUG
         // QtVisualizer::drawPath(path, QColor(255, 100, 0, 170));
 #endif
@@ -70,7 +70,7 @@ class PlannerUtils {
         auto steps = (int)(size / std::sqrt(dx * dx + dy * dy));
 
         for (int j = 1; j <= steps; ++j) {
-          if (settings.environment->collides(path[i].x + dx * j,
+          if (global::settings.environment->collides(path[i].x + dx * j,
                                                      path[i].y + dy * j))
           {
 #if QT_SUPPORT
@@ -96,7 +96,7 @@ class PlannerUtils {
   }
 
   static bool collides(const ompl::base::State *a, const ompl::base::State *b) {
-    ompl::geometric::PathGeometric p(settings.ompl.space_info, a, b);
+    ompl::geometric::PathGeometric p(global::settings.ompl.space_info, a, b);
     p.interpolate();
     const auto path = Point::fromPath(p);
     return collides(path);
@@ -106,7 +106,7 @@ class PlannerUtils {
                        std::vector<Point> &collisions) {
     collisions.clear();
     for (unsigned int i = 1; i < path.size(); ++i) {
-      if (settings.environment->collides(path[i].x, path[i].y)) {
+      if (global::settings.environment->collides(path[i].x, path[i].y)) {
 #if QT_SUPPORT
 #ifdef DEBUG
         // QtVisualizer::drawPath(path, QColor(255, 100, 0, 170));
@@ -128,9 +128,9 @@ class PlannerUtils {
         auto steps = (int)(size / std::sqrt(dx * dx + dy * dy));
 
         for (int j = 1; j <= steps; ++j) {
-          if (settings.environment->collides(path[i].x + dx * j,
+          if (global::settings.environment->collides(path[i].x + dx * j,
                                                      path[i].y + dy * j))
-          //  || settings.environment->collides(path[i].x + dx * j + .5,
+          //  || global::settings.environment->collides(path[i].x + dx * j + .5,
           //  path[i].y + dy * j
           //  + .5))
           {
@@ -157,7 +157,7 @@ class PlannerUtils {
 
   static bool collides(const ompl::base::State *a, const ompl::base::State *b,
                        std::vector<Point> &collisions) {
-    ompl::geometric::PathGeometric p(settings.ompl.space_info, a, b);
+    ompl::geometric::PathGeometric p(global::settings.ompl.space_info, a, b);
     p.interpolate();
     const auto path = Point::fromPath(p);
     return collides(path, collisions);
@@ -220,10 +220,10 @@ class PlannerUtils {
       // gradient descent along distance field, excluding start/end nodes
       for (int i = 1; i < path.getStateCount() - 1; ++i) {
         // compute gradient
-        settings.environment->distanceGradient(
+        global::settings.environment->distanceGradient(
             path.getStates()[i]->as<State>()->getX(),
             path.getStates()[i]->as<State>()->getY(), dx, dy, 1.);
-        double distance = settings.environment->bilinearDistance(
+        double distance = global::settings.environment->bilinearDistance(
             path.getStates()[i]->as<State>()->getX(),
             path.getStates()[i]->as<State>()->getY());
         distance = std::max(.1, distance);
@@ -243,9 +243,9 @@ class PlannerUtils {
       // gradient descent along distance field, excluding start/end nodes
       for (int i = 1; i < path.size() - 1; ++i) {
         // compute gradient
-        settings.environment->distanceGradient(path[i].x, path[i].y, dx,
+        global::settings.environment->distanceGradient(path[i].x, path[i].y, dx,
                                                        dy, 1.);
-        double distance = settings.environment->bilinearDistance(
+        double distance = global::settings.environment->bilinearDistance(
             path[i].x, path[i].y);
         distance = std::max(.1, distance);
         path[i].x -= eta * dx / distance;
@@ -288,7 +288,7 @@ class PlannerUtils {
     unsigned int closest = 0;
     double dist = points[closest].distanceSquared(x);
     for (unsigned int i = 1; i < points.size() - 1; ++i) {
-      if (settings.environment->collides(points[i].x, points[i].y))
+      if (global::settings.environment->collides(points[i].x, points[i].y))
         continue;
       const double d = points[i].distanceSquared(x);
       if (d < dist) {
