@@ -28,6 +28,14 @@ struct Rectangle {
 
   inline double width() const { return std::abs(x1 - x2); }
   inline double height() const { return std::abs(y1 - y2); }
+
+  /**
+   * Ensures that x1, y1 is the bottom-left corner (minimum coordinates).
+   */
+  void correct() {
+    if (x1 > x2) std::swap(x1, x2);
+    if (y1 > y2) std::swap(y1, y2);
+  }
 };
 
 struct Point {
