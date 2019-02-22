@@ -41,7 +41,7 @@ void evaluate(nlohmann::json &info) {
   }
   std::cout << stats << std::endl;
   j["trajectory"] = Log::serializeTrajectory(planner.solution());
-  j.update(stats);
+  j["stats"] = nlohmann::json(stats)["stats"];
 }
 
 int main(int argc, char **argv) {
