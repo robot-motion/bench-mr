@@ -49,8 +49,10 @@ Benchmarking motion planners for wheeled mobile robots in cluttered environments
     ```
     Info:    Saved path statistics log file /home/$USER/...
     ```
+
+5.  Simple plotting via `python3 main.py --json_file="[LOG_FILE.json]"` from within the `plotting` folder.
     
-5.  Visualize trajectories and statistics by navigating to the project base folder and running
+6.  More in-depth visualization and statistical analysis can be done in the Jupyter notebook by navigating to the project base folder and running
     ```
     jupyter lab
     ```

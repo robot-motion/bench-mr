@@ -52,8 +52,8 @@ int main(int argc, char **argv) {
     std::vector<GNode> gripsTrajectory;
 
     auto info = nlohmann::json({{"plans", {}},
-                                {"environment", *global::settings.environment},
                                 {"optimalDistance", scenario.optimal_length}});
+    global::settings.environment->to_json(info["environment"]);
 
     PathEvaluation::evaluate<ChompPlanner>(info);
     PathEvaluation::evaluate<ThetaStar>(info);

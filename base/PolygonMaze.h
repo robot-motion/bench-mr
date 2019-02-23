@@ -49,9 +49,9 @@ class PolygonMaze : public Environment {
       if (collision2d::intersect(collision2d::Point<double>{x, y},
                                  (collision2d::Polygon<double>)poly)) {
         OMPL_INFORM("[%.2f %.2f] collides with polygon %d.", x, y, i);
-//        for (const auto &point : poly.points)
-//            std::cout << point << " ";
-//        std::cout << std::endl;
+        //        for (const auto &point : poly.points)
+        //            std::cout << point << " ";
+        //        std::cout << std::endl;
         return true;
       }
       ++i;
@@ -67,17 +67,17 @@ class PolygonMaze : public Environment {
     return false;
   }
 
+  void to_json(nlohmann::json &j) override {
+    j["type"] = "polygon";
+    j["obstacles"] = obstacles();
+    j["start"] = {start().x, start().y, startTheta()};
+    j["goal"] = {goal().x, goal().y, goalTheta()};
+    j["name"] = name();
+  }
+
  private:
   PolygonMaze() = default;
 
   std::string _name{"polygon_maze"};
   std::vector<Polygon> _obstacles;
 };
-
-inline void to_json(nlohmann::json &j, const PolygonMaze &m) {
-  j["type"] = "polygon";
-  j["obstacles"] = m.obstacles();
-  j["start"] = {m.start().x, m.start().y, m.startTheta()};
-  j["goal"] = {m.goal().x, m.goal().y, m.goalTheta()};
-  j["name"] = m.name();
-}

@@ -145,8 +145,7 @@ class GridMaze : public Environment {
   std::string generatorType() const;
 
   unsigned int cells(double resolution = 1) const {
-    return static_cast<unsigned int>((_voxels_x + 1) *
-                                     (_voxels_y + 1));
+    return static_cast<unsigned int>((_voxels_x + 1) * (_voxels_y + 1));
   }
 
   unsigned int voxels_x() const { return _voxels_x; }
@@ -173,6 +172,19 @@ class GridMaze : public Environment {
    */
   void computeDistances();
 
+  void to_json(nlohmann::json &j) override {
+    j["type"] = "grid";
+    j["generator"] = generatorType();
+    j["width"] = voxels_x();
+    j["height"] = voxels_y();
+    j["obstacleRatio"] = obstacleRatio();
+    j["seed"] = seed();
+    j["start"] = {start().x, start().y, startTheta()};
+    j["goal"] = {goal().x, goal().y, goalTheta()};
+    j["map"] = mapString();
+    j["name"] = name();
+  }
+
  private:
   // true means occupied
   bool *_grid{nullptr};
@@ -187,17 +199,3 @@ class GridMaze : public Environment {
   std::string _type{"undefined"};
   std::string _name{"grid"};
 };
-
-inline void to_json(nlohmann::json &j, const GridMaze &m) {
-  j["type"] = "grid";
-  j["corridorRadius"] = m.corridorRadius();
-  j["generator"] = m.generatorType();
-  j["width"] = m.voxels_x();
-  j["height"] = m.voxels_y();
-  j["obstacleRatio"] = m.obstacleRatio();
-  j["seed"] = m.seed();
-  j["start"] = m.start();
-  j["goal"] = m.goal();
-  j["map"] = m.mapString();
-  j["name"] = m.name();
-}

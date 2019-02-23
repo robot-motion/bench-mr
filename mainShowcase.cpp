@@ -57,8 +57,8 @@ int main(int argc, char **argv) {
     std::vector<Point> gripsPath;
     std::vector<GNode> gripsTrajectory;
 
-    auto info = nlohmann::json(
-        {{"plans", {}}, {"environment", *global::settings.environment}});
+    auto info = nlohmann::json({{"plans", {}}});
+    global::settings.environment->to_json(info["environment"]);
 
     //        ChompPlanner chompPlanner;
     //        if (chompPlanner.run()) {
