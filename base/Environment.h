@@ -72,6 +72,15 @@ class Environment {
   double startTheta() const { return _start_theta; }
   double goalTheta() const { return _goal_theta; }
 
+  virtual void to_json(nlohmann::json &j) {
+    j["type"] = "base";
+    j["width"] = width();
+    j["height"] = height();
+    j["start"] = start();
+    j["goal"] = goal();
+    j["name"] = name();
+  }
+
  protected:
   Point _start;
   Point _goal;
@@ -81,12 +90,3 @@ class Environment {
 
   ob::RealVectorBounds _bounds{2};
 };
-
-inline void to_json(nlohmann::json &j, const Environment &e) {
-  j["type"] = "base";
-  j["width"] = e.width();
-  j["height"] = e.height();
-  j["start"] = e.start();
-  j["goal"] = e.goal();
-  j["name"] = e.name();
-}

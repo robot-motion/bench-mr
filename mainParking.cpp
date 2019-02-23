@@ -34,6 +34,7 @@ int main(int argc, char **argv) {
   std::cout << "Goal collides?  " << std::boolalpha
             << maze.collides(maze.goal().x, maze.goal().y) << std::endl;
   maze.setGoal({200, -150});
+  global::settings.estimate_theta = true;
   global::settings.environment = &maze;
   global::settings.environment->setThetas(M_PI / 2, M_PI);
 
@@ -50,7 +51,8 @@ int main(int argc, char **argv) {
   std::vector<Point> gripsPath;
   std::vector<GNode> gripsTrajectory;
 
-  auto info = nlohmann::json({{"plans", {}}, {"environment", maze}});
+  auto info = nlohmann::json({{"plans", {}}});
+  global::settings.environment->to_json(info["environment"]);
 
   Log::instantiateRun();
   //  PathEvaluation::evaluate<ChompPlanner>(info);
