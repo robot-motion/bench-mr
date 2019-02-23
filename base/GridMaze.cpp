@@ -35,6 +35,8 @@ GridMaze::GridMaze(unsigned int seed, unsigned int width, unsigned int height,
       _empty(false),
       _seed(seed),
       _distances(nullptr),
+      //add second distance grid
+      _BFdistances(nullptr),
       _type("unknown") {
   _grid = new bool[cells()];
   bool *g = _grid;
@@ -45,7 +47,7 @@ GridMaze::GridMaze(unsigned int seed, unsigned int width, unsigned int height,
   for (unsigned int i = 0; i < cells(); ++i) *g++ = false;
 }
 
-GridMaze::GridMaze(const GridMaze &environment) : _distances(nullptr) {
+GridMaze::GridMaze(const GridMaze &environment) : _distances(nullptr), _BFdistances(nullptr) {
   _grid = new bool[(environment._voxels_x + 1) * (environment._voxels_y + 1)];
   bool *g = _grid;
   for (unsigned int i = 0;
@@ -65,6 +67,7 @@ GridMaze::GridMaze(const GridMaze &environment) : _distances(nullptr) {
 GridMaze::~GridMaze() {
   delete[] _grid;
   delete[] _distances;
+  delete[] _BFdistances;
 }
 
 void GridMaze::fill(double x, double y, bool value) {
@@ -394,7 +397,8 @@ std::vector<Rectangle> GridMaze::obstacles(double x1, double y1, double x2,
 
 void GridMaze::computeDistances() {
   _distances = new double[(_voxels_x + 1) * (_voxels_y + 1)];
-  if (_voxels_x * _voxels_y > global::settings.fast_odf_threshold) {
+  _BFdistances = new double[(_voxels_x + 1) * (_voxels_y + 1)];
+  //if (_voxels_x * _voxels_y > global::settings.fast_odf_threshold) {
     // more efficient, but less accurate Dead Reckoning Algorithm
     //
     // The "Dead reckoning" signed distance transform
@@ -505,7 +509,7 @@ void GridMaze::computeDistances() {
         if (_grid[key]) _distances[key] = 0;
       }
     }
-  } else {
+  //} else {
     // Brute-Force Algorithm
     for (int x = 0; x <= _voxels_x; ++x) {
       for (int y = 0; y <= _voxels_y; ++y) {
@@ -520,11 +524,14 @@ void GridMaze::computeDistances() {
             }
           }
         }
-        _distances[coord2key(x, y)] = minDistance;
+        //_distances[coord2key(x, y)] = minDistance;
+        _BFdistances[coord2key(x, y)] = minDistance;
       }
     }
-  }
+  //}
+  avg_error += computeError();
 }
+
 
 GridMaze *GridMaze::createSimple() {
   auto *environment = new GridMaze(0, DefaultWidth, DefaultHeight);

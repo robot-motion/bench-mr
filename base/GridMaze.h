@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 
+#include <cstdlib>
+
 #include <utils/ScenarioLoader.h>
 #include <utils/json.hpp>
 
@@ -185,6 +187,20 @@ class GridMaze : public Environment {
     j["name"] = name();
   }
 
+  inline double computeError(){
+    double sum_error=0.0;
+    for (int x = 0; x <= _voxels_x; ++x) {
+      for (int y = 0; y <= _voxels_y; ++y) {
+        sum_error += abs(_BFdistances[coord2key(x, y)] - _distances[coord2key(x, y)]);
+      }
+    }
+    return sum_error / ((_voxels_x+1)*(_voxels_y+1));
+  }
+
+  inline double getAvgError(){
+    return avg_error;
+  }
+
  private:
   // true means occupied
   bool *_grid{nullptr};
@@ -198,4 +214,8 @@ class GridMaze : public Environment {
   unsigned int _seed{0};
   std::string _type{"undefined"};
   std::string _name{"grid"};
+
+  //DRA and brute force method compare
+  double *_BFdistances{nullptr};
+  double avg_error=0.0;
 };

@@ -81,6 +81,8 @@ class Environment {
     j["name"] = name();
   }
 
+  virtual double getAvgError(){};
+
  protected:
   Point _start;
   Point _goal;
