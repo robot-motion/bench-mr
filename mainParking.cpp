@@ -45,11 +45,6 @@ int main(int argc, char **argv) {
   global::settings.collision_model = robot::ROBOT_POLYGON;
   global::settings.robot_shape = SvgPolygonLoader::load(robot_filename)[0];
   global::settings.robot_shape.value().center();
-  for (auto &p : global::settings.robot_shape.value().points)
-    std::cout << p << std::endl;
-
-  std::vector<Point> gripsPath;
-  std::vector<GNode> gripsTrajectory;
 
   auto info = nlohmann::json({{"plans", {}}});
   global::settings.environment->to_json(info["environment"]);

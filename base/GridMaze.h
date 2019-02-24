@@ -84,8 +84,8 @@ class GridMaze : public Environment {
   }
 
   friend std::ostream &operator<<(std::ostream &stream, const GridMaze &m) {
-    for (unsigned int y = 0; y <= m._voxels_y; ++y) {
-      for (unsigned int x = 0; x <= m._voxels_x; ++x) {
+    for (unsigned int y = 0; y < m._voxels_y; ++y) {
+      for (unsigned int x = 0; x < m._voxels_x; ++x) {
         if (std::round(m._goal.x) == x && std::round(m._goal.y) == y)
           stream << 'G';
         else if (std::round(m._start.x) == x && std::round(m._start.y) == y)
@@ -168,7 +168,7 @@ class GridMaze : public Environment {
     return (unsigned int)std::max(0., std::floor(y) * width() + std::floor(x));
   }
   void fill(double x, double y, bool value);
-  void fill(Rectangle r, bool value);
+  void fill(const Rectangle &r, bool value);
   void fillBorder(bool value, int size = 1);
 
   distance_computation::Method distanceComputationMethod() const {

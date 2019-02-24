@@ -11,7 +11,7 @@
 #include "steer_functions/G1Clothoid/ClothoidSteering.hpp"
 #endif
 
-PlannerSettings::GlobalSettings global::settings{"settings"};
+PlannerSettings::GlobalSettings global::settings;
 
 void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
     const {
@@ -25,7 +25,8 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
     global::settings.ompl.state_space =
         ob::StateSpacePtr(new ob::DubinsStateSpace(car_turning_radius));
   else if (steering_type == Steering::STEER_TYPE_LINEAR)
-    global::settings.ompl.state_space = ob::StateSpacePtr(new ob::SE2StateSpace);
+    global::settings.ompl.state_space =
+        ob::StateSpacePtr(new ob::SE2StateSpace);
   else if (steering_type == Steering::STEER_TYPE_CC_DUBINS)
     global::settings.ompl.state_space =
         ob::StateSpacePtr(new hc_cc_spaces::CCDubinsStateSpace(
@@ -40,7 +41,8 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
             hc_cc.kappa, hc_cc.sigma, sampling_resolution));
 #ifdef G1_AVAILABLE
   else if (steering_type == Steering::STEER_TYPE_CLOTHOID)
-    global::settings.ompl.state_space = ob::StateSpacePtr(new G1ClothoidStateSpace());
+    global::settings.ompl.state_space =
+        ob::StateSpacePtr(new G1ClothoidStateSpace());
 #else
   else if (steering_type == Steering::STEER_TYPE_CLOTHOID) {
     OMPL_ERROR("G1 Clothoid steering is not available in this release!");
@@ -57,11 +59,21 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
 
   global::settings.ompl.state_space->as<ob::SE2StateSpace>()->setBounds(
       global::settings.environment->bounds());
+//  global::settings.ompl.state_space->setup();
 
   global::settings.ompl.space_info =
-      std::make_shared<ompl::base::SpaceInformation>(global::settings.ompl.state_space);
+      std::make_shared<ompl::base::SpaceInformation>(
+          global::settings.ompl.state_space);
   global::settings.ompl.objective = ompl::base::OptimizationObjectivePtr(
-      new ob::PathLengthOptimizationObjective(global::settings.ompl.space_info));
+      new ob::PathLengthOptimizationObjective(
+          global::settings.ompl.space_info));
+  global::settings.ompl.objective->setCostThreshold(
+      ob::Cost(global::settings.ompl.cost_threshold));
+
+  std::cout << "global::settings.ompl.state_space->hasDefaultProjection() ? "
+            << std::boolalpha
+            << global::settings.ompl.state_space->hasDefaultProjection()
+            << std::endl;
 
   OMPL_INFORM("Initialized steer function");
 }

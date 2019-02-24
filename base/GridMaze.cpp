@@ -71,23 +71,22 @@ void GridMaze::fill(double x, double y, bool value) {
   _grid[coord2key(x, y)] = value;
 }
 
-void GridMaze::fill(Rectangle r, bool value) {
-  r.correct();
-  for (int x = (int)std::round(std::max(0., std::min(r.x1, r.x2)));
-       x <= std::round(std::min(width(), std::max(r.x1, r.x2))); ++x) {
-    for (int y = (int)std::round(std::max(0., std::min(r.y1, r.y2)));
-         y <= std::round(std::min(height(), std::max(r.y1, r.y2))); ++y) {
+void GridMaze::fill(const Rectangle &r, bool value) {
+  for (int x = (int)std::floor(std::max(0., std::min(r.x1, r.x2)));
+       x < std::ceil(std::min(width(), std::max(r.x1, r.x2))); ++x) {
+    for (int y = (int)std::floor(std::max(0., std::min(r.y1, r.y2)));
+         y < std::ceil(std::min(height(), std::max(r.y1, r.y2))); ++y) {
       _grid[coord2key(x, y)] = value;
     }
   }
 }
 
 void GridMaze::fillBorder(bool value, int size) {
-  if (size < 0) return;
-  fill(Rectangle(0, 0, width(), size - 1), value);
-  fill(Rectangle(0, height() - size + 1, width(), height()), value);
-  fill(Rectangle(0, 0, size - 1, height()), value);
-  fill(Rectangle(width() - size + 1, 0, width(), height()), value);
+  if (size < 1) return;
+  fill(Rectangle(0, 0, width(), size), value);
+  fill(Rectangle(0, height() - size, width(), height()), value);
+  fill(Rectangle(0, 0, size, height()), value);
+  fill(Rectangle(width() - size, 0, width(), height()), value);
 }
 
 GridMaze *GridMaze::createRandomCorridor(unsigned int width,
