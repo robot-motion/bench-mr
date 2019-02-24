@@ -27,6 +27,18 @@ namespace robot {
 enum Model { ROBOT_POINT, ROBOT_POLYGON };
 }
 
+namespace distance_computation {
+enum Method { BRUTE_FORCE, DEAD_RECKONING };
+inline std::string to_string(Method m) {
+  switch (m) {
+    case BRUTE_FORCE:
+      return "BRUTE_FORCE";
+    default:
+      return "DEAD_RECKONING";
+  }
+}
+}  // namespace distance_computation
+
 namespace PlannerSettings {
 /**
  * Global global::settings.
@@ -34,6 +46,19 @@ namespace PlannerSettings {
 struct GlobalSettings : public Group {
   using Group::Group;
   Environment *environment{nullptr};
+
+  /**
+   * Whether to log the distances precomputed by the grid mazes.
+   */
+  Property<bool> log_env_distances{true, "log_env_distances", this};
+
+  Property<bool> auto_choose_distance_computation_method{
+      false, "auto_choose_distance_computation_method", this};
+  Property<distance_computation::Method> distance_computation_method{
+      distance_computation::DEAD_RECKONING, "distance_computation_method",
+      this};
+
+  Property<double> max_planning_time{15, "max_planning_time", this};
 
   /**
    * For maps with more cells than this threshold, a fast, approximate algorithm
@@ -63,6 +88,11 @@ struct GlobalSettings : public Group {
   Property<Polygon> robot_shape{Polygon(), "robot_shape", this};
 
   /**
+   * Radius threshold to evaluate whether the exact goal has been found.
+   */
+  Property<double> exact_goal_radius{1e-2, "exact_goal_radius", this};
+
+  /**
    * Settings related to OMPL.
    */
   struct OmplSettings : public Group {
@@ -75,7 +105,8 @@ struct GlobalSettings : public Group {
     Property<double> state_equality_tolerance{1e-4, "state_equality_tolerance",
                                               this};
     Property<double> cost_threshold{100, "cost_threshold", this};
-    Property<double> max_planning_time{15, "max_planning_time", this};
+
+    Property<unsigned int> seed{0, "seed", this};
   } ompl{"ompl", this};
 
   struct SteerSettings : public Group {
@@ -235,5 +266,5 @@ struct GlobalSettings : public Group {
 }  // namespace PlannerSettings
 
 struct global {
- static PlannerSettings::GlobalSettings settings;
+  static PlannerSettings::GlobalSettings settings;
 };

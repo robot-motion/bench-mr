@@ -46,12 +46,29 @@ class OMPLPlanner : public AbstractPlanner {
   }
 
   ob::PlannerStatus run() override {
+    intermediarySolutions.clear();
+
     ss->setPlanner(_omplPlanner);
+    ompl::RNG::setSeed(global::settings.ompl.seed);
     ss->setup();
 
-    auto solved = ss->solve(global::settings.ompl.max_planning_time);
+    Stopwatch watch;
+    auto problem = _omplPlanner->getProblemDefinition();
+    problem->setIntermediateSolutionCallback(
+        [&](const ob::Planner *planner,
+            const std::vector<const ob::State *> &states, const ob::Cost cost) {
+          og::PathGeometric solution(ss->getSpaceInformation());
+          for (const auto *state : states)
+            solution.append(state);
+          IntermediarySolution is(watch.elapsed(), cost.value(), solution);
+          intermediarySolutions.emplace_back(is);
+        });
+
+    watch.start();
+    auto solved = ss->solve(global::settings.max_planning_time);
     OMPL_INFORM("OMPL %s planning status: %s", _omplPlanner->getName().c_str(),
                 solved.asString().c_str());
+    watch.stop();
 
     if (solved) {
       //            ss->simplifySolution(); // TODO define time limit?

@@ -110,3 +110,6 @@ target_link_libraries(parking ${EXTRA_LIB})
 
 add_executable(movingAi mainMovingAiTest.cpp ${ALL_SRC})
 target_link_libraries(movingAi ${EXTRA_LIB})
+
+add_executable(compute_distances mainComputeDistances.cpp ${ALL_SRC})
+target_link_libraries(compute_distances ${EXTRA_LIB})

@@ -34,8 +34,9 @@ int main(int argc, char **argv) {
   unsigned int counter = 0;
   std::cout << "Loaded " << scenarioLoader.scenarios().size() << " scenarios."
             << std::endl;
+  const unsigned int scenarioLimit = 5;
   for (auto &scenario : scenarioLoader.scenarios()) {
-    if (counter++ < 925) continue;
+    if (counter++ < scenarioLoader.scenarios().size() - scenarioLimit) continue;
 
     std::cout << "##############################################" << std::endl;
     std::cout << "# Scenario " << counter << std::endl;
@@ -51,8 +52,8 @@ int main(int argc, char **argv) {
     std::vector<Point> gripsPath;
     std::vector<GNode> gripsTrajectory;
 
-    auto info = nlohmann::json({{"plans", {}},
-                                {"optimalDistance", scenario.optimal_length}});
+    auto info = nlohmann::json(
+        {{"plans", {}}, {"optimalDistance", scenario.optimal_length}});
     global::settings.environment->to_json(info["environment"]);
 
     PathEvaluation::evaluate<ChompPlanner>(info);

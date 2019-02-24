@@ -12,12 +12,25 @@ struct PathEvaluation {
   static void evaluate(PathStatistics &stats,
                        const ompl::geometric::PathGeometric &path,
                        const AbstractPlanner *planner) {
-    stats.path_length = PathLengthMetric::evaluate(path);
-    stats.curvature = CurvatureMetric::evaluate(path);
-    stats.smoothness = path.smoothness();
+    stats.planning_time = planner->planningTime();
+    auto solution = PlannerUtils::interpolated(path);
+    if (path.getStateCount() < 2) {
+      stats.path_found = false;
+      stats.exact_goal_path = false;
+    } else {
+      stats.path_found = true;
+      stats.exact_goal_path =
+          Point(solution.getStates().back())
+              .distance(global::settings.environment->goal()) <=
+          global::settings.exact_goal_radius;
+      stats.path_collides = planner->isValid(solution);
+      stats.path_length = PathLengthMetric::evaluate(solution);
+      stats.curvature = CurvatureMetric::evaluate(solution);
+      stats.smoothness = solution.smoothness();
+    }
 
     if (global::settings.evaluate_clearing) {
-      auto clearings = ClearingMetric::clearingDistances(path);
+      auto clearings = ClearingMetric::clearingDistances(solution);
       stats.mean_clearing_distance = stat::mean(clearings);
       stats.median_clearing_distance = stat::median(clearings);
       stats.min_clearing_distance = stat::min(clearings);
@@ -41,6 +54,19 @@ struct PathEvaluation {
     std::cout << stats << std::endl;
     j["trajectory"] = Log::serializeTrajectory(planner.solution());
     j["stats"] = nlohmann::json(stats)["stats"];
+
+    // add intermediary solutions
+    std::vector<nlohmann::json> intermediaries;
+    for (const auto &is : planner.intermediarySolutions) {
+      PathStatistics is_stats;
+      evaluate(is_stats, is.solution, &planner);
+      nlohmann::json s{{"time", is.time},
+                       {"cost", is.cost},
+                       {"trajectory", Log::serializeTrajectory(is.solution)},
+                       {"stats", nlohmann::json(is_stats)["stats"]}};
+      intermediaries.emplace_back(s);
+    }
+    j["intermediary_solutions"] = intermediaries;
   }
 
   PathEvaluation() = delete;

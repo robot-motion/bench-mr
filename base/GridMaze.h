@@ -8,6 +8,7 @@
 #include <utils/json.hpp>
 
 #include "Environment.h"
+#include "PlannerSettings.h"
 
 #define ROS_SUPPORT 0
 #define XML_SUPPORT 0
@@ -108,6 +109,7 @@ class GridMaze : public Environment {
 
   void mapData(unsigned char *data, double resolution = 1.);
   std::string mapString() const;
+  std::vector<double> mapDistances();
 
   std::vector<Rectangle> obstacles() const;
   std::vector<Rectangle> obstacles(double x1, double y1, double x2,
@@ -141,18 +143,22 @@ class GridMaze : public Environment {
 #endif
 
   double obstacleRatio() const;
-  double corridorRadius() const;
   std::string generatorType() const;
 
-  unsigned int cells(double resolution = 1) const {
-    return static_cast<unsigned int>((_voxels_x + 1) * (_voxels_y + 1));
-  }
+  unsigned int cells() const { return _voxels_x * _voxels_y; }
 
   unsigned int voxels_x() const { return _voxels_x; }
   unsigned int voxels_y() const { return _voxels_y; }
 
   std::string name() const override { return _name; }
   std::string &name() { return _name; }
+
+  /**
+   * Brute-force, quadratic in the number of cells, algorithm
+   * to compute the distance field, i.e. distance to the nearest
+   * obstacle for every voxel.
+   */
+  void computeDistances();
 
  protected:
   GridMaze(unsigned int seed, unsigned int width, unsigned int height,
@@ -165,12 +171,14 @@ class GridMaze : public Environment {
   void fill(Rectangle r, bool value);
   void fillBorder(bool value, int size = 1);
 
-  /**
-   * Brute-force, quadratic in the number of cells, algorithm
-   * to compute the distance field, i.e. distance to the nearest
-   * obstacle for every voxel.
-   */
-  void computeDistances();
+  distance_computation::Method distanceComputationMethod() const {
+    if (global::settings.auto_choose_distance_computation_method) {
+      if (cells() > global::settings.fast_odf_threshold)
+        return distance_computation::DEAD_RECKONING;
+      return distance_computation::BRUTE_FORCE;
+    }
+    return global::settings.distance_computation_method;
+  }
 
   void to_json(nlohmann::json &j) override {
     j["type"] = "grid";
@@ -183,6 +191,9 @@ class GridMaze : public Environment {
     j["goal"] = {goal().x, goal().y, goalTheta()};
     j["map"] = mapString();
     j["name"] = name();
+    if (global::settings.log_env_distances) j["distances"] = mapDistances();
+    j["distance_computation_method"] =
+        distance_computation::to_string(distanceComputationMethod());
   }
 
  private:

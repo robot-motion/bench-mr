@@ -46,10 +46,10 @@ GridMaze::GridMaze(unsigned int seed, unsigned int width, unsigned int height,
 }
 
 GridMaze::GridMaze(const GridMaze &environment) : _distances(nullptr) {
-  _grid = new bool[(environment._voxels_x + 1) * (environment._voxels_y + 1)];
+  _grid = new bool[environment._voxels_x * environment._voxels_y];
   bool *g = _grid;
-  for (unsigned int i = 0;
-       i < (environment._voxels_x + 1) * (environment._voxels_y + 1); ++i)
+  for (unsigned int i = 0; i < environment._voxels_x * environment._voxels_y;
+       ++i)
     *g++ = environment._grid[i];
 
   _seed = environment._seed;
@@ -371,8 +371,8 @@ bool GridMaze::collides(const Polygon &polygon) {
 
 std::vector<Rectangle> GridMaze::obstacles() const {
   std::vector<Rectangle> obs;
-  for (unsigned int x = 0; x <= width(); ++x) {
-    for (unsigned int y = 0; y <= height(); ++y) {
+  for (unsigned int x = 0; x < width(); ++x) {
+    for (unsigned int y = 0; y < height(); ++y) {
       if (!occupiedCell(x, y)) continue;
       obs.emplace_back(x, y, x + 1, y + 1);
     }
@@ -394,7 +394,7 @@ std::vector<Rectangle> GridMaze::obstacles(double x1, double y1, double x2,
 
 void GridMaze::computeDistances() {
   _distances = new double[(_voxels_x + 1) * (_voxels_y + 1)];
-  if (_voxels_x * _voxels_y > global::settings.fast_odf_threshold) {
+  if (distanceComputationMethod() == distance_computation::DEAD_RECKONING) {
     // more efficient, but less accurate Dead Reckoning Algorithm
     //
     // The "Dead reckoning" signed distance transform
@@ -412,26 +412,26 @@ void GridMaze::computeDistances() {
     auto *P = new Point[(_voxels_x + 1) * (_voxels_y + 1)];
 
     // initialize distances, immediate interior & exterior elements
-    for (int y = 0; y <= _voxels_y; ++y) {
-      for (int x = 0; x <= _voxels_x; ++x) {
+    for (int y = 0; y < _voxels_y; ++y) {
+      for (int x = 0; x < _voxels_x; ++x) {
         const auto key = coord2key(x, y);
         bool here = _grid[key];
         if ((x > 0 && _grid[coord2key(x - 1, y)] != here) ||
-            (x < _voxels_x && _grid[coord2key(x + 1, y)] != here) ||
+            (x < _voxels_x - 1 && _grid[coord2key(x + 1, y)] != here) ||
             (y > 0 && _grid[coord2key(x, y - 1)] != here) ||
-            (y < _voxels_y && _grid[coord2key(x, y + 1)] != here)) {
+            (y < _voxels_y - 1 && _grid[coord2key(x, y + 1)] != here)) {
           _distances[key] = 0;
           P[key] = Point(x, y);
         } else {
           _distances[key] = std::numeric_limits<double>::max();
-          P[key] = Point(-1, -1);
+          P[key] = Point();
         }
       }
     }
 
     // first pass
-    for (int y = 0; y <= _voxels_y; ++y) {
-      for (int x = 0; x <= _voxels_x; ++x) {
+    for (int y = 0; y < _voxels_y; ++y) {
+      for (int x = 0; x < _voxels_x; ++x) {
         const auto key = coord2key(x, y);
         auto &d = _distances[key];
 
@@ -447,7 +447,7 @@ void GridMaze::computeDistances() {
           const double dy = y - P[key].y;
           d = std::sqrt(dx * dx + dy * dy);
         }
-        if (x < _voxels_x && y > 0 &&
+        if (x < _voxels_x - 1 && y > 0 &&
             _distances[coord2key(x + 1, y - 1)] + d2 < d) {
           P[key] = P[coord2key(x + 1, y - 1)];
           const double dx = x - P[key].x;
@@ -464,31 +464,31 @@ void GridMaze::computeDistances() {
     }
 
     // final pass
-    for (int y = _voxels_y; y >= 0; --y) {
-      for (int x = _voxels_x; x >= 0; --x) {
+    for (int y = _voxels_y - 1; y >= 0; --y) {
+      for (int x = _voxels_x - 1; x >= 0; --x) {
         const auto key = coord2key(x, y);
         auto &d = _distances[key];
 
-        if (x < _voxels_x && _distances[coord2key(x + 1, y)] + d1 < d) {
+        if (x < _voxels_x - 1 && _distances[coord2key(x + 1, y)] + d1 < d) {
           P[key] = P[coord2key(x + 1, y)];
           const double dx = x - P[key].x;
           const double dy = y - P[key].y;
           d = std::sqrt(dx * dx + dy * dy);
         }
-        if (x > 0 && y < _voxels_y &&
+        if (x > 0 && y < _voxels_y - 1 &&
             _distances[coord2key(x - 1, y + 1)] + d2 < d) {
           P[key] = P[coord2key(x - 1, y + 1)];
           const double dx = x - P[key].x;
           const double dy = y - P[key].y;
           d = std::sqrt(dx * dx + dy * dy);
         }
-        if (y < _voxels_y && _distances[coord2key(x, y + 1)] + d1 < d) {
+        if (y < _voxels_y - 1 && _distances[coord2key(x, y + 1)] + d1 < d) {
           P[key] = P[coord2key(x, y + 1)];
           const double dx = x - P[key].x;
           const double dy = y - P[key].y;
           d = std::sqrt(dx * dx + dy * dy);
         }
-        if (x < _voxels_x && y < _voxels_y && y < _voxels_y &&
+        if (x < _voxels_x - 1 && y < _voxels_y - 1 &&
             _distances[coord2key(x + 1, y + 1)] + d2 < d) {
           P[key] = P[coord2key(x + 1, y + 1)];
           const double dx = x - P[key].x;
@@ -499,23 +499,26 @@ void GridMaze::computeDistances() {
     }
 
     // indicate inside (0)
-    for (int y = 0; y <= _voxels_y; ++y) {
-      for (int x = 0; x <= _voxels_x; ++x) {
+    for (int y = 0; y < _voxels_y; ++y) {
+      for (int x = 0; x < _voxels_x; ++x) {
         const auto key = coord2key(x, y);
         if (_grid[key]) _distances[key] = 0;
       }
     }
   } else {
     // Brute-Force Algorithm
-    for (int x = 0; x <= _voxels_x; ++x) {
-      for (int y = 0; y <= _voxels_y; ++y) {
+    for (int x = 0; x < _voxels_x; ++x) {
+      for (int y = 0; y < _voxels_y; ++y) {
+        if (_grid[coord2key(x, y)]) {
+          _distances[coord2key(x, y)] = 0;
+          continue;
+        }
         double minDistance = std::numeric_limits<double>::max();
-        if (_grid[coord2key(x, y)]) minDistance = 0;
-
-        for (int dx = 0; dx <= _voxels_x; ++dx) {
-          for (int dy = 0; dy <= _voxels_y; ++dy) {
-            if (occupied((double)dx, (double)dy)) {
-              double d = std::sqrt(std::pow(dx - x, 2) + std::pow(dy - y, 2));
+        for (unsigned int dx = 0; dx < _voxels_x; ++dx) {
+          for (unsigned int dy = 0; dy < _voxels_y; ++dy) {
+            if (_grid[coord2key(dx, dy)]) {
+              double d = std::sqrt(std::pow((double)dx - x, 2.) +
+                                   std::pow((double)dy - y, 2.));
               minDistance = std::min(d, minDistance);
             }
           }
@@ -594,8 +597,8 @@ bool GridMaze::saveSbplConfigFile(const std::string &filename) const {
 
 void GridMaze::mapData(unsigned char *data, double resolution) {
   if (resolution == 1) {
-    for (unsigned int x = 0; x <= _voxels_x; ++x) {
-      for (unsigned int y = 0; y <= _voxels_y; ++y)
+    for (unsigned int x = 0; x < _voxels_x; ++x) {
+      for (unsigned int y = 0; y < _voxels_y; ++y)
         data[x + y * _voxels_x] =
             static_cast<unsigned char>(occupiedCell(x, y) ? 20u : 0u);
     }
@@ -613,9 +616,18 @@ void GridMaze::mapData(unsigned char *data, double resolution) {
 
 std::string GridMaze::mapString() const {
   std::string data;
-  for (unsigned int y = 0; y <= height(); ++y) {
-    for (unsigned int x = 0; x <= width(); ++x)
+  for (unsigned int y = 0; y < _voxels_y; ++y) {
+    for (unsigned int x = 0; x < _voxels_x; ++x)
       data += occupiedCell(x, y) ? '1' : '0';
   }
   return data;
+}
+
+std::vector<double> GridMaze::mapDistances() {
+  vector<double> distances(cells());
+  for (unsigned int y = 0; y < _voxels_y; ++y) {
+    for (unsigned int x = 0; x < _voxels_x; ++x)
+      distances[x + y * _voxels_x] = distance(x, y);
+  }
+  return distances;
 }
