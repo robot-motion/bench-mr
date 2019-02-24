@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib.patches import Polygon
 
 
-def plot_trajectory(traj, planner: str, settings, color, add_label=True):
+def plot_trajectory(traj, planner: str, settings, color, add_label=True, alpha: float = 1.):
     traj = np.array(traj)
     if settings["collision_model"] == 0:
         # point collision model
@@ -22,5 +22,6 @@ def plot_trajectory(traj, planner: str, settings, color, add_label=True):
             state = traj[i, :]
             c, s = np.cos(state[2]), np.sin(state[2])
             rotation = np.array([[c, -s], [s, c]])
-            poly = Polygon(state[:2] + np.matmul(points, rotation), True, fill=False, linestyle='--', edgecolor=color)
+            poly = Polygon(state[:2] + np.matmul(points, rotation), True, fill=False, linestyle='--', edgecolor=color,
+                           alpha=alpha)
             plt.gca().add_patch(poly)

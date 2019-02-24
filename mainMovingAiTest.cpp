@@ -16,25 +16,30 @@
 namespace og = ompl::geometric;
 
 int main(int argc, char **argv) {
-  global::settings.steer.steering_type = Steering::STEER_TYPE_POSQ;
+  global::settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
 
   Log::instantiateRun();
 
   if (argc < 2) {
     OMPL_ERROR(
-        "Missing Parameter. Enter .scen file name after execute command.");
+        ("USAGE: " + std::string(argv[0]) + " scene_file number_of_scenarios")
+            .c_str());
     return 1;
   }
 
   const std::string scene_name = argv[1];
-
   ScenarioLoader scenarioLoader;
   scenarioLoader.load(scene_name);
 
-  unsigned int counter = 0;
+  int scenarioLimit = 5;
+  if (argc > 2) {
+    const std::string scenarioLimitStr = argv[2];
+    scenarioLimit = std::stoi(scenarioLimitStr);
+  }
+
+  int counter = 0;
   std::cout << "Loaded " << scenarioLoader.scenarios().size() << " scenarios."
             << std::endl;
-  const unsigned int scenarioLimit = 5;
   for (auto &scenario : scenarioLoader.scenarios()) {
     if (counter++ < scenarioLoader.scenarios().size() - scenarioLimit) continue;
 
@@ -56,20 +61,17 @@ int main(int argc, char **argv) {
         {{"plans", {}}, {"optimalDistance", scenario.optimal_length}});
     global::settings.environment->to_json(info["environment"]);
 
-    PathEvaluation::evaluate<ChompPlanner>(info);
-    PathEvaluation::evaluate<ThetaStar>(info);
-    PathEvaluation::evaluate<RRTPlanner>(info);
-    PathEvaluation::evaluate<RRTstarPlanner>(info);
-    PathEvaluation::evaluate<RRTsharpPlanner>(info);
-    PathEvaluation::evaluate<InformedRRTstarPlanner>(info);
-    PathEvaluation::evaluate<SORRTstarPlanner>(info);
-    PathEvaluation::evaluate<CForestPlanner>(info);
+//    PathEvaluation::evaluate<ChompPlanner>(info);
+//    PathEvaluation::evaluate<ThetaStar>(info);
+//    PathEvaluation::evaluate<RRTPlanner>(info);
+//    PathEvaluation::evaluate<RRTstarPlanner>(info);
+//    PathEvaluation::evaluate<RRTsharpPlanner>(info);
+//    PathEvaluation::evaluate<InformedRRTstarPlanner>(info);
+//    PathEvaluation::evaluate<SORRTstarPlanner>(info);
+//    PathEvaluation::evaluate<CForestPlanner>(info);
     PathEvaluation::evaluate<SbplPlanner>(info);
 
     Log::log(info);
-
-    //    if (++counter > 10)
-    //        break;
   }
 
   Log::save();
