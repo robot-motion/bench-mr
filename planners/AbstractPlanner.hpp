@@ -170,14 +170,8 @@ class AbstractPlanner {
 
   AbstractPlanner() {
     ss = new og::SimpleSetup(global::settings.ompl.state_space);
-    auto si = ss->getSpaceInformation();
+    auto &si = ss->getSpaceInformation();
 
-    // Construct a space information instance for this state space
-    //        si->setStateValidityCheckingResolution(0.005);
-
-    // Set the object used to check which states in the space are valid
-    //        si->setStateValidityChecker(ob::StateValidityCheckerPtr(new
-    //        ValidityChecker(si))); si->setup();
     if (global::settings.collision_model == robot::ROBOT_POINT) {
       ss->setStateValidityChecker([&](const ob::State *state) -> bool {
         const auto *s = state->as<ob::SE2StateSpace::StateType>();
@@ -197,7 +191,6 @@ class AbstractPlanner {
       });
     }
 
-    //        si->setStateValidityCheckingResolution(0.005);
     if (global::settings.steer.steering_type == Steering::STEER_TYPE_POSQ) {
       ob::MotionValidatorPtr motionValidator(new POSQMotionValidator(si));
       si->setMotionValidator(motionValidator);
@@ -216,13 +209,14 @@ class AbstractPlanner {
     si->setStateValidityCheckingResolution(
         global::settings.steer.sampling_resolution);
 
-    ss->setStartAndGoalStates(global::settings.environment->startScopedState(),
-                              global::settings.environment->goalScopedState());
+    ss->setOptimizationObjective(global::settings.ompl.objective);
 
-    ob::OptimizationObjectivePtr oo(
-        new ob::PathLengthOptimizationObjective(si));
-    oo->setCostThreshold(ob::Cost(global::settings.ompl.cost_threshold));
-    ss->setOptimizationObjective(oo);
+    const auto start = global::settings.environment->startScopedState();
+    const auto goal = global::settings.environment->goalScopedState();
+    std::cout << "Start: " << std::endl << start << std::endl;
+    std::cout << "Goal: " << std::endl << goal << std::endl;
+    ss->setStartAndGoalStates(start, goal, global::settings.exact_goal_radius);
+
     ss->setup();
   }
 

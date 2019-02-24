@@ -53,10 +53,9 @@ struct GlobalSettings : public Group {
   Property<bool> log_env_distances{false, "log_env_distances", this};
 
   Property<bool> auto_choose_distance_computation_method{
-      false, "auto_choose_distance_computation_method", this};
+      true, "auto_choose_distance_computation_method", this};
   Property<distance_computation::Method> distance_computation_method{
-      distance_computation::BRUTE_FORCE, "distance_computation_method",
-      this};
+      distance_computation::BRUTE_FORCE, "distance_computation_method", this};
 
   Property<double> max_planning_time{15, "max_planning_time", this};
 
@@ -106,7 +105,7 @@ struct GlobalSettings : public Group {
                                               this};
     Property<double> cost_threshold{100, "cost_threshold", this};
 
-    Property<unsigned int> seed{0, "seed", this};
+    Property<unsigned int> seed{1, "seed", this};
   } ompl{"ompl", this};
 
   struct SteerSettings : public Group {
@@ -260,6 +259,8 @@ struct GlobalSettings : public Group {
      */
     Property<int> number_edges{10, "number_edges", this};
   } smoothThetaStar{"smooth_theta_star", this};
+
+  GlobalSettings() : Group("settings") { ompl::RNG::setSeed(ompl.seed); }
 };
 }  // namespace PlannerSettings
 

@@ -13,12 +13,12 @@ struct PathEvaluation {
                        const ompl::geometric::PathGeometric &path,
                        const AbstractPlanner *planner) {
     stats.planning_time = planner->planningTime();
-    auto solution = PlannerUtils::interpolated(path);
     if (path.getStateCount() < 2) {
       stats.path_found = false;
       stats.exact_goal_path = false;
     } else {
       stats.path_found = true;
+      auto solution = PlannerUtils::interpolated(path);
       stats.exact_goal_path =
           Point(solution.getStates().back())
               .distance(global::settings.environment->goal()) <=
@@ -27,14 +27,15 @@ struct PathEvaluation {
       stats.path_length = PathLengthMetric::evaluate(solution);
       stats.curvature = CurvatureMetric::evaluate(solution);
       stats.smoothness = solution.smoothness();
-    }
 
-    if (global::settings.evaluate_clearing) {
-      auto clearings = ClearingMetric::clearingDistances(solution);
-      stats.mean_clearing_distance = stat::mean(clearings);
-      stats.median_clearing_distance = stat::median(clearings);
-      stats.min_clearing_distance = stat::min(clearings);
-      stats.max_clearing_distance = stat::max(clearings);
+      if (global::settings.evaluate_clearing) {
+        OMPL_INFORM("Evaluating clearing distance metric.");
+        auto clearings = ClearingMetric::clearingDistances(solution);
+        stats.mean_clearing_distance = stat::mean(clearings);
+        stats.median_clearing_distance = stat::median(clearings);
+        stats.min_clearing_distance = stat::min(clearings);
+        stats.max_clearing_distance = stat::max(clearings);
+      }
     }
   }
 

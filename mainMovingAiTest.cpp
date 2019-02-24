@@ -51,11 +51,6 @@ int main(int argc, char **argv) {
     global::settings.environment =
         GridMaze::createFromMovingAiScenario(scenario);
     global::settings.steer.initializeSteering();
-    PathStatistics thetaStarStats, rrtStarStats, gripsStats,
-        smoothThetaStarStats, sbplStats, chompStats, rrtStats;
-
-    std::vector<Point> gripsPath;
-    std::vector<GNode> gripsTrajectory;
 
     auto info = nlohmann::json(
         {{"plans", {}}, {"optimalDistance", scenario.optimal_length}});
@@ -63,13 +58,13 @@ int main(int argc, char **argv) {
 
 //    PathEvaluation::evaluate<ChompPlanner>(info);
 //    PathEvaluation::evaluate<ThetaStar>(info);
-//    PathEvaluation::evaluate<RRTPlanner>(info);
+    PathEvaluation::evaluate<RRTPlanner>(info);
 //    PathEvaluation::evaluate<RRTstarPlanner>(info);
 //    PathEvaluation::evaluate<RRTsharpPlanner>(info);
 //    PathEvaluation::evaluate<InformedRRTstarPlanner>(info);
 //    PathEvaluation::evaluate<SORRTstarPlanner>(info);
 //    PathEvaluation::evaluate<CForestPlanner>(info);
-    PathEvaluation::evaluate<SbplPlanner>(info);
+//    PathEvaluation::evaluate<SbplPlanner>(info);
 
     Log::log(info);
   }

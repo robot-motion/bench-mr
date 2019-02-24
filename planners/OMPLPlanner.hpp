@@ -40,7 +40,7 @@ namespace og = ompl::geometric;
 template <class PLANNER>
 class OMPLPlanner : public AbstractPlanner {
  public:
-  OMPLPlanner() {
+  OMPLPlanner() : AbstractPlanner() {
     const ob::SpaceInformationPtr si = ss->getSpaceInformation();
     _omplPlanner = ob::PlannerPtr(new PLANNER(si));
   }
@@ -49,7 +49,6 @@ class OMPLPlanner : public AbstractPlanner {
     intermediarySolutions.clear();
 
     ss->setPlanner(_omplPlanner);
-    ompl::RNG::setSeed(global::settings.ompl.seed);
     ss->setup();
 
     Stopwatch watch;
@@ -68,7 +67,6 @@ class OMPLPlanner : public AbstractPlanner {
     auto solved = ss->solve(global::settings.max_planning_time);
     OMPL_INFORM("OMPL %s planning status: %s", _omplPlanner->getName().c_str(),
                 solved.asString().c_str());
-    watch.stop();
 
     if (solved) {
       //            ss->simplifySolution(); // TODO define time limit?
