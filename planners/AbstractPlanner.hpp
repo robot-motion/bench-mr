@@ -45,6 +45,17 @@ class AbstractPlanner {
     return Point::fromPath(path);
   }
 
+  struct IntermediarySolution {
+    double time{std::numeric_limits<double>::quiet_NaN()};
+    double cost{std::numeric_limits<double>::quiet_NaN()};
+    og::PathGeometric solution;
+    IntermediarySolution(double time, double cost,
+                         const og::PathGeometric &solution)
+        : time(time), cost(cost), solution(solution) {}
+  };
+
+  std::vector<IntermediarySolution> intermediarySolutions;
+
   /**
    * Returns the solution of the planner, which is a sparse PathGeometric.
    */
@@ -115,7 +126,7 @@ class AbstractPlanner {
     planner->as<og::AnytimePathShortening>()->addPlanner(optimizingPlanner);
     this->ss->setPlanner(planner);
     this->ss->setup();
-    auto solved = this->ss->solve(global::settings.ompl.max_planning_time);
+    auto solved = this->ss->solve(global::settings.max_planning_time);
     std::cout << "OMPL anytime path shortening planning status: "
               << solved.asString().c_str() << std::endl;
 
@@ -142,6 +153,16 @@ class AbstractPlanner {
       std::cout << "No solution found." << std::endl;
 
     return r;
+  }
+
+ public:
+  bool isValid(const ob::State *state) const {
+    return ss->getStateValidityChecker()->isValid(state);
+  }
+  bool isValid(og::PathGeometric &path) const {
+    for (const auto *state : path.getStates())
+      if (!ss->getStateValidityChecker()->isValid(state)) return false;
+    return true;
   }
 
  protected:
@@ -182,7 +203,8 @@ class AbstractPlanner {
       si->setMotionValidator(motionValidator);
     }
 #ifdef G1_AVAILABLE
-    else if (global::settings.steer.steering_type == Steering::STEER_TYPE_CLOTHOID) {
+    else if (global::settings.steer.steering_type ==
+             Steering::STEER_TYPE_CLOTHOID) {
       ob::MotionValidatorPtr motionValidator(
           new G1ClothoidStateSpaceValidator(si));
       si->setMotionValidator(motionValidator);
@@ -191,7 +213,8 @@ class AbstractPlanner {
       // which causes problems in Clothoid steering
     }
 #endif
-    si->setStateValidityCheckingResolution(global::settings.steer.sampling_resolution);
+    si->setStateValidityCheckingResolution(
+        global::settings.steer.sampling_resolution);
 
     ss->setStartAndGoalStates(global::settings.environment->startScopedState(),
                               global::settings.environment->goalScopedState());

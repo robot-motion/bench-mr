@@ -167,7 +167,7 @@ ob::PlannerStatus SbplPlanner::run() {
   //    }
   OMPL_DEBUG("Notified of changes");
   //    _sbPlanner->InitializeSearchStateSpace();
-  int result = _sbPlanner->replan(global::settings.ompl.max_planning_time, &stateIDs);
+  int result = _sbPlanner->replan(global::settings.max_planning_time, &stateIDs);
   OMPL_DEBUG("SBPL finished.");
   _planningTime = stopwatch.stop();
   if (result) {

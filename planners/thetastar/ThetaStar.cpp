@@ -237,7 +237,7 @@ ob::PlannerStatus ThetaStar::run() {
 
   pdef_->setStartAndGoalStates(start, goal);
 
-  return ob::Planner::solve(global::settings.ompl.max_planning_time);
+  return ob::Planner::solve(global::settings.max_planning_time);
 }
 
 og::PathGeometric ThetaStar::solution() const {
