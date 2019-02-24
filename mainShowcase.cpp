@@ -1,5 +1,3 @@
-//#define DEBUG 1 // TODO activate DEBUG in Plannerglobal::settings.h
-
 #include "base/PlannerSettings.h"
 
 #include "metrics/PathLengthMetric.h"

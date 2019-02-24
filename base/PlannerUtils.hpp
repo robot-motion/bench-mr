@@ -165,6 +165,10 @@ class PlannerUtils {
 
   static ompl::geometric::PathGeometric interpolated(
       ompl::geometric::PathGeometric path) {
+    if (path.getStateCount() == 0) {
+      OMPL_WARN("Tried to interpolate an empty path.");
+      return path;
+    }
     path.interpolate();
     return path;
   }

@@ -12,7 +12,10 @@ class Stopwatch {
   /**
    * Starts the timer.
    */
-  void start() { start_ = clock_t::now(); }
+  void start() {
+    start_ = clock_t::now();
+    running_ = true;
+  }
 
   /**
    * Stops the timer.
@@ -24,6 +27,7 @@ class Stopwatch {
         std::chrono::duration_cast<std::chrono::microseconds>(end - start_)
             .count() /
         1e6;
+    running_ = false;
     return elapsed_;
   }
 
@@ -37,16 +41,27 @@ class Stopwatch {
         std::chrono::duration_cast<std::chrono::microseconds>(end - start_)
             .count() /
         1e6;
+    running_ = false;
     return elapsed_;
   }
 
   /**
    * Elapsed time in seconds.
    */
-  double elapsed() const { return elapsed_; }
+  double elapsed() const {
+    if (!running_)
+      return elapsed_;
+    else {
+      const auto end = clock_t::now();
+      return std::chrono::duration_cast<std::chrono::microseconds>(end - start_)
+                 .count() /
+             1e6;
+    }
+  }
 
  protected:
   double elapsed_{0};
+  bool running_{false};
 
  private:
   std::chrono::time_point<clock_t> start_;

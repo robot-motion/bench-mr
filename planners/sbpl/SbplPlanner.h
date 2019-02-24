@@ -1,8 +1,5 @@
 #pragma once
 
-#define SBPL_PRINTF OMPL_WARN
-#define DEBUG 1
-
 #include <sbpl/headers.h>
 
 #include "../AbstractPlanner.hpp"

@@ -393,6 +393,9 @@ std::vector<Rectangle> GridMaze::obstacles(double x1, double y1, double x2,
 }
 
 void GridMaze::computeDistances() {
+  OMPL_INFORM(("Computing distances via " +
+               distance_computation::to_string(distanceComputationMethod()))
+                  .c_str());
   _distances = new double[(_voxels_x + 1) * (_voxels_y + 1)];
   if (distanceComputationMethod() == distance_computation::DEAD_RECKONING) {
     // more efficient, but less accurate Dead Reckoning Algorithm

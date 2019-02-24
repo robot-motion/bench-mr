@@ -41,7 +41,7 @@ inline std::string to_string(Method m) {
 
 namespace PlannerSettings {
 /**
- * Global global::settings.
+ * Global settings.
  */
 struct GlobalSettings : public Group {
   using Group::Group;
@@ -50,12 +50,12 @@ struct GlobalSettings : public Group {
   /**
    * Whether to log the distances precomputed by the grid mazes.
    */
-  Property<bool> log_env_distances{true, "log_env_distances", this};
+  Property<bool> log_env_distances{false, "log_env_distances", this};
 
   Property<bool> auto_choose_distance_computation_method{
       false, "auto_choose_distance_computation_method", this};
   Property<distance_computation::Method> distance_computation_method{
-      distance_computation::DEAD_RECKONING, "distance_computation_method",
+      distance_computation::BRUTE_FORCE, "distance_computation_method",
       this};
 
   Property<double> max_planning_time{15, "max_planning_time", this};
@@ -121,14 +121,12 @@ struct GlobalSettings : public Group {
     Property<Steering::SteeringType> steering_type{
         Steering::STEER_TYPE_REEDS_SHEPP, "steering_type", this};
     Property<double> car_turning_radius{4, "car_turning_radius", this};
-    //    Property<double> linear_steering_delta{3, "linear_steering_delta",
-    //    this};
 
     /**
      * Distance between states sampled using the steer function for collision
      * detection, rendering and evaluation.
      */
-    Property<double> sampling_resolution{0.013, "sampling_resolution", this};
+    Property<double> sampling_resolution{0.015, "sampling_resolution", this};
 
     struct HC_CC_Settings : public Group {
       using Group::Group;

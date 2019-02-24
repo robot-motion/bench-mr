@@ -51,7 +51,7 @@ def plot_env(env, run_id: int = -1, colors=(None, None), draw_start_goal=True, d
         ax.grid(which='minor', alpha=0.2)
         ax.grid(which='major', alpha=0.5)
 
-        if show_distances:
+        if show_distances and "distances" in env:
             map_data = np.array(env["distances"]).reshape((w, h))
             print(map_data)
             print("Maximum distance:", map_data.max())
