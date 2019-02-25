@@ -25,6 +25,12 @@ Benchmarking motion planners for wheeled mobile robots in cluttered environments
    ```
    Now you can edit files from outside the docker and use docker to build and run the experiments.
 
+   You can connect multiple times to this same running docker, for example if you want to access it from multiple shell instances via
+   ```bash
+   docker exec -it $(docker ps -qf "ancestor=mpb") bash
+   ```
+   Alternatively, run the provided script `./docker_connect.sh` that executes this command.
+
 # Getting started
 
 1.  Check out the submodules
