@@ -18,17 +18,17 @@ class GNode : public GNode_base {
     steer_cost = 0;
     steer = false;
 
-    nEdges = global::settings.smoothThetaStar.number_edges;
+    nEdges = global::settings.thetaStar.number_edges;
     READ_OR = 0;
     CHECK_SUCCESSOR = 0;
 
-    orientations = new double[global::settings.smoothThetaStar.number_edges];
-    costs = new double[global::settings.smoothThetaStar.number_edges];
+    orientations = new double[global::settings.thetaStar.number_edges];
+    costs = new double[global::settings.thetaStar.number_edges];
 
-    for (int i = 0; i < global::settings.smoothThetaStar.number_edges; i++)
+    for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       costs[i] = 0;
 
-    for (int i = 0; i < global::settings.smoothThetaStar.number_edges; i++)
+    for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       orientations[i] = 0;
 
     goal_x = (int)global::settings.environment->goal().x;
@@ -47,19 +47,19 @@ class GNode : public GNode_base {
     theta = 0;
     steer_cost = 0;
     steer = false;
-    nEdges = global::settings.smoothThetaStar.number_edges;
+    nEdges = global::settings.thetaStar.number_edges;
     READ_OR = 0;
     CHECK_SUCCESSOR = 0;
     x_r = xx;
     y_r = yy;
 
-    orientations = new double[global::settings.smoothThetaStar.number_edges];
-    costs = new double[global::settings.smoothThetaStar.number_edges];
+    orientations = new double[global::settings.thetaStar.number_edges];
+    costs = new double[global::settings.thetaStar.number_edges];
 
-    for (int i = 0; i < global::settings.smoothThetaStar.number_edges; i++)
+    for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       costs[i] = 1000;
 
-    for (int i = 0; i < global::settings.smoothThetaStar.number_edges; i++)
+    for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       orientations[i] = 0;
 
     goal_x = (int)global::settings.environment->goal().x;
@@ -78,19 +78,19 @@ class GNode : public GNode_base {
 
     steer_cost = 0;
     steer = false;
-    nEdges = global::settings.smoothThetaStar.number_edges;
+    nEdges = global::settings.thetaStar.number_edges;
     READ_OR = 0;
     CHECK_SUCCESSOR = 0;
     x_r = xx;
     y_r = yy;
 
-    orientations = new double[global::settings.smoothThetaStar.number_edges];
-    costs = new double[global::settings.smoothThetaStar.number_edges];
+    orientations = new double[global::settings.thetaStar.number_edges];
+    costs = new double[global::settings.thetaStar.number_edges];
 
-    for (int i = 0; i < global::settings.smoothThetaStar.number_edges; i++)
+    for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       costs[i] = 1000;
 
-    for (int i = 0; i < global::settings.smoothThetaStar.number_edges; i++)
+    for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       orientations[i] = 0;
 
     goal_x = (int)global::settings.environment->goal().x;
@@ -109,19 +109,19 @@ class GNode : public GNode_base {
 
     steer_cost = 0;
     steer = type;
-    nEdges = global::settings.smoothThetaStar.number_edges;
+    nEdges = global::settings.thetaStar.number_edges;
     READ_OR = 0;
     CHECK_SUCCESSOR = 0;
     x_r = xx;
     y_r = yy;
 
-    orientations = new double[global::settings.smoothThetaStar.number_edges];
-    costs = new double[global::settings.smoothThetaStar.number_edges];
+    orientations = new double[global::settings.thetaStar.number_edges];
+    costs = new double[global::settings.thetaStar.number_edges];
 
-    for (int i = 0; i < global::settings.smoothThetaStar.number_edges; i++)
+    for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       costs[i] = 1000;
 
-    for (int i = 0; i < global::settings.smoothThetaStar.number_edges; i++)
+    for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       orientations[i] = 0;
 
     parent = new GNode_base();
@@ -141,19 +141,19 @@ class GNode : public GNode_base {
 
     steer_cost = steer_c;
     steer = type;
-    nEdges = global::settings.smoothThetaStar.number_edges;
+    nEdges = global::settings.thetaStar.number_edges;
     READ_OR = 0;
     CHECK_SUCCESSOR = 0;
     x_r = xx;
     y_r = yy;
 
-    orientations = new double[global::settings.smoothThetaStar.number_edges];
-    costs = new double[global::settings.smoothThetaStar.number_edges];
+    orientations = new double[global::settings.thetaStar.number_edges];
+    costs = new double[global::settings.thetaStar.number_edges];
 
-    for (int i = 0; i < global::settings.smoothThetaStar.number_edges; i++)
+    for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       costs[i] = 1000;
 
-    for (int i = 0; i < global::settings.smoothThetaStar.number_edges; i++)
+    for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       orientations[i] = 0;
 
     parent = new GNode_base();
@@ -174,20 +174,20 @@ class GNode : public GNode_base {
 
     steer_cost = steer_c;
     steer = type;
-    nEdges = global::settings.smoothThetaStar.number_edges;
+    nEdges = global::settings.thetaStar.number_edges;
     READ_OR = 0;
     CHECK_SUCCESSOR = 0;
     x_r = xx;
     y_r = yy;
 
-    orientations = new double[global::settings.smoothThetaStar.number_edges];
-    costs = new double[global::settings.smoothThetaStar.number_edges];
+    orientations = new double[global::settings.thetaStar.number_edges];
+    costs = new double[global::settings.thetaStar.number_edges];
 
-    for (int i = 0; i < global::settings.smoothThetaStar.number_edges; i++) {
+    for (int i = 0; i < global::settings.thetaStar.number_edges; i++) {
       costs[i] = c[i];
     }
 
-    for (int i = 0; i < global::settings.smoothThetaStar.number_edges; i++)
+    for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       orientations[i] = orien[i];
 
     parent = new GNode_base();
@@ -211,18 +211,18 @@ class GNode : public GNode_base {
 
     steer_cost = steer_c;
     steer = type;
-    nEdges = global::settings.smoothThetaStar.number_edges;
+    nEdges = global::settings.thetaStar.number_edges;
     READ_OR = 0;
     CHECK_SUCCESSOR = 0;
 
-    orientations = new double[global::settings.smoothThetaStar.number_edges];
-    costs = new double[global::settings.smoothThetaStar.number_edges];
+    orientations = new double[global::settings.thetaStar.number_edges];
+    costs = new double[global::settings.thetaStar.number_edges];
 
-    for (int i = 0; i < global::settings.smoothThetaStar.number_edges; i++) {
+    for (int i = 0; i < global::settings.thetaStar.number_edges; i++) {
       costs[i] = c[i];
     }
 
-    for (int i = 0; i < global::settings.smoothThetaStar.number_edges; i++)
+    for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       orientations[i] = orien[i];
 
     parent = new GNode_base();
@@ -252,14 +252,14 @@ class GNode : public GNode_base {
     READ_OR = n.READ_OR;
     CHECK_SUCCESSOR = n.CHECK_SUCCESSOR;
 
-    orientations = new double[global::settings.smoothThetaStar.number_edges];
-    costs = new double[global::settings.smoothThetaStar.number_edges];
+    orientations = new double[global::settings.thetaStar.number_edges];
+    costs = new double[global::settings.thetaStar.number_edges];
 
-    for (int i = 0; i < global::settings.smoothThetaStar.number_edges; i++) {
+    for (int i = 0; i < global::settings.thetaStar.number_edges; i++) {
       costs[i] = n.costs[i];
     }
 
-    for (int i = 0; i < global::settings.smoothThetaStar.number_edges; i++)
+    for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       orientations[i] = n.orientations[i];
 
     parent = n.parent;
@@ -291,14 +291,14 @@ class GNode : public GNode_base {
     READ_OR = n.READ_OR;
     CHECK_SUCCESSOR = n.CHECK_SUCCESSOR;
 
-    orientations = new double[global::settings.smoothThetaStar.number_edges];
-    costs = new double[global::settings.smoothThetaStar.number_edges];
+    orientations = new double[global::settings.thetaStar.number_edges];
+    costs = new double[global::settings.thetaStar.number_edges];
 
-    for (int i = 0; i < global::settings.smoothThetaStar.number_edges; i++) {
+    for (int i = 0; i < global::settings.thetaStar.number_edges; i++) {
       costs[i] = 0;
     }
 
-    for (int i = 0; i < global::settings.smoothThetaStar.number_edges; i++)
+    for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       orientations[i] = 0;
 
     parent = n.parent;
@@ -333,9 +333,9 @@ class GNode : public GNode_base {
   /// ============================================================================================
   double *getLineCost() {
     double *local_cost;
-    local_cost = new double[global::settings.smoothThetaStar.number_edges];
+    local_cost = new double[global::settings.thetaStar.number_edges];
     local_cost[0] = 1;
-    for (int i = 1; i < global::settings.smoothThetaStar.number_edges; i++) {
+    for (int i = 1; i < global::settings.thetaStar.number_edges; i++) {
       local_cost[i] = 1000;
     }
 

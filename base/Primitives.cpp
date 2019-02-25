@@ -1,6 +1,6 @@
 #include "Primitives.h"
 #include "PlannerSettings.h"
-#include "PlannerUtils.hpp"
+#include "utils/PlannerUtils.hpp"
 
 ompl::base::State *base::StateFromXYT(double x, double y, double theta) {
   ompl::base::State *state = global::settings.ompl.state_space->allocState();
@@ -24,7 +24,7 @@ ompl::base::State *Point::toState(double theta) const {
 std::vector<Point> Point::fromPath(const ompl::geometric::PathGeometric &p,
                                    bool interpolate) {
   ompl::geometric::PathGeometric path(p);
-  if (interpolate) path.interpolate();
+  if (interpolate) path = PlannerUtils::interpolated(path);
   std::vector<Point> result;
   for (const auto *state : path.getStates()) result.emplace_back(Point(state));
   return result;

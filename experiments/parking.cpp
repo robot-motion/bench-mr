@@ -4,7 +4,6 @@
 #include "metrics/PathLengthMetric.h"
 
 #include "planners/OMPLPlanner.hpp"
-#include "planners/chomp/Chomp.h"
 #include "planners/sbpl/SbplPlanner.h"
 #include "planners/thetastar/ThetaStar.h"
 
@@ -12,10 +11,14 @@
 
 #include "utils/PathEvaluation.hpp"
 
-#include "PostSmoothing.h"
+#include "smoothers/grips/GRIPS.h"
 
 namespace og = ompl::geometric;
 
+/**
+ * Parking scenario where the environment consists of polygons as obstacles and
+ * the robot is represented by a convex shape.
+ */
 int main(int argc, char **argv) {
   if (argc < 3) {
     OMPL_ERROR(

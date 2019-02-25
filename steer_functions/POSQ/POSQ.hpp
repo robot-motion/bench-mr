@@ -109,7 +109,7 @@ struct UnicycleControl {
 class POSQ {
 public:
   /** \brief length of the wheels axis */
-  const double B = .54;
+  double B{.54};
 
   /** \brief Integration Time Step  */
   double DT{0.1};
@@ -132,7 +132,7 @@ public:
 
   ompl::base::StateSpacePtr space_;
 
-  POSQ() : DT(0.1) {
+  POSQ() {
     space_ = std::make_shared<ompl::base::SE2StateSpace>();
     result_ = (double *)malloc(sizeof(double) * 5);
     intRes_ = (double *)malloc(sizeof(double) * 5);
@@ -177,6 +177,18 @@ public:
     Krho = 1.2;
     Kv = 1;
     Vmax = 2000; // Krho;
+
+    //////////////////////////////////////////////////////////////////////////////////
+    // Configured values:
+    //////////////////////////////////////////////////////////////////////////////////
+    Kalpha = global::settings.steer.posq.alpha;
+    Kbeta = global::settings.steer.posq.phi;
+    Krho = global::settings.steer.posq.rho;
+    RhoEndCondition = global::settings.steer.posq.rho_end_condition;
+    Kv = global::settings.steer.posq.v;
+    Vmax = global::settings.steer.posq.v_max;
+    DT = global::settings.steer.posq.dt;
+    B = global::settings.steer.posq.axis_length;
   }
 
   /** \brief Set the current result of the integration */

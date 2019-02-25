@@ -2,8 +2,8 @@
 
 #include <cmath>
 
-#include "PlannerSettings.h"
-#include "Primitives.h"
+#include "base/PlannerSettings.h"
+#include "base/Primitives.h"
 
 #if QT_SUPPORT
 #include "gui/QtVisualizer.h"
@@ -46,7 +46,8 @@ class PlannerUtils {
 
   static std::vector<Point> toSteeredPoints(const ob::State *a,
                                             const ob::State *b) {
-    return Point::fromPath(og::PathGeometric(global::settings.ompl.space_info, a, b));
+    return Point::fromPath(
+        og::PathGeometric(global::settings.ompl.space_info, a, b));
   }
 
   static bool collides(const std::vector<Point> &path) {
@@ -59,33 +60,32 @@ class PlannerUtils {
       }
 
       // check intermediary points
-      if (i < path.size() - 1) {
-        double dx = (path[i + 1].x - path[i].x);
-        double dy = (path[i + 1].y - path[i].y);
-        double size = std::sqrt(dx * dx + dy * dy);
-        const double scale = 1.5;
-        dx = dx / size * scale;
-        dy = dy / size * scale;
-
-        auto steps = (int)(size / std::sqrt(dx * dx + dy * dy));
-
-        for (int j = 1; j <= steps; ++j) {
-          if (global::settings.environment->collides(path[i].x + dx * j,
-                                                     path[i].y + dy * j))
-          {
-#if QT_SUPPORT
-//                        QtVisualizer::drawNode(path[i].x + dx * j, path[i].y +
-//                        dy * j,
-//                                               QColor(255*.8, 255*0, 255*.9),
-//                                               0.3);
-#ifdef DEBUG
-            // QtVisualizer::drawPath(path, QColor(250, 0, 0, 70));
-#endif
-#endif
-            return true;
-          }
-        }
-      }
+      //      if (i < path.size() - 1) {
+      //        double dx = (path[i + 1].x - path[i].x);
+      //        double dy = (path[i + 1].y - path[i].y);
+      //        double size = std::sqrt(dx * dx + dy * dy);
+      //        const double scale = 1.5;
+      //        dx = dx / size * scale;
+      //        dy = dy / size * scale;
+      //
+      //        auto steps = (int)(size / std::sqrt(dx * dx + dy * dy));
+      //
+      //        for (int j = 1; j <= steps; ++j) {
+      //          if (global::settings.environment->collides(path[i].x + dx * j,
+      //                                                     path[i].y + dy *
+      //                                                     j)) {
+      //#if QT_SUPPORT
+      ////                        QtVisualizer::drawNode(path[i].x + dx * j,
+      /// path[i].y + /                        dy * j, / QColor(255*.8, 255*0,
+      /// 255*.9), /                                               0.3);
+      //#ifdef DEBUG
+      //            // QtVisualizer::drawPath(path, QColor(250, 0, 0, 70));
+      //#endif
+      //#endif
+      //            return true;
+      //          }
+      //        }
+      //      }
     }
 #if QT_SUPPORT
 #ifdef DEBUG
@@ -96,10 +96,42 @@ class PlannerUtils {
   }
 
   static bool collides(const ompl::base::State *a, const ompl::base::State *b) {
+#ifdef DEBUG
+    OMPL_DEBUG("Checking for collision between [%f %f] and [%f %f]",
+               a->as<State>()->getX(), a->as<State>()->getY(),
+               b->as<State>()->getX(), b->as<State>()->getY());
+    std::cout << "global::settings.ompl.state_space->validSegmentCount(a, b): "
+              << global::settings.ompl.state_space->validSegmentCount(a, b)
+              << std::endl;
+#endif
     ompl::geometric::PathGeometric p(global::settings.ompl.space_info, a, b);
-    p.interpolate();
-    const auto path = Point::fromPath(p);
-    return collides(path);
+    if (global::settings.ompl.state_space->validSegmentCount(a, b) <
+        global::settings.interpolation_limit)
+      p = interpolated(p);
+    const auto path = Point::fromPath(p, false);
+    const auto result = collides(path);
+    p.clear();
+    return result;
+  }
+
+  static bool collides(const ompl::base::State *a, const ompl::base::State *b,
+                       og::PathGeometric &path) {
+#ifdef DEBUG
+    OMPL_DEBUG("Checking for collision between [%f %f] and [%f %f]",
+               a->as<State>()->getX(), a->as<State>()->getY(),
+               b->as<State>()->getX(), b->as<State>()->getY());
+    path =
+        ompl::geometric::PathGeometric(global::settings.ompl.space_info, a, b);
+    std::cout << "global::settings.ompl.state_space->validSegmentCount(a, b): "
+              << global::settings.ompl.state_space->validSegmentCount(a, b)
+              << std::endl;
+#endif
+    if (global::settings.ompl.state_space->validSegmentCount(a, b) <
+        global::settings.interpolation_limit)
+      path = interpolated(path);
+    const auto points = Point::fromPath(path, false);
+    const auto result = collides(points);
+    return result;
   }
 
   static bool collides(const std::vector<Point> &path,
@@ -158,18 +190,48 @@ class PlannerUtils {
   static bool collides(const ompl::base::State *a, const ompl::base::State *b,
                        std::vector<Point> &collisions) {
     ompl::geometric::PathGeometric p(global::settings.ompl.space_info, a, b);
-    p.interpolate();
-    const auto path = Point::fromPath(p);
+#if DEBUG
+    std::cout << "global::settings.ompl.state_space->validSegmentCount(a, b): "
+              << global::settings.ompl.state_space->validSegmentCount(a, b)
+              << std::endl;
+#endif
+    if (global::settings.ompl.state_space->validSegmentCount(a, b) >
+        global::settings.interpolation_limit)
+      p.interpolate(global::settings.interpolation_limit);
+    else
+      p = interpolated(p);
+    const auto path = Point::fromPath(p, false);
     return collides(path, collisions);
   }
 
   static ompl::geometric::PathGeometric interpolated(
       ompl::geometric::PathGeometric path) {
     if (path.getStateCount() == 0) {
+#if DEBUG
       OMPL_WARN("Tried to interpolate an empty path.");
+#endif
       return path;
     }
-    path.interpolate();
+    if (path.getStateCount() > global::settings.interpolation_limit) {
+#if DEBUG
+      OMPL_WARN(
+          "Cannot interpolate path with %d nodes (maximal %d are allowed).",
+          path.getStateCount(), global::settings.interpolation_limit.value());
+#endif
+      return path;
+    }
+    if (path.length() > global::settings.max_path_length) {
+#if DEBUG
+      OMPL_WARN("Cannot interpolate path of length %f (maximal %f is allowed).",
+                path.length(), global::settings.max_path_length.value());
+#endif
+      return path;
+    }
+#if DEBUG
+    OMPL_DEBUG("Interpolating path with %d nodes and length %f.",
+               path.getStateCount(), path.length());
+#endif
+    path.interpolate(global::settings.interpolation_limit);
     return path;
   }
 
@@ -178,41 +240,40 @@ class PlannerUtils {
                            bool preventCollisions = true) {
     if (path.getStateCount() < 2) return;
 
-    double theta_old = path.getStates()[0]->as<State>()->getYaw();
-    path.getStates()[0]->as<State>()->setYaw(
-        slope(path.getStates()[0], path.getStates()[1]));
-    if (preventCollisions && collides(path.getStates()[0], path.getStates()[1]))
-      path.getStates()[0]->as<State>()->setYaw(theta_old);  // revert setting
+    std::vector<ob::State *> &states(path.getStates());
+
+    double theta_old = states[0]->as<State>()->getYaw();
+    states[0]->as<State>()->setYaw(slope(states[0], states[1]));
+    if (preventCollisions && collides(states[0], states[1]))
+      states[0]->as<State>()->setYaw(theta_old);  // revert setting
     for (int i = 1; i < path.getStateCount() - 1; ++i) {
-      theta_old = path.getStates()[i]->as<State>()->getYaw();
+#ifdef DEBUG
+      OMPL_DEBUG("UpdateAngles: Round %d / %d", i, path.getStateCount() - 2);
+#endif
+      theta_old = states[i]->as<State>()->getYaw();
       if (AverageAngles) {
-        double l = slope(path.getStates()[i - 1], path.getStates()[i]);
-        double r = slope(path.getStates()[i], path.getStates()[i + 1]);
+        double l = slope(states[i - 1], states[i]);
+        double r = slope(states[i], states[i + 1]);
         if (std::abs(l - r) >= M_PI) {
           if (l > r)
             l += 2. * M_PI;
           else
             r += 2. * M_PI;
         }
-        path.getStates()[i]->as<State>()->setYaw((l + r) * 0.5);
+        states[i]->as<State>()->setYaw((l + r) * 0.5);
       } else
-        path.getStates()[i]->as<State>()->setYaw(
-            slope(path.getStates()[i - 1], path.getStates()[i]));
+        states[i]->as<State>()->setYaw(slope(states[i - 1], states[i]));
 
-      if (preventCollisions &&
-          (collides(path.getStates()[i - 1], path.getStates()[i]) ||
-           collides(path.getStates()[i], path.getStates()[i + 1])))
-        path.getStates()[i]->as<State>()->setYaw(theta_old);  // revert setting
+      if (preventCollisions && (collides(states[i - 1], states[i]) ||
+                                collides(states[i], states[i + 1])))
+        states[i]->as<State>()->setYaw(theta_old);  // revert setting
     }
-    theta_old =
-        path.getStates()[path.getStateCount() - 1]->as<State>()->getYaw();
-    path.getStates()[path.getStateCount() - 1]->as<State>()->setYaw(
-        slope(path.getStates()[path.getStateCount() - 2],
-              path.getStates()[path.getStateCount() - 1]));
-    if (preventCollisions &&
-        collides(path.getStates()[path.getStateCount() - 1],
-                 path.getStates()[path.getStateCount() - 2]))
-      path.getStates()[path.getStateCount() - 1]->as<State>()->setYaw(
+    theta_old = states[path.getStateCount() - 1]->as<State>()->getYaw();
+    states[path.getStateCount() - 1]->as<State>()->setYaw(slope(
+        states[path.getStateCount() - 2], states[path.getStateCount() - 1]));
+    if (preventCollisions && collides(states[path.getStateCount() - 1],
+                                      states[path.getStateCount() - 2]))
+      states[path.getStateCount() - 1]->as<State>()->setYaw(
           theta_old);  // revert setting
   }
 

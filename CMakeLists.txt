@@ -71,7 +71,9 @@ file(GLOB Utils utils/*)
 file(GLOB_RECURSE Steer steer_functions/*)
 file(GLOB Metrics metrics/*)
 file(GLOB_RECURSE Planners planners/*)
+file(GLOB_RECURSE Smoothers smoothers/*)
 
+set(EXTRA_SRC ${EXTRA_SRC} chomp/chomp/Map2D.cpp)
 if (Qt5_FOUND)
     file(GLOB GUI_SRC gui/*.?pp)
     set(EXTRA_SRC ${EXTRA_SRC} ${GUI_SRC})
@@ -80,36 +82,25 @@ else (Qt5_FOUND)
 endif (Qt5_FOUND)
 
 #file(GLOB_RECURSE CHOMP_SRC chomp/*)
-set(ALL_SRC ${Base} ${Utils} ${Steer} ${Metrics} ${Planners} ${EXTRA_SRC} PostSmoothing.cpp chomp/chomp/Map2D.cpp base/Environment.h)
+set(ALL_SRC ${Base} ${Utils} ${Steer} ${Metrics} ${Planners} ${Smoothers} ${EXTRA_SRC})
 
 link_directories(base/)
 link_directories(steer_functions/)
 
-if (Qt5_FOUND)
-#    add_executable(homotopy_test mainHomotopy.cpp ${ALL_SRC})
-#    target_link_libraries(homotopy_test ${EXTRA_LIB})
+add_executable(benchmark_corridors experiments/benchmark_corridors.cpp ${ALL_SRC})
+target_link_libraries(benchmark_corridors ${EXTRA_LIB})
 
-#    add_executable(benchmark mainBenchmark.cpp ${ALL_SRC})
-#    target_link_libraries(benchmark ${EXTRA_LIB})
-
-#    add_executable(grips_params mainGripsParameters.cpp ${ALL_SRC})
-#    target_link_libraries(grips_params ${EXTRA_LIB})
-
-#    add_executable(shortening_test mainShortening.cpp ${ALL_SRC})
-#    target_link_libraries(shortening_test ${EXTRA_LIB})
-
-#    add_executable(visual_compare mainVisualCompare.cpp ${ALL_SRC})
-#    target_link_libraries(visual_compare ${EXTRA_LIB})
-endif (Qt5_FOUND)
-
-add_executable(showcase mainShowcase.cpp ${ALL_SRC})
-target_link_libraries(showcase ${EXTRA_LIB})
-
-add_executable(parking mainParking.cpp ${ALL_SRC})
+add_executable(parking experiments/parking.cpp ${ALL_SRC})
 target_link_libraries(parking ${EXTRA_LIB})
 
-add_executable(movingAi mainMovingAiTest.cpp ${ALL_SRC})
+add_executable(smoothing experiments/smoothing.cpp ${ALL_SRC})
+target_link_libraries(smoothing ${EXTRA_LIB})
+
+add_executable(movingAi experiments/movingai_cities_scenarios.cpp ${ALL_SRC})
 target_link_libraries(movingAi ${EXTRA_LIB})
 
-add_executable(compute_distances mainComputeDistances.cpp ${ALL_SRC})
+add_executable(compute_distances experiments/compute_distances.cpp ${ALL_SRC})
 target_link_libraries(compute_distances ${EXTRA_LIB})
+
+add_executable(posq_testing experiments/posq_testing.cpp ${ALL_SRC})
+target_link_libraries(posq_testing ${EXTRA_LIB})

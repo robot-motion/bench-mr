@@ -1,5 +1,6 @@
 #include "SbplPlanner.h"
-#include <base/PlannerUtils.hpp>
+#include <utils/PlannerUtils.hpp>
+#include <utils/Stopwatch.hpp>
 
 SbplPlanner::SbplPlanner()
     : _solution(og::PathGeometric(global::settings.ompl.space_info)) {
@@ -85,16 +86,16 @@ SbplPlanner::SbplPlanner()
     // handle weird behavior when start and goal nodes appear on different sides
     // as usual
     // TODO verify
-    if (global::settings.environment->start().x < global::settings.environment->goal().x) {
-      startTheta =
-          static_cast<int>(std::round((global::settings.environment->startTheta()) /
-                                      M_PI * global::settings.sbpl.num_theta_dirs)) %
-          global::settings.sbpl.num_theta_dirs;
-      goalTheta =
-          static_cast<int>(std::round((global::settings.environment->goalTheta()) /
-                                      M_PI * global::settings.sbpl.num_theta_dirs)) %
-          global::settings.sbpl.num_theta_dirs;
-    } else {
+//    if (global::settings.environment->start().x < global::settings.environment->goal().x) {
+//      startTheta =
+//          static_cast<int>(std::round((global::settings.environment->startTheta()) /
+//                                      M_PI * global::settings.sbpl.num_theta_dirs)) %
+//          global::settings.sbpl.num_theta_dirs;
+//      goalTheta =
+//          static_cast<int>(std::round((global::settings.environment->goalTheta()) /
+//                                      M_PI * global::settings.sbpl.num_theta_dirs)) %
+//          global::settings.sbpl.num_theta_dirs;
+//    } else {
       startTheta = static_cast<int>(std::round(
                        (global::settings.environment->startTheta() + M_PI / 2) / M_PI *
                        global::settings.sbpl.num_theta_dirs)) %
@@ -103,7 +104,7 @@ SbplPlanner::SbplPlanner()
                       (global::settings.environment->goalTheta() + M_PI / 2) / M_PI *
                       global::settings.sbpl.num_theta_dirs)) %
                   global::settings.sbpl.num_theta_dirs;
-    }
+//    }
 
     std::cout << "startTheta: "
               << (global::settings.environment->startTheta() * 180. / M_PI) << " deg   "

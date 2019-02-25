@@ -1,20 +1,15 @@
+#include <base/GridMaze.h>
+#include <utils/Log.h>
+#include <utils/Stopwatch.hpp>
 #include "base/PlannerSettings.h"
-
-#include "metrics/PathLengthMetric.h"
-
-#include "planners/OMPLPlanner.hpp"
-#include "planners/chomp/Chomp.h"
-#include "planners/sbpl/SbplPlanner.h"
-#include "planners/thetastar/ThetaStar.h"
-
 #include "utils/ScenarioLoader.h"
-
-#include "utils/PathEvaluation.hpp"
-
-#include "PostSmoothing.h"
 
 namespace og = ompl::geometric;
 
+/**
+ * Compares two methods for computing the distance field on grid mazes: brute
+ * force vs. the Dead Reckoning Algorithm.
+ */
 int main(int argc, char **argv) {
   global::settings.steer.steering_type = Steering::STEER_TYPE_POSQ;
 

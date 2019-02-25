@@ -29,9 +29,10 @@
 #include <ompl/geometric/planners/sbl/SBL.h>
 #include <ompl/geometric/planners/sst/SST.h>
 #include <ompl/geometric/planners/stride/STRIDE.h>
+#include <utils/Stopwatch.hpp>
 
 #include "base/PlannerSettings.h"
-#include "base/PlannerUtils.hpp"
+#include "utils/PlannerUtils.hpp"
 #include "planners/AbstractPlanner.hpp"
 
 namespace ob = ompl::base;
@@ -57,8 +58,7 @@ class OMPLPlanner : public AbstractPlanner {
         [&](const ob::Planner *planner,
             const std::vector<const ob::State *> &states, const ob::Cost cost) {
           og::PathGeometric solution(ss->getSpaceInformation());
-          for (const auto *state : states)
-            solution.append(state);
+          for (const auto *state : states) solution.append(state);
           IntermediarySolution is(watch.elapsed(), cost.value(), solution);
           intermediarySolutions.emplace_back(is);
         });
@@ -83,7 +83,14 @@ class OMPLPlanner : public AbstractPlanner {
 
   std::string name() const override { return _omplPlanner->getName(); }
 
-  og::PathGeometric solution() const override { return ss->getSolutionPath(); }
+  og::PathGeometric solution() const override {
+    try {
+      return ss->getSolutionPath();
+    } catch (...) {
+        // no solution was found
+      return og::PathGeometric(global::settings.ompl.space_info);
+    }
+  }
 
   bool hasReachedGoalExactly() const override {
     return ss->haveExactSolutionPath();
@@ -93,7 +100,6 @@ class OMPLPlanner : public AbstractPlanner {
     return ss->getLastPlanComputationTime();
   }
 
- protected:
   ob::Planner *omplPlanner() override { return _omplPlanner.get(); }
 
  private:
@@ -102,7 +108,7 @@ class OMPLPlanner : public AbstractPlanner {
 
 typedef OMPLPlanner<og::RRT> RRTPlanner;
 typedef OMPLPlanner<og::RRTstar> RRTstarPlanner;
-typedef OMPLPlanner<og::RRTstar> RRTsharpPlanner;
+typedef OMPLPlanner<og::RRTsharp> RRTsharpPlanner;
 typedef OMPLPlanner<og::InformedRRTstar> InformedRRTstarPlanner;
 typedef OMPLPlanner<og::SORRTstar> SORRTstarPlanner;
 typedef OMPLPlanner<og::BITstar> BITstarPlanner;

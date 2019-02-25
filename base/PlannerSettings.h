@@ -8,17 +8,6 @@
 
 using namespace params;
 
-namespace chomp {
-enum ChompInitialization { STRAIGHT_LINE, THETA_STAR, THETA_STAR_X_CLEARING };
-// clang-format off
-//NLOHMANN_JSON_SERIALIZE_ENUM(ChompInitialization, {
-//  {STRAIGHT_LINE, "straight_line"},
-//  {THETA_STAR, "theta_star"},
-//  {THETA_STAR_X_CLEARING, "theta_star_xclearing"},
-//})
-// clang-format on
-}  // namespace chomp
-
 namespace sbpl {
 enum Planner { SBPL_ARASTAR, SBPL_ADSTAR, SBPL_RSTAR, SBPL_ANASTAR };
 }
@@ -92,6 +81,16 @@ struct GlobalSettings : public Group {
   Property<double> exact_goal_radius{1e-2, "exact_goal_radius", this};
 
   /**
+   * Any og::PathGeometric with more nodes will not get interpolated.
+   */
+  Property<unsigned int> interpolation_limit{500u, "interpolation_limit", this};
+
+  /**
+   * Maximal length a og::PathGeometric can have to be interpolated.
+   */
+  Property<double> max_path_length{10000, "max_path_length", this};
+
+  /**
    * Settings related to OMPL.
    */
   struct OmplSettings : public Group {
@@ -133,6 +132,27 @@ struct GlobalSettings : public Group {
       Property<double> kappa{5, "kappa", this};
       Property<double> sigma{0.5, "sigma", this};
     } hc_cc{"hc_cc", this};
+
+    struct PosqSettings : public Group {
+      using Group::Group;
+
+      Property<double> alpha{3, "alpha", this};
+      Property<double> phi{-1, "phi", this};
+      Property<double> rho{1.2, "rho", this};
+      Property<double> rho_end_condition{0.1, "rho_end_condition", this};
+      Property<double> v{1, "v", this};
+      Property<double> v_max{2000, "v_max", this};
+
+      /**
+       * Length of the wheel axis.
+       */
+      Property<double> axis_length{0.54, "axis_length", this};
+
+      /**
+       * Integration time step.
+       */
+      Property<double> dt{0.02, "dt", this};
+    } posq{"posq", this};
   } steer{"steer", this};
 
   struct SbplSettings : public Group {
@@ -148,7 +168,7 @@ struct GlobalSettings : public Group {
      * How much deviation from optimal solution is acceptable (>1)? Ignored by
      * planners that don't have notion of epsilon, 1 means optimal search.
      */
-    Property<double> initial_solution_eps{30, "initial_solution_eps", this};
+    Property<double> initial_solution_eps{3, "initial_solution_eps", this};
     Property<double> fordward_velocity{0.4, "fordward_velocity",
                                        this};  // in meters/sec
     Property<double> time_to_turn_45_degs_in_place{
@@ -177,7 +197,7 @@ struct GlobalSettings : public Group {
      * Scale environment to accommodate extents of SBPL's motion primitives.
      * Intuition: the smaller this number the larger the turning radius.
      */
-    Property<double> scaling{1.5, "scaling", this};
+    Property<double> scaling{5, "scaling", this};
 
     /**
      * XXX Important: number of theta directions must match resolution in motion
@@ -188,77 +208,100 @@ struct GlobalSettings : public Group {
     Property<sbpl::Planner> planner{sbpl::SBPL_ARASTAR, "planner", this};
   } sbpl{"sbpl", this};
 
-  struct ChompSettings : public Group {
+  struct SmoothingSettings : public Group {
     using Group::Group;
 
-    Property<unsigned int> nodes{300u, "nodes", this};
-    Property<double> alpha{0.05, "alpha", this};
-    /**
-     * Obstacle importance.
-     */
-    Property<float> epsilon{4, "epsilon", this};
-    Property<double> gamma{0.8, "gamma", this};
-    Property<double> error_tolerance{1e-6, "error_tolerance", this};
-    /**
-     * Here, the number for global and local iterations is the same.
-     */
-    Property<unsigned int> max_iterations{1500u, "max_iterations", this};
-    Property<chomp::ChompObjectiveType> objective_type{chomp::MINIMIZE_VELOCITY,
-                                                       "objective_type", this};
-    Property<chomp::ChompInitialization> initialization{chomp::THETA_STAR,
-                                                        "initialization", this};
-  } chomp{"chomp", this};
+    struct GripsSettings : public Group {
+      using Group::Group;
 
-  struct GripsSettings : public Group {
+      /*
+       * Minimum distance to be maintained between two consecutive nodes.
+       */
+      Property<double> min_node_distance{3, "min_node_distance", this};
+      /*
+       * Gradient descent rate.
+       */
+      Property<double> eta{0.5, "eta", this};
+      /*
+       * Discount factor for gradient descent rate.
+       */
+      Property<double> eta_discount{0.8, "eta_discount", this};
+
+      /**
+       * Number of gradient descent rounds.
+       */
+      Property<unsigned int> gradient_descent_rounds{
+          5, "gradient_descent_rounds", this};
+      /**
+       * Maximum number of pruning rounds after which the algorithm
+       * should terminate.
+       */
+      Property<unsigned int> max_pruning_rounds{100, "max_pruning_rounds",
+                                                this};
+    } grips{"grips", this};
+
+    struct OmplSettings : public Group {
+      using Group::Group;
+
+      Property<unsigned int> bspline_max_steps{5, "bspline_max_steps", this};
+      Property<double> bspline_epsilon{0.005, "bspline_epsilon", this};
+
+      Property<unsigned int> shortcut_max_steps{0, "shortcut_max_steps", this};
+      Property<unsigned int> shortcut_max_empty_steps{
+          0, "shortcut_max_empty_steps", this};
+      Property<double> shortcut_range_ratio{0.33, "shortcut_range_ratio", this};
+      Property<double> shortcut_snap_to_vertex{0.005, "shortcut_snap_to_vertex",
+                                               this};
+
+      Property<bool> anytime_shortcut{true, "anytime_shortcut", this};
+      Property<bool> anytime_hybridize{true, "anytime_hybridize", this};
+    } ompl{"ompl", this};
+
+    struct ChompSettings : public Group {
+      using Group::Group;
+
+      Property<unsigned int> nodes{100u, "nodes", this};
+      Property<double> alpha{0.05, "alpha", this};
+      /**
+       * Obstacle importance.
+       */
+      Property<float> epsilon{4, "epsilon", this};
+      Property<double> gamma{0.8, "gamma", this};
+      Property<double> error_tolerance{1e-6, "error_tolerance", this};
+      /**
+       * Here, the number for global and local iterations is the same.
+       */
+      Property<unsigned int> max_iterations{1500u, "max_iterations", this};
+      Property<chomp::ChompObjectiveType> objective_type{
+          chomp::MINIMIZE_VELOCITY, "objective_type", this};
+    } chomp{"chomp", this};
+
+  } smoothing{"smoothing", this};
+
+  struct ThetaStarSettings : public Group {
     using Group::Group;
 
-    /*
-     * Minimum distance to be maintained between two consecutive nodes.
-     */
-    Property<double> min_node_distance{3, "min_node_distance", this};
-    /*
-     * Gradient descent rate.
-     */
-    Property<double> eta{0.5, "eta", this};
-    /*
-     * Discount factor for gradient descent rate.
-     */
-    Property<double> eta_discount{0.8, "eta_discount", this};
-
-    /**
-     * Number of gradient descent rounds.
-     */
-    Property<unsigned int> gradient_descent_rounds{5, "gradient_descent_rounds",
-                                                   this};
-    /**
-     * Maximum number of pruning rounds after which the algorithm
-     * should terminate.
-     */
-    Property<unsigned int> max_pruning_rounds{100, "max_pruning_rounds", this};
-  } grips{"grips", this};
-  struct SmoothThetaStarSettings : public Group {
-    using Group::Group;
-
-    Property<bool> gradient_descent_open_nodes{
-        true, "gradient_descent_open_nodes", this};
-    Property<bool> annealedGradientdescent_open_nodes{
-        true, "annealedGradientdescent_open_nodes", this};
-    Property<bool> gradient_descent_current{false, "gradient_descent_current",
-                                            this};
-    Property<bool> gradient_descent_successors{
-        false, "gradient_descent_successors", this};
-    Property<double> gradient_descent_eta{0.5, "gradient_descent_eta", this};
-    Property<double> gradient_descent_eta_discount{
-        0.8, "gradient_descent_eta_discount", this};
-    Property<unsigned int> gradient_descent_rounds{
-        10u, "gradient_descent_rounds", this};
-    Property<bool> average_angles{true, "average_angles", this};
+    //      Property<bool> gradient_descent_open_nodes{
+    //          true, "gradient_descent_open_nodes", this};
+    //      Property<bool> annealedGradientdescent_open_nodes{
+    //          true, "annealedGradientdescent_open_nodes", this};
+    //      Property<bool> gradient_descent_current{false,
+    //      "gradient_descent_current",
+    //                                              this};
+    //      Property<bool> gradient_descent_successors{
+    //          false, "gradient_descent_successors", this};
+    //      Property<double> gradient_descent_eta{0.5, "gradient_descent_eta",
+    //      this}; Property<double> gradient_descent_eta_discount{
+    //          0.8, "gradient_descent_eta_discount", this};
+    //      Property<unsigned int> gradient_descent_rounds{
+    //          10u, "gradient_descent_rounds", this};
+    //      Property<bool> average_angles{true, "average_angles", this};
 
     /**
      * This setting is relevant for Theta* and Smooth Theta*.
      */
     Property<int> number_edges{10, "number_edges", this};
-  } smoothThetaStar{"smooth_theta_star", this};
+  } thetaStar{"theta_star", this};
 
   GlobalSettings() : Group("settings") { ompl::RNG::setSeed(ompl.seed); }
 };
