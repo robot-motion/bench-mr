@@ -83,7 +83,7 @@ struct GlobalSettings : public Group {
   /**
    * Any og::PathGeometric with more nodes will not get interpolated.
    */
-  Property<unsigned int> interpolation_limit{500u, "interpolation_limit", this};
+  Property<unsigned int> interpolation_limit{1000u, "interpolation_limit", this};
 
   /**
    * Maximal length a og::PathGeometric can have to be interpolated.
@@ -124,7 +124,7 @@ struct GlobalSettings : public Group {
      * Distance between states sampled using the steer function for collision
      * detection, rendering and evaluation.
      */
-    Property<double> sampling_resolution{0.015, "sampling_resolution", this};
+    Property<double> sampling_resolution{0.005, "sampling_resolution", this};
 
     struct HC_CC_Settings : public Group {
       using Group::Group;
