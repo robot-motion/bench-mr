@@ -22,7 +22,7 @@ class Log {
   static std::vector<std::array<double, 2>> serializePath(
       const std::vector<Point> &path);
   static std::vector<std::array<double, 3>> serializeTrajectory(
-      const ompl::geometric::PathGeometric &traj);
+      const ompl::geometric::PathGeometric &traj, bool interpolate = true);
 
  private:
   static nlohmann::json _json;

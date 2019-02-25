@@ -43,7 +43,7 @@ cmake-*
 
 # stats / binary files
 bin/*
-!bin/parking
+!bin/polygon_mazes
 
 plotting/*.png
 plotting/*.pdf

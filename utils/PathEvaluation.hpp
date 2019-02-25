@@ -69,6 +69,7 @@ struct PathEvaluation {
       nlohmann::json s{{"time", is.time},
                        {"cost", is.cost},
                        {"trajectory", Log::serializeTrajectory(is.solution)},
+                       {"path", Log::serializeTrajectory(is.solution, false)},
                        {"stats", nlohmann::json(is_stats)["stats"]}};
       intermediaries.emplace_back(s);
     }
@@ -98,10 +99,12 @@ struct PathEvaluation {
       PathStatistics grips_stats;
       evaluate(grips_stats, grips, &planner);
       j["grips"] = {{"time", GRIPS::smoothingTime},
+                    {"name", "GRIPS"},
                     {"inserted_nodes", GRIPS::insertedNodes},
                     {"pruning_rounds", GRIPS::pruningRounds},
                     {"cost", grips.length()},
                     {"trajectory", Log::serializeTrajectory(grips)},
+                    {"path", Log::serializeTrajectory(grips, false)},
                     {"stats", nlohmann::json(grips_stats)["stats"]},
                     {"round_stats", GRIPS::statsPerRound}};
     }
@@ -112,6 +115,7 @@ struct PathEvaluation {
       PathStatistics chomp_stats;
       evaluate(chomp_stats, chomp.solution(), &planner);
       j["chomp"] = {{"time", chomp.planningTime()},
+                    {"name", "CHOMP"},
                     {"cost", chomp.solution().length()},
                     {"trajectory", chomp.solutionPath()},
                     {"stats", nlohmann::json(chomp_stats)["stats"]}};
@@ -126,6 +130,7 @@ struct PathEvaluation {
         evaluate(stats, tr.trajectory, &planner);
         j["ompl_shortcut"] = {
             {"time", tr.elapsed()},
+            {"name", "Shortcut"},
             {"cost", tr.trajectory.length()},
             {"trajectory", Log::serializeTrajectory(tr.trajectory)},
             {"stats", nlohmann::json(stats)["stats"]}};
@@ -137,6 +142,7 @@ struct PathEvaluation {
         evaluate(stats, tr.trajectory, &planner);
         j["ompl_bspline"] = {
             {"time", tr.elapsed()},
+            {"name", "B-Spline"},
             {"cost", tr.trajectory.length()},
             {"trajectory", Log::serializeTrajectory(tr.trajectory)},
             {"stats", nlohmann::json(stats)["stats"]}};
@@ -148,6 +154,7 @@ struct PathEvaluation {
         evaluate(stats, tr.trajectory, &planner);
         j["ompl_simplify_max"] = {
             {"time", tr.elapsed()},
+            {"name", "SimplifyMax"},
             {"cost", tr.trajectory.length()},
             {"trajectory", Log::serializeTrajectory(tr.trajectory)},
             {"stats", nlohmann::json(stats)["stats"]}};
@@ -165,6 +172,7 @@ struct PathEvaluation {
         evaluate(stats, tr.trajectory, &planner);
         j["ompl_anytime_ps"] = {
             {"time", tr.elapsed()},
+            {"name", "Anytime PS"},
             {"cost", tr.trajectory.length()},
             {"trajectory", Log::serializeTrajectory(tr.trajectory)},
             {"stats", nlohmann::json(stats)["stats"]}};

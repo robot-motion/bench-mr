@@ -64,8 +64,9 @@ std::vector<std::array<double, 2>> Log::serializePath(
 }
 
 std::vector<std::array<double, 3>> Log::serializeTrajectory(
-    const ompl::geometric::PathGeometric &t) {
-  const auto traj = PlannerUtils::interpolated(t);
+    const ompl::geometric::PathGeometric &t, bool interpolate) {
+  ompl::geometric::PathGeometric traj = t;
+  if (interpolate) traj = PlannerUtils::interpolated(t);
   std::vector<std::array<double, 3>> r;
   for (auto i = 0u; i < traj.getStateCount(); ++i) {
     const auto *s = traj.getState(i)->as<State>();

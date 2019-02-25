@@ -104,3 +104,6 @@ target_link_libraries(compute_distances ${EXTRA_LIB})
 
 add_executable(posq_testing experiments/posq_testing.cpp ${ALL_SRC})
 target_link_libraries(posq_testing ${EXTRA_LIB})
+
+add_executable(show_polygon_mazes experiments/show_polygon_mazes.cpp ${ALL_SRC})
+target_link_libraries(show_polygon_mazes ${EXTRA_LIB})

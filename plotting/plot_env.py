@@ -18,7 +18,7 @@ plot_env_options = [
 
 
 @add_options(plot_env_options)
-def plot_env(env, run_id: int = -1, colors=(None, None), draw_start_goal=True, draw_start_goal_thetas=True,
+def plot_env(env, run_id: int = -1, colors=(None, None), draw_start_goal=True, draw_start_goal_thetas=False,
              set_title=True, show_distances=False, **_):
     """
     Plots the json branch for an environment.
@@ -48,11 +48,11 @@ def plot_env(env, run_id: int = -1, colors=(None, None), draw_start_goal=True, d
         ax = plt.gca()
 
         if w * h > 100 * 100:
-            major_ticks = np.arange(0, max(w, h), 25)
-            minor_ticks = np.arange(0, max(w, h), 5)
+            major_ticks = np.arange(0, max(w+1, h+1), 25)
+            minor_ticks = np.arange(0, max(w+1, h+1), 5)
         else:
-            major_ticks = np.arange(0, max(w, h), 10)
-            minor_ticks = np.arange(0, max(w, h), 1)
+            major_ticks = np.arange(0, max(w+1, h+1), 10)
+            minor_ticks = np.arange(0, max(w+1, h+1), 1)
 
         ax.set_xticks(major_ticks)
         ax.set_xticks(minor_ticks, minor=True)
@@ -77,7 +77,7 @@ def plot_env(env, run_id: int = -1, colors=(None, None), draw_start_goal=True, d
         ax.set_xlim([0, w])
         ax.set_ylim([0, h])
 
-        title += '(%i$\\times$%i %s %i)' % (w, h, env["generator"], env["seed"])
+        title += '($%i\\times%i$ %s %i)' % (w, h, env["generator"], env["seed"])
     elif env["type"] == "polygon":
         polygons = []
         for points in env["obstacles"]:

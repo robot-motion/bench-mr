@@ -52,40 +52,43 @@ class PlannerUtils {
 
   static bool collides(const std::vector<Point> &path) {
     for (unsigned int i = 0; i < path.size(); ++i) {
-      if (global::settings.environment->collides(path[i].x, path[i].y)) {
+      if (global::settings.environment->collides(path[i])) {
+//         || global::settings.environment->bilinearDistance(path[i].x,
+//         path[i].y) < 1.5) {
 #ifdef DEBUG
         // QtVisualizer::drawPath(path, QColor(255, 100, 0, 170));
 #endif
         return true;
       }
 
-      // check intermediary points
-      //      if (i < path.size() - 1) {
-      //        double dx = (path[i + 1].x - path[i].x);
-      //        double dy = (path[i + 1].y - path[i].y);
-      //        double size = std::sqrt(dx * dx + dy * dy);
-      //        const double scale = 1.5;
-      //        dx = dx / size * scale;
-      //        dy = dy / size * scale;
+      //      // check intermediary points
+      //            if (i < path.size() - 1) {
+      //              double dx = (path[i + 1].x - path[i].x);
+      //              double dy = (path[i + 1].y - path[i].y);
+      //              double size = std::sqrt(dx * dx + dy * dy);
+      //              const double scale = 0.1;
+      //              dx = dx / size * scale;
+      //              dy = dy / size * scale;
       //
-      //        auto steps = (int)(size / std::sqrt(dx * dx + dy * dy));
+      //              auto steps = (int)(size / std::sqrt(dx * dx + dy * dy));
       //
-      //        for (int j = 1; j <= steps; ++j) {
-      //          if (global::settings.environment->collides(path[i].x + dx * j,
-      //                                                     path[i].y + dy *
-      //                                                     j)) {
-      //#if QT_SUPPORT
-      ////                        QtVisualizer::drawNode(path[i].x + dx * j,
-      /// path[i].y + /                        dy * j, / QColor(255*.8, 255*0,
-      /// 255*.9), /                                               0.3);
-      //#ifdef DEBUG
-      //            // QtVisualizer::drawPath(path, QColor(250, 0, 0, 70));
-      //#endif
-      //#endif
-      //            return true;
-      //          }
-      //        }
-      //      }
+      //              for (int j = 1; j <= steps; ++j) {
+      //                if (global::settings.environment->collides(path[i].x +
+      //                dx * j,
+      //                                                           path[i].y +
+      //                                                           dy * j)) {
+      //      #if QT_SUPPORT
+      //      //                        QtVisualizer::drawNode(path[i].x + dx *
+      //      j, / path[i].y + /                        dy * j, / QColor(255*.8,
+      //      255*0, / 255*.9), / 0.3); #ifdef DEBUG
+      //                  // QtVisualizer::drawPath(path, QColor(250, 0, 0,
+      //                  70));
+      //      #endif
+      //      #endif
+      //                  return true;
+      //                }
+      //              }
+      //            }
     }
 #if QT_SUPPORT
 #ifdef DEBUG
@@ -105,9 +108,7 @@ class PlannerUtils {
               << std::endl;
 #endif
     ompl::geometric::PathGeometric p(global::settings.ompl.space_info, a, b);
-    if (global::settings.ompl.state_space->validSegmentCount(a, b) <
-        global::settings.interpolation_limit)
-      p = interpolated(p);
+    p = interpolated(p);
     const auto path = Point::fromPath(p, false);
     const auto result = collides(path);
     p.clear();
@@ -126,9 +127,7 @@ class PlannerUtils {
               << global::settings.ompl.state_space->validSegmentCount(a, b)
               << std::endl;
 #endif
-    if (global::settings.ompl.state_space->validSegmentCount(a, b) <
-        global::settings.interpolation_limit)
-      path = interpolated(path);
+    path = interpolated(path);
     const auto points = Point::fromPath(path, false);
     const auto result = collides(points);
     return result;
@@ -149,37 +148,38 @@ class PlannerUtils {
       }
 
       // check intermediary points
-      if (i < path.size() - 1) {
-        double dx = (path[i + 1].x - path[i].x);
-        double dy = (path[i + 1].y - path[i].y);
-        double size = std::sqrt(dx * dx + dy * dy);
-        const double scale = 0.15;  // 1.5;
-        dx = dx / size * scale;
-        dy = dy / size * scale;
-
-        auto steps = (int)(size / std::sqrt(dx * dx + dy * dy));
-
-        for (int j = 1; j <= steps; ++j) {
-          if (global::settings.environment->collides(path[i].x + dx * j,
-                                                     path[i].y + dy * j))
-          //  || global::settings.environment->collides(path[i].x + dx * j + .5,
-          //  path[i].y + dy * j
-          //  + .5))
-          {
-#if QT_SUPPORT
-//                        QtVisualizer::drawNode(path[i].x + dx * j, path[i].y +
-//                        dy * j,
-//                                               QColor(255*.8, 255*0, 255*.9),
-//                                               0.3);
-#ifdef DEBUG
-            // QtVisualizer::drawPath(path, QColor(250, 0, 0, 70));
-#endif
-#endif
-            collisions.emplace_back(path[j]);
-            continue;
-          }
-        }
-      }
+      //      if (i < path.size() - 1) {
+      //        double dx = (path[i + 1].x - path[i].x);
+      //        double dy = (path[i + 1].y - path[i].y);
+      //        double size = std::sqrt(dx * dx + dy * dy);
+      //        const double scale = 0.15;  // 1.5;
+      //        dx = dx / size * scale;
+      //        dy = dy / size * scale;
+      //
+      //        auto steps = (int)(size / std::sqrt(dx * dx + dy * dy));
+      //
+      //        for (int j = 1; j <= steps; ++j) {
+      //          if (global::settings.environment->collides(path[i].x + dx * j,
+      //                                                     path[i].y + dy *
+      //                                                     j))
+      //          //  || global::settings.environment->collides(path[i].x + dx *
+      //          j + .5,
+      //          //  path[i].y + dy * j
+      //          //  + .5))
+      //          {
+      //#if QT_SUPPORT
+      ////                        QtVisualizer::drawNode(path[i].x + dx * j,
+      ///path[i].y + /                        dy * j, / QColor(255*.8, 255*0,
+      ///255*.9), /                                               0.3);
+      //#ifdef DEBUG
+      //            // QtVisualizer::drawPath(path, QColor(250, 0, 0, 70));
+      //#endif
+      //#endif
+      //            collisions.emplace_back(path[j]);
+      //            continue;
+      //          }
+      //        }
+      //      }
     }
 #ifdef DEBUG
     // QtVisualizer::drawPath(path, QColor(150, 200, 0, 70));
@@ -195,18 +195,14 @@ class PlannerUtils {
               << global::settings.ompl.state_space->validSegmentCount(a, b)
               << std::endl;
 #endif
-    if (global::settings.ompl.state_space->validSegmentCount(a, b) >
-        global::settings.interpolation_limit)
-      p.interpolate(global::settings.interpolation_limit);
-    else
-      p = interpolated(p);
+    p = interpolated(p);
     const auto path = Point::fromPath(p, false);
     return collides(path, collisions);
   }
 
   static ompl::geometric::PathGeometric interpolated(
       ompl::geometric::PathGeometric path) {
-    if (path.getStateCount() == 0) {
+    if (path.getStateCount() < 2) {
 #if DEBUG
       OMPL_WARN("Tried to interpolate an empty path.");
 #endif

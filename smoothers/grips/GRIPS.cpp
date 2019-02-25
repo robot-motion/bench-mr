@@ -38,7 +38,7 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
        round < global::settings.smoothing.grips.gradient_descent_rounds;
        ++round) {
     beginRound(ROUND_GD);
-    OMPL_DEBUG("GRIPS: GD Round %d...", round);
+    OMPL_DEBUG("GRIPS: GD Round %d...", round + 1);
     // gradient descent along distance field
     for (auto i = 1u; i < path.getStateCount() - 1; ++i) {
       // compute gradient
@@ -141,17 +141,27 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
     }
 
     lastPathLength = path.getStateCount();
-    OMPL_DEBUG("#### PRUNING ROUND %i", pruningRound++);
+    OMPL_DEBUG("GRIPS: Pruning Round  %i", pruningRound++);
     ++pruningRounds;
 
     fixes = 0;
 
     // determine unremovable nodes
     std::vector<unsigned int> unremovable;
-
     std::vector<unsigned int> local_unremovable{0};
     for (unsigned int i = 1; i < path.getStateCount() - 1; ++i) {
-      if (PlannerUtils::collides(path.getState(i - 1), path.getState(i + 1))) {
+#if DEBUG
+      std::cout << "PlannerUtils::collides(["
+                << path.getState(i - 1)->as<State>()->getX() << " "
+                << path.getState(i - 1)->as<State>()->getY() << "]"
+                << ", [" << path.getState(i + 1)->as<State>()->getX() << " "
+                << path.getState(i + 1)->as<State>()->getY() << "]) ? "
+                << PlannerUtils::collides(path.getState(i - 1),
+                                          path.getState(i + 1))
+                << std::endl;
+#endif
+      if (PlannerUtils::collides(path.getState(local_unremovable.back()),
+                                 path.getState(i + 1))) {
         local_unremovable.push_back(i);
 
 #ifdef DEBUG
@@ -164,6 +174,9 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
     unremovable = local_unremovable;
 
 #ifdef DEBUG
+    OMPL_DEBUG("GRIPS: we have %d unremovable nodes (before: %d).",
+               unremovable.size(), path.getStateCount());
+
 #if QT_SUPPORT
     for (auto i : unremovable) {
       QtVisualizer::drawNode(path.getState(i).x_r, path.getState(i).y_r,
@@ -173,9 +186,7 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
     }
 #endif
 #endif
-
     PlannerUtils::updateAngles(path, AverageAngles, true);
-
 #ifdef DEBUG
 #if QT_SUPPORT
     for (unsigned int i = 0; i < path.getStateCount()(); ++i) {
@@ -188,14 +199,13 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
 #endif
 
     // compute final trajectory
-    std::vector<ob::State*> finalPath;
+    std::vector<ob::State *> finalPath;
     for (unsigned int ui = 1; ui < unremovable.size(); ++ui) {
       const auto i = unremovable[ui - 1];
       const auto j = unremovable[ui];
 
       if (finalPath.empty() ||
-          !PlannerUtils::equals(path.getState(i),
-                                finalPath.back()))
+          !PlannerUtils::equals(path.getState(i), finalPath.back()))
         finalPath.emplace_back(path.getState(i));
 
       if (j - i <= 1) continue;  // no intermediary nodes
@@ -212,7 +222,7 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
       // run Bellman-Ford to determine best path from source (i) to sink (j)
       for (auto u = i; u <= j - 1; ++u) {
         for (auto v = u + 1; v <= j; ++v) {
-            og::PathGeometric uv(global::settings.ompl.space_info);
+          og::PathGeometric uv(global::settings.ompl.space_info);
           if (PlannerUtils::collides(path.getState(u), path.getState(v), uv))
             continue;  // a break has the same effect for linear steering and
                        // would be more efficient
@@ -252,11 +262,9 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
       unsigned int k = j - i;
       auto insertPosition = finalPath.size();
       while (k > 0) {
-        if (!PlannerUtils::equals(path.getState(k + i),
-                                  finalPath.back()))
-          finalPath.insert(
-              finalPath.begin() + insertPosition,
-              path.getState(k + i));
+        if (!PlannerUtils::equals(path.getState(k + i), finalPath.back()))
+          finalPath.insert(finalPath.begin() + insertPosition,
+                           path.getState(k + i));
         if (k == predecessors[k]) {
           OMPL_ERROR("Failed to prune path due to loop in shortest path.");
           break;
@@ -264,13 +272,12 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
         k = predecessors[k];
       }
     }
-    if (!PlannerUtils::equals(path.getStates().back(),
-                              finalPath.back()))
+    if (!PlannerUtils::equals(path.getStates().back(), finalPath.back()))
       finalPath.emplace_back(path.getStates().back());
 
-//    path.clear();
+    //    path.clear();
     path.getStates() = finalPath;
-//    path = finalPath;
+    //    path = finalPath;
     nodesPerRound.push_back((int)path.getStateCount());
     endRound(path);
 

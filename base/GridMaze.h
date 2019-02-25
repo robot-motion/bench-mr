@@ -45,11 +45,11 @@ class GridMaze : public Environment {
     //#endif
     //      return _grid[coord2key(x, y)] || bilinearDistance(x, y) <= 0.1;
     //    }
-    return _grid[coord2key(x, y)];
-    //    || _grid[coord2key(x + .15, y)] ||
-    //           _grid[coord2key(x, y + .15)] || _grid[coord2key(x + .15, y +
-    //           .15)] || _grid[coord2key(x - .15, y)] || _grid[coord2key(x, y -
-    //           .15)] || _grid[coord2key(x - .15, y - .15)];
+    return _grid[coord2key(x, y)]
+        || _grid[coord2key(x + .15, y)] ||
+               _grid[coord2key(x, y + .15)] || _grid[coord2key(x + .15, y +
+               .15)] || _grid[coord2key(x - .15, y)] || _grid[coord2key(x, y -
+               .15)] || _grid[coord2key(x - .15, y - .15)];
   }
 
   inline bool occupiedCell(unsigned int xi, unsigned int yi) const {
@@ -165,7 +165,9 @@ class GridMaze : public Environment {
            double voxelSize = 1.);
 
   inline unsigned int coord2key(double x, double y) const {
-    return (unsigned int)std::max(0., std::floor(y) * width() + std::floor(x));
+    return (unsigned int)std::max(
+        0., std::min(std::round(y), _voxels_y - 1.) * _voxels_x +
+                std::min(std::round(x), _voxels_x - 1.));
   }
   void fill(double x, double y, bool value);
   void fill(const Rectangle &r, bool value);
