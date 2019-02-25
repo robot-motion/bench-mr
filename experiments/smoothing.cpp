@@ -11,16 +11,13 @@ namespace og = ompl::geometric;
 int main(int argc, char **argv) {
   Log::instantiateRun();
 
-  for (unsigned int i = 0; i < 10; ++i) {
-    OMPL_INFORM("+++ Run %d / %d +++", i + 1, 10);
+  const unsigned int rounds = 8;
+  for (unsigned int i = 0; i < rounds; ++i) {
+    OMPL_INFORM("+++ Run %d / %d +++", i + 1, rounds);
     delete global::settings.environment;
     global::settings.environment = GridMaze::createRandomCorridor(
         50, 50, 3,
-        30,  // 1540486476); //1540445576); //1502484532); //1502407983);
-        // //1502323408); //1502316103); //1502231684); //1502227898);
-        // //1501893283); //1501892155);//1501089540); //1501089410
-        // );//1500660612);// 1500551721);// 1500550472);
-        i + 1);
+        30, i + 1);
 
     global::settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
     global::settings.steer.car_turning_radius = 3;
