@@ -8,7 +8,6 @@
 #include <ompl/base/spaces/SE2StateSpace.h>
 #include <ompl/geometric/PathGeometric.h>
 #include <ompl/geometric/SimpleSetup.h>
-#include <ompl/geometric/planners/AnytimePathShortening.h>
 #include <ompl/geometric/planners/rrt/SORRTstar.h>
 
 #ifdef G1_AVAILABLE
@@ -18,24 +17,11 @@
 
 #include "steer_functions/POSQ/POSQStateSpace.h"
 
-#include "base/TimedResult.hpp"
-
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
 
 class AbstractPlanner {
  public:
-  static const unsigned int BSPLINE_MAX_STEPS = 5;
-  static constexpr double BSPLINE_EPSILON = 0.005;
-
-  static const unsigned int SHORTCUT_MAX_STEPS = 0;
-  static const unsigned int SHORTCUT_MAX_EMPTY_STEPS = 0;
-  static constexpr double SHORTCUT_RANGE_RATIO = 0.33;
-  static constexpr double SHORTCUT_SNAP_TO_VERTEX = 0.005;
-
-  static const bool ANYTIME_SHORTCUT = true;
-  static const bool ANYTIME_HYBRIDIZE = true;
-
   virtual std::string name() const = 0;
 
   virtual ob::PlannerStatus run() = 0;
@@ -64,97 +50,6 @@ class AbstractPlanner {
   virtual bool hasReachedGoalExactly() const = 0;
   virtual double planningTime() const = 0;
 
-  virtual TimedResult shortcutPath() const {
-    TimedResult r;
-    r.status = ss->getLastPlannerStatus();
-    og::PathGeometric path = solution();
-    //        ss->getSpaceInformation()->setStateValidityCheckingResolution(0.2);
-    og::PathSimplifier ps(ss->getSpaceInformation(), ss->getGoal());
-
-    r.start();
-    ps.shortcutPath(path, SHORTCUT_MAX_STEPS, SHORTCUT_MAX_EMPTY_STEPS,
-                    SHORTCUT_RANGE_RATIO, SHORTCUT_SNAP_TO_VERTEX);
-    r.stop();
-
-    // have to reduce resolution
-    path.interpolate();
-    //        ss->getSpaceInformation()->setStateValidityCheckingResolution(0.05);
-    r.trajectory = path;
-    return r;
-  }
-
-  virtual TimedResult smoothBSpline() const {
-    TimedResult r;
-    r.status = ss->getLastPlannerStatus();
-    og::PathGeometric path = solution();
-    //        ss->getSpaceInformation()->setStateValidityCheckingResolution(0.2);
-    og::PathSimplifier ps(ss->getSpaceInformation(), ss->getGoal());
-
-    r.start();
-    ps.smoothBSpline(path, BSPLINE_MAX_STEPS, BSPLINE_EPSILON);
-    r.stop();
-
-    // have to reduce resolution
-    path.interpolate();
-    //        ss->getSpaceInformation()->setStateValidityCheckingResolution(0.05);
-    r.trajectory = path;
-    return r;
-  }
-
-  virtual TimedResult simplifyMax() const {
-    TimedResult r;
-    r.status = ss->getLastPlannerStatus();
-    og::PathGeometric path = solution();
-    og::PathSimplifier ps(ss->getSpaceInformation(), ss->getGoal());
-
-    r.start();
-    ps.simplifyMax(path);
-    r.stop();
-
-    path.interpolate();
-    r.trajectory = path;
-    return r;
-  }
-
-  virtual TimedResult anytimePathShortening() {
-    ob::PlannerPtr planner;
-    planner =
-        std::make_shared<og::AnytimePathShortening>(ss->getSpaceInformation());
-    planner->as<og::AnytimePathShortening>()->setHybridize(ANYTIME_HYBRIDIZE);
-    planner->as<og::AnytimePathShortening>()->setShortcut(ANYTIME_SHORTCUT);
-    ob::PlannerPtr optimizingPlanner(omplPlanner());
-    planner->as<og::AnytimePathShortening>()->addPlanner(optimizingPlanner);
-    this->ss->setPlanner(planner);
-    this->ss->setup();
-    auto solved = this->ss->solve(global::settings.max_planning_time);
-    std::cout << "OMPL anytime path shortening planning status: "
-              << solved.asString().c_str() << std::endl;
-
-    TimedResult r;
-    r.status = solved;
-    if (solved) {
-      //            ss->simplifySolution(); // TODO define time limit?
-
-#ifdef STEER_REEDS_SHEPP
-      // Output the length of the path found
-      std::cout << planner->getName() << " found a solution of length "
-                << this->ss->getSolutionPath().length()
-                << " with an optimization objective value of "
-                << this->ss->getSolutionPath().cost(
-                       this->ss->getOptimizationObjective())
-                << std::endl;
-#endif
-
-      auto path = ss->getSolutionPath();
-      path.interpolate();
-      //        ss->getSpaceInformation()->setStateValidityCheckingResolution(0.05);
-      r.trajectory = path;
-    } else
-      std::cout << "No solution found." << std::endl;
-
-    return r;
-  }
-
  public:
   bool isValid(const ob::State *state) const {
     return ss->getStateValidityChecker()->isValid(state);
@@ -164,6 +59,8 @@ class AbstractPlanner {
       if (!ss->getStateValidityChecker()->isValid(state)) return false;
     return true;
   }
+
+  og::SimpleSetup *simpleSetup() const { return ss; }
 
  protected:
   og::SimpleSetup *ss{nullptr};
@@ -220,6 +117,5 @@ class AbstractPlanner {
     ss->setup();
   }
 
- protected:
   virtual ob::Planner *omplPlanner() { return nullptr; }
 };

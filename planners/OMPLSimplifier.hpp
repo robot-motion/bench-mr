@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AbstractPlanner.hpp"
-#include "base/PlannerUtils.hpp"
+#include "utils/PlannerUtils.hpp"
 
 /**
  * Derived from AbstractPlanner, this class is intended to simplify

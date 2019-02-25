@@ -1,41 +1,30 @@
-#include <utility>
-
 #pragma once
 
 #include <chomp/ConstraintFactory.h>
 #include <chomp/Map2D.h>
 #include <chomp/chomputil.h>
 #include <mzcommon/DtGrid.h>
+#include <utils/Stopwatch.hpp>
 
-#include "../AbstractPlanner.hpp"
+#include "planners/AbstractPlanner.hpp"
 
 using chomp::MatX;
 
-class ChompPlanner : public AbstractPlanner {
+class CHOMP {
  public:
-  ChompPlanner();
+  CHOMP();
 
-  std::string name() const override { return "CHOMP"; }
+  ob::PlannerStatus run(const og::PathGeometric &path);
 
-  ob::PlannerStatus run() override;
+  og::PathGeometric solution() const;
+  std::vector<Point> solutionPath() const;
 
-  og::PathGeometric solution() const override;
-  std::vector<Point> solutionPath() const override;
-
-  bool hasReachedGoalExactly() const override;
-
-  double planningTime() const override;
+  double planningTime() const;
 
  private:
   static Map2D *_map;
   Stopwatch _timer;
   std::vector<Point> _path;
-
-  void _initializeStraightLine(int N, const Map2D &map, const vec2f &p0,
-                               const vec2f &p1, MatX &xi, MatX &q0, MatX &q1);
-
-  void _initializeThetaStar(int N, const vec2f &p0, const vec2f &p1, MatX &xi,
-                            MatX &q0, MatX &q1, bool extraClearing);
 
   class Map2DCHelper : public chomp::ChompCollisionHelper {
    public:
@@ -48,14 +37,14 @@ class ChompPlanner : public AbstractPlanner {
 
     const Map2D map;
 
-    Map2DCHelper(const Map2D &m)
+    explicit Map2DCHelper(const Map2D &m)
         : ChompCollisionHelper(NUM_CSPACE, NUM_WKSPACE, NUM_BODIES), map(m) {}
 
     Map2DCHelper()
         : ChompCollisionHelper(NUM_CSPACE, NUM_WKSPACE, NUM_BODIES), map() {}
 
-    virtual double getCost(const MatX &q, size_t body_index, MatX &dx_dq,
-                           MatX &cgrad) {
+    double getCost(const MatX &q, size_t body_index, MatX &dx_dq,
+                   MatX &cgrad) override {
       assert((q.rows() == 2 && q.cols() == 1) ||
              (q.rows() == 1 && q.cols() == 2));
 
@@ -67,7 +56,7 @@ class ChompPlanner : public AbstractPlanner {
       cgrad.conservativeResize(3, 1);
 
       vec3f g;
-      float c = map.sampleCost(vec3f(q(0), q(1), 0.0), g);
+      float c = map.sampleCost(vec3f((float)q(0), (float)q(1), 0.0), g);
 
       cgrad << g[0], g[1], 0.0;
 

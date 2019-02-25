@@ -44,3 +44,6 @@ cmake-*
 # stats / binary files
 bin/*
 !bin/parking
+
+plotting/*.png
+plotting/*.pdf

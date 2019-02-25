@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "PostSmoothing.h"
+#include "smoothers/grips/GRIPS.h"
 
 nlohmann::json Log::_json = {{"runs", nlohmann::json::array()}};
 nlohmann::json Log::_currentRun;
@@ -28,7 +28,7 @@ void Log::instantiateRun() {
 
 void Log::log(const PathStatistics &stats) {
   nlohmann::json runStats = stats;
-  runStats["ps_roundStats"] = PostSmoothing::statsPerRound;
+  runStats["ps_roundStats"] = GRIPS::statsPerRound;
   _currentRun["runs"].push_back(runStats);
 }
 
@@ -43,7 +43,7 @@ void Log::save(std::string filename, std::string path) {
 
   char *absFilename = nullptr;
   absFilename = realpath((path + filename).c_str(), absFilename);
-  OMPL_INFORM("Saved path statistics log file at %s.", absFilename);
+  OMPL_INFORM("Saved path statistics log file at %s", absFilename);
 }
 
 void Log::storeRun() { _json["runs"].push_back(_currentRun); }

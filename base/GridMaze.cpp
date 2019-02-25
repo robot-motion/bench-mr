@@ -10,7 +10,7 @@
 
 #include "GridMaze.h"
 #include "PlannerSettings.h"
-#include "PlannerUtils.hpp"
+#include "utils/PlannerUtils.hpp"
 
 #ifdef QT_SUPPORT
 #include "gui/QtVisualizer.h"
@@ -37,18 +37,18 @@ GridMaze::GridMaze(unsigned int seed, unsigned int width, unsigned int height,
       _distances(nullptr),
       _type("unknown") {
   _grid = new bool[cells()];
-  bool *g = _grid;
   _bounds.setLow(0, 0);
   _bounds.setLow(1, 0);
   _bounds.setHigh(0, _voxels_x * _voxelSize);
   _bounds.setHigh(1, _voxels_y * _voxelSize);
+  bool *g = _grid;
   for (unsigned int i = 0; i < cells(); ++i) *g++ = false;
 }
 
 GridMaze::GridMaze(const GridMaze &environment) : _distances(nullptr) {
-  _grid = new bool[environment._voxels_x * environment._voxels_y];
+  _grid = new bool[environment.cells()];
   bool *g = _grid;
-  for (unsigned int i = 0; i < environment._voxels_x * environment._voxels_y;
+  for (unsigned int i = 0; i < environment.cells();
        ++i)
     *g++ = environment._grid[i];
 

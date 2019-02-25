@@ -3,7 +3,6 @@
 #include "metrics/PathLengthMetric.h"
 
 #include "planners/OMPLPlanner.hpp"
-#include "planners/chomp/Chomp.h"
 #include "planners/sbpl/SbplPlanner.h"
 #include "planners/thetastar/ThetaStar.h"
 
@@ -11,7 +10,7 @@
 
 #include "utils/PathEvaluation.hpp"
 
-#include "PostSmoothing.h"
+#include "smoothers/grips/GRIPS.h"
 
 namespace og = ompl::geometric;
 
@@ -48,6 +47,7 @@ int main(int argc, char **argv) {
     std::cout << "##############################################" << std::endl;
 
     // create environment
+    delete global::settings.environment;
     global::settings.environment =
         GridMaze::createFromMovingAiScenario(scenario);
     global::settings.steer.initializeSteering();
@@ -56,15 +56,14 @@ int main(int argc, char **argv) {
         {{"plans", {}}, {"optimalDistance", scenario.optimal_length}});
     global::settings.environment->to_json(info["environment"]);
 
-//    PathEvaluation::evaluate<ChompPlanner>(info);
-//    PathEvaluation::evaluate<ThetaStar>(info);
+    //    PathEvaluation::evaluate<ThetaStar>(info);
     PathEvaluation::evaluate<RRTPlanner>(info);
-//    PathEvaluation::evaluate<RRTstarPlanner>(info);
-//    PathEvaluation::evaluate<RRTsharpPlanner>(info);
-//    PathEvaluation::evaluate<InformedRRTstarPlanner>(info);
-//    PathEvaluation::evaluate<SORRTstarPlanner>(info);
-//    PathEvaluation::evaluate<CForestPlanner>(info);
-//    PathEvaluation::evaluate<SbplPlanner>(info);
+    //    PathEvaluation::evaluate<RRTstarPlanner>(info);
+    //    PathEvaluation::evaluate<RRTsharpPlanner>(info);
+    //    PathEvaluation::evaluate<InformedRRTstarPlanner>(info);
+    //    PathEvaluation::evaluate<SORRTstarPlanner>(info);
+    //    PathEvaluation::evaluate<CForestPlanner>(info);
+    //    PathEvaluation::evaluate<SbplPlanner>(info);
 
     Log::log(info);
   }

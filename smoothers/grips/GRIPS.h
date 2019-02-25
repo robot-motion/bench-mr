@@ -5,18 +5,15 @@
 #include <params.hpp>
 
 #include "base/PlannerSettings.h"
-#include "base/PlannerUtils.hpp"
+#include "utils/PlannerUtils.hpp"
 #include "base/TimedResult.hpp"
 
 #include "metrics/CurvatureMetric.h"
 #include "metrics/PathLengthMetric.h"
 
 using namespace params;
-class PostSmoothing {
+class GRIPS {
  public:
-  static const bool MINIMIZE_PATHLENGTH = true;  // otherwise minimize curvature
-  static const bool FIX_COLLISIONS = false;
-
   enum RoundType { ROUND_GD, ROUND_PRUNING, ROUND_ORIGINAL, ROUND_UNKOWN };
 
   struct RoundStats : public Group {
@@ -78,8 +75,6 @@ class PostSmoothing {
 
   static int insertedNodes;
   static int pruningRounds;
-  static int collisionFixAttempts;
-  static int roundsWithCollisionFixAttempts;
   static std::vector<int> nodesPerRound;
   static std::vector<RoundStats> statsPerRound;
   static double smoothingTime;
@@ -89,7 +84,8 @@ class PostSmoothing {
 
   static bool smooth(ompl::geometric::PathGeometric &path) {
     auto intermediary = ompl::geometric::PathGeometric(path);
-    intermediary.interpolate();
+//    intermediary.interpolate();
+    OMPL_DEBUG("GRIPS path has %d node(s).", path.getStateCount());
     smooth(path, Point::fromPath(intermediary));
   }
 
@@ -125,7 +121,6 @@ class PostSmoothing {
   static RoundStats roundStats;
 
   static void beginRound(RoundType type = ROUND_UNKOWN);
-
   static void endRound(const ompl::geometric::PathGeometric &path);
 
   static Stopwatch stopWatch;

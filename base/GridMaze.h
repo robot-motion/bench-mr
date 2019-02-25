@@ -22,7 +22,7 @@ class GridMaze : public Environment {
   GridMaze() = default;
   GridMaze(const GridMaze &environment);
 
-  virtual ~GridMaze();
+  ~GridMaze();
 
   static const unsigned int DefaultWidth = 50;
   static const unsigned int DefaultHeight = 50;

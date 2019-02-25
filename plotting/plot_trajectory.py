@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
 
-import matplotlib.pyplot as plt
+import click
 import numpy as np
-from matplotlib.patches import Polygon
+
+plot_trajectory_options = [
+    click.option('--draw_arrows', default=False, type=bool)
+]
 
 
-def plot_trajectory(traj, planner: str, settings, color, add_label=True, alpha: float = 1.):
+def plot_trajectory(traj, planner: str, settings, color, add_label=True, alpha: float = 1., draw_arrows=False, **_):
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Polygon
+    if len(traj) == 0:
+        click.echo("Planner %s found no solution!" % planner)
+        return
     traj = np.array(traj)
     if settings["collision_model"] == 0:
         # point collision model
@@ -25,3 +33,9 @@ def plot_trajectory(traj, planner: str, settings, color, add_label=True, alpha: 
             poly = Polygon(state[:2] + np.matmul(points, rotation), True, fill=False, linestyle='--', edgecolor=color,
                            alpha=alpha)
             plt.gca().add_patch(poly)
+    if draw_arrows:
+        import math
+        for i in range(traj.shape[0]):
+            state = traj[i, :]
+            dx, dy = math.cos(state[2]), math.sin(state[2])
+            plt.arrow(state[0], state[1], dx * 2., dy * 2., color=color, width=0.01, head_width=0.2, alpha=alpha)

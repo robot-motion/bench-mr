@@ -1,6 +1,6 @@
 #include "Environment.h"
 #include <planners/thetastar/ThetaStar.h>
-#include "PlannerUtils.hpp"
+#include "utils/PlannerUtils.hpp"
 
 bool Environment::collides(const ompl::geometric::PathGeometric &trajectory) {
   for (auto &p : Point::fromPath(PlannerUtils::interpolated(trajectory))) {

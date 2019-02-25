@@ -44,6 +44,10 @@ struct Point {
   Point() = default;
   Point(double x, double y) : x(x), y(y) {}
   Point(const ob::State *state) {
+    if (state == nullptr) {
+      OMPL_WARN("Cannot create point from NULL state.");
+      return;
+    }
     x = state->as<State>()->getX();
     y = state->as<State>()->getY();
   }

@@ -5,6 +5,8 @@
 
 class Environment {
  public:
+  virtual ~Environment() = default;
+
   void setStart(const Point &point) { _start = point; }
   const Point &start() const { return _start; }
 

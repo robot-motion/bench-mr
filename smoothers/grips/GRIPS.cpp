@@ -1,32 +1,24 @@
-#include "PostSmoothing.h"
+#include "GRIPS.h"
 #include <base/PathStatistics.hpp>
 
 #if QT_SUPPORT
 #include "gui/QtVisualizer.h"
 #endif
 
-//#define DEBUG 0
-#undef DEBUG
+int GRIPS::insertedNodes = 0;
+int GRIPS::pruningRounds = 0;
+std::vector<int> GRIPS::nodesPerRound;
+std::vector<GRIPS::RoundStats> GRIPS::statsPerRound;
+GRIPS::RoundStats GRIPS::roundStats;
+double GRIPS::smoothingTime = 0;
+Stopwatch GRIPS::stopWatch;
 
-int PostSmoothing::insertedNodes = 0;
-int PostSmoothing::pruningRounds = 0;
-int PostSmoothing::collisionFixAttempts = 0;
-int PostSmoothing::roundsWithCollisionFixAttempts = 0;
-std::vector<int> PostSmoothing::nodesPerRound;
-std::vector<PostSmoothing::RoundStats> PostSmoothing::statsPerRound;
-PostSmoothing::RoundStats PostSmoothing::roundStats;
-double PostSmoothing::smoothingTime = 0;
-Stopwatch PostSmoothing::stopWatch;
-
-bool PostSmoothing::smooth(
-    ompl::geometric::PathGeometric &path,
-    const std::vector<Point> &originalPathIntermediaries) {
+bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
+                   const std::vector<Point> &originalPathIntermediaries) {
   const bool AverageAngles = true;
 
   insertedNodes = 0;
   pruningRounds = 0;
-  collisionFixAttempts = 0;
-  roundsWithCollisionFixAttempts = 0;
   nodesPerRound.clear();
   statsPerRound.clear();
 
@@ -40,21 +32,26 @@ bool PostSmoothing::smooth(
   PlannerUtils::updateAngles(path, AverageAngles);
 
   double dx, dy;
-  double eta = global::settings.grips.eta;  // gradient descent step size
-  for (int round = 0; round < global::settings.grips.gradient_descent_rounds; ++round) {
+  double eta =
+      global::settings.smoothing.grips.eta;  // gradient descent step size
+  for (int round = 0;
+       round < global::settings.smoothing.grips.gradient_descent_rounds;
+       ++round) {
     beginRound(ROUND_GD);
+    OMPL_DEBUG("GRIPS: GD Round %d...", round);
     // gradient descent along distance field
     for (auto i = 1u; i < path.getStateCount() - 1; ++i) {
       // compute gradient
       auto *s = path.getState(i)->as<State>();
-      global::settings.environment->distanceGradient(s->getX(), s->getY(), dx, dy, 1.);
+      global::settings.environment->distanceGradient(s->getX(), s->getY(), dx,
+                                                     dy, 1.);
       double distance =
           global::settings.environment->bilinearDistance(s->getX(), s->getY());
       distance = std::max(.1, distance);
       s->setX(s->getX() - eta * dx / distance);
       s->setY(s->getY() + eta * dy / distance);
     }
-    eta *= global::settings.grips.eta_discount;  // discount factor
+    eta *= global::settings.smoothing.grips.eta_discount;  // discount factor
 
     PlannerUtils::updateAngles(path, AverageAngles);
 
@@ -88,13 +85,14 @@ bool PostSmoothing::smooth(
       tpath = PlannerUtils::toSteeredPoints(current, next);
 
       for (auto &p : tpath) {
-        double distance = global::settings.environment->bilinearDistance(p.x, p.y);
+        double distance =
+            global::settings.environment->bilinearDistance(p.x, p.y);
         double difference = distance - lastDistance;
         if (lastDifference < 0 && difference > 0 &&
             lastNodePosition.distance(p.x, p.y) >=
-                global::settings.grips.min_node_distance &&
+                global::settings.smoothing.grips.min_node_distance &&
             nextNodePosition.distance(p.x, p.y) >=
-                global::settings.grips.min_node_distance) {
+                global::settings.smoothing.grips.min_node_distance) {
           // local minimum
           npath.append(p.toState());
           lastNodePosition = Point(p.x, p.y);
@@ -132,7 +130,7 @@ bool PostSmoothing::smooth(
   nodesPerRound.push_back((int)(path.getStateCount()));
   do {
     beginRound(ROUND_PRUNING);
-    if (pruningRound >= global::settings.grips.max_pruning_rounds) {
+    if (pruningRound >= global::settings.smoothing.grips.max_pruning_rounds) {
       OMPL_ERROR(
           "Giving up pruning after %i rounds. The smoothed trajectory most "
           "likely collides.",
@@ -190,16 +188,15 @@ bool PostSmoothing::smooth(
 #endif
 
     // compute final trajectory
-    ompl::geometric::PathGeometric finalPath(global::settings.ompl.space_info);
+    std::vector<ob::State*> finalPath;
     for (unsigned int ui = 1; ui < unremovable.size(); ++ui) {
       const auto i = unremovable[ui - 1];
       const auto j = unremovable[ui];
 
-      if (finalPath.getStateCount() == 0 ||
+      if (finalPath.empty() ||
           !PlannerUtils::equals(path.getState(i),
-                                finalPath.getState(static_cast<unsigned int>(
-                                    finalPath.getStateCount() - 1))))
-        finalPath.append(path.getState(i));
+                                finalPath.back()))
+        finalPath.emplace_back(path.getState(i));
 
       if (j - i <= 1) continue;  // no intermediary nodes
 
@@ -215,14 +212,12 @@ bool PostSmoothing::smooth(
       // run Bellman-Ford to determine best path from source (i) to sink (j)
       for (auto u = i; u <= j - 1; ++u) {
         for (auto v = u + 1; v <= j; ++v) {
-          if (PlannerUtils::collides(path.getState(u), path.getState(v)))
+            og::PathGeometric uv(global::settings.ompl.space_info);
+          if (PlannerUtils::collides(path.getState(u), path.getState(v), uv))
             continue;  // a break has the same effect for linear steering and
                        // would be more efficient
 
-          double edgeWeight =
-              PathLengthMetric::evaluate(ompl::geometric::PathGeometric(
-                  global::settings.ompl.space_info, path.getState(u),
-                  path.getState(v)));
+          double edgeWeight = uv.length();
 
 #ifdef DEBUG
 #if QT_SUPPORT
@@ -255,13 +250,12 @@ bool PostSmoothing::smooth(
       }
 
       unsigned int k = j - i;
-      auto insertPosition = finalPath.getStateCount();
+      auto insertPosition = finalPath.size();
       while (k > 0) {
         if (!PlannerUtils::equals(path.getState(k + i),
-                                  finalPath.getState(static_cast<unsigned int>(
-                                      finalPath.getStateCount() - 1))))
-          finalPath.getStates().insert(
-              finalPath.getStates().begin() + insertPosition,
+                                  finalPath.back()))
+          finalPath.insert(
+              finalPath.begin() + insertPosition,
               path.getState(k + i));
         if (k == predecessors[k]) {
           OMPL_ERROR("Failed to prune path due to loop in shortest path.");
@@ -271,10 +265,12 @@ bool PostSmoothing::smooth(
       }
     }
     if (!PlannerUtils::equals(path.getStates().back(),
-                              finalPath.getStates().back()))
-      finalPath.append(path.getStates().back());
+                              finalPath.back()))
+      finalPath.emplace_back(path.getStates().back());
 
-    path = finalPath;
+//    path.clear();
+    path.getStates() = finalPath;
+//    path = finalPath;
     nodesPerRound.push_back((int)path.getStateCount());
     endRound(path);
 
@@ -310,14 +306,14 @@ bool PostSmoothing::smooth(
   return true;
 }
 
-void PostSmoothing::beginRound(PostSmoothing::RoundType type) {
+void GRIPS::beginRound(GRIPS::RoundType type) {
 #ifdef STATS
   roundStats.stopWatch.start();
   roundStats.type = type;
 #endif
 }
 
-void PostSmoothing::endRound(const ompl::geometric::PathGeometric &path) {
+void GRIPS::endRound(const ompl::geometric::PathGeometric &path) {
 #ifdef STATS
   stopWatch.pause();
   static std::vector<double> nodeDistances, trajDistances;
@@ -328,8 +324,8 @@ void PostSmoothing::endRound(const ompl::geometric::PathGeometric &path) {
   roundStats.nodes = (int)path.getStateCount();
   nodeDistances.clear();
   for (auto i = 0u; i < path.getStateCount(); ++i)
-    nodeDistances.push_back(
-        global::settings.environment->bilinearDistance(Point(path.getState(i))));
+    nodeDistances.push_back(global::settings.environment->bilinearDistance(
+        Point(path.getState(i))));
   roundStats.median_node_obstacle_distance = stat::median(nodeDistances);
   roundStats.mean_node_obstacle_distance = stat::mean(nodeDistances);
   roundStats.min_node_obstacle_distance = stat::min(nodeDistances);
