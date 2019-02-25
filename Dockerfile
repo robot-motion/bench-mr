@@ -30,7 +30,8 @@ RUN \
     libboost-thread-dev \
     libboost-program-options-dev \
     libboost-filesystem-dev \
-    nlohmann-json-dev
+    nlohmann-json-dev \
+    python3-pip
 
 
 RUN mkdir -p /root/code
@@ -59,6 +60,10 @@ RUN rm -rf build && cmake -H. -Bbuild
 
 # Build mpb
 RUN cd build && make
+
+# Install Python requirements for plotting
+WORKDIR /root/code/mpb/plotting
+RUN pip3 install -r requirements.txt
 
 # Setup repo
 WORKDIR /root/code/mpb
