@@ -40,9 +40,10 @@ void Log::save(std::string filename, std::string path) {
   if (filename.empty()) filename = Log::filename() + (std::string) ".json";
   std::ofstream o(path + filename);
   o << std::setw(4) << _currentRun << std::endl;
-
+  o.close();
   char *absFilename = nullptr;
   absFilename = realpath((path + filename).c_str(), absFilename);
+
   OMPL_INFORM("Saved path statistics log file at %s", absFilename);
 }
 

@@ -5,12 +5,13 @@
 
 class Environment {
  public:
+    Environment();
   virtual ~Environment() = default;
 
-  void setStart(const Point &point) { _start = point; }
+  void setStart(const Point &point);
   const Point &start() const { return _start; }
 
-  void setGoal(const Point &point) { _goal = point; }
+  void setGoal(const Point &point);
   const Point &goal() const { return _goal; }
 
   virtual bool collides(double x, double y) { return true; }
@@ -59,11 +60,7 @@ class Environment {
   void estimateStartGoalOrientations();
 
   bool thetasDefined() const { return _thetas_defined; }
-  void setThetas(double start, double goal) {
-    _start_theta = start;
-    _goal_theta = goal;
-    _thetas_defined = true;
-  }
+  void setThetas(double start, double goal);
 
   ompl::base::State *startState() const { return _start.toState(_start_theta); }
   ompl::base::State *goalState() const { return _goal.toState(_goal_theta); }

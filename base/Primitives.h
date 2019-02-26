@@ -130,6 +130,10 @@ struct Point {
 };
 
 inline void to_json(nlohmann::json &j, const Point &p) { j = {p.x, p.y}; }
+inline void from_json(const nlohmann::json &j, Point &p) {
+  p.x = j.at(0);
+  p.y = j.at(1);
+}
 
 struct Polygon {
   std::vector<Point> points;
@@ -283,3 +287,8 @@ struct Polygon {
 };
 
 inline void to_json(nlohmann::json &j, const Polygon &p) { j = p.points; }
+inline void from_json(const nlohmann::json &j, Polygon &p) {
+  p.points.clear();
+  for (const auto &element : j)
+    p.points.emplace_back(element);
+}

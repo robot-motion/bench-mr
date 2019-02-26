@@ -87,6 +87,9 @@ set(ALL_SRC ${Base} ${Utils} ${Steer} ${Metrics} ${Planners} ${Smoothers} ${EXTR
 link_directories(base/)
 link_directories(steer_functions/)
 
+add_executable(benchmark experiments/benchmark.cpp ${ALL_SRC})
+target_link_libraries(benchmark ${EXTRA_LIB})
+
 add_executable(benchmark_corridors experiments/benchmark_corridors.cpp ${ALL_SRC})
 target_link_libraries(benchmark_corridors ${EXTRA_LIB})
 

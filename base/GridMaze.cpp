@@ -29,7 +29,8 @@
 
 GridMaze::GridMaze(unsigned int seed, unsigned int width, unsigned int height,
                    double voxelSize)
-    : _voxels_x(width),
+    : Environment(),
+      _voxels_x(width),
       _voxels_y(height),
       _voxelSize(voxelSize),
       _empty(false),
@@ -45,11 +46,11 @@ GridMaze::GridMaze(unsigned int seed, unsigned int width, unsigned int height,
   for (unsigned int i = 0; i < cells(); ++i) *g++ = false;
 }
 
-GridMaze::GridMaze(const GridMaze &environment) : _distances(nullptr) {
+GridMaze::GridMaze(const GridMaze &environment)
+    : Environment(), _distances(nullptr) {
   _grid = new bool[environment.cells()];
   bool *g = _grid;
-  for (unsigned int i = 0; i < environment.cells();
-       ++i)
+  for (unsigned int i = 0; i < environment.cells(); ++i)
     *g++ = environment._grid[i];
 
   _seed = environment._seed;
@@ -152,8 +153,8 @@ GridMaze *GridMaze::createRandomCorridor(unsigned int width,
       double dist = p.distance(q);
       if (dist > max_dist) {
         max_dist = dist;
-        environment->_start = p;
-        environment->_goal = q;
+        environment->setStart(p);
+        environment->setGoal(q);
       }
     }
   }
@@ -182,13 +183,13 @@ GridMaze *GridMaze::createRandom(unsigned int width, unsigned int height,
   do {
     x = int(rand() * 1. / RAND_MAX * (width / 8.));
     y = int(rand() * 1. / RAND_MAX * (height / 8.));
-    environment->_start = Point(x, y);
+    environment->setStart(Point(x, y));
   } while (environment->occupied(x, y));
 
   do {
     x = int(width * 7. / 8. + rand() * 1. / RAND_MAX * (width / 8.));
     y = int(height * 7. / 8. + rand() * 1. / RAND_MAX * (height / 8.));
-    environment->_goal = Point(x, y);
+    environment->setGoal(Point(x, y));
   } while (environment->occupied(x, y));
 
   return environment;
@@ -534,8 +535,8 @@ void GridMaze::computeDistances() {
 GridMaze *GridMaze::createSimple() {
   auto *environment = new GridMaze(0, DefaultWidth, DefaultHeight);
   environment->fill(Rectangle(18, 18, 34, 34), true);
-  environment->_start = Point(18, 45);
-  environment->_goal = Point(45, 18);
+  environment->setStart(Point(18, 45));
+  environment->setGoal(Point(45, 18));
   environment->_type = "simple";
   return environment;
 }
@@ -544,8 +545,8 @@ GridMaze *GridMaze::createSimple() {
 GridMaze *GridMaze::createFromMovingAiScenario(Scenario &scenario) {
   auto *environment = new GridMaze(0, scenario.map_width, scenario.map_height);
   // set start and goal points
-  environment->_start = Point(scenario.start_x, scenario.start_y);
-  environment->_goal = Point(scenario.goal_x, scenario.goal_y);
+  environment->setStart(Point(scenario.start_x, scenario.start_y));
+  environment->setGoal(Point(scenario.goal_x, scenario.goal_y));
   environment->_voxels_x = scenario.map_width;
   environment->_voxels_y = scenario.map_height;
   environment->_type = "moving_ai " + scenario.mapName;
