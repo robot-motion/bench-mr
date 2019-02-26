@@ -9,9 +9,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="53.92392mm"
-   height="93.95536mm"
-   viewBox="0 0 53.92392 93.95536"
+   width="93.955353mm"
+   height="53.923916mm"
+   viewBox="0 0 93.955353 53.923916"
    version="1.1"
    id="svg1073"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.35"
-     inkscape:cx="-250.95368"
-     inkscape:cy="146.12487"
+     inkscape:zoom="1.4"
+     inkscape:cx="76.176232"
+     inkscape:cy="140.65557"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -48,7 +48,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -56,10 +56,10 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-40.317803,-93.540179)">
+     transform="translate(-20.302083,-113.5559)">
     <path
        id="rect831"
-       d="m 94.055974,99.918976 v 81.197754 l -0.923006,2.4151 -2.520141,1.96803 -3.743952,1.32473 -4.594434,0.4852 H 52.28508 l -4.59443,-0.4852 -3.74395,-1.32473 -2.52014,-1.96803 -0.92301,-2.4151 V 99.918976 l 0.92301,-2.4151 2.52014,-1.96804 3.74395,-1.32473 4.59443,-0.48518 h 29.989361 l 4.594434,0.48518 3.743952,1.32473 2.520141,1.96804 0.923006,2.4151 v 0"
+       d="M 107.87864,167.29407 H 26.68089 l -2.4151,-0.92301 -1.96803,-2.52014 -1.32473,-3.74395 -0.4852,-4.59443 v -29.98936 l 0.4852,-4.59443 1.32473,-3.74395 1.96803,-2.52014 2.4151,-0.92301 h 81.19775 l 2.4151,0.92301 1.96804,2.52014 1.32473,3.74395 0.48518,4.59443 v 29.98936 l -0.48518,4.59443 -1.32473,3.74395 -1.96804,2.52014 -2.4151,0.92301 v 0"
        style="fill:#c7c7c7;fill-opacity:1;stroke:#000000;stroke-width:0.37149459;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers stroke fill"
        inkscape:connector-curvature="0" />
   </g>

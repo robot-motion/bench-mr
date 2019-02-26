@@ -46,10 +46,12 @@ void evaluatePlanners(nlohmann::json &info) {
 }
 
 int main(int argc, char **argv) {
-  //  std::cout << std::setw(2) <<
-  //  nlohmann::json::parse(nlohmann::json(global::settings).dump()) <<
-  //  std::endl; std::ofstream o("benchmark.json"); o << std::setw(2) <<
-  //  nlohmann::json(global::settings); o.close();
+  std::cout << std::setw(2)
+            << nlohmann::json::parse(nlohmann::json(global::settings).dump())
+            << std::endl;
+  std::ofstream o("benchmark_template.json");
+  o << std::setw(2) << nlohmann::json(global::settings);
+  o.close();
 
   if (argc <= 1) {
     std::cout << "Usage: " << argv[0] << " configuration.json" << std::endl;
@@ -99,7 +101,7 @@ int main(int argc, char **argv) {
     for (unsigned int i = 0; i < global::settings.benchmark.runs; ++i) {
       std::cout << "##############################################"
                 << std::endl;
-      std::cout << "# Benchmark Run " << i << " / "
+      std::cout << "# Benchmark Run " << i + 1 << " / "
                 << global::settings.benchmark.runs.value() << std::endl;
       std::cout << "##############################################"
                 << std::endl;

@@ -33,8 +33,8 @@ struct PathEvaluation {
       stats.curvature = CurvatureMetric::evaluate(solution);
       stats.smoothness = solution.smoothness();
 
-      if (global::settings.evaluate_clearing) {
-        OMPL_INFORM("Evaluating clearing distance metric.");
+      if (global::settings.evaluate_clearing &&
+          global::settings.environment->distance(0., 0.) >= 0.) {
         auto clearings = ClearingMetric::clearingDistances(solution);
         stats.mean_clearing_distance = stat::mean(clearings);
         stats.median_clearing_distance = stat::median(clearings);
