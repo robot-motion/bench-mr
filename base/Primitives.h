@@ -158,6 +158,10 @@ struct Polygon {
     for (auto &p : points) p -= c;
   }
 
+  void scale(double scaling) {
+    for (auto &p : points) p *= scaling;
+  }
+
   /**
    * Loads polygon from a path tag inside an SVG file.
    */
@@ -289,6 +293,5 @@ struct Polygon {
 inline void to_json(nlohmann::json &j, const Polygon &p) { j = p.points; }
 inline void from_json(const nlohmann::json &j, Polygon &p) {
   p.points.clear();
-  for (const auto &element : j)
-    p.points.emplace_back(element);
+  for (const auto &element : j) p.points.emplace_back(element);
 }

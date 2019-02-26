@@ -2,20 +2,20 @@
   "settings": {
     "auto_choose_distance_computation_method": true,
     "benchmark": {
-      "log_file": "parking1.json",
+      "log_file": "movingai_berlin_256.json",
       "moving_ai": {
-        "active": false,
+        "active": true,
         "end": -1,
-        "scenario": "Berlin_0_256.map.scen",
-        "start": -10
+        "scenario": "moving_ai_scenarios/Berlin_0_256.map.scen",
+        "start": -2
       },
       "planning": {
-        "bfmt": false,
+        "bfmt": true,
         "bit_star": false,
         "cforest": false,
         "est": false,
         "fmt": false,
-        "informed_rrt_star": true,
+        "informed_rrt_star": false,
         "kpiece1": false,
         "prm_star": false,
         "rrt": false,
@@ -28,7 +28,7 @@
         "stride": false,
         "theta_star": false
       },
-      "runs": 1,
+      "runs": 10,
       "smoothing": {
         "chomp": false,
         "grips": false,
@@ -36,15 +36,16 @@
         "ompl_bspline": false,
         "ompl_shortcut": false,
         "ompl_simplify_max": false
-      }
+      },
+      "steer_functions": [0, 1, 2]
     },
-    "collision_model": 1,
+    "collision_model": 0,
     "distance_computation_method": 0,
     "env": {
       "goal": {
-        "theta": -1.58,
-        "x": 7.72,
-        "y": -7.72
+        "theta": 0.0,
+        "x": 0.0,
+        "y": 0.0
       },
       "grid": {
         "corridor": {
@@ -64,11 +65,11 @@
         "source": "polygon_mazes/parking1.svg"
       },
       "start": {
-        "theta": 0,
+        "theta": 0.0,
         "x": 0.0,
-        "y": -2.27
+        "y": 0.0
       },
-      "type": "polygon"
+      "type": "grid"
     },
     "estimate_theta": false,
     "evaluate_clearing": true,
@@ -131,7 +132,7 @@
       "car_turning_radius": 4.0,
       "hc_cc": {
         "kappa": 5.0,
-        "sigma": 0.5
+        "sigma": 0.315
       },
       "posq": {
         "alpha": 3.0,

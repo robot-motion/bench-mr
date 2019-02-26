@@ -6,12 +6,15 @@ import numpy as np
 plot_trajectory_options = [
     click.option('--draw_arrows', default=False, type=bool),
     click.option('--draw_dots', default=False, type=bool),
-    click.option('--plot_every_nth_polygon', default=10, type=int)
+    click.option('--plot_every_nth_polygon', default=10, type=int),
+    click.option('--draw_lines', default=True, type=bool),
+    click.option('--line_alpha', default=0.6, type=float),
+    click.option('--line_width', default=2., type=float)
 ]
 
 
 def plot_trajectory(traj, planner: str, settings, color, add_label=True, alpha: float = 1., draw_arrows=False,
-                    draw_dots=False, plot_every_nth_polygon=10, **_):
+                    draw_dots=False, plot_every_nth_polygon=10, draw_lines=True, line_alpha=0.6, line_width=2., **_):
     import matplotlib.pyplot as plt
     from matplotlib.patches import Polygon
     if len(traj) == 0:
@@ -31,6 +34,8 @@ def plot_trajectory(traj, planner: str, settings, color, add_label=True, alpha: 
         points = np.array(settings["robot_shape"])
         if points.shape[0] == 0:
             raise Exception("Robot shape is empty!")
+        if draw_lines:
+            plt.plot(traj[:, 0], traj[:, 1], '-', color=color, alpha=line_alpha, linewidth=line_width)
         if add_label:
             plt.plot([], '-', color=color, label=planner)
         for i in range(traj.shape[0]):

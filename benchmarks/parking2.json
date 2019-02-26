@@ -2,7 +2,7 @@
   "settings": {
     "auto_choose_distance_computation_method": true,
     "benchmark": {
-      "log_file": "parking1.json",
+      "log_file": "parking2.json",
       "moving_ai": {
         "active": false,
         "end": -1,
@@ -42,9 +42,9 @@
     "distance_computation_method": 0,
     "env": {
       "goal": {
-        "theta": -1.58,
-        "x": 7.72,
-        "y": -7.72
+        "theta": -1.57,
+        "x": 10.91,
+        "y": 2.73
       },
       "grid": {
         "corridor": {
@@ -61,10 +61,10 @@
       },
       "polygon": {
         "scaling": 0.045454545454545456,
-        "source": "polygon_mazes/parking1.svg"
+        "source": "polygon_mazes/parking2.svg"
       },
       "start": {
-        "theta": 0,
+        "theta": 0.0,
         "x": 0.0,
         "y": -2.27
       },

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Environment.h"
+#include "PlannerSettings.h"
 #include "utils/SvgPolygonLoader.hpp"
 
 #include <collision2d/sat.hpp>
@@ -23,6 +24,8 @@ class PolygonMaze : public Environment {
           ("Could not find any obstacles in \"" + filename + "\".").c_str());
       return maze;
     }
+    for (auto &obstacle : maze->_obstacles)
+      obstacle.scale(global::settings.env.polygon.scaling);
     auto min = maze->_obstacles[0].min();
     auto max = maze->_obstacles[0].max();
     for (const auto &o : maze->_obstacles) {

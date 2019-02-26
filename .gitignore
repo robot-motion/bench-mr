@@ -44,6 +44,8 @@ cmake-*
 # stats / binary files
 bin/*
 !bin/polygon_mazes
+!bin/moving_ai_scenarios
+!bin/sbpl_mprim
 
 plotting/*.png
 plotting/*.pdf

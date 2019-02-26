@@ -2,7 +2,6 @@
 
 #include <utility>
 
-#include <ompl/base/objectives/PathLengthOptimizationObjective.h>
 #include <ompl/base/spaces/DubinsStateSpace.h>
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
 #include <ompl/base/spaces/SE2StateSpace.h>
