@@ -49,12 +49,24 @@ void Log::save(std::string filename, std::string path) {
 
 void Log::storeRun() { _json["runs"].push_back(_currentRun); }
 
+bool replace(std::string &str, const std::string &from, const std::string &to) {
+  // thanks to https://stackoverflow.com/a/3418285
+  size_t start_pos = str.find(from);
+  if (start_pos == std::string::npos) return false;
+  str.replace(start_pos, from.length(), to);
+  return true;
+}
+
 std::string Log::filename() {
+  auto env_name = global::settings.environment->name();
+  replace(env_name, "/", "_");
+  replace(env_name, ".", "_");
+  replace(env_name, ":", "_");
+  replace(env_name, "*", "_");
   return _currentRun["settings"]["steering"].get<std::string>() + " " +
          std::to_string(global::settings.environment->width()) + "x" +
          std::to_string(global::settings.environment->height()) + " " +
-         global::settings.environment->name() + " " +
-         _currentRun["globals"]["time"].get<std::string>();
+         env_name + " " + _currentRun["globals"]["time"].get<std::string>();
 }
 
 std::vector<std::array<double, 2>> Log::serializePath(

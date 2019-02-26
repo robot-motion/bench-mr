@@ -37,7 +37,9 @@
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
-     fit-margin-bottom="0" />
+     fit-margin-bottom="0"
+     inkscape:snap-nodes="false"
+     inkscape:snap-global="false" />
   <defs
      id="defs2" />
   <metadata
@@ -146,5 +148,21 @@
        id="path1529"
        d="m 504.97679,-18.249947 -0.20492,9.8252533 6.20372,1.641616 7.5303,1.4802626 10.96681,-0.1493341 0.50025,-14.9228638 -10.19919,-0.401749 -7.95153,0.590274 z"
        style="fill:#c7c7c7;fill-opacity:1;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <path
+       style="fill:#c7c7c7;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       d="M -196.48894,-41.842223 V -207.39579 h 412.75 V -52.425556 H 71.118184 l -136.071415,8.315476 -126.999999,9.827381 z"
+       id="path845"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:#c7c7c7;fill-opacity:1;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 606.33248,-36.021389 V -207.84936 h -392.3393 v 155.197019 l 281.2143,3.023809 z"
+       id="path847"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccc" />
+    <path
+       style="fill:#c7c7c7;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       d="M -191.95323,182.67563 V 379.22325 H 607.08842 V 192.50301 l -99.7857,-12.85119 -265.3393,-8.31547 -306.160699,10.58333 z"
+       id="path849"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>

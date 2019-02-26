@@ -48,10 +48,9 @@ class PolygonMaze : public Environment {
     for (const auto &poly : _obstacles) {
       if (collision2d::intersect(collision2d::Point<double>{x, y},
                                  (collision2d::Polygon<double>)poly)) {
-        OMPL_INFORM("[%.2f %.2f] collides with polygon %d.", x, y, i);
-        //        for (const auto &point : poly.points)
-        //            std::cout << point << " ";
-        //        std::cout << std::endl;
+#ifdef DEBUG
+        OMPL_DEBUG("[%.2f %.2f] collides with polygon %d.", x, y, i);
+#endif
         return true;
       }
       ++i;
@@ -72,6 +71,12 @@ class PolygonMaze : public Environment {
     j["obstacles"] = obstacles();
     j["start"] = {start().x, start().y, startTheta()};
     j["goal"] = {goal().x, goal().y, goalTheta()};
+    j["width"] = width();
+    j["height"] = height();
+    j["min_x"] = _bounds.low[0];
+    j["min_y"] = _bounds.low[1];
+    j["max_x"] = _bounds.high[0];
+    j["max_y"] = _bounds.high[1];
     j["name"] = name();
   }
 

@@ -108,7 +108,8 @@ void PlannerSettings::GlobalSettings::EnvironmentSettings::createEnvironment() {
     global::settings.robot_shape =
         SvgPolygonLoader::load(global::settings.robot_shape_source)[0];
     global::settings.robot_shape.value().center();
-    OMPL_INFORM("Loaded polygon robot model from %s.",
-                global::settings.robot_shape_source.value().c_str());
+    OMPL_INFORM("Loaded polygon robot model from %s with %d vertices.",
+                global::settings.robot_shape_source.value().c_str(),
+                global::settings.robot_shape.value().points.size());
   }
 }
