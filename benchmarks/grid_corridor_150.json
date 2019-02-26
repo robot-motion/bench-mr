@@ -2,7 +2,7 @@
   "settings": {
     "auto_choose_distance_computation_method": true,
     "benchmark": {
-      "log_file": "parking1.json",
+      "log_file": "grid_corridor_150.json",
       "moving_ai": {
         "active": false,
         "end": -1,
@@ -11,64 +11,63 @@
       },
       "planning": {
         "bfmt": false,
-        "bit_star": false,
-        "cforest": false,
+        "bit_star": true,
+        "cforest": true,
         "est": false,
         "fmt": false,
         "informed_rrt_star": true,
-        "kpiece1": false,
+        "kpiece1": true,
         "prm_star": false,
         "rrt": false,
         "rrt_sharp": false,
-        "rrt_star": false,
+        "rrt_star": true,
         "sbl": false,
         "sbpl": false,
-        "sorrt_star": false,
-        "sst": false,
+        "sorrt_star": true,
+        "sst": true,
         "stride": false,
-        "theta_star": false
+        "theta_star": true
       },
       "runs": 1,
       "smoothing": {
         "chomp": false,
-        "grips": false,
+        "grips": true,
         "ompl_anytime_ps": false,
-        "ompl_bspline": false,
-        "ompl_shortcut": false,
-        "ompl_simplify_max": false
+        "ompl_bspline": true,
+        "ompl_shortcut": true,
+        "ompl_simplify_max": true
       }
     },
-    "collision_model": 1,
+    "collision_model": 0,
     "distance_computation_method": 0,
     "env": {
       "goal": {
-        "theta": -1.58,
-        "x": 7.72,
-        "y": -7.72
+        "theta": 0.0,
+        "x": 0.0,
+        "y": 0.0
       },
       "grid": {
         "corridor": {
-          "branches": 50,
-          "radius": 5
+          "branches": 300,
+          "radius": 4
         },
         "generator": "corridor",
-        "height": 50,
+        "height": 150,
         "random": {
           "obstacle_ratio": 5.0
         },
         "seed": 1,
-        "width": 50
+        "width": 150
       },
       "polygon": {
-        "scaling": 0.045454545454545456,
         "source": "polygon_mazes/parking1.svg"
       },
       "start": {
-        "theta": 0,
+        "theta": 0.0,
         "x": 0.0,
-        "y": -2.27
+        "y": 0.0
       },
-      "type": "polygon"
+      "type": "grid"
     },
     "estimate_theta": false,
     "evaluate_clearing": true,

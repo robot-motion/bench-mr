@@ -86,6 +86,11 @@ struct GlobalSettings : public Group {
       Property<std::string> source{"polygon_mazes/parking1.svg", "source",
                                    this};
 
+      /**
+       * Scale polygons from InkScape.
+       */
+      Property<double> scaling{1. / 22., "scaling", this};
+
     } polygon{"polygon", this};
   } env{"env", this};
 
@@ -158,6 +163,13 @@ struct GlobalSettings : public Group {
     Property<int> runs{10, "runs", this};
     Property<std::string> log_file{"", "log_file", this};
 
+    /**
+     * If a list of steer functions is given, they will each be tested on every
+     * run.
+     */
+    Property<std::vector<Steering::SteeringType>> steer_functions{
+        {}, "steer_functions", this};
+
     struct MovingAiSettings : public Group {
       using Group::Group;
 
@@ -200,6 +212,7 @@ struct GlobalSettings : public Group {
       Property<bool> theta_star{true, "theta_star", this};
       Property<bool> rrt{true, "rrt", this};
       Property<bool> rrt_star{true, "rrt_star", this};
+      Property<bool> bit_star{true, "bit_star", this};
       Property<bool> cforest{true, "cforest", this};
       Property<bool> rrt_sharp{true, "rrt_sharp", this};
       Property<bool> sorrt_star{true, "sorrt_star", this};
@@ -256,7 +269,7 @@ struct GlobalSettings : public Group {
       using Group::Group;
 
       Property<double> kappa{5, "kappa", this};
-      Property<double> sigma{0.5, "sigma", this};
+      Property<double> sigma{0.315, "sigma", this};
     } hc_cc{"hc_cc", this};
 
     struct PosqSettings : public Group {

@@ -12,13 +12,11 @@ from utils import add_options, group
 @click.option('--json_file', help='Name of the JSON file of a benchmarking run.', type=click.Path(exists=True))
 @click.option('--run_id', default='all', type=str,
               help='ID numbers of the the runs ("all" or comma-separated list on integers).')
-@click.option('--max_plots_per_line', default=5, help='Number of runs to visualize (0 means all).')
+@click.option('--max_plots_per_line', default=2, help='Number of runs to visualize (0 means all).')
 @click.option('--headless', default=False, type=bool)
 @click.option('--combine_views', default=True, type=bool)
 @click.option('--save_file', default=None, type=str)
 @click.option('--dpi', default=200, type=int)
-@add_options(plot_env_options)
-@add_options(plot_trajectory_options)
 def main(**kwargs):
     print(kwargs)
     visualize(**kwargs)
@@ -32,6 +30,28 @@ def visualize(json_file: str, run_id: str = 'all',
               save_file: str = None,
               dpi: int = 200, **kwargs):
     click.echo("Visualizing %s..." % click.format_filename(json_file))
+
+    stat_names = {
+        'curvature': 'Curvature',
+        'max_clearing_distance': 'Maximum Clearing Distance',
+        'mean_clearing_distance': 'Mean Clearing Distance',
+        'median_clearing_distance': 'Median Clearing Distance',
+        'min_clearing_distance': 'Minimum Clearing Distance',
+        'path_length': 'Path Length',
+        'smoothness': 'Smoothness',
+        'cost': 'Path Length'
+    }
+
+    stat_keys = [
+        'curvature',
+        # 'max_clearing_distance',
+        # 'mean_clearing_distance',
+        # 'median_clearing_distance',
+        # 'min_clearing_distance',
+        # 'path_length',
+        # 'smoothness',
+        'cost'
+    ]
 
     if headless:
         import matplotlib
@@ -50,51 +70,47 @@ def visualize(json_file: str, run_id: str = 'all',
         run_ids = [int(s.strip()) for s in run_id.split(',')]
 
     if combine_views:
-        max_plots_per_line = min(max_plots_per_line, len(run_ids))
+        max_plots_per_line = min(max_plots_per_line, len(stat_keys))
         axes_h = max_plots_per_line
-        axes_v = int(math.ceil(len(run_ids) / max_plots_per_line))
-        plt.figure("MPB %s" % json_file, figsize=(axes_h * 6, axes_v * 6))
+        axes_v = int(math.ceil(len(stat_keys) / max_plots_per_line))
+        plt.figure("MPB Convergence %s" % json_file, figsize=(axes_h * 5, axes_v * 5))
 
-    for i in run_ids:
-        run = data["runs"][i]
+    run_id = run_ids[0]
+    for si, stat_key in enumerate(stat_keys):
+        run = data["runs"][run_id]
         if combine_views:
-            plt.subplot(axes_v, axes_h, i + 1)
+            plt.subplot(axes_v, axes_h, si + 1)
         else:
-            plt.figure("Run %i - %s" % (i, json_file))
-        kwargs['run_id'] = (i if len(data["runs"]) > 1 else -1)
+            plt.figure("Run %i - %s (%s)" % (run_id, json_file, stat_key))
+        kwargs['run_id'] = run_id
         env = run["environment"]
-        plot_env(env, **kwargs)
+        plt.title(stat_names[stat_key], fontsize=20)
+        plt.grid()
+        plt.gca().set_xlabel("Planning Time [sec]", fontsize=18)
         if "settings" in run:
             settings = run["settings"]
-            print("Using settings from run", i)
+            print("Using settings from run", run_id)
         else:
             settings = data["settings"]
         for j, (planner, plan) in enumerate(run["plans"].items()):
-            plot_trajectory(plan["trajectory"], planner, settings, color=get_color(j), **kwargs)
-            if draw_nodes:
-                plot_nodes(plan["path"], planner, settings, color=get_color(j), **kwargs)
-            if show_smoother and "smoothing" in plan and plan["smoothing"] is not None:
-                for k, (smoother, smoothing) in enumerate(plan["smoothing"].items()):
-                    plot_trajectory(smoothing["trajectory"], "%s (%s)" % (planner, smoothing['name']), settings,
-                                    color=get_color(j + k + 1), **kwargs)
-                    if draw_nodes and "path" in smoothing:
-                        plot_nodes(smoothing["path"], "%s (%s)" % (planner, smoother), settings,
-                                   color=get_color(j + k + 1), **kwargs)
+            if "intermediary_solutions" in plan and len(plan["intermediary_solutions"]) > 0:
+                times = []
+                stats = []
+                for sol in plan["intermediary_solutions"]:
+                    times.append(sol["time"])
+                    if stat_key == 'cost':
+                        stats.append(sol["cost"])
+                    else:
+                        stats.append(sol["stats"][stat_key])
+                plt.plot(times, stats, '.-', color=get_color(j), label=planner)
 
-        if "min_x" in env and "max_y" in env:
-            plt.gca().set_xlim([env["min_x"], env["max_x"]])
-            plt.gca().set_ylim([env["min_y"], env["max_y"]])
-        elif "width" in env and "height" in env:
-            plt.gca().set_xlim([0, env["width"]])
-            plt.gca().set_ylim([0, env["height"]])
-
-        if not combine_views or i % axes_h == 0:
+        if not combine_views or si % axes_h == 0:
             plt.legend()
 
         if not combine_views and save_file is not None:
             plt.tight_layout()
             ext = save_file.rindex('.')
-            filename = save_file[:ext] + '_%i' % i + save_file[ext:]
+            filename = save_file[:ext] + '_%s' % stat_key + save_file[ext:]
             plt.savefig(filename, dpi=dpi, bbox_inches='tight')
             click.echo("Saved %s." % filename)
 

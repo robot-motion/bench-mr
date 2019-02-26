@@ -2,7 +2,7 @@
   "settings": {
     "auto_choose_distance_computation_method": true,
     "benchmark": {
-      "log_file": "parking1.json",
+      "log_file": "warehouse.json",
       "moving_ai": {
         "active": false,
         "end": -1,
@@ -13,7 +13,7 @@
         "bfmt": false,
         "bit_star": false,
         "cforest": false,
-        "est": false,
+        "est": true,
         "fmt": false,
         "informed_rrt_star": true,
         "kpiece1": false,
@@ -42,9 +42,9 @@
     "distance_computation_method": 0,
     "env": {
       "goal": {
-        "theta": -1.58,
-        "x": 7.72,
-        "y": -7.72
+        "theta": 1.58,
+        "x": 63.64,
+        "y": 2.27
       },
       "grid": {
         "corridor": {
@@ -61,12 +61,12 @@
       },
       "polygon": {
         "scaling": 0.045454545454545456,
-        "source": "polygon_mazes/parking1.svg"
+        "source": "polygon_mazes/warehouse.svg"
       },
       "start": {
-        "theta": 0,
-        "x": 0.0,
-        "y": -2.27
+        "theta": -1.58,
+        "x": -2.27,
+        "y": 4.55
       },
       "type": "polygon"
     },
@@ -84,7 +84,7 @@
       "state_equality_tolerance": 0.0001
     },
     "robot_shape": [],
-    "robot_shape_source": "polygon_mazes/car.svg",
+    "robot_shape_source": "polygon_mazes/warehouse_robot.svg",
     "sbpl": {
       "fordward_velocity": 0.4,
       "goal_tolerance_theta": 6.283185307179586,

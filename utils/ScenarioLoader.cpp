@@ -18,7 +18,7 @@ void ScenarioLoader::load(const string& fileName) {
   ifstream input_file(_fileName);
 
   if (input_file.fail()) {
-    cerr << "Failed to open MovingAI scenario file." << endl;
+    cerr << "Failed to open MovingAI scenario file " << fileName << endl;
     return;
   }
 
@@ -53,8 +53,12 @@ void ScenarioLoader::load(const string& fileName) {
 
 void Scenario::loadMap() {
   ifstream map_file(mapName);
+  if (map_file.fail() && filename.find('/') != std::string::npos) {
+    mapName = filename.substr(0, filename.find_last_of('/')) + "/" + mapName;
+    map_file = ifstream(mapName);
+  }
   if (map_file.fail()) {
-    cerr << "Invalid Map File." << endl;
+    cerr << "Failed to load map file from " << mapName << endl;
   }
   string temp;
   getline(map_file, temp);

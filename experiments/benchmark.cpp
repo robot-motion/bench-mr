@@ -9,8 +9,11 @@
 namespace og = ompl::geometric;
 
 void evaluatePlanners(nlohmann::json &info) {
+  info["plans"] = {};
   if (global::settings.benchmark.planning.bfmt)
     PathEvaluation::evaluateSmoothers<BFMTPlanner>(info);
+  if (global::settings.benchmark.planning.bit_star)
+    PathEvaluation::evaluateSmoothers<BITstarPlanner>(info);
   if (global::settings.benchmark.planning.cforest)
     PathEvaluation::evaluateSmoothers<CForestPlanner>(info);
   if (global::settings.benchmark.planning.est)
@@ -45,6 +48,38 @@ void evaluatePlanners(nlohmann::json &info) {
     PathEvaluation::evaluateSmoothers<ThetaStar>(info);
 }
 
+void run(nlohmann::json &info) {
+  global::settings.environment->to_json(info["environment"]);
+
+  evaluatePlanners(info);
+  info["settings"] = nlohmann::json(global::settings)["settings"];
+  Log::log(info);
+}
+
+void config_steering_and_run(int run_id, int start_id, int end_id,
+                             const nlohmann::json &base) {
+  nlohmann::json info(base);
+  if (run_id == start_id) {
+    if (global::settings.benchmark.log_file.value().empty())
+      global::settings.benchmark.log_file = Log::filename() + ".json";
+  }
+  if (global::settings.benchmark.steer_functions.value().empty()) {
+    global::settings.steer.initializeSteering();
+    run(info);
+  } else {
+    for (const auto steer_type :
+         global::settings.benchmark.steer_functions.value()) {
+      global::settings.steer.steering_type = steer_type;
+      global::settings.steer.initializeSteering();
+      run(info);
+    }
+  }
+  if (run_id == start_id) {
+    if (global::settings.benchmark.log_file.value().empty())
+      global::settings.benchmark.log_file = Log::filename() + ".json";
+  }
+}
+
 int main(int argc, char **argv) {
   std::cout << std::setw(2)
             << nlohmann::json::parse(nlohmann::json(global::settings).dump())
@@ -74,7 +109,8 @@ int main(int argc, char **argv) {
     for (int i = start_id; i <= end_id; ++i) {
       std::cout << "##############################################"
                 << std::endl;
-      std::cout << "# Moving AI Scenario " << i << std::endl;
+      std::cout << "# Moving AI Scenario " << i << "  (" << (i - start_id + 1)
+                << "/" << (end_id - start_id + 1) << ")" << std::endl;
       std::cout << "##############################################"
                 << std::endl;
 
@@ -82,20 +118,10 @@ int main(int argc, char **argv) {
       delete global::settings.environment;
       global::settings.environment =
           GridMaze::createFromMovingAiScenario(scenario);
-      global::settings.steer.initializeSteering();
 
-      if (i == start_id) {
-        if (global::settings.benchmark.log_file.value().empty())
-          global::settings.benchmark.log_file = Log::filename() + ".json";
-      }
-
-      auto info = nlohmann::json(
-          {{"plans", {}}, {"optimalDistance", scenario.optimal_length}});
-      global::settings.environment->to_json(info["environment"]);
-
-      evaluatePlanners(info);
-      info["settings"] = nlohmann::json(global::settings)["settings"];
-      Log::log(info);
+      auto info =
+          nlohmann::json({{"optimalDistance", scenario.optimal_length}});
+      config_steering_and_run(i, start_id, end_id, info);
     }
   } else {
     for (unsigned int i = 0; i < global::settings.benchmark.runs; ++i) {
@@ -110,17 +136,8 @@ int main(int argc, char **argv) {
 
       global::settings.steer.initializeSteering();
 
-      if (i == 0) {
-        if (global::settings.benchmark.log_file.value().empty())
-          global::settings.benchmark.log_file = Log::filename() + ".json";
-      }
-
-      auto info = nlohmann::json({{"plans", {}}});
-      global::settings.environment->to_json(info["environment"]);
-
-      evaluatePlanners(info);
-      info["settings"] = nlohmann::json(global::settings)["settings"];
-      Log::log(info);
+      nlohmann::json info;
+      config_steering_and_run(i, 0, global::settings.benchmark.runs, info);
     }
   }
 

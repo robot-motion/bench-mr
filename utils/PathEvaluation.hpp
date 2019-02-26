@@ -28,8 +28,8 @@ struct PathEvaluation {
           Point(solution.getStates().back())
               .distance(global::settings.environment->goal()) <=
           global::settings.exact_goal_radius;
-      stats.path_collides = planner->isValid(solution);
-      stats.path_length = PathLengthMetric::evaluate(solution);
+      stats.path_collides = !planner->isValid(solution);
+      stats.path_length = solution.length();
       stats.curvature = CurvatureMetric::evaluate(solution);
       stats.smoothness = solution.smoothness();
 

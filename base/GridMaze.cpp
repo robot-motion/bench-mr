@@ -562,7 +562,7 @@ GridMaze *GridMaze::createFromMovingAiScenario(Scenario &scenario) {
   }
 
   std::cout << "Loaded scenario " << scenario << std::endl;
-  std::cout << *environment << std::endl;
+//  std::cout << *environment << std::endl;
 
   return environment;
 }

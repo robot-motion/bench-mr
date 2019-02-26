@@ -45,11 +45,10 @@ class GridMaze : public Environment {
     //#endif
     //      return _grid[coord2key(x, y)] || bilinearDistance(x, y) <= 0.1;
     //    }
-    return _grid[coord2key(x, y)]
-        || _grid[coord2key(x + .15, y)] ||
-               _grid[coord2key(x, y + .15)] || _grid[coord2key(x + .15, y +
-               .15)] || _grid[coord2key(x - .15, y)] || _grid[coord2key(x, y -
-               .15)] || _grid[coord2key(x - .15, y - .15)];
+    return _grid[coord2key(x, y)] || _grid[coord2key(x + .15, y)] ||
+           _grid[coord2key(x, y + .15)] || _grid[coord2key(x + .15, y + .15)] ||
+           _grid[coord2key(x - .15, y)] || _grid[coord2key(x, y - .15)] ||
+           _grid[coord2key(x - .15, y - .15)];
   }
 
   inline bool occupiedCell(unsigned int xi, unsigned int yi) const {
@@ -160,6 +159,22 @@ class GridMaze : public Environment {
    */
   void computeDistances();
 
+  void to_json(nlohmann::json &j) override {
+    j["type"] = "grid";
+    j["generator"] = generatorType();
+    j["width"] = voxels_x();
+    j["height"] = voxels_y();
+    j["obstacleRatio"] = obstacleRatio();
+    j["seed"] = seed();
+    j["start"] = {start().x, start().y, startTheta()};
+    j["goal"] = {goal().x, goal().y, goalTheta()};
+    j["map"] = mapString();
+    j["name"] = name();
+    if (global::settings.log_env_distances) j["distances"] = mapDistances();
+    j["distance_computation_method"] =
+        distance_computation::to_string(distanceComputationMethod());
+  }
+
  protected:
   GridMaze(unsigned int seed, unsigned int width, unsigned int height,
            double voxelSize = 1.);
@@ -180,22 +195,6 @@ class GridMaze : public Environment {
       return distance_computation::BRUTE_FORCE;
     }
     return global::settings.distance_computation_method;
-  }
-
-  void to_json(nlohmann::json &j) override {
-    j["type"] = "grid";
-    j["generator"] = generatorType();
-    j["width"] = voxels_x();
-    j["height"] = voxels_y();
-    j["obstacleRatio"] = obstacleRatio();
-    j["seed"] = seed();
-    j["start"] = {start().x, start().y, startTheta()};
-    j["goal"] = {goal().x, goal().y, goalTheta()};
-    j["map"] = mapString();
-    j["name"] = name();
-    if (global::settings.log_env_distances) j["distances"] = mapDistances();
-    j["distance_computation_method"] =
-        distance_computation::to_string(distanceComputationMethod());
   }
 
  private:
