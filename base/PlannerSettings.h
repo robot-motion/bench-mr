@@ -29,12 +29,65 @@ inline std::string to_string(Method m) {
 }  // namespace distance_computation
 
 namespace PlannerSettings {
+struct StateSettings : public Group {
+  using Group::Group;
+  Property<double> x{0, "x", this};
+  Property<double> y{0, "y", this};
+  Property<double> theta{0, "theta", this};
+};
+
 /**
  * Global settings.
  */
 struct GlobalSettings : public Group {
   using Group::Group;
   Environment *environment{nullptr};
+
+  struct EnvironmentSettings : public Group {
+    using Group::Group;
+    /**
+     * What type of environment to load/generate ("grid"/"polygon").
+     */
+    Property<std::string> type{"grid", "type", this};
+
+    StateSettings start{"start", this};
+    StateSettings goal{"goal", this};
+
+    void createEnvironment();
+
+    struct GridSettings : public Group {
+      using Group::Group;
+      /**
+       * Generator for grid environments ("corridor", "random", "moving_ai").
+       */
+      Property<std::string> generator{"corridor", "generator", this};
+      Property<unsigned int> width{50, "width", this};
+      Property<unsigned int> height{50, "height", this};
+      Property<unsigned int> seed{1, "seed", this};
+
+      struct CorridorSettings : public Group {
+        using Group::Group;
+        Property<int> radius{5, "radius", this};
+        Property<int> branches{50, "branches", this};
+      } corridor{"corridor", this};
+
+      struct RandomSettings : public Group {
+        using Group::Group;
+        Property<double> obstacle_ratio{5, "obstacle_ratio", this};
+      } random{"random", this};
+    } grid{"grid", this};
+
+    struct PolygonSettings : public Group {
+      using Group::Group;
+
+      /**
+       * Generator for grid environments ("corridor", "random", "moving_ai").
+       */
+      Property<std::string> source{"polygon_mazes/parking1.svg", "source",
+                                   this};
+
+    } polygon{"polygon", this};
+  } env{"env", this};
 
   /**
    * Whether to log the distances precomputed by the grid mazes.
@@ -74,6 +127,11 @@ struct GlobalSettings : public Group {
                                          this};
 
   Property<Polygon> robot_shape{Polygon(), "robot_shape", this};
+  /**
+   * SVG file name of robot shape.
+   */
+  Property<std::string> robot_shape_source{"polygon_mazes/car.svg",
+                                           "robot_shape_source", this};
 
   /**
    * Radius threshold to evaluate whether the exact goal has been found.
@@ -83,12 +141,80 @@ struct GlobalSettings : public Group {
   /**
    * Any og::PathGeometric with more nodes will not get interpolated.
    */
-  Property<unsigned int> interpolation_limit{1000u, "interpolation_limit", this};
+  Property<unsigned int> interpolation_limit{1000u, "interpolation_limit",
+                                             this};
 
   /**
    * Maximal length a og::PathGeometric can have to be interpolated.
    */
   Property<double> max_path_length{10000, "max_path_length", this};
+
+  /**
+   * Settings related to benchmarking.
+   */
+  struct BenchmarkSettings : public Group {
+    using Group::Group;
+
+    Property<int> runs{10, "runs", this};
+    Property<std::string> log_file{"", "log_file", this};
+
+    struct MovingAiSettings : public Group {
+      using Group::Group;
+
+      /**
+       * Whether to run a Moving AI scenario.
+       */
+      Property<bool> active{false, "active", this};
+
+      Property<std::string> scenario{"Berlin_0_256.map.scen", "scenario", this};
+      /**
+       * Start index of problem in this scenario. Python-style negative indices
+       * are allowed.
+       */
+      Property<int> start{-10, "start", this};
+      /**
+       * End index of problem in this scenario. Python-style negative indices
+       * are allowed.
+       */
+      Property<int> end{-1, "end", this};
+    } moving_ai{"moving_ai", this};
+
+    /**
+     * Select certain smoothing algorithms to be evaluated.
+     */
+    struct SmoothingSettings : public Group {
+      using Group::Group;
+      Property<bool> grips{true, "grips", this};
+      Property<bool> chomp{true, "chomp", this};
+      Property<bool> ompl_shortcut{true, "ompl_shortcut", this};
+      Property<bool> ompl_bspline{true, "ompl_bspline", this};
+      Property<bool> ompl_simplify_max{true, "ompl_simplify_max", this};
+      Property<bool> ompl_anytime_ps{true, "ompl_anytime_ps", this};
+    } smoothing{"smoothing", this};
+
+    /**
+     * Select certain planning algorithms to be evaluated.
+     */
+    struct PlanningSettings : public Group {
+      using Group::Group;
+      Property<bool> theta_star{true, "theta_star", this};
+      Property<bool> rrt{true, "rrt", this};
+      Property<bool> rrt_star{true, "rrt_star", this};
+      Property<bool> cforest{true, "cforest", this};
+      Property<bool> rrt_sharp{true, "rrt_sharp", this};
+      Property<bool> sorrt_star{true, "sorrt_star", this};
+      Property<bool> informed_rrt_star{true, "informed_rrt_star", this};
+      Property<bool> sbpl{true, "sbpl", this};
+      Property<bool> prm_star{false, "prm_star", this};
+      Property<bool> est{false, "est", this};
+      Property<bool> sbl{false, "sbl", this};
+      Property<bool> fmt{false, "fmt", this};
+      Property<bool> bfmt{false, "bfmt", this};
+      Property<bool> sst{false, "sst", this};
+      Property<bool> kpiece1{false, "kpiece1", this};
+      Property<bool> stride{false, "stride", this};
+    } planning{"planning", this};
+  } benchmark{"benchmark", this};
 
   /**
    * Settings related to OMPL.

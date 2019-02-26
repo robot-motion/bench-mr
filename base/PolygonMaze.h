@@ -14,18 +14,18 @@ class PolygonMaze : public Environment {
 
   const std::vector<Polygon> &obstacles() const { return _obstacles; }
 
-  static PolygonMaze loadFromSvg(const std::string &filename) {
-    PolygonMaze maze;
-    maze._name += " " + filename;
-    maze._obstacles = SvgPolygonLoader::load(filename);
-    if (maze._obstacles.empty()) {
+  static PolygonMaze *loadFromSvg(const std::string &filename) {
+    auto *maze = new PolygonMaze;
+    maze->_name += " " + filename;
+    maze->_obstacles = SvgPolygonLoader::load(filename);
+    if (maze->_obstacles.empty()) {
       OMPL_ERROR(
           ("Could not find any obstacles in \"" + filename + "\".").c_str());
       return maze;
     }
-    auto min = maze._obstacles[0].min();
-    auto max = maze._obstacles[0].max();
-    for (const auto &o : maze._obstacles) {
+    auto min = maze->_obstacles[0].min();
+    auto max = maze->_obstacles[0].max();
+    for (const auto &o : maze->_obstacles) {
       const auto new_min = o.min();
       const auto new_max = o.max();
       if (new_min.x < min.x) min.x = new_min.x;
@@ -33,10 +33,10 @@ class PolygonMaze : public Environment {
       if (new_min.y < min.y) min.y = new_min.y;
       if (new_max.y > max.y) max.y = new_max.y;
     }
-    maze._bounds.setLow(0, min.x);
-    maze._bounds.setLow(1, min.y);
-    maze._bounds.setHigh(0, max.x);
-    maze._bounds.setHigh(1, max.y);
+    maze->_bounds.setLow(0, min.x);
+    maze->_bounds.setLow(1, min.y);
+    maze->_bounds.setHigh(0, max.x);
+    maze->_bounds.setHigh(1, max.y);
     OMPL_INFORM(("Loaded polygon maze from \"" + filename + "\".").c_str());
     OMPL_INFORM("\tBounds:  [%.2f %.2f] -- [%.2f %.2f]", min.x, min.y, max.x,
                 max.y);
@@ -76,7 +76,7 @@ class PolygonMaze : public Environment {
   }
 
  private:
-  PolygonMaze() = default;
+  PolygonMaze() : Environment() {}
 
   std::string _name{"polygon_maze"};
   std::vector<Polygon> _obstacles;

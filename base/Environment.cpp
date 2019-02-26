@@ -69,6 +69,8 @@ void Environment::estimateStartGoalOrientations() {
     _goal_theta =
         std::atan2(path[n].y - path[n - 1].y, path[n].x - path[n - 1].x);
     _thetas_defined = true;
+    global::settings.env.start.theta = _start_theta;
+    global::settings.env.goal.theta = _goal_theta;
   }
   delete thetaStar;
   global::settings.steer.steering_type = cacheSteeringType;
@@ -77,18 +79,48 @@ void Environment::estimateStartGoalOrientations() {
   global::settings.steer.initializeSteering();
 }
 
-ompl::base::ScopedState<ob::SE2StateSpace> Environment::startScopedState() const {
-  ompl::base::ScopedState<ob::SE2StateSpace> state(global::settings.ompl.state_space);
+ompl::base::ScopedState<ob::SE2StateSpace> Environment::startScopedState()
+    const {
+  ompl::base::ScopedState<ob::SE2StateSpace> state(
+      global::settings.ompl.state_space);
   state[0] = _start.x;
   state[1] = _start.y;
   state[2] = _start_theta;
   return state;
 }
 
-ompl::base::ScopedState<ob::SE2StateSpace> Environment::goalScopedState() const {
-  ompl::base::ScopedState<ob::SE2StateSpace> state(global::settings.ompl.state_space);
+ompl::base::ScopedState<ob::SE2StateSpace> Environment::goalScopedState()
+    const {
+  ompl::base::ScopedState<ob::SE2StateSpace> state(
+      global::settings.ompl.state_space);
   state[0] = _goal.x;
   state[1] = _goal.y;
   state[2] = _goal_theta;
   return state;
 }
+
+void Environment::setThetas(double start, double goal) {
+  _start_theta = start;
+  _goal_theta = goal;
+  _thetas_defined = true;
+  global::settings.env.start.theta = _start_theta;
+  global::settings.env.goal.theta = _goal_theta;
+}
+
+void Environment::setStart(const Point &point) {
+  _start = point;
+  global::settings.env.start.x = _start.x;
+  global::settings.env.start.y = _start.y;
+}
+
+void Environment::setGoal(const Point &point) {
+  _goal = point;
+  global::settings.env.goal.x = _goal.x;
+  global::settings.env.goal.y = _goal.y;
+}
+
+Environment::Environment()
+    : _start(global::settings.env.start.x, global::settings.env.start.y),
+      _goal(global::settings.env.goal.x, global::settings.env.goal.y),
+      _start_theta(global::settings.env.start.theta),
+      _goal_theta(global::settings.env.goal.theta) {}

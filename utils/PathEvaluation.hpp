@@ -92,7 +92,7 @@ struct PathEvaluation {
     }
     auto &j = info["plans"][planner.name()]["smoothing"];
 
-    {
+    if (global::settings.benchmark.smoothing.grips) {
       // GRIPS
       og::PathGeometric grips(planner.solution());
       GRIPS::smooth(grips);
@@ -108,7 +108,7 @@ struct PathEvaluation {
                     {"stats", nlohmann::json(grips_stats)["stats"]},
                     {"round_stats", GRIPS::statsPerRound}};
     }
-    {
+    if (global::settings.benchmark.smoothing.chomp) {
       // CHOMP
       CHOMP chomp;
       chomp.run(planner.solution());
@@ -120,46 +120,47 @@ struct PathEvaluation {
                     {"trajectory", chomp.solutionPath()},
                     {"stats", nlohmann::json(chomp_stats)["stats"]}};
     }
-    {
-      // OMPL Smoothers
-      OmplSmoother smoother(planner.simpleSetup(), planner.solution());
-      {
-        // Shortcut
-        PathStatistics stats;
-        TimedResult tr = smoother.shortcutPath();
-        evaluate(stats, tr.trajectory, &planner);
-        j["ompl_shortcut"] = {
-            {"time", tr.elapsed()},
-            {"name", "Shortcut"},
-            {"cost", tr.trajectory.length()},
-            {"trajectory", Log::serializeTrajectory(tr.trajectory)},
-            {"stats", nlohmann::json(stats)["stats"]}};
-      }
-      {
-        // B-Spline
-        PathStatistics stats;
-        TimedResult tr = smoother.smoothBSpline();
-        evaluate(stats, tr.trajectory, &planner);
-        j["ompl_bspline"] = {
-            {"time", tr.elapsed()},
-            {"name", "B-Spline"},
-            {"cost", tr.trajectory.length()},
-            {"trajectory", Log::serializeTrajectory(tr.trajectory)},
-            {"stats", nlohmann::json(stats)["stats"]}};
-      }
-      {
-        // Simplify Max
-        PathStatistics stats;
-        TimedResult tr = smoother.simplifyMax();
-        evaluate(stats, tr.trajectory, &planner);
-        j["ompl_simplify_max"] = {
-            {"time", tr.elapsed()},
-            {"name", "SimplifyMax"},
-            {"cost", tr.trajectory.length()},
-            {"trajectory", Log::serializeTrajectory(tr.trajectory)},
-            {"stats", nlohmann::json(stats)["stats"]}};
-      }
 
+    // OMPL Smoothers
+    OmplSmoother smoother(planner.simpleSetup(), planner.solution());
+    if (global::settings.benchmark.smoothing.ompl_shortcut) {
+      // Shortcut
+      PathStatistics stats;
+      TimedResult tr = smoother.shortcutPath();
+      evaluate(stats, tr.trajectory, &planner);
+      j["ompl_shortcut"] = {
+          {"time", tr.elapsed()},
+          {"name", "Shortcut"},
+          {"cost", tr.trajectory.length()},
+          {"trajectory", Log::serializeTrajectory(tr.trajectory)},
+          {"stats", nlohmann::json(stats)["stats"]}};
+    }
+    if (global::settings.benchmark.smoothing.ompl_bspline) {
+      // B-Spline
+      PathStatistics stats;
+      TimedResult tr = smoother.smoothBSpline();
+      evaluate(stats, tr.trajectory, &planner);
+      j["ompl_bspline"] = {
+          {"time", tr.elapsed()},
+          {"name", "B-Spline"},
+          {"cost", tr.trajectory.length()},
+          {"trajectory", Log::serializeTrajectory(tr.trajectory)},
+          {"stats", nlohmann::json(stats)["stats"]}};
+    }
+    if (global::settings.benchmark.smoothing.ompl_simplify_max) {
+      // Simplify Max
+      PathStatistics stats;
+      TimedResult tr = smoother.simplifyMax();
+      evaluate(stats, tr.trajectory, &planner);
+      j["ompl_simplify_max"] = {
+          {"time", tr.elapsed()},
+          {"name", "SimplifyMax"},
+          {"cost", tr.trajectory.length()},
+          {"trajectory", Log::serializeTrajectory(tr.trajectory)},
+          {"stats", nlohmann::json(stats)["stats"]}};
+    }
+
+    if (global::settings.benchmark.smoothing.ompl_anytime_ps) {
       // OMPL Anytime Path Shortening
       if (planner.omplPlanner() == nullptr) {
         OMPL_WARN(

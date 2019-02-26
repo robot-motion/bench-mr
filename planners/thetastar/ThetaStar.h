@@ -3,12 +3,11 @@
 #include <ompl/geometric/PathGeometric.h>
 #include <algorithm>
 
-#include "base/GridMaze.h"
 #include "../AbstractPlanner.hpp"
+#include "base/GridMaze.h"
 
-#include "stl_thetastar.h"
 #include "gnode.h"
-
+#include "stl_thetastar.h"
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
@@ -48,5 +47,6 @@ class ThetaStar : public AbstractPlanner, public ob::Planner {
  protected:
   explicit ThetaStar(bool astar, std::string name);
 
+ public:
   inline ob::Planner *omplPlanner() override { return this; }
 };

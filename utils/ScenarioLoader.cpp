@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <ompl/util/Console.h>
 
 using namespace std;
 
@@ -46,6 +47,8 @@ void ScenarioLoader::load(const string& fileName) {
 
     _scenarios.push_back(scenario);
   }
+
+  OMPL_INFORM("Loaded %d Moving AI scenarios from %s.", _scenarios.size(), fileName.c_str());
 }
 
 void Scenario::loadMap() {

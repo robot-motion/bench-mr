@@ -117,5 +117,6 @@ class AbstractPlanner {
     ss->setup();
   }
 
+public:
   virtual ob::Planner *omplPlanner() { return nullptr; }
 };

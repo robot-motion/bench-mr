@@ -5,6 +5,8 @@
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
 #include <ompl/base/spaces/SE2StateSpace.h>
 #include <steering_functions/include/ompl_state_spaces/CurvatureStateSpace.hpp>
+#include "GridMaze.h"
+#include "PolygonMaze.h"
 #include "steer_functions/POSQ/POSQStateSpace.h"
 
 #ifdef G1_AVAILABLE
@@ -59,7 +61,7 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
 
   global::settings.ompl.state_space->as<ob::SE2StateSpace>()->setBounds(
       global::settings.environment->bounds());
-//  global::settings.ompl.state_space->setup();
+  //  global::settings.ompl.state_space->setup();
 
   global::settings.ompl.space_info =
       std::make_shared<ompl::base::SpaceInformation>(
@@ -70,10 +72,43 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
   global::settings.ompl.objective->setCostThreshold(
       ob::Cost(global::settings.ompl.cost_threshold));
 
+#ifdef DEBUG
   std::cout << "global::settings.ompl.state_space->hasDefaultProjection() ? "
             << std::boolalpha
             << global::settings.ompl.state_space->hasDefaultProjection()
             << std::endl;
+#endif
 
-  OMPL_INFORM("Initialized steer function");
+  OMPL_INFORM("Initialized steer function %s",
+              Steering::to_string(steering_type).c_str());
+}
+
+void PlannerSettings::GlobalSettings::EnvironmentSettings::createEnvironment() {
+  delete global::settings.environment;
+  if (type.value() == "grid") {
+    if (grid.generator.value() == "corridor") {
+      global::settings.environment = GridMaze::createRandomCorridor(
+          grid.width, grid.height, grid.corridor.radius, grid.corridor.branches,
+          grid.seed);
+    } else if (grid.generator.value() == "random") {
+      global::settings.environment = GridMaze::createRandom(
+          grid.width, grid.height, grid.random.obstacle_ratio, grid.seed);
+    } else {
+      OMPL_ERROR("Unknown grid environment generator \"%s\".",
+                 grid.generator.value().c_str());
+    }
+  } else if (type.value() == "polygon") {
+    global::settings.environment = PolygonMaze::loadFromSvg(polygon.source);
+  } else {
+    OMPL_ERROR("Unknown environment type \"%s\".", type.value().c_str());
+  }
+
+  // Load polygon for polygon-based collision checker if necessary
+  if (global::settings.collision_model == robot::ROBOT_POLYGON) {
+    global::settings.robot_shape =
+        SvgPolygonLoader::load(global::settings.robot_shape_source)[0];
+    global::settings.robot_shape.value().center();
+    OMPL_INFORM("Loaded polygon robot model from %s.",
+                global::settings.robot_shape_source.value().c_str());
+  }
 }

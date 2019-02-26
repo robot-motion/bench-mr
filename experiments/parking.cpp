@@ -30,15 +30,15 @@ int main(int argc, char **argv) {
   const std::string maze_filename = argv[1];
   const std::string robot_filename = argv[2];
 
-  auto maze = PolygonMaze::loadFromSvg(maze_filename);
-  maze.setStart({0, -50});
+  auto *maze = PolygonMaze::loadFromSvg(maze_filename);
+  maze->setStart({0, -50});
   std::cout << "Start collides? " << std::boolalpha
-            << maze.collides(maze.start().x, maze.start().y) << std::endl;
+            << maze->collides(maze->start().x, maze->start().y) << std::endl;
   std::cout << "Goal collides?  " << std::boolalpha
-            << maze.collides(maze.goal().x, maze.goal().y) << std::endl;
-  maze.setGoal({200, -150});
+            << maze->collides(maze->goal().x, maze->goal().y) << std::endl;
+  maze->setGoal({200, -150});
   global::settings.estimate_theta = true;
-  global::settings.environment = &maze;
+  global::settings.environment = maze;
   global::settings.environment->setThetas(M_PI / 2, M_PI);
 
   global::settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
@@ -46,6 +46,7 @@ int main(int argc, char **argv) {
   global::settings.steer.initializeSteering();
 
   global::settings.collision_model = robot::ROBOT_POLYGON;
+  global::settings.robot_shape_source = robot_filename;
   global::settings.robot_shape = SvgPolygonLoader::load(robot_filename)[0];
   global::settings.robot_shape.value().center();
 
