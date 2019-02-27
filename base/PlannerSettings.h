@@ -67,7 +67,7 @@ struct GlobalSettings : public Group {
 
       struct CorridorSettings : public Group {
         using Group::Group;
-        Property<int> radius{5, "radius", this};
+        Property<double> radius{5, "radius", this};
         Property<int> branches{50, "branches", this};
       } corridor{"corridor", this};
 
@@ -168,7 +168,11 @@ struct GlobalSettings : public Group {
      * run.
      */
     Property<std::vector<Steering::SteeringType>> steer_functions{
-        {}, "steer_functions", this};
+        {Steering::STEER_TYPE_REEDS_SHEPP, Steering::STEER_TYPE_DUBINS,
+         Steering::STEER_TYPE_POSQ, Steering::STEER_TYPE_HC_REEDS_SHEPP,
+         Steering::STEER_TYPE_CC_REEDS_SHEPP},
+        "steer_functions",
+        this};
 
     struct MovingAiSettings : public Group {
       using Group::Group;
@@ -218,14 +222,14 @@ struct GlobalSettings : public Group {
       Property<bool> sorrt_star{true, "sorrt_star", this};
       Property<bool> informed_rrt_star{true, "informed_rrt_star", this};
       Property<bool> sbpl{true, "sbpl", this};
-      Property<bool> prm_star{false, "prm_star", this};
-      Property<bool> est{false, "est", this};
-      Property<bool> sbl{false, "sbl", this};
-      Property<bool> fmt{false, "fmt", this};
-      Property<bool> bfmt{false, "bfmt", this};
-      Property<bool> sst{false, "sst", this};
-      Property<bool> kpiece1{false, "kpiece1", this};
-      Property<bool> stride{false, "stride", this};
+      Property<bool> prm_star{true, "prm_star", this};
+      Property<bool> est{true, "est", this};
+      Property<bool> sbl{true, "sbl", this};
+      Property<bool> fmt{true, "fmt", this};
+      Property<bool> bfmt{true, "bfmt", this};
+      Property<bool> sst{true, "sst", this};
+      Property<bool> kpiece1{true, "kpiece1", this};
+      Property<bool> stride{true, "stride", this};
     } planning{"planning", this};
   } benchmark{"benchmark", this};
 

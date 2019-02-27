@@ -2,12 +2,12 @@
   "settings": {
     "auto_choose_distance_computation_method": true,
     "benchmark": {
-      "log_file": "movingai_boston_1024.json",
+      "log_file": "corridor_radius_0.010000",
       "moving_ai": {
-        "active": true,
+        "active": false,
         "end": -1,
-        "scenario": "moving_ai_scenarios/Boston_1_1024.map.scen",
-        "start": -5
+        "scenario": "Berlin_0_256.map.scen",
+        "start": -10
       },
       "planning": {
         "bfmt": true,
@@ -28,37 +28,43 @@
         "stride": true,
         "theta_star": true
       },
-      "runs": 10,
+      "runs": 5,
       "smoothing": {
-        "chomp": false,
-        "grips": false,
-        "ompl_anytime_ps": false,
-        "ompl_bspline": false,
-        "ompl_shortcut": false,
-        "ompl_simplify_max": false
+        "chomp": true,
+        "grips": true,
+        "ompl_anytime_ps": true,
+        "ompl_bspline": true,
+        "ompl_shortcut": true,
+        "ompl_simplify_max": true
       },
-      "steer_functions": [0, 1, 2, 6, 7]
+      "steer_functions": [
+        0,
+        1,
+        2,
+        6,
+        7
+      ]
     },
     "collision_model": 0,
     "distance_computation_method": 0,
     "env": {
       "goal": {
         "theta": 0.0,
-        "x": 0.0,
-        "y": 0.0
+        "x": 95.0,
+        "y": 93.0
       },
       "grid": {
         "corridor": {
           "branches": 50,
-          "radius": 5
+          "radius": 5.0
         },
-        "generator": "corridor",
-        "height": 50,
+        "generator": "random",
+        "height": 100,
         "random": {
-          "obstacle_ratio": 5.0
+          "obstacle_ratio": 0.01
         },
         "seed": 1,
-        "width": 50
+        "width": 100
       },
       "polygon": {
         "scaling": 0.045454545454545456,
@@ -66,8 +72,8 @@
       },
       "start": {
         "theta": 0.0,
-        "x": 0.0,
-        "y": 0.0
+        "x": 12.0,
+        "y": 9.0
       },
       "type": "grid"
     },
@@ -133,6 +139,16 @@
       "hc_cc": {
         "kappa": 5.0,
         "sigma": 0.315
+      },
+      "posq": {
+        "alpha": 3.0,
+        "axis_length": 0.54,
+        "dt": 0.1,
+        "phi": -1.0,
+        "rho": 1.0,
+        "rho_end_condition": 0.005,
+        "v": 1.0,
+        "v_max": 1.0
       },
       "sampling_resolution": 0.005,
       "steering_type": 0

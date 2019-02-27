@@ -124,7 +124,7 @@ class GridMaze : public Environment {
                                 int borderSize = 1);
   static GridMaze *createRandomCorridor(
       unsigned int width = DefaultWidth, unsigned int height = DefaultHeight,
-      int radius = 2, int branches = 30,
+      double radius = 2, int branches = 30,
       unsigned int seed = (unsigned int)time(nullptr), int borderSize = 1);
   static GridMaze *createFromObstacles(const std::vector<Rectangle> &obstacles,
                                        unsigned int width = DefaultWidth,
