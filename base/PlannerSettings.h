@@ -277,10 +277,10 @@ struct GlobalSettings : public Group {
 
       Property<double> alpha{3, "alpha", this};
       Property<double> phi{-1, "phi", this};
-      Property<double> rho{1.2, "rho", this};
-      Property<double> rho_end_condition{0.1, "rho_end_condition", this};
+      Property<double> rho{1, "rho", this};
+      Property<double> rho_end_condition{0.005, "rho_end_condition", this};
       Property<double> v{1, "v", this};
-      Property<double> v_max{2000, "v_max", this};
+      Property<double> v_max{1, "v_max", this};
 
       /**
        * Length of the wheel axis.
@@ -290,7 +290,7 @@ struct GlobalSettings : public Group {
       /**
        * Integration time step.
        */
-      Property<double> dt{0.02, "dt", this};
+      Property<double> dt{0.1, "dt", this};
     } posq{"posq", this};
   } steer{"steer", this};
 

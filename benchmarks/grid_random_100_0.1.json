@@ -2,7 +2,7 @@
   "settings": {
     "auto_choose_distance_computation_method": true,
     "benchmark": {
-      "log_file": "grid_corridor_150.json",
+      "log_file": "grid_corridor_100_0.1.json",
       "moving_ai": {
         "active": false,
         "end": -1,
@@ -132,16 +132,6 @@
       "hc_cc": {
         "kappa": 5.0,
         "sigma": 0.5
-      },
-      "posq": {
-        "alpha": 3.0,
-        "axis_length": 0.54,
-        "dt": 0.02,
-        "phi": -1.0,
-        "rho": 1.2,
-        "rho_end_condition": 0.1,
-        "v": 1.0,
-        "v_max": 2000.0
       },
       "sampling_resolution": 0.005,
       "steering_type": 0
