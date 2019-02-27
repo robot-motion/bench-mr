@@ -1,3 +1,7 @@
 results/ filter=lfs diff=lfs merge=lfs -text
 results/movingai_berlin_256.json filter=lfs diff=lfs merge=lfs -text
 results/movingai_denver_256.json filter=lfs diff=lfs merge=lfs -text
+results/parking2.json filter=lfs diff=lfs merge=lfs -text
+results/parking3.json filter=lfs diff=lfs merge=lfs -text
+results/warehouse.json filter=lfs diff=lfs merge=lfs -text
+results/parking1.json filter=lfs diff=lfs merge=lfs -text
