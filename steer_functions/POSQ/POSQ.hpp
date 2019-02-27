@@ -107,7 +107,7 @@ struct UnicycleControl {
 
 /** \brief POSQ class that implements the POSQ steering function */
 class POSQ {
-public:
+ public:
   /** \brief length of the wheels axis */
   double B{.54};
 
@@ -158,11 +158,11 @@ public:
        double Kphi;
        Kphi    = -1;
     **/
-    Krho = 2; // 15.5; //0.2;
-    Kv = 1.2; // 13.8;// .2; //0.01; //global::settings.Kv;
+    Krho = 2;  // 15.5; //0.2;
+    Kv = 1.2;  // 13.8;// .2; //0.01; //global::settings.Kv;
 
     Vmax = Krho;
-    RhoEndCondition = 0.1; // global::settings.rhoEndcondition;
+    RhoEndCondition = 0.1;  // global::settings.rhoEndcondition;
 
     //////////////////////////////////////////////////////////////////////////////////
     // Luigi's values:
@@ -176,7 +176,7 @@ public:
     **/
     Krho = 1.2;
     Kv = 1;
-    Vmax = 2000; // Krho;
+    Vmax = 2000;  // Krho;
 
     //////////////////////////////////////////////////////////////////////////////////
     // Configured values:
@@ -189,6 +189,10 @@ public:
     Vmax = global::settings.steer.posq.v_max;
     DT = global::settings.steer.posq.dt;
     B = global::settings.steer.posq.axis_length;
+    OMPL_INFORM(
+        "POSQ settings: Kalpha %f, Kbeta %f, Krho %f, RhoEndCondition %f, Kv %f, Vmax "
+        "%f, DT %f, B %f",
+        Kalpha, Kbeta, Krho, RhoEndCondition, Kv, Vmax, DT, B);
   }
 
   /** \brief Set the current result of the integration */
@@ -249,7 +253,7 @@ public:
   */
   double *posControlStep(double x_c, double y_c, double t_c, double x_end,
                          double y_end, double t_end, double ct, double b,
-                         int dir) const {
+                         int dir, int &eot) const {
     /** This function will generate a vector of double as output:
      *  [0] Vl velocity of the left wheel;
      *  [1] Vr velocity of the right wheel;
@@ -281,20 +285,18 @@ public:
       std::cerr << "K_alpha + 2 K_phi - 2/pi K_rho K_v = "
                 << Kalpha + 2 * Kbeta - 2 / M_PI * Krho * Kv << std::endl;
 
-    if (ct == 0)
-      oldBeta = 0;
+    if (ct == 0) oldBeta = 0;
 
     double dx, dy, rho, fRho, alpha, phi, beta, v, w, vl, vr;
 
     // rho
-    bool eot = true;
+    eot = 1;
     dx = x_end - x_c;
     dy = y_end - y_c;
     rho = sqrt(dx * dx + dy * dy);
     fRho = rho;
 
-    if (fRho > (Vmax / Krho))
-      fRho = Vmax / Krho;
+    if (fRho > (Vmax / Krho)) fRho = Vmax / Krho;
 
     // alpha
     alpha = atan2(dy, dx) - t_c;
@@ -323,8 +325,7 @@ public:
     phi = normAngle(phi, -M_PI);
     beta = normAngle(phi - alpha, -M_PI);
 
-    if ((abs(oldBeta - beta) > M_PI))
-      beta = oldBeta;
+    if ((abs(oldBeta - beta) > M_PI)) beta = oldBeta;
 
     oldBeta = beta;
 
@@ -332,10 +333,9 @@ public:
     v = Krho * tanh(Kv * fRho);
     w = Kalpha * alpha + Kbeta * beta;
 
-    eot = rho < RhoEndCondition;
+    eot = (int)rho < RhoEndCondition;
 
-    if (eot)
-      w = 0.;
+    if (eot) w = 0.;
 
     // Convert speed to wheel speed
     vl = v - w * b / 2;
@@ -371,8 +371,9 @@ public:
 
   std::vector<UnicycleState> steer(const ob::State *from, const ob::State *to,
                                    double &distance) const {
-    double sl, sr, oldSl, oldSr, t, eot, dSl, dSr, dSm, dSd, vl, vr, enc_l,
-        enc_r, dir;
+    double sl, sr, oldSl, oldSr, t, dSl, dSr, dSm, dSd, vl, vr, enc_l, enc_r,
+        dir;
+    int eot;
     dir = 1;
     enc_l = 0;
     enc_r = 0;
@@ -417,11 +418,11 @@ public:
       y = y + dSm * sin(th + dSd / 2);
       th = normAngle(th + dSd, -M_PI);
       // intRes= posControlStep (x,y,th,x_fin,y_fin,th_fin, t,b,dir);
-      setRes(posControlStep(x, y, th, x_fin, y_fin, th_fin, t, B, dir));
+      setRes(posControlStep(x, y, th, x_fin, y_fin, th_fin, t, B, dir, eot));
       // Save the velocity commands,eot
       vv = intRes_[2];
       ww = intRes_[3];
-      eot = intRes_[4];
+      // eot = intRes_[4];
       vl = intRes_[0];
       vr = intRes_[1];
       // Increase the timer
@@ -473,22 +474,6 @@ public:
       }
     }
 
-    //        if (states.size() > 3)
-    //        {
-    //            // TODO THIS IS A HACK!!!
-    ////            states.erase(states.begin());
-    ////            states.erase(states.begin());
-    //            states.pop_back();
-    //            states.pop_back();
-    //
-    ////            x = x + dSm * cos(th + dSd / 2);
-    ////            y = y + dSm * sin(th + dSd / 2);
-    ////            th = normAngle(th + dSd, -M_PI);
-    //            x = 0.5*(states.back().x_+x_fin);
-    //            y = 0.5*(states.back().y_+y_fin);
-    //            th = normAngle(0.5*(states.back().yaw_+th_fin), -M_PI);
-    //            states.push_back(UnicycleState(x, y, th));
-    //        }
     return states;
   }
 

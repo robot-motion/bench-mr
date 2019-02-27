@@ -80,10 +80,12 @@ def visualize(json_file: str, run_id: str = 'all',
         axes_v = int(math.ceil(len(run_ids) / max_plots_per_line))
         plt.figure("MPB %s" % json_file, figsize=(axes_h * fig_width, axes_v * fig_height))
 
+    plot_counter = 1
     for i in run_ids:
         run = data["runs"][i]
         if combine_views:
-            plt.subplot(axes_v, axes_h, i + 1)
+            plt.subplot(axes_v, axes_h, plot_counter)
+            plot_counter += 1
         else:
             plt.figure("Run %i - %s" % (i, json_file), figsize=(fig_width, fig_height))
         kwargs['run_id'] = (i if len(data["runs"]) > 1 else -1)
@@ -119,7 +121,7 @@ def visualize(json_file: str, run_id: str = 'all',
             plt.gca().set_xlim([0, env["width"]])
             plt.gca().set_ylim([0, env["height"]])
 
-        if not combine_views or i % axes_h == 0:
+        if not combine_views or plot_counter % axes_h == 0:
             plt.legend()
 
         if not combine_views and save_file is not None:
