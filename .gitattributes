@@ -1,2 +1,1 @@
-results/ filter=lfs diff=lfs merge=lfs -text
-results/movingai_berlin_256.json filter=lfs diff=lfs merge=lfs -text
+results/* filter=lfs diff=lfs merge=lfs -text
