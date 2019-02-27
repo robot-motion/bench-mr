@@ -2,40 +2,40 @@
   "settings": {
     "auto_choose_distance_computation_method": true,
     "benchmark": {
-      "log_file": "grid_corridor_150.json",
+      "log_file": "movingai_denver_1_256.json",
       "moving_ai": {
-        "active": false,
+        "active": true,
         "end": -1,
-        "scenario": "Berlin_0_256.map.scen",
-        "start": -10
+        "scenario": "moving_ai_scenarios/Denver_1_256.map.scen",
+        "start": -5
       },
       "planning": {
         "bfmt": true,
         "bit_star": true,
         "cforest": true,
-        "est": false,
-        "fmt": false,
+        "est": true,
+        "fmt": true,
         "informed_rrt_star": true,
         "kpiece1": true,
-        "prm_star": false,
-        "rrt": false,
+        "prm_star": true,
+        "rrt": true,
         "rrt_sharp": true,
         "rrt_star": true,
-        "sbl": false,
-        "sbpl": false,
+        "sbl": true,
+        "sbpl": true,
         "sorrt_star": true,
         "sst": true,
         "stride": true,
         "theta_star": true
       },
-      "runs": 1,
+      "runs": 10,
       "smoothing": {
-        "chomp": true,
-        "grips": true,
-        "ompl_anytime_ps": true,
-        "ompl_bspline": true,
-        "ompl_shortcut": true,
-        "ompl_simplify_max": true
+        "chomp": false,
+        "grips": false,
+        "ompl_anytime_ps": false,
+        "ompl_bspline": false,
+        "ompl_shortcut": false,
+        "ompl_simplify_max": false
       },
       "steer_functions": [0, 1, 2, 6, 7]
     },
@@ -50,7 +50,7 @@
       "grid": {
         "corridor": {
           "branches": 50,
-          "radius": 4
+          "radius": 5
         },
         "generator": "corridor",
         "height": 50,
@@ -61,6 +61,7 @@
         "width": 50
       },
       "polygon": {
+        "scaling": 0.045454545454545456,
         "source": "polygon_mazes/parking1.svg"
       },
       "start": {
@@ -131,7 +132,7 @@
       "car_turning_radius": 4.0,
       "hc_cc": {
         "kappa": 5.0,
-        "sigma": 0.5
+        "sigma": 0.315
       },
       "posq": {
         "alpha": 3.0,
