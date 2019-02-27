@@ -7,7 +7,7 @@ from plot_env import plot_env, plot_env_options
 from plot_trajectory import plot_trajectory, plot_nodes, plot_trajectory_options
 from color import get_color, get_colors, color_options
 
-from utils import add_options, group
+from utils import add_options, group, parse_run_ids
 
 
 @group.command()
@@ -25,6 +25,7 @@ from utils import add_options, group
 @click.option('--max_plots_per_line', default=5, help='Number of runs to visualize (0 means all).')
 @click.option('--headless', default=False, type=bool)
 @click.option('--combine_views', default=True, type=bool)
+@click.option('--silence', default=False, type=bool)
 @click.option('--save_file', default=None, type=str)
 @click.option('--dpi', default=200, type=int)
 @click.option('--ignore_planners', default='', type=str)
@@ -48,8 +49,13 @@ def visualize(json_file: str, run_id: str = 'all',
               custom_min_y: float = None,
               custom_max_x: float = None,
               custom_max_y: float = None,
+              silence=False,
               dpi: int = 200, **kwargs):
-    click.echo("Visualizing %s..." % click.format_filename(json_file))
+    inputs = locals()
+    for key, item in inputs.items():
+        kwargs[key] = item
+    if not silence:
+        click.echo("Visualizing %s..." % click.format_filename(json_file))
 
     if headless:
         import matplotlib
@@ -62,14 +68,11 @@ def visualize(json_file: str, run_id: str = 'all',
     mpl.rcParams['pdf.fonttype'] = 42  # make sure to not use Level-3 fonts
 
     ignore_planners = [s.strip() for s in ignore_planners.lower().split(',')]
-    if len(ignore_planners) > 0:
+    if len(ignore_planners) > 0 and not silence:
         click.echo('Ignoring the following planner(s): %s' % ', '.join(ignore_planners))
 
     data = json.load(open(json_file, "r"))
-    if run_id.lower() == "all":
-        run_ids = list(range(len(data["runs"])))
-    else:
-        run_ids = [int(s.strip()) for s in run_id.split(',')]
+    run_ids = parse_run_ids(run_id, len(data["runs"]))
 
     if combine_views:
         max_plots_per_line = min(max_plots_per_line, len(run_ids))
@@ -88,7 +91,8 @@ def visualize(json_file: str, run_id: str = 'all',
         plot_env(env, **kwargs)
         if "settings" in run:
             settings = run["settings"]
-            print("Using settings from run %i." % i)
+            if not silence:
+                print("Using settings from run %i." % i)
         else:
             settings = data["settings"]
         for j, (planner, plan) in enumerate(run["plans"].items()):
@@ -126,12 +130,14 @@ def visualize(json_file: str, run_id: str = 'all',
             else:
                 filename = save_file[:ext] + save_file[ext:]
             plt.savefig(filename, dpi=dpi, bbox_inches='tight')
-            click.echo("Saved %s." % filename)
+            if not silence:
+                click.echo("Saved %s." % filename)
 
     if combine_views and save_file is not None:
         plt.tight_layout()
         plt.savefig(save_file, dpi=dpi, bbox_inches='tight')
-        click.echo("Saved %s." % save_file)
+        if not silence:
+            click.echo("Saved %s." % save_file)
     if not headless:
         plt.show()
 

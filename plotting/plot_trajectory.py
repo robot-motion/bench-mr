@@ -7,18 +7,22 @@ plot_trajectory_options = [
     click.option('--draw_arrows', default=False, type=bool),
     click.option('--draw_dots', default=False, type=bool),
     click.option('--plot_every_nth_polygon', default=10, type=int),
+    click.option('--plot_last_polygon', default=True, type=bool),
     click.option('--draw_lines', default=True, type=bool),
     click.option('--line_alpha', default=0.6, type=float),
-    click.option('--line_width', default=2., type=float)
+    click.option('--line_width', default=2., type=float),
+    click.option('--silence', default=False, type=bool)
 ]
 
 
 def plot_trajectory(traj, planner: str, settings, color, add_label=True, alpha: float = 1., draw_arrows=False,
-                    draw_dots=False, plot_every_nth_polygon=10, draw_lines=True, line_alpha=0.6, line_width=2., **_):
+                    draw_dots=False, plot_every_nth_polygon=10, plot_last_polygon=True, draw_lines=True, line_alpha=0.6,
+                    line_width=2., silence=False, **_):
     import matplotlib.pyplot as plt
     from matplotlib.patches import Polygon
     if len(traj) == 0:
-        click.echo("Planner %s found no solution!" % planner)
+        if not silence:
+            click.echo("Planner %s found no solution!" % planner)
         return
     traj = np.array(traj)
     if settings["collision_model"] == 0:
@@ -39,7 +43,7 @@ def plot_trajectory(traj, planner: str, settings, color, add_label=True, alpha: 
         if add_label:
             plt.plot([], '-', color=color, label=planner)
         for i in range(traj.shape[0]):
-            if i % plot_every_nth_polygon != 0:
+            if i % plot_every_nth_polygon != 0 and not (plot_last_polygon and i == traj.shape[0] - 1):
                 continue
             state = traj[i, :]
             c, s = np.cos(-state[2]), np.sin(-state[2])
@@ -55,10 +59,11 @@ def plot_trajectory(traj, planner: str, settings, color, add_label=True, alpha: 
             plt.arrow(state[0], state[1], dx * 2., dy * 2., color=color, width=0.01, head_width=0.2, alpha=alpha)
 
 
-def plot_nodes(traj, planner: str, settings, color, add_label=False, alpha: float = 1., draw_arrows=False, **_):
+def plot_nodes(traj, planner: str, settings, color, add_label=False, alpha: float = 1., silence=False, draw_arrows=False, **_):
     import matplotlib.pyplot as plt
     if len(traj) == 0:
-        click.echo("Planner %s found no solution!" % planner)
+        if not silence:
+            click.echo("Planner %s found no solution!" % planner)
         return
     traj = np.array(traj)
     if settings["collision_model"] == 0:

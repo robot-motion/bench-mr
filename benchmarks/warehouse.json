@@ -10,23 +10,23 @@
         "start": -10
       },
       "planning": {
-        "bfmt": false,
-        "bit_star": false,
-        "cforest": false,
+        "bfmt": true,
+        "bit_star": true,
+        "cforest": true,
         "est": true,
-        "fmt": false,
+        "fmt": true,
         "informed_rrt_star": true,
-        "kpiece1": false,
-        "prm_star": false,
-        "rrt": false,
-        "rrt_sharp": false,
-        "rrt_star": false,
-        "sbl": false,
+        "kpiece1": true,
+        "prm_star": true,
+        "rrt": true,
+        "rrt_sharp": true,
+        "rrt_star": true,
+        "sbl": true,
         "sbpl": false,
-        "sorrt_star": false,
-        "sst": false,
-        "stride": false,
-        "theta_star": false
+        "sorrt_star": true,
+        "sst": true,
+        "stride": true,
+        "theta_star": true
       },
       "runs": 1,
       "smoothing": {
@@ -36,7 +36,8 @@
         "ompl_bspline": false,
         "ompl_shortcut": false,
         "ompl_simplify_max": false
-      }
+      },
+      "steer_functions": [6, 7]
     },
     "collision_model": 1,
     "distance_computation_method": 0,

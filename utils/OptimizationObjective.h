@@ -85,7 +85,9 @@ class OptimizationObjective : public ob::PathLengthOptimizationObjective {
   ob::InformedSamplerPtr allocInformedStateSampler(
       const ob::ProblemDefinitionPtr &probDefn,
       unsigned int maxNumberCalls) const override {
-    OMPL_WARN("Using a custom informed state sampler.");
+    OMPL_DEBUG(
+        "Using a custom informed state sampler to support CC/HC steer "
+        "functions.");
     return ob::InformedSamplerPtr(
         new CustomPathLengthDirectInfSampler(probDefn, maxNumberCalls));
   }

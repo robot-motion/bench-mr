@@ -7,7 +7,7 @@ import click
 import json
 from bitarray import bitarray
 
-from utils import add_options, group
+from utils import add_options
 
 plot_env_options = [
     click.option('--show_distances', default=False, type=bool),
