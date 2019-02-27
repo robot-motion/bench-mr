@@ -26,9 +26,12 @@ def parse_run_ids(run_id: str, total: int):
 
     run_ids = []
     rs = [s.strip() for s in run_id.split(',')]
-    for range in rs:
-        if ':' in range:
-            ri = range.index(':')
-            start = 0 if ri == 0 else parse_int(range[:ri])
-            end = total if ri == len(range)-1 else parse_int(range[(ri+1):])
+    for r in rs:
+        if ':' in r:
+            ri = r.index(':')
+            start = 0 if ri == 0 else parse_int(r[:ri])
+            end = total if ri == len(r)-1 else parse_int(r[(ri+1):])
             run_ids += list(range(start, end))
+        else:
+            run_ids.append(parse_int(r))
+    return run_ids
