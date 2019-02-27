@@ -49,8 +49,8 @@
       },
       "grid": {
         "corridor": {
-          "branches": 50,
-          "radius": 4
+          "branches": 60,
+          "radius": 5
         },
         "generator": "corridor",
         "height": 50,

@@ -2,42 +2,42 @@
   "settings": {
     "auto_choose_distance_computation_method": true,
     "benchmark": {
-      "log_file": "movingai_berlin_256.json",
+      "log_file": "grid_corridor_150.json",
       "moving_ai": {
-        "active": true,
+        "active": false,
         "end": -1,
-        "scenario": "moving_ai_scenarios/Berlin_0_256.map.scen",
-        "start": -5
+        "scenario": "Berlin_0_256.map.scen",
+        "start": -10
       },
       "planning": {
         "bfmt": true,
         "bit_star": true,
         "cforest": true,
-        "est": true,
-        "fmt": true,
+        "est": false,
+        "fmt": false,
         "informed_rrt_star": true,
         "kpiece1": true,
-        "prm_star": true,
-        "rrt": true,
+        "prm_star": false,
+        "rrt": false,
         "rrt_sharp": true,
         "rrt_star": true,
-        "sbl": true,
-        "sbpl": true,
+        "sbl": false,
+        "sbpl": false,
         "sorrt_star": true,
         "sst": true,
         "stride": true,
         "theta_star": true
       },
-      "runs": 10,
+      "runs": 1,
       "smoothing": {
-        "chomp": false,
-        "grips": false,
-        "ompl_anytime_ps": false,
-        "ompl_bspline": false,
-        "ompl_shortcut": false,
-        "ompl_simplify_max": false
+        "chomp": true,
+        "grips": true,
+        "ompl_anytime_ps": true,
+        "ompl_bspline": true,
+        "ompl_shortcut": true,
+        "ompl_simplify_max": true
       },
-      "steer_functions": [0, 1, 2]
+      "steer_functions": [0, 1, 2, 6, 7]
     },
     "collision_model": 0,
     "distance_computation_method": 0,
@@ -49,19 +49,18 @@
       },
       "grid": {
         "corridor": {
-          "branches": 50,
-          "radius": 5
+          "branches": 300,
+          "radius": 4
         },
-        "generator": "corridor",
-        "height": 50,
+        "generator": "random",
+        "height": 100,
         "random": {
-          "obstacle_ratio": 5.0
+          "obstacle_ratio": 0.1
         },
         "seed": 1,
-        "width": 50
+        "width": 100
       },
       "polygon": {
-        "scaling": 0.045454545454545456,
         "source": "polygon_mazes/parking1.svg"
       },
       "start": {
@@ -132,7 +131,7 @@
       "car_turning_radius": 4.0,
       "hc_cc": {
         "kappa": 5.0,
-        "sigma": 0.315
+        "sigma": 0.5
       },
       "posq": {
         "alpha": 3.0,

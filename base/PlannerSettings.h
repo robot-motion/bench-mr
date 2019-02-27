@@ -73,7 +73,7 @@ struct GlobalSettings : public Group {
 
       struct RandomSettings : public Group {
         using Group::Group;
-        Property<double> obstacle_ratio{5, "obstacle_ratio", this};
+        Property<double> obstacle_ratio{0.1, "obstacle_ratio", this};
       } random{"random", this};
     } grid{"grid", this};
 

@@ -37,7 +37,7 @@
         "ompl_shortcut": false,
         "ompl_simplify_max": false
       },
-      "steer_functions": [0, 1, 2, 5, 6, 7]
+      "steer_functions": [0, 1, 2, 6, 7]
     },
     "collision_model": 1,
     "distance_computation_method": 0,

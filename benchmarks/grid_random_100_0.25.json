@@ -49,16 +49,16 @@
       },
       "grid": {
         "corridor": {
-          "branches": 50,
+          "branches": 300,
           "radius": 4
         },
-        "generator": "corridor",
-        "height": 50,
+        "generator": "random",
+        "height": 100,
         "random": {
-          "obstacle_ratio": 5.0
+          "obstacle_ratio": 0.25
         },
         "seed": 1,
-        "width": 50
+        "width": 100
       },
       "polygon": {
         "source": "polygon_mazes/parking1.svg"
