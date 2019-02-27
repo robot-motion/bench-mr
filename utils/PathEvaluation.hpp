@@ -59,7 +59,8 @@ struct PathEvaluation {
     }
     std::cout << stats << std::endl;
     std::cout << "Steer function: "
-              << Steering::to_string(global::settings.steer.steering_type);
+              << Steering::to_string(global::settings.steer.steering_type)
+              << std::endl;
     j["trajectory"] = Log::serializeTrajectory(planner.solution());
     j["stats"] = nlohmann::json(stats)["stats"];
 

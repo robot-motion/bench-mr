@@ -91,7 +91,7 @@ void GridMaze::fillBorder(bool value, int size) {
 }
 
 GridMaze *GridMaze::createRandomCorridor(unsigned int width,
-                                         unsigned int height, int radius,
+                                         unsigned int height, double radius,
                                          int branches, unsigned int seed,
                                          int borderSize) {
   OMPL_INFORM("Generating environment with seed %i", seed);
@@ -121,17 +121,19 @@ GridMaze *GridMaze::createRandomCorridor(unsigned int width,
     if (std::abs(x - closest.x) < std::abs(y - closest.y)) {
       // connect vertically
       environment->fill(
-          Rectangle(closest.x - radius, std::min(closest.y, (double)y) - radius,
-                    closest.x + radius,
-                    std::max(closest.y, (double)y) + radius),
+          Rectangle(closest.x - std::floor(radius),
+                    std::min(closest.y, (double)y) - std::floor(radius),
+                    closest.x + std::ceil(radius),
+                    std::max(closest.y, (double)y) + std::ceil(radius)),
           false);
       positions.emplace_back(Point(closest.x, y));
     } else {
       // connect horizontally
       environment->fill(
-          Rectangle(std::min(closest.x, (double)x) - radius, closest.y - radius,
-                    std::max(closest.x, (double)x) + radius,
-                    closest.y + radius),
+          Rectangle(std::min(closest.x, (double)x) - std::floor(radius),
+                    closest.y - std::floor(radius),
+                    std::max(closest.x, (double)x) + std::ceil(radius),
+                    closest.y + std::ceil(radius)),
           false);
       positions.emplace_back(Point(x, closest.y));
     }
@@ -562,7 +564,7 @@ GridMaze *GridMaze::createFromMovingAiScenario(Scenario &scenario) {
   }
 
   std::cout << "Loaded scenario " << scenario << std::endl;
-//  std::cout << *environment << std::endl;
+  //  std::cout << *environment << std::endl;
 
   return environment;
 }

@@ -6,6 +6,7 @@ import math
 from color import get_color, get_colors
 
 from utils import add_options, group
+from definitions import stat_names
 
 
 @group.command()
@@ -30,17 +31,6 @@ def visualize(json_file: str, run_id: str = 'all',
               save_file: str = None,
               dpi: int = 200, **kwargs):
     click.echo("Visualizing %s..." % click.format_filename(json_file))
-
-    stat_names = {
-        'curvature': 'Curvature',
-        'max_clearing_distance': 'Maximum Clearing Distance',
-        'mean_clearing_distance': 'Mean Clearing Distance',
-        'median_clearing_distance': 'Median Clearing Distance',
-        'min_clearing_distance': 'Minimum Clearing Distance',
-        'path_length': 'Path Length',
-        'smoothness': 'Smoothness',
-        'cost': 'Path Length'
-    }
 
     stat_keys = [
         'curvature',
