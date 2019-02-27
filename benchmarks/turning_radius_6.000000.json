@@ -2,7 +2,7 @@
   "settings": {
     "auto_choose_distance_computation_method": true,
     "benchmark": {
-      "log_file": "corridor_radius_0.150000",
+      "log_file": "turning_radois6.000000",
       "moving_ai": {
         "active": false,
         "end": -1,
@@ -21,7 +21,7 @@
         "rrt": true,
         "rrt_sharp": true,
         "rrt_star": true,
-        "sbl": true,
+        "sbl": false,
         "sbpl": true,
         "sorrt_star": true,
         "sst": true,
@@ -38,11 +38,7 @@
         "ompl_simplify_max": true
       },
       "steer_functions": [
-        0,
-        1,
-        2,
-        6,
-        7
+        0
       ]
     },
     "collision_model": 0,
@@ -50,18 +46,18 @@
     "env": {
       "goal": {
         "theta": 0.0,
-        "x": 95.0,
-        "y": 98.0
+        "x": 0.0,
+        "y": 0.0
       },
       "grid": {
         "corridor": {
           "branches": 50,
           "radius": 5.0
         },
-        "generator": "random",
+        "generator": "corridor",
         "height": 100,
         "random": {
-          "obstacle_ratio": 0.15
+          "obstacle_ratio": 0.1
         },
         "seed": 1,
         "width": 100
@@ -72,8 +68,8 @@
       },
       "start": {
         "theta": 0.0,
-        "x": 10.0,
-        "y": 4.0
+        "x": 0.0,
+        "y": 0.0
       },
       "type": "grid"
     },
@@ -135,7 +131,7 @@
       }
     },
     "steer": {
-      "car_turning_radius": 4.0,
+      "car_turning_radius": 6.0,
       "hc_cc": {
         "kappa": 5.0,
         "sigma": 0.315

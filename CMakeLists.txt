@@ -116,3 +116,6 @@ target_link_libraries(generate_corridor_radii_benchmarks ${EXTRA_LIB})
 
 add_executable(generate_obstacle_ratio_benchmarks experiments/generate_obstacle_ratio_benchmarks.cpp ${ALL_SRC})
 target_link_libraries(generate_obstacle_ratio_benchmarks ${EXTRA_LIB})
+
+add_executable(generate_turning_radii_benchmarks experiments/generate_turning_radii_benchmarks.cpp ${ALL_SRC})
+target_link_libraries(generate_turning_radii_benchmarks ${EXTRA_LIB})

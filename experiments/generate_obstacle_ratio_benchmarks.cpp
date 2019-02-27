@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
   global::settings.benchmark.runs = 5;
   Log::instantiateRun();
   for (int seed = 1; seed <= 5; ++seed) {
-    for (double ratio : {0.01, 0.05, 0.10, 0.15}) {
+    for (double ratio : {0.01, 0.05, 0.08, 0.12}) {
       global::settings.env.grid.random.obstacle_ratio = ratio;
       global::settings.env.grid.seed = seed;
       global::settings.env.createEnvironment();
