@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
   global::settings.benchmark.runs = 5;
   Log::instantiateRun();
   for (int seed = 1; seed <= 5; ++seed) {
-    for (int radius = 2; radius <= 10; ++radius) {
+    for (int radius = 3; radius <= 8; ++radius) {
       global::settings.env.grid.corridor.radius = radius;
       global::settings.env.grid.seed = seed;
       global::settings.env.createEnvironment();

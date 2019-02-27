@@ -2,7 +2,7 @@
   "settings": {
     "auto_choose_distance_computation_method": true,
     "benchmark": {
-      "log_file": "corridor_radius_3",
+      "log_file": "corridor_radius_0.120000",
       "moving_ai": {
         "active": false,
         "end": -1,
@@ -50,18 +50,18 @@
     "env": {
       "goal": {
         "theta": 0.0,
-        "x": 96.0,
-        "y": 94.0
+        "x": 91.0,
+        "y": 91.0
       },
       "grid": {
         "corridor": {
           "branches": 50,
-          "radius": 3.0
+          "radius": 5.0
         },
-        "generator": "corridor",
+        "generator": "random",
         "height": 100,
         "random": {
-          "obstacle_ratio": 0.1
+          "obstacle_ratio": 0.12
         },
         "seed": 1,
         "width": 100
@@ -72,8 +72,8 @@
       },
       "start": {
         "theta": 0.0,
-        "x": 7.0,
-        "y": 7.0
+        "x": 4.0,
+        "y": 6.0
       },
       "type": "grid"
     },

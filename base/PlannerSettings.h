@@ -224,7 +224,8 @@ struct GlobalSettings : public Group {
       Property<bool> sbpl{true, "sbpl", this};
       Property<bool> prm_star{true, "prm_star", this};
       Property<bool> est{true, "est", this};
-      Property<bool> sbl{true, "sbl", this};
+      // TODO investigate why SBL has problems with Anytime PS
+      Property<bool> sbl{false, "sbl", this};
       Property<bool> fmt{true, "fmt", this};
       Property<bool> bfmt{true, "bfmt", this};
       Property<bool> sst{true, "sst", this};
