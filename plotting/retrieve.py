@@ -31,13 +31,14 @@ def retrieve_planner_stats_by_run(json_file: str, planners: str = 'all', run_id:
 
 def retrieve_planner_stats_by_steering(json_file: str, steer_funcs: str = 'all', planners: str = 'all',
                                        run_id: str = 'all'):
-    stats = retrieve_planner_stats_by_run(json_file, planners=planners, run_id=run_id)
+    retrieval = retrieve_planner_stats_by_run(json_file, planners=planners, run_id=run_id)
     steer_funcs = parse_steer_functions(steer_funcs)
-
     result = {}
     for sf in steer_funcs:
         result[sf] = {}
-        for run_id, plans in stats.items():
+        for run_id, plans in retrieval.items():
+            if plans is None:
+                continue
             for planner, stats in plans.items():
                 if stats['steer_function'] == sf:
                     if planner not in result[sf]:
