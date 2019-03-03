@@ -39,7 +39,7 @@ class OMPLAnytimePathShortening : public OMPLPlanner<PLANNER> {
 
 typedef OMPLAnytimePathShortening<og::RRT> RRTAnytimePathShortening;
 typedef OMPLAnytimePathShortening<og::RRTstar> RRTstarAnytimePathShortening;
-typedef OMPLAnytimePathShortening<og::RRTstar> RRTsharpAnytimePathShortening;
+typedef OMPLAnytimePathShortening<og::RRTsharp> RRTsharpAnytimePathShortening;
 typedef OMPLAnytimePathShortening<og::InformedRRTstar>
     InformedRRTstarAnytimePathShortening;
 typedef OMPLAnytimePathShortening<og::SORRTstar> SORRTstarAnytimePathShortening;
