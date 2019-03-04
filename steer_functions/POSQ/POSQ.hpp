@@ -224,22 +224,6 @@ class POSQ {
     return ap;
   }
 
-  /** \brief Set the angle a in the range [min, min+2*M_PI].
-      \param double alpha
-      \param double min
-  */
-  double setAngleToRange(double alpha, double min) const {
-    while (alpha >= min + 2.0 * M_PI) {
-      alpha -= 2.0 * M_PI;
-    }
-
-    while (alpha < min) {
-      alpha += 2.0 * M_PI;
-    }
-
-    return alpha;
-  }
-
   /** \brief Single step of the Steer Function.
       \param double x_c, initial x-coord
       \param double y_c, initial y-coord
@@ -303,7 +287,7 @@ class POSQ {
     alpha = normAngle(alpha, -M_PI);
 
     // direction
-    if (dir == 0) {
+    if (dir == 1) {
       if (alpha > (M_PI / 2)) {
         fRho = -fRho;
         alpha = alpha - M_PI;
