@@ -48,7 +48,11 @@ link_directories(${SBPL_LIBRARY_DIRS})
 # include_directories( ${CMAKE_BINARY_DIR} )
 # set(CMAKE_AUTOMOC ON)
 
-set(EXTRA_LIB ${EXTRA_LIB} ${SBPL_LIBRARIES} chomp mzcommon -lompl steering_functions)
+find_package(Boost 1.58 REQUIRED COMPONENTS serialization filesystem system program_options)
+include_directories(${Boost_INCLUDE_DIR})
+link_directories(${Boost_LIBRARY_DIRS})
+
+set(EXTRA_LIB ${EXTRA_LIB} ${SBPL_LIBRARIES} ${Boost_LIBRARIES} chomp mzcommon -lompl steering_functions)
 
 if (Qt5_FOUND)
     set(EXTRA_LIB ${EXTRA_LIB} Qt5::Core Qt5::Widgets Qt5::Charts Qt5::Svg)
