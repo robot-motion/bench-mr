@@ -2,7 +2,7 @@
   "settings": {
     "auto_choose_distance_computation_method": true,
     "benchmark": {
-      "log_file": "turning_radois6.000000",
+      "log_file": "turning_radius6.000000",
       "moving_ai": {
         "active": false,
         "end": -1,
