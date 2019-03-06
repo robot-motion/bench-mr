@@ -3,9 +3,9 @@ import json
 import click
 import math
 
-from color import get_color, get_colors
+from color import get_color
 
-from utils import add_options, group
+from utils import group, parse_metrics, parse_run_ids, print_run_info
 from definitions import stat_names
 
 
@@ -17,31 +17,22 @@ from definitions import stat_names
 @click.option('--headless', default=False, type=bool)
 @click.option('--combine_views', default=True, type=bool)
 @click.option('--save_file', default=None, type=str)
+@click.option('--metrics', default='curvature, cost', type=str)
 @click.option('--dpi', default=200, type=int)
 def main(**kwargs):
     print(kwargs)
-    visualize(**kwargs)
+    plot_convergence(**kwargs)
 
 
-def visualize(json_file: str, run_id: str = 'all',
-              show_smoother=False,
-              draw_nodes=True,
-              max_plots_per_line: int = 5, headless=False,
-              combine_views=False,
-              save_file: str = None,
-              dpi: int = 200, **kwargs):
+def plot_convergence(json_file: str, run_id: str = 'all',
+                     max_plots_per_line: int = 5, headless=False,
+                     combine_views=False,
+                     save_file: str = None,
+                     metrics='curvature, cost',
+                     dpi: int = 200, **kwargs):
     click.echo("Visualizing %s..." % click.format_filename(json_file))
 
-    stat_keys = [
-        'curvature',
-        # 'max_clearing_distance',
-        # 'mean_clearing_distance',
-        # 'median_clearing_distance',
-        # 'min_clearing_distance',
-        # 'path_length',
-        # 'smoothness',
-        'cost'
-    ]
+    stat_keys = parse_metrics(metrics)
 
     if headless:
         import matplotlib
@@ -54,10 +45,7 @@ def visualize(json_file: str, run_id: str = 'all',
     mpl.rcParams['pdf.fonttype'] = 42  # make sure to not use Level-3 fonts
 
     data = json.load(open(json_file, "r"))
-    if run_id.lower() == "all":
-        run_ids = list(range(len(data["runs"])))
-    else:
-        run_ids = [int(s.strip()) for s in run_id.split(',')]
+    run_ids = parse_run_ids(run_id, len(data["runs"]))
 
     if combine_views:
         max_plots_per_line = min(max_plots_per_line, len(stat_keys))
@@ -66,6 +54,7 @@ def visualize(json_file: str, run_id: str = 'all',
         plt.figure("MPB Convergence %s" % json_file, figsize=(axes_h * 5, axes_v * 5))
 
     run_id = run_ids[0]
+    print_run_info(data, run_id)
     for si, stat_key in enumerate(stat_keys):
         run = data["runs"][run_id]
         if combine_views:
@@ -73,15 +62,9 @@ def visualize(json_file: str, run_id: str = 'all',
         else:
             plt.figure("Run %i - %s (%s)" % (run_id, json_file, stat_key))
         kwargs['run_id'] = run_id
-        env = run["environment"]
         plt.title(stat_names[stat_key], fontsize=20)
         plt.grid()
         plt.gca().set_xlabel("Planning Time [sec]", fontsize=18)
-        if "settings" in run:
-            settings = run["settings"]
-            print("Using settings from run", run_id)
-        else:
-            settings = data["settings"]
         for j, (planner, plan) in enumerate(run["plans"].items()):
             if "intermediary_solutions" in plan and len(plan["intermediary_solutions"]) > 0:
                 times = []
@@ -92,7 +75,7 @@ def visualize(json_file: str, run_id: str = 'all',
                         stats.append(sol["cost"])
                     else:
                         stats.append(sol["stats"][stat_key])
-                plt.plot(times, stats, '.-', color=get_color(j), label=planner)
+                plt.plot(times, stats, '.-', color=get_color(j, **kwargs), label=planner)
 
         if not combine_views or si % axes_h == 0:
             plt.legend()

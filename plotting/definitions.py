@@ -6,6 +6,7 @@ stat_names = {
     'min_clearing_distance': 'Minimum Clearing Distance',
     'path_length': 'Path Length',
     'smoothness': 'Smoothness',
+    'planning_time': 'Computation Time',
     'cost': 'Path Length'
 }
 
