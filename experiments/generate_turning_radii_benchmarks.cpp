@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
 
     // save benchmark configuradiusn
     global::settings.benchmark.log_file =
-        "turning_radois" + std::to_string(radius);
+        "turning_radius" + std::to_string(radius);
     std::ofstream o("../benchmarks/turning_radius_" + std::to_string(radius) +
                     ".json");
     o << std::setw(2) << nlohmann::json(global::settings);

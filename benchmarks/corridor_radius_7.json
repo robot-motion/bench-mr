@@ -2,7 +2,7 @@
   "settings": {
     "auto_choose_distance_computation_method": true,
     "benchmark": {
-      "log_file": "corridor_radius_7.json",
+      "log_file": "corridor_radius_7",
       "moving_ai": {
         "active": false,
         "end": -1,
