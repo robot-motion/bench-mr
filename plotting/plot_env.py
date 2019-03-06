@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import click
 import numpy as np
 import math
 import click
@@ -25,7 +24,6 @@ def plot_env(env, run_id: int = -1, colors=(None, None), draw_start_goal=True, d
     :param show_distances:
     :param set_title:
     :param run_id:
-    :param run:
     :param draw_start_goal_thetas:
     :param draw_start_goal:
     :param env:
@@ -77,7 +75,10 @@ def plot_env(env, run_id: int = -1, colors=(None, None), draw_start_goal=True, d
         ax.set_xlim([0, w])
         ax.set_ylim([0, h])
 
-        title += '($%i\\times%i$ %s %i)' % (w, h, env["generator"], env["seed"])
+        title += '($%i\\times%i$ %s' % (w, h, env["generator"])
+        if env["generator"] in ("corridor", "random"):
+            title += " %i" % env["seed"]
+        title += ')'
     elif env["type"] == "polygon":
         polygons = []
         for points in env["obstacles"]:

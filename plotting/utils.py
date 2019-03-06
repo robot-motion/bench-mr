@@ -35,6 +35,12 @@ def is_float(s: str):
 
 
 def parse_run_ids(run_id: str, total: int) -> [int]:
+    """
+    Parses lists of run IDs, e.g., "all", "0-2, -1".
+    :param run_id: String with run IDs.
+    :param total: Total number of available runs.
+    :return: List of run IDs.
+    """
     run_id = run_id.replace(' ', '')
     if run_id == '' or run_id.lower() == "all":
         return list(range(total))
@@ -48,7 +54,7 @@ def parse_run_ids(run_id: str, total: int) -> [int]:
         if ':' in r:
             ri = r.index(':')
             start = 0 if ri == 0 else parse_int(r[:ri])
-            end = total if ri == len(r)-1 else parse_int(r[(ri+1):])
+            end = total if ri == len(r) - 1 else parse_int(r[(ri + 1):])
             run_ids += list(range(start, end))
         else:
             run_ids.append(parse_int(r))
@@ -84,3 +90,36 @@ def parse_steer_functions(sf: str) -> [int]:
         else:
             click.echo('Substring "%s" could not identify a steer function.' % r, err=True)
     return sfs
+
+
+def parse_planners(planners: str) -> {str: str}:
+    return {s.strip().lower(): s.strip() for s in planners.split(',') if len(s.strip()) > 0}
+
+
+def parse_metrics(metrics: str) -> [str]:
+    from definitions import stat_names
+    if metrics.lower().strip() == "all":
+        return list(stat_names.values())
+    return [s.strip().lower() for s in metrics.split(',') if s.strip().lower() in stat_names]
+
+
+def print_run_info(data, run_id: int):
+    run = data["runs"][run_id]
+    title = '+++++++++++++++ Run %i / %i +++++++++++++++' % (run_id, len(data["runs"]))
+    click.echo(title)
+    steering = steer_function_names[steer_functions[data["settings"]["steer"]["steering_type"]]]
+    if "settings" in run:
+        steering = steer_function_names[steer_functions[run["settings"]["steer"]["steering_type"]]]
+    click.echo('+ Steering:       %s ' % steering)
+    env = run["environment"]
+    click.echo('+ Environment:    %s' % env["name"])
+    total_count = len(run["plans"])
+    found_count = len([plan for plan in run["plans"].values() if plan["stats"]["path_found"]])
+    exact_count = len(
+        [plan for plan in run["plans"].values() if plan["stats"]["path_found"] and plan["stats"]["exact_goal_path"]])
+    collision_count = len(
+        [plan for plan in run["plans"].values() if plan["stats"]["path_found"] and plan["stats"]["path_collides"]])
+    click.echo('+ Found solution: %i / %i' % (found_count, total_count))
+    click.echo('+ Exact solution: %i / %i' % (exact_count, total_count))
+    click.echo('+ Collisions:     %i / %i' % (collision_count, found_count))
+    click.echo('+' * len(title) + '\n')

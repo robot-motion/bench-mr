@@ -7,7 +7,7 @@ from plot_env import plot_env, plot_env_options
 from plot_trajectory import plot_trajectory, plot_nodes, plot_trajectory_options
 from color import get_color, get_colors, color_options
 
-from utils import add_options, group, parse_run_ids
+from utils import add_options, group, parse_run_ids, parse_planners
 
 
 @group.command()
@@ -67,7 +67,7 @@ def visualize(json_file: str, run_id: str = 'all',
     mpl.rcParams['mathtext.fontset'] = 'cm'
     mpl.rcParams['pdf.fonttype'] = 42  # make sure to not use Level-3 fonts
 
-    ignore_planners = [s.strip() for s in ignore_planners.lower().split(',')]
+    ignore_planners = parse_planners(ignore_planners)
     if len(ignore_planners) > 0 and not silence:
         click.echo('Ignoring the following planner(s): %s' % ', '.join(ignore_planners))
 
