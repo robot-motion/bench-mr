@@ -35,7 +35,7 @@ struct PathEvaluation {
 
       if (global::settings.evaluate_clearing &&
           global::settings.environment->distance(0., 0.) >= 0.) {
-        auto clearings = ClearingMetric::clearingDistances(solution);
+        const auto clearings = ClearingMetric::clearingDistances(solution);
         stats.mean_clearing_distance = stat::mean(clearings);
         stats.median_clearing_distance = stat::median(clearings);
         stats.min_clearing_distance = stat::min(clearings);

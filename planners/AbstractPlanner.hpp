@@ -66,7 +66,7 @@ class AbstractPlanner {
 
   AbstractPlanner() {
     ss = new og::SimpleSetup(global::settings.ompl.state_space);
-    auto &si = ss->getSpaceInformation();
+    auto &si = global::settings.ompl.space_info;
 
     if (global::settings.collision_model == robot::ROBOT_POINT) {
       ss->setStateValidityChecker([&](const ob::State *state) -> bool {
