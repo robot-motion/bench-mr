@@ -425,22 +425,6 @@ struct GlobalSettings : public Group {
   struct ThetaStarSettings : public Group {
     using Group::Group;
 
-    //      Property<bool> gradient_descent_open_nodes{
-    //          true, "gradient_descent_open_nodes", this};
-    //      Property<bool> annealedGradientdescent_open_nodes{
-    //          true, "annealedGradientdescent_open_nodes", this};
-    //      Property<bool> gradient_descent_current{false,
-    //      "gradient_descent_current",
-    //                                              this};
-    //      Property<bool> gradient_descent_successors{
-    //          false, "gradient_descent_successors", this};
-    //      Property<double> gradient_descent_eta{0.5, "gradient_descent_eta",
-    //      this}; Property<double> gradient_descent_eta_discount{
-    //          0.8, "gradient_descent_eta_discount", this};
-    //      Property<unsigned int> gradient_descent_rounds{
-    //          10u, "gradient_descent_rounds", this};
-    //      Property<bool> average_angles{true, "average_angles", this};
-
     /**
      * This setting is relevant for Theta* and Smooth Theta*.
      */

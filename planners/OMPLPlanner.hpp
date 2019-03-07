@@ -32,8 +32,8 @@
 #include <utils/Stopwatch.hpp>
 
 #include "base/PlannerSettings.h"
-#include "utils/PlannerUtils.hpp"
 #include "planners/AbstractPlanner.hpp"
+#include "utils/PlannerUtils.hpp"
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
@@ -42,8 +42,8 @@ template <class PLANNER>
 class OMPLPlanner : public AbstractPlanner {
  public:
   OMPLPlanner() : AbstractPlanner() {
-    const ob::SpaceInformationPtr si = ss->getSpaceInformation();
-    _omplPlanner = ob::PlannerPtr(new PLANNER(si));
+    _omplPlanner =
+        ob::PlannerPtr(new PLANNER(ss->getSpaceInformation()));
   }
 
   ob::PlannerStatus run() override {
@@ -57,8 +57,12 @@ class OMPLPlanner : public AbstractPlanner {
     problem->setIntermediateSolutionCallback(
         [&](const ob::Planner *planner,
             const std::vector<const ob::State *> &states, const ob::Cost cost) {
-          og::PathGeometric solution(ss->getSpaceInformation());
+          og::PathGeometric solution(global::settings.ompl.space_info);
+          // the OMPL intermediary solution doesn't include the start state
+          solution.append(global::settings.environment->startState());
           for (const auto *state : states) solution.append(state);
+          // the OMPL intermediary solution doesn't include the goal state
+          solution.append(global::settings.environment->goalState());
           IntermediarySolution is(watch.elapsed(), cost.value(), solution);
           intermediarySolutions.emplace_back(is);
         });
@@ -87,7 +91,7 @@ class OMPLPlanner : public AbstractPlanner {
     try {
       return ss->getSolutionPath();
     } catch (...) {
-        // no solution was found
+      // no solution was found
       return og::PathGeometric(global::settings.ompl.space_info);
     }
   }
