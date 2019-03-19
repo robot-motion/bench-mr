@@ -13,6 +13,7 @@ RUN \
     wget \
     unzip \
     git \
+    git-lfs \
     python-dev \
     autotools-dev \
     m4 \
@@ -64,6 +65,9 @@ RUN cd build && make
 # Install Python requirements for plotting
 WORKDIR /root/code/mpb/plotting
 RUN pip3 install -r requirements.txt
+
+# Set up git lfs
+RUN git lfs install
 
 # Setup repo
 WORKDIR /root/code/mpb
