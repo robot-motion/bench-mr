@@ -40,5 +40,6 @@ def plot_aggregate(ax, runs, planners: [str], show_legend=True, **_):
     ax.set_yticks([])
     ax.view_init(0, -90)
     ax.dist = 5.8
+    ax.set_zlim([0, len(runs)])
     if show_legend:
         plt.legend(loc="center left")
