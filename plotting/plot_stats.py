@@ -113,11 +113,14 @@ def plot_planner_stats(json_file: str,
                         stat = np.nan
                     elif stat_key == "cusps":
                         stat = len(plan["stats"]["cusps"])
+                        if not plan["stats"]["path_found"]:
+                            stat = np.nan
                     else:
                         stat = plan["stats"][stat_key]
                     if stat is None:
                         stat = np.nan
-                    stats[planner].append(stat)
+                    if not np.isnan(stat):
+                        stats[planner].append(stat)
                     if not plot_violins:
                         plt.scatter([planners.index(planner) + 0.85 - 0.5 * run_id / len(data["runs"])],
                                     [stat],
@@ -130,7 +133,7 @@ def plot_planner_stats(json_file: str,
 
             if plot_violins:
                 violins = [stats[planner] or [] for planner in planners]
-                vs = plt.violinplot(violins, ticks, points=150, widths=0.6,
+                vs = plt.violinplot(violins, ticks, points=50, widths=0.6,
                                     showmeans=True, showextrema=False, showmedians=True)
                 for i, body in enumerate(vs["bodies"]):
                     body.set_facecolor(violin_colors[i])

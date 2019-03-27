@@ -28,7 +28,7 @@
         "stride": false,
         "theta_star": false
       },
-      "runs": 1,
+      "runs": 5,
       "smoothing": {
         "chomp": false,
         "grips": false,
