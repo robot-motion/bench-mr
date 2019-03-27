@@ -2,10 +2,11 @@
 
 #include <memory>
 
-#include <ompl/base/SpaceInformation.h>
 #include <ompl/base/objectives/MaximizeMinClearanceObjective.h>
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
 #include <ompl/base/objectives/StateCostIntegralObjective.h>
+
+#include <ompl/base/SpaceInformation.h>
 #include <ompl/base/spaces/DubinsStateSpace.h>
 #include <ompl/base/spaces/RealVectorStateSpace.h>
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
@@ -14,6 +15,7 @@
 #include <ompl/geometric/PathGeometric.h>
 #include <ompl/geometric/PathSimplifier.h>
 #include <ompl/geometric/SimpleSetup.h>
+
 #include <ompl/geometric/planners/bitstar/BITstar.h>
 #include <ompl/geometric/planners/cforest/CForest.h>
 #include <ompl/geometric/planners/est/EST.h>
@@ -29,11 +31,14 @@
 #include <ompl/geometric/planners/sbl/SBL.h>
 #include <ompl/geometric/planners/sst/SST.h>
 #include <ompl/geometric/planners/stride/STRIDE.h>
-#include <utils/Stopwatch.hpp>
+#include <ompl/geometric/planners/pdst/PDST.h>
+#include <ompl/geometric/planners/prm/SPARS.h>
+#include <ompl/geometric/planners/prm/SPARStwo.h>
 
 #include "base/PlannerSettings.h"
 #include "planners/AbstractPlanner.hpp"
 #include "utils/PlannerUtils.hpp"
+#include "utils/Stopwatch.hpp"
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
@@ -111,6 +116,7 @@ class OMPLPlanner : public AbstractPlanner {
 };
 
 typedef OMPLPlanner<og::RRT> RRTPlanner;
+typedef OMPLPlanner<og::SST> SSTPlanner;
 typedef OMPLPlanner<og::RRTstar> RRTstarPlanner;
 typedef OMPLPlanner<og::RRTsharp> RRTsharpPlanner;
 typedef OMPLPlanner<og::InformedRRTstar> InformedRRTstarPlanner;
@@ -123,6 +129,8 @@ typedef OMPLPlanner<og::SBL> SBLPlanner;
 typedef OMPLPlanner<og::PRMstar> PRMstarPlanner;
 typedef OMPLPlanner<og::CForest> CForestPlanner;
 typedef OMPLPlanner<og::EST> ESTPlanner;
-typedef OMPLPlanner<og::SST> SSTPlanner;
 typedef OMPLPlanner<og::KPIECE1> KPIECEPlanner;
 typedef OMPLPlanner<og::STRIDE> STRIDEPlanner;
+typedef OMPLPlanner<og::SPARS> SPARSPlanner;
+typedef OMPLPlanner<og::SPARStwo> SPARS2Planner;
+typedef OMPLPlanner<og::PDST> PDSTPlanner;

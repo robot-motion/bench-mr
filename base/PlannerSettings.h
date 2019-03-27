@@ -128,8 +128,8 @@ struct GlobalSettings : public Group {
   /**
    * Which model is used for collision checking.
    */
-  Property<robot::Model> collision_model{robot::ROBOT_POINT, "collision_model",
-                                         this};
+  Property<robot::Model> collision_model{robot::ROBOT_POLYGON,
+                                         "collision_model", this};
 
   Property<Polygon> robot_shape{Polygon(), "robot_shape", this};
   /**
@@ -153,6 +153,12 @@ struct GlobalSettings : public Group {
    * Maximal length a og::PathGeometric can have to be interpolated.
    */
   Property<double> max_path_length{10000, "max_path_length", this};
+
+  /**
+   * Threshold in radians of the difference between consecutive yaw angles to be
+   * considered a cusp.
+   */
+  Property<double> cusp_angle_threshold{30 * M_PI / 180., "cusp_angle_threshold", this};
 
   /**
    * Settings related to benchmarking.
@@ -222,6 +228,7 @@ struct GlobalSettings : public Group {
       Property<bool> sorrt_star{true, "sorrt_star", this};
       Property<bool> informed_rrt_star{true, "informed_rrt_star", this};
       Property<bool> sbpl{true, "sbpl", this};
+      Property<bool> prm{true, "prm", this};
       Property<bool> prm_star{true, "prm_star", this};
       Property<bool> est{true, "est", this};
       // TODO investigate why SBL has problems with Anytime PS
@@ -229,8 +236,11 @@ struct GlobalSettings : public Group {
       Property<bool> fmt{true, "fmt", this};
       Property<bool> bfmt{true, "bfmt", this};
       Property<bool> sst{true, "sst", this};
-      Property<bool> kpiece1{true, "kpiece1", this};
-      Property<bool> stride{true, "stride", this};
+      Property<bool> kpiece{true, "kpiece", this};
+      Property<bool> stride{false, "stride", this};
+      Property<bool> spars{true, "sparse", this};
+      Property<bool> spars2{true, "spars2", this};
+      Property<bool> pdst{true, "pdst", this};
     } planning{"planning", this};
   } benchmark{"benchmark", this};
 
@@ -249,6 +259,20 @@ struct GlobalSettings : public Group {
     Property<double> cost_threshold{100, "cost_threshold", this};
 
     Property<unsigned int> seed{1, "seed", this};
+
+    struct RRTstarSettings : public Group {
+      using Group::Group;
+
+      /**
+       * Probability of selecting the goal state during the exploration.
+       */
+      Property<double> goal_bias{0.05, "goal_bias", this};
+
+      /**
+       * Maximum length of a motion to be added to the tree.
+       */
+      Property<double> max_distance{0., "max_distance", this};
+    } rrt_star{"rrt_star", this};
   } ompl{"ompl", this};
 
   struct SteerSettings : public Group {
