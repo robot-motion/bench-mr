@@ -24,9 +24,8 @@ int main(int argc, char **argv) {
   global::settings.benchmark.steer_functions = {
       Steering::STEER_TYPE_REEDS_SHEPP};
   Log::instantiateRun();
-  for (double radius : {2, 3, 4, 5, 6}) {
-    global::settings.steer.car_turning_radius = radius;
-
+  for (int radius : {2, 3, 4, 5, 6}) {
+    global::settings.steer.car_turning_radius = static_cast<double>(radius);
     // save benchmark configuradiusn
     global::settings.benchmark.log_file =
         "turning_radius" + std::to_string(radius);

@@ -345,16 +345,18 @@ bool GridMaze::collides(const Polygon &polygon) {
   // first retrieve submap that overlaps with polygon
   const auto min = polygon.min();
   const auto max = polygon.max();
-  const auto start_x = std::min(
-      _voxels_x, std::max(0u, static_cast<unsigned int>(min.x / _voxelSize)));
-  const auto start_y = std::min(
-      _voxels_y, std::max(0u, static_cast<unsigned int>(min.y / _voxelSize)));
+  const auto start_x =
+      std::min(_voxels_x, static_cast<unsigned int>(std::max(
+                              0, static_cast<int>(min.x / _voxelSize))));
+  const auto start_y =
+      std::min(_voxels_y, static_cast<unsigned int>(std::max(
+                              0, static_cast<int>(min.y / _voxelSize))));
   const auto end_x =
-      std::min(_voxels_x,
-               std::max(0u, static_cast<unsigned int>(max.x / _voxelSize) + 1));
+      std::min(_voxels_x, static_cast<unsigned int>(std::max(
+                              0, static_cast<int>(max.x / _voxelSize) + 1)));
   const auto end_y =
-      std::min(_voxels_y,
-               std::max(0u, static_cast<unsigned int>(max.y / _voxelSize) + 1));
+      std::min(_voxels_y, static_cast<unsigned int>(std::max(
+                              0, static_cast<int>(max.y / _voxelSize) + 1)));
 
   for (auto y = start_y; y < end_y; ++y) {
     for (auto x = start_x; x < end_x; ++x) {

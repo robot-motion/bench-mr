@@ -22,6 +22,8 @@ from utils import add_options, group, parse_run_ids, parse_planners
 @click.option('--custom_max_x', default=None, type=float)
 @click.option('--custom_max_y', default=None, type=float)
 @click.option('--draw_nodes', default=False, type=bool)
+@click.option('--draw_cusps', default=False, type=bool)
+@click.option('--cusp_radius', default=1, type=float)
 @click.option('--max_plots_per_line', default=5, help='Number of runs to visualize (0 means all).')
 @click.option('--headless', default=False, type=bool)
 @click.option('--combine_views', default=True, type=bool)
@@ -40,6 +42,8 @@ def main(**kwargs):
 def visualize(json_file: str, run_id: str = 'all',
               show_smoother=False,
               draw_nodes=True,
+              draw_cusps=False,
+              cusp_radius: float = 1,
               max_plots_per_line: int = 5, headless=False,
               combine_views=False,
               save_file: str = None,
@@ -51,9 +55,7 @@ def visualize(json_file: str, run_id: str = 'all',
               custom_max_y: float = None,
               silence=False,
               dpi: int = 200, **kwargs):
-    inputs = locals()
-    for key, item in inputs.items():
-        kwargs[key] = item
+    kwargs.update(locals())
     if not silence:
         click.echo("Visualizing %s..." % click.format_filename(json_file))
 
@@ -62,6 +64,9 @@ def visualize(json_file: str, run_id: str = 'all',
         matplotlib.use('Agg')
         click.echo("Running headless")
     import matplotlib.pyplot as plt
+
+    from matplotlib import patches
+    from matplotlib.collections import PatchCollection
 
     import matplotlib as mpl
     mpl.rcParams['mathtext.fontset'] = 'cm'
@@ -100,6 +105,15 @@ def visualize(json_file: str, run_id: str = 'all',
         for j, (planner, plan) in enumerate(run["plans"].items()):
             if planner.lower() in ignore_planners:
                 continue
+
+            if draw_cusps:
+                circles = []
+                for cusp in plan["stats"]["cusps"]:
+                    circle = patches.Circle(cusp, cusp_radius, ec="none")
+                    circles.append(circle)
+                collection = PatchCollection(circles, alpha=0.5, color=get_color(j, **kwargs))
+                plt.gca().add_collection(collection)
+
             plot_trajectory(plan["trajectory"], planner, settings, color=get_color(j, **kwargs), **kwargs)
             if draw_nodes:
                 plot_nodes(plan["path"], planner, settings, color=get_color(j, **kwargs), **kwargs)

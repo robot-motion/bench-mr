@@ -7,7 +7,7 @@ from plot_env import plot_env, plot_env_options
 from plot_trajectory import plot_trajectory, plot_nodes, plot_trajectory_options
 from color import get_color, get_colors, color_options
 
-from utils import add_options, group, parse_run_ids, parse_planners, print_run_info
+from utils import add_options, group, parse_run_ids, parse_planners, print_run_info, convert_planner_name
 
 
 @group.command()
@@ -82,7 +82,7 @@ def visualize_traj_convergence(json_file: str, run_id: str = 'all',
     for i in run_ids:
         run = data["runs"][i]
         if not silence:
-            print_run_info(data, i)
+            print_run_info(data, i, run_ids)
         if combine_views:
             plt.subplot(axes_v, axes_h, plot_counter)
             plot_counter += 1
@@ -101,13 +101,13 @@ def visualize_traj_convergence(json_file: str, run_id: str = 'all',
             if len(planners) > 0 and planner.lower() not in planners:
                 continue
             if draw_final_solution:
-                label = "%s (final)" % planner
+                label = "%s (final)" % convert_planner_name(planner)
                 plot_trajectory(plan["trajectory"], label, settings, color='k', **kwargs)
                 if draw_nodes:
                     plot_nodes(plan["path"], label, settings, color='k', **kwargs)
             colors = get_colors(len(plan["intermediary_solutions"]), **kwargs)
             for si, solution in enumerate(plan["intermediary_solutions"]):
-                label = '%s (%.2f s)' % (planner, solution["time"])
+                label = '%s (%.2f s)' % (convert_planner_name(planner), solution["time"])
                 plot_trajectory(solution["trajectory"], label, settings, color=colors[si], **kwargs)
                 if draw_nodes:
                     plot_nodes(solution["path"], label, settings, color=colors[si], **kwargs)

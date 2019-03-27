@@ -7,7 +7,9 @@ stat_names = {
     'path_length': 'Path Length',
     'smoothness': 'Smoothness',
     'planning_time': 'Computation Time',
-    'cost': 'Path Length'
+    'cost': 'Path Length',
+    'cusps': 'Cusps',
+    'aggregate': 'Aggregate'
 }
 
 steer_functions = [
