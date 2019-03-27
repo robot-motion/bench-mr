@@ -7,12 +7,29 @@
 #include <smoothers/ompl/OmplSmoother.hpp>
 
 #include "base/PathStatistics.hpp"
+#include "base/PlannerConfigurator.hpp"
 #include "planners/AbstractPlanner.hpp"
 #include "utils/Log.h"
 
 #include "smoothers/grips/GRIPS.h"
 
 struct PathEvaluation {
+  /**
+   * Identifies cusps in a solution path by comparing the yaw angles between
+   * every second state.
+   */
+  static void computeCusps(PathStatistics &stats,
+                           const ompl::geometric::PathGeometric &p) {
+    std::vector<Point> &cusps = stats.cusps.value();
+    const auto path = Point::fromPath(p);
+    for (unsigned int i = 1; i < path.size() - 1; ++i) {
+      const double yaw_prev = PlannerUtils::slope(path[i - 1], path[i]);
+      const double yaw_next = PlannerUtils::slope(path[i], path[i + 1]);
+      if (std::abs(yaw_next - yaw_prev) > global::settings.cusp_angle_threshold)
+        cusps.emplace_back(path[i]);
+    }
+  }
+
   static bool evaluate(PathStatistics &stats,
                        const ompl::geometric::PathGeometric &path,
                        const AbstractPlanner *planner) {
@@ -41,6 +58,8 @@ struct PathEvaluation {
         stats.min_clearing_distance = stat::min(clearings);
         stats.max_clearing_distance = stat::max(clearings);
       }
+
+      computeCusps(stats, path);
     }
     return stats.path_found && stats.exact_goal_path;
   }
@@ -89,6 +108,7 @@ struct PathEvaluation {
   template <class PLANNER>
   static bool evaluateSmoothers(nlohmann::json &info) {
     PLANNER planner;
+    PlannerConfigurator::configure(planner);
     if (!evaluate<PLANNER>(planner, info)) {
       OMPL_WARN("Cannot evaluate smoothers since no solution could be found.");
       return false;

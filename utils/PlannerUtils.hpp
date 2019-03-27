@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <iomanip>
 
 #include "base/PlannerSettings.h"
 #include "base/Primitives.h"
@@ -14,31 +15,31 @@ namespace og = ompl::geometric;
 
 class PlannerUtils {
  public:
-  static double slope(double x1, double y1, double x2, double y2) {
-    double dy = y2 - y1;
-    double dx = x2 - x1;
-    double x = std::atan2(dy, dx);
-    return x;
+  PlannerUtils() = delete;
+
+  template <typename N>
+  static double slope(const N &x1, const N &y1, const N &x2, const N &y2) {
+    const auto dy = y2 - y1;
+    const auto dx = x2 - x1;
+    return std::atan2(dy, dx);
   }
 
   static double slope(const Point &a, const Point &b) {
-    double dy = b.y - a.y;
-    double dx = b.x - a.x;
-    double x = std::atan2(dy, dx);
-    return x;
+    const auto dy = b.y - a.y;
+    const auto dx = b.x - a.x;
+    return std::atan2(dy, dx);
   }
 
   static double slope(const ompl::base::State *a, const ompl::base::State *b) {
-    double dy = b->as<State>()->getY() - a->as<State>()->getY();
-    double dx = b->as<State>()->getX() - a->as<State>()->getX();
-    double x = std::atan2(dy, dx);
-    return x;
+    const auto dy = b->as<State>()->getY() - a->as<State>()->getY();
+    const auto dx = b->as<State>()->getX() - a->as<State>()->getX();
+    return std::atan2(dy, dx);
   }
 
   static bool equals(const ompl::base::State *a, const ompl::base::State *b) {
-    double dy = b->as<State>()->getY() - a->as<State>()->getY();
-    double dx = b->as<State>()->getX() - a->as<State>()->getX();
-    double dt = b->as<State>()->getYaw() - a->as<State>()->getYaw();
+    const auto dy = b->as<State>()->getY() - a->as<State>()->getY();
+    const auto dx = b->as<State>()->getX() - a->as<State>()->getX();
+    const auto dt = b->as<State>()->getYaw() - a->as<State>()->getYaw();
     return std::abs(dx) <= global::settings.ompl.state_equality_tolerance &&
            std::abs(dy) <= global::settings.ompl.state_equality_tolerance &&
            std::abs(dt) <= global::settings.ompl.state_equality_tolerance;
@@ -169,8 +170,8 @@ class PlannerUtils {
       //          {
       //#if QT_SUPPORT
       ////                        QtVisualizer::drawNode(path[i].x + dx * j,
-      ///path[i].y + /                        dy * j, / QColor(255*.8, 255*0,
-      ///255*.9), /                                               0.3);
+      /// path[i].y + /                        dy * j, / QColor(255*.8, 255*0,
+      /// 255*.9), /                                               0.3);
       //#ifdef DEBUG
       //            // QtVisualizer::drawPath(path, QColor(250, 0, 0, 70));
       //#endif
@@ -321,11 +322,11 @@ class PlannerUtils {
     std::vector<Point> points;
     double dx = (b.x - a.x);
     double dy = (b.y - a.y);
-    double size = std::sqrt(dx * dx + dy * dy);
+    const double size = std::sqrt(dx * dx + dy * dy);
     if (size == 0) return std::vector<Point>{a};
     dx = dx / size * dt;
     dy = dy / size * dt;
-    auto steps = (int)(size / std::sqrt(dx * dx + dy * dy));
+    const auto steps = (int)(size / std::sqrt(dx * dx + dy * dy));
 
     for (int j = 1; j <= steps; ++j)
       points.emplace_back(a.x + dx * j, a.y + dy * j);
@@ -368,9 +369,7 @@ class PlannerUtils {
   static double totalLength(const std::vector<Point> &path) {
     double l = 0;
     for (size_t i = 1; i < path.size(); ++i) {
-      const double dx = (path[i].x - path[i - 1].x);
-      const double dy = (path[i].y - path[i - 1].y);
-      l += std::sqrt(dx * dx + dy * dy);
+      l += path[i].distance(path[i - 1]);
     }
     return l;
   }
@@ -411,5 +410,22 @@ class PlannerUtils {
     }
     result.emplace_back(path.back());
     return result;
+  }
+
+  /**
+   * Converts number to string with the given precision.
+   */
+  template <typename N>
+  static std::string num2str(const N &v, unsigned int precision = 3) {
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(precision) << v;
+    return stream.str();
+  }
+
+  /**
+   * Makes angles positive (useful for comparisons).
+   */
+  static double normalizeAngle(double angle) {
+    return std::fmod(angle + 2. * M_PI, 2. * M_PI);
   }
 };
