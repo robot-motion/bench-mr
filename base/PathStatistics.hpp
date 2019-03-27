@@ -33,6 +33,7 @@ struct PathStatistics : public Group {
   Property<double> max_clearing_distance{
       std::numeric_limits<double>::quiet_NaN(), "max_clearing_distance", this};
   Property<std::string> planner{"UNKNOWN", "planner", this};
+  Property<std::vector<Point>> cusps{{}, "cusps", this};
 
   explicit PathStatistics(const std::string &planner = "UNKNOWN")
       : Group("stats") {
