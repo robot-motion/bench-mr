@@ -10,42 +10,37 @@
         "start": -10
       },
       "planning": {
-        "bfmt": true,
-        "bit_star": true,
-        "cforest": true,
-        "est": true,
-        "fmt": true,
+        "bfmt": false,
+        "bit_star": false,
+        "cforest": false,
+        "est": false,
+        "fmt": false,
         "informed_rrt_star": true,
-        "kpiece1": true,
-        "prm_star": true,
-        "rrt": true,
-        "rrt_sharp": true,
-        "rrt_star": true,
+        "kpiece": false,
+        "prm_star": false,
+        "rrt": false,
+        "rrt_sharp": false,
+        "rrt_star": false,
         "sbl": false,
-        "sbpl": true,
-        "sorrt_star": true,
-        "sst": true,
-        "stride": true,
-        "theta_star": true
+        "sbpl": false,
+        "sorrt_star": false,
+        "sst": false,
+        "stride": false,
+        "theta_star": false
       },
-      "runs": 5,
+      "runs": 1,
       "smoothing": {
-        "chomp": true,
-        "grips": true,
-        "ompl_anytime_ps": true,
-        "ompl_bspline": true,
-        "ompl_shortcut": true,
-        "ompl_simplify_max": true
+        "chomp": false,
+        "grips": false,
+        "ompl_anytime_ps": false,
+        "ompl_bspline": false,
+        "ompl_shortcut": false,
+        "ompl_simplify_max": false
       },
       "steer_functions": [
-        0,
-        1,
-        2,
-        6,
-        7
+        0
       ]
     },
-    "collision_model": 0,
     "distance_computation_method": 0,
     "env": {
       "goal": {
@@ -90,8 +85,6 @@
       "seed": 1,
       "state_equality_tolerance": 0.0001
     },
-    "robot_shape": [],
-    "robot_shape_source": "polygon_mazes/car.svg",
     "sbpl": {
       "fordward_velocity": 0.4,
       "goal_tolerance_theta": 6.283185307179586,
