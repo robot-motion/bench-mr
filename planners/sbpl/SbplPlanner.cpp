@@ -6,26 +6,19 @@ SbplPlanner::SbplPlanner()
     : _solution(og::PathGeometric(global::settings.ompl.space_info)) {
   _env = new EnvironmentNAVXYTHETALAT;
 
-  // set the perimeter of the robot (it is given with 0,0,0 robot ref. point for
-  // which planning is done)
+  // define the robot shape
   vector<sbpl_2Dpt_t> perimeterptsV;
-  sbpl_2Dpt_t pt_m;
-  double halfwidth = 0.3;   // 0.3;
-  double halflength = 0.3;  // 0.45;
-  pt_m.x = -halflength;
-  pt_m.y = -halfwidth;
-  perimeterptsV.push_back(pt_m);
-  pt_m.x = halflength;
-  pt_m.y = -halfwidth;
-  perimeterptsV.push_back(pt_m);
-  pt_m.x = halflength;
-  pt_m.y = halfwidth;
-  perimeterptsV.push_back(pt_m);
-  pt_m.x = -halflength;
-  pt_m.y = halfwidth;
-  perimeterptsV.push_back(pt_m);
-  // clear the footprint
-  perimeterptsV.clear();
+
+  if (global::settings.collision_model == robot::ROBOT_POLYGON) {
+    sbpl_2Dpt_t shape_point;
+    Polygon robot = global::settings.robot_shape.value();
+    robot.scale(global::settings.sbpl.scaling);
+    for (auto &point : robot.points) {
+      shape_point.x = point.x;
+      shape_point.y = point.y;
+      perimeterptsV.push_back(shape_point);
+    }
+  }
 
   OMPL_DEBUG("Constructing SBPL Planner");
 
@@ -33,8 +26,10 @@ SbplPlanner::SbplPlanner()
             << global::settings.sbpl.motion_primitive_filename << std::endl;
 
   _env->InitializeEnv(
-      static_cast<int>(global::settings.environment->width() * global::settings.sbpl.scaling),
-      static_cast<int>(global::settings.environment->height() * global::settings.sbpl.scaling),
+      static_cast<int>(global::settings.environment->width() *
+                       global::settings.sbpl.scaling),
+      static_cast<int>(global::settings.environment->height() *
+                       global::settings.sbpl.scaling),
       nullptr,  // mapdata
       0, 0, 0,  // start (x, y, theta, t)
       0, 0, 0,  // goal (x, y, theta)
@@ -45,17 +40,19 @@ SbplPlanner::SbplPlanner()
       global::settings.sbpl.time_to_turn_45_degs_in_place,
       20u,  // obstacle threshold
       global::settings.sbpl.motion_primitive_filename.value().c_str());
-  for (int ix(0); ix < global::settings.environment->width() * global::settings.sbpl.scaling;
+  for (int ix(0); ix < global::settings.environment->width() *
+                           global::settings.sbpl.scaling;
        ++ix)
-    for (int iy(0); iy < global::settings.environment->height() * global::settings.sbpl.scaling;
+    for (int iy(0); iy < global::settings.environment->height() *
+                             global::settings.sbpl.scaling;
          ++iy)
       _env->UpdateCost(
           ix, iy,
-          static_cast<unsigned char>(
-              global::settings.environment->collides(ix / global::settings.sbpl.scaling,
-                                             iy / global::settings.sbpl.scaling)
-                  ? 20u
-                  : 1u));
+          static_cast<unsigned char>(global::settings.environment->collides(
+                                         ix / global::settings.sbpl.scaling,
+                                         iy / global::settings.sbpl.scaling)
+                                         ? 20u
+                                         : 1u));
   OMPL_DEBUG("Initialized SBPL environment");
 
   // Initialize MDP Info
@@ -64,7 +61,7 @@ SbplPlanner::SbplPlanner()
     throw SBPL_Exception("ERROR: InitializeMDPCfg failed");
   }
 
-  switch (global::settings.sbpl.planner) {
+  switch (global::settings.sbpl.planner.value()) {
     case sbpl::SBPL_ARASTAR:
       _sbPlanner = new ARAPlanner(_env, ForwardSearch);
       break;
@@ -86,57 +83,68 @@ SbplPlanner::SbplPlanner()
     // handle weird behavior when start and goal nodes appear on different sides
     // as usual
     // TODO verify
-//    if (global::settings.environment->start().x < global::settings.environment->goal().x) {
-//      startTheta =
-//          static_cast<int>(std::round((global::settings.environment->startTheta()) /
-//                                      M_PI * global::settings.sbpl.num_theta_dirs)) %
-//          global::settings.sbpl.num_theta_dirs;
-//      goalTheta =
-//          static_cast<int>(std::round((global::settings.environment->goalTheta()) /
-//                                      M_PI * global::settings.sbpl.num_theta_dirs)) %
-//          global::settings.sbpl.num_theta_dirs;
-//    } else {
-      startTheta = static_cast<int>(std::round(
-                       (global::settings.environment->startTheta() + M_PI / 2) / M_PI *
-                       global::settings.sbpl.num_theta_dirs)) %
-                   global::settings.sbpl.num_theta_dirs;
-      goalTheta = static_cast<int>(std::round(
-                      (global::settings.environment->goalTheta() + M_PI / 2) / M_PI *
-                      global::settings.sbpl.num_theta_dirs)) %
-                  global::settings.sbpl.num_theta_dirs;
-//    }
+    //    if (global::settings.environment->start().x <
+    //    global::settings.environment->goal().x) {
+    //      startTheta =
+    //          static_cast<int>(std::round((global::settings.environment->startTheta())
+    //          /
+    //                                      M_PI *
+    //                                      global::settings.sbpl.num_theta_dirs))
+    //                                      %
+    //          global::settings.sbpl.num_theta_dirs;
+    //      goalTheta =
+    //          static_cast<int>(std::round((global::settings.environment->goalTheta())
+    //          /
+    //                                      M_PI *
+    //                                      global::settings.sbpl.num_theta_dirs))
+    //                                      %
+    //          global::settings.sbpl.num_theta_dirs;
+    //    } else {
+    startTheta = static_cast<int>(std::round(
+                     (global::settings.environment->startTheta() + M_PI / 2) /
+                     M_PI * global::settings.sbpl.num_theta_dirs)) %
+                 global::settings.sbpl.num_theta_dirs;
+    goalTheta = static_cast<int>(std::round(
+                    (global::settings.environment->goalTheta() + M_PI / 2) /
+                    M_PI * global::settings.sbpl.num_theta_dirs)) %
+                global::settings.sbpl.num_theta_dirs;
+    //    }
 
     std::cout << "startTheta: "
-              << (global::settings.environment->startTheta() * 180. / M_PI) << " deg   "
-              << startTheta << std::endl;
+              << (global::settings.environment->startTheta() * 180. / M_PI)
+              << " deg   " << startTheta << std::endl;
     std::cout << "goalTheta: "
-              << (global::settings.environment->goalTheta() * 180. / M_PI) << " deg   "
-              << goalTheta << std::endl;
+              << (global::settings.environment->goalTheta() * 180. / M_PI)
+              << " deg   " << goalTheta << std::endl;
 
 //#if DEBUG
 #if QT_SUPPORT
     QtVisualizer::drawNode(global::settings.environment->start().x,
-                           global::settings.environment->start().y, orientations.first);
+                           global::settings.environment->start().y,
+                           orientations.first);
     QtVisualizer::drawNode(global::settings.environment->goal().x,
-                           global::settings.environment->goal().y, orientations.second);
+                           global::settings.environment->goal().y,
+                           orientations.second);
 #endif
     //#endif
   }
 
-  _sbPlanner->set_search_mode(global::settings.sbpl.search_until_first_solution);
-  _sbPlanner->set_initialsolution_eps(global::settings.sbpl.initial_solution_eps);
+  _sbPlanner->set_search_mode(
+      global::settings.sbpl.search_until_first_solution);
+  _sbPlanner->set_initialsolution_eps(
+      global::settings.sbpl.initial_solution_eps);
 
   _sbPlanner->set_start(_env->GetStateFromCoord(
-      static_cast<int>(
-          std::round(global::settings.environment->start().x * global::settings.sbpl.scaling)),
-      static_cast<int>(
-          std::round(global::settings.environment->start().y * global::settings.sbpl.scaling)),
+      static_cast<int>(std::round(global::settings.environment->start().x *
+                                  global::settings.sbpl.scaling)),
+      static_cast<int>(std::round(global::settings.environment->start().y *
+                                  global::settings.sbpl.scaling)),
       startTheta));
   _sbPlanner->set_goal(_env->GetStateFromCoord(
-      static_cast<int>(
-          std::round(global::settings.environment->goal().x * global::settings.sbpl.scaling)),
-      static_cast<int>(
-          std::round(global::settings.environment->goal().y * global::settings.sbpl.scaling)),
+      static_cast<int>(std::round(global::settings.environment->goal().x *
+                                  global::settings.sbpl.scaling)),
+      static_cast<int>(std::round(global::settings.environment->goal().y *
+                                  global::settings.sbpl.scaling)),
       goalTheta));
 }
 
@@ -168,7 +176,8 @@ ob::PlannerStatus SbplPlanner::run() {
   //    }
   OMPL_DEBUG("Notified of changes");
   //    _sbPlanner->InitializeSearchStateSpace();
-  int result = _sbPlanner->replan(global::settings.max_planning_time, &stateIDs);
+  int result =
+      _sbPlanner->replan(global::settings.max_planning_time, &stateIDs);
   OMPL_DEBUG("SBPL finished.");
   _planningTime = stopwatch.stop();
   if (result) {
@@ -177,9 +186,12 @@ ob::PlannerStatus SbplPlanner::run() {
     _env->ConvertStateIDPathintoXYThetaPath(&stateIDs, &xythetaPath);
     for (auto &xyt : xythetaPath) {
       if (std::abs(xyt.x) < 1e-3 && std::abs(xyt.y) < 1e-3) continue;
-      _solution.append(base::StateFromXYT(
-          xyt.x / global::settings.sbpl.resolution / global::settings.sbpl.scaling,
-          xyt.y / global::settings.sbpl.resolution / global::settings.sbpl.scaling, xyt.theta));
+      _solution.append(
+          base::StateFromXYT(xyt.x / global::settings.sbpl.resolution /
+                                 global::settings.sbpl.scaling,
+                             xyt.y / global::settings.sbpl.resolution /
+                                 global::settings.sbpl.scaling,
+                             xyt.theta));
     }
   } else {
     OMPL_WARN("SBPL found no solution.");
