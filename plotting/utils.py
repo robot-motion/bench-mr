@@ -2,6 +2,10 @@
 import click
 
 from definitions import steer_functions, steer_function_names
+import numpy as np
+
+# Fix random seed (used by kernel density estimation in violin plots)
+np.random.seed(123)
 
 
 def add_options(options):
@@ -103,23 +107,27 @@ def parse_metrics(metrics: str) -> [str]:
     return [s.strip().lower() for s in metrics.split(',') if s.strip().lower() in stat_names]
 
 
-def print_run_info(data, run_id: int):
+def print_run_info(data, run_id: int, run_ids: [int]):
     run = data["runs"][run_id]
-    title = '+++++++++++++++ Run %i / %i +++++++++++++++' % (run_id, len(data["runs"]))
+    title = '%s Run #%i (%i / %i) %s' % ('+' * 25, run_id, run_ids.index(run_id)+1, len(run_ids), '+' * 25)
     click.echo(title)
     steering = steer_function_names[steer_functions[data["settings"]["steer"]["steering_type"]]]
     if "settings" in run:
         steering = steer_function_names[steer_functions[run["settings"]["steer"]["steering_type"]]]
-    click.echo('+ Steering:       %s ' % steering)
+    click.echo('+ Steering:        %s ' % steering)
     env = run["environment"]
-    click.echo('+ Environment:    %s' % env["name"])
+    click.echo('+ Environment:     %s' % env["name"])
     total_count = len(run["plans"])
     found_count = len([plan for plan in run["plans"].values() if plan["stats"]["path_found"]])
     exact_count = len(
         [plan for plan in run["plans"].values() if plan["stats"]["path_found"] and plan["stats"]["exact_goal_path"]])
     collision_count = len(
         [plan for plan in run["plans"].values() if plan["stats"]["path_found"] and plan["stats"]["path_collides"]])
-    click.echo('+ Found solution: %i / %i' % (found_count, total_count))
-    click.echo('+ Exact solution: %i / %i' % (exact_count, total_count))
-    click.echo('+ Collisions:     %i / %i' % (collision_count, found_count))
+    click.echo('+ Found solution:  %i / %i' % (found_count, total_count))
+    click.echo('+ Exact solution:  %i / %i' % (exact_count, total_count))
+    click.echo('+ Found colliding: %i / %i' % (collision_count, found_count))
     click.echo('+' * len(title) + '\n')
+
+
+def convert_planner_name(planner: str) -> str:
+    return planner.replace('star', '*').replace("two", "2")

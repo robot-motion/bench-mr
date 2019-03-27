@@ -2,6 +2,8 @@
 
 import click
 import numpy as np
+from utils import convert_planner_name
+
 
 plot_trajectory_options = [
     click.option('--draw_arrows', default=False, type=bool),
@@ -20,6 +22,7 @@ def plot_trajectory(traj, planner: str, settings, color, add_label=True, alpha: 
                     line_width=2., silence=False, **_):
     import matplotlib.pyplot as plt
     from matplotlib.patches import Polygon
+    planner = convert_planner_name(planner)
     if len(traj) == 0:
         if not silence:
             click.echo("Planner %s found no solution!" % planner)
@@ -59,7 +62,8 @@ def plot_trajectory(traj, planner: str, settings, color, add_label=True, alpha: 
             plt.arrow(state[0], state[1], dx * 2., dy * 2., color=color, width=0.01, head_width=0.2, alpha=alpha)
 
 
-def plot_nodes(traj, planner: str, settings, color, add_label=False, alpha: float = 1., silence=False, draw_arrows=False, **_):
+def plot_nodes(traj, planner: str, settings, color, add_label=False, alpha: float = 1., silence=False,
+               draw_arrows=False, **_):
     import matplotlib.pyplot as plt
     if len(traj) == 0:
         if not silence:

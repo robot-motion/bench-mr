@@ -22,10 +22,10 @@ void evaluatePlanners(nlohmann::json &info) {
     PathEvaluation::evaluateSmoothers<FMTPlanner>(info);
   if (global::settings.benchmark.planning.informed_rrt_star)
     PathEvaluation::evaluateSmoothers<InformedRRTstarPlanner>(info);
-  if (global::settings.benchmark.planning.kpiece1)
+  if (global::settings.benchmark.planning.kpiece)
     PathEvaluation::evaluateSmoothers<KPIECEPlanner>(info);
-  if (global::settings.benchmark.planning.prm_star)
-    PathEvaluation::evaluateSmoothers<PRMstarPlanner>(info);
+  if (global::settings.benchmark.planning.prm)
+    PathEvaluation::evaluateSmoothers<PRMPlanner>(info);
   if (global::settings.benchmark.planning.prm_star)
     PathEvaluation::evaluateSmoothers<PRMstarPlanner>(info);
   if (global::settings.benchmark.planning.rrt)
@@ -44,6 +44,12 @@ void evaluatePlanners(nlohmann::json &info) {
     PathEvaluation::evaluateSmoothers<SSTPlanner>(info);
   if (global::settings.benchmark.planning.stride)
     PathEvaluation::evaluateSmoothers<STRIDEPlanner>(info);
+  if (global::settings.benchmark.planning.spars)
+    PathEvaluation::evaluateSmoothers<SPARSPlanner>(info);
+  if (global::settings.benchmark.planning.spars2)
+    PathEvaluation::evaluateSmoothers<SPARS2Planner>(info);
+  if (global::settings.benchmark.planning.pdst)
+    PathEvaluation::evaluateSmoothers<PDSTPlanner>(info);
   if (global::settings.benchmark.planning.theta_star)
     PathEvaluation::evaluateSmoothers<ThetaStar>(info);
 }

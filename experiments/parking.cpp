@@ -57,9 +57,9 @@ int main(int argc, char **argv) {
   //  PathEvaluation::evaluate<ChompPlanner>(info);
   //  PathEvaluation::evaluate<ThetaStar>(info);
   //  PathEvaluation::evaluate<RRTPlanner>(info);
-  PathEvaluation::evaluate<RRTstarPlanner>(info);
+//  PathEvaluation::evaluate<RRTstarPlanner>(info);
   //  PathEvaluation::evaluate<RRTsharpPlanner>(info);
-  //  PathEvaluation::evaluate<InformedRRTstarPlanner>(info);
+    PathEvaluation::evaluate<InformedRRTstarPlanner>(info);
   //  PathEvaluation::evaluate<SORRTstarPlanner>(info);
   //  PathEvaluation::evaluate<CForestPlanner>(info);
   //  PathEvaluation::evaluate<SbplPlanner>(info);

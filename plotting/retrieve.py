@@ -1,4 +1,4 @@
-from utils import parse_run_ids, parse_steer_functions
+from utils import parse_run_ids, parse_steer_functions, parse_planners
 import json
 
 
@@ -6,7 +6,7 @@ def retrieve_planner_stats_by_run(json_file: str, planners: str = 'all', run_id:
     data = json.load(open(json_file, "r"))
     run_ids = parse_run_ids(run_id, len(data["runs"]))
     all_planners = (planners == 'all')
-    planners = [s.strip() for s in planners.split(',')]
+    planners = parse_planners(planners)
     result = {}
     for run_id in run_ids:
         run = data["runs"][run_id]

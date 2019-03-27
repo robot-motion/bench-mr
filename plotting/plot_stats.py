@@ -6,8 +6,9 @@ import numpy as np
 
 from color import get_colors
 
-from utils import group, parse_metrics, parse_run_ids, print_run_info, parse_planners
+from utils import group, parse_metrics, parse_run_ids, print_run_info, parse_planners, convert_planner_name
 from definitions import stat_names
+from plot_aggregate import plot_aggregate
 
 
 @group.command()
@@ -42,9 +43,11 @@ def plot_planner_stats(json_file: str,
                        ticks_rotation=90,
                        fig_width: float = 8,
                        fig_height: float = 6,
-                       metrics='path_length, curvature, planning_time, mean_clearing_distance',
+                       metrics='path_length, curvature, planning_time, mean_clearing_distance, cusps, aggregate',
                        dpi: int = 200, **kwargs):
-    click.echo("Visualizing %s..." % click.format_filename(json_file))
+    kwargs.update(locals())
+    if not silence:
+        click.echo("Visualizing %s..." % click.format_filename(json_file))
 
     stat_keys = parse_metrics(metrics)
 
@@ -79,53 +82,69 @@ def plot_planner_stats(json_file: str,
             if planner not in planners:
                 planners.append(planner)
     violin_colors = get_colors(len(planners), **kwargs)
+    ticks = np.arange(len(planners)) + 0.5
 
     for si, stat_key in enumerate(stat_keys):
+        ax = None
         if combine_views:
-            plt.subplot(axes_v, axes_h, si + 1)
+            if stat_key == 'aggregate':
+                ax = plt.subplot("%i%i%i" % (axes_v, axes_h, si + 1), projection='3d', proj_type='ortho')
+            else:
+                ax = plt.subplot(axes_v, axes_h, si + 1)
         else:
-            plt.figure("Run %i - %s (%s)" % (run_id, json_file, stat_key))
-        stats = {}
-        for run_id in run_ids:
-            run = data["runs"][run_id]
-            for j, (planner, plan) in enumerate(run["plans"].items()):
-                if planner in ignore_planners:
-                    continue
-                if planner not in stats:
-                    stats[planner] = []
-                stat = plan["stats"][stat_key]
-                if stat is None:
-                    stat = np.nan
-                stats[planner].append(stat)
-                if not plot_violins:
-                    plt.scatter([planners.index(planner) + 0.75 - 0.5 * run_id / len(data["runs"])],
-                                [stat],
-                                color=violin_colors[planners.index(planner)],
-                                s=4)
-        kwargs['run_id'] = run_id
-        plt.title(stat_names[stat_key], fontsize=20)
-        plt.grid()
-        plt.gca().set_axisbelow(True)
+            plt.figure("Run %i - %s (%s)" % (run_id, json_file, stat_names[stat_key]))
+            if stat_key == 'aggregate':
+                ax = plt.axes(projection='3d', proj_type='ortho')
+            else:
+                ax = plt.gca()
 
-        ticks = np.arange(len(planners)) + 0.5
+        if stat_key == "aggregate":
+            plot_aggregate(ax, [data["runs"][i] for i in run_ids], planners=planners, show_legend=True, **kwargs)
+        else:
+            stats = {}
+            for run_id in run_ids:
+                run = data["runs"][run_id]
+                for j, (planner, plan) in enumerate(run["plans"].items()):
+                    if planner in ignore_planners:
+                        continue
+                    if planner not in stats:
+                        stats[planner] = []
+                    if stat_key not in plan["stats"]:
+                        stat = np.nan
+                    elif stat_key == "cusps":
+                        stat = len(plan["stats"]["cusps"])
+                    else:
+                        stat = plan["stats"][stat_key]
+                    if stat is None:
+                        stat = np.nan
+                    stats[planner].append(stat)
+                    if not plot_violins:
+                        plt.scatter([planners.index(planner) + 0.85 - 0.5 * run_id / len(data["runs"])],
+                                    [stat],
+                                    color=violin_colors[planners.index(planner)],
+                                    s=4)
+            kwargs['run_id'] = run_id
+            plt.title(stat_names[stat_key], fontsize=20)
+            plt.grid()
+            plt.gca().set_axisbelow(True)
 
-        if plot_violins:
-            violins = [stats[planner] or [] for planner in planners]
-            vs = plt.violinplot(violins, ticks, points=20, widths=0.3,
-                                showmeans=True, showextrema=False, showmedians=True)
-            for i, body in enumerate(vs["bodies"]):
-                body.set_facecolor(violin_colors[i])
-                body.set_edgecolor(violin_colors[i])
-            for partname in ('cmeans', 'cmedians'):
-                vs[partname].set_edgecolor("black")
-            vs['cmeans'].set_edgecolor('green')
+            if plot_violins:
+                violins = [stats[planner] or [] for planner in planners]
+                vs = plt.violinplot(violins, ticks, points=150, widths=0.6,
+                                    showmeans=True, showextrema=False, showmedians=True)
+                for i, body in enumerate(vs["bodies"]):
+                    body.set_facecolor(violin_colors[i])
+                    body.set_edgecolor((0, 0, 0, 0))
+                for partname in ('cmeans', 'cmedians'):
+                    vs[partname].set_edgecolor("black")
+                vs['cmeans'].set_edgecolor('green')
 
-            if not combine_views or si % axes_h == 0:
-                plt.plot([np.nan], [np.nan], color="green", label="Mean")
-                plt.plot([np.nan], [np.nan], color="black", label="Median")
-                plt.legend(bbox_to_anchor=(1.08, 1), loc=2, borderaxespad=0.)
+                if not combine_views or si % axes_h == axes_h-1:
+                    plt.plot([np.nan], [np.nan], color="green", label="Mean")
+                    plt.plot([np.nan], [np.nan], color="black", label="Median")
+                    plt.legend(bbox_to_anchor=(1.08, 1), loc=2, borderaxespad=0.)
 
-        plt.xticks(ticks, planners, rotation=ticks_rotation)
+        plt.xticks(ticks, [convert_planner_name(p) for p in planners], rotation=ticks_rotation)
         plt.gca().set_xlim([0, len(planners)])
 
         if not combine_views and save_file is not None:

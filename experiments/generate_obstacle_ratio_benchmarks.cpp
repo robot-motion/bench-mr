@@ -1,10 +1,11 @@
-#include <base/PolygonMaze.h>
-#include <utils/Log.h>
-#include "base/PlannerSettings.h"
-
 #include <fstream>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+
+#include "base/PlannerSettings.h"
+#include "base/PolygonMaze.h"
+#include "utils/Log.h"
+#include "utils/PlannerUtils.hpp"
 
 namespace og = ompl::geometric;
 
@@ -32,10 +33,10 @@ int main(int argc, char **argv) {
 
       if (seed == 1) {
         // save benchmark configuration
-          global::settings.benchmark.log_file =
-                  "corridor_radius_" + std::to_string(ratio);
+        global::settings.benchmark.log_file =
+            "corridor_radius_" + PlannerUtils::num2str(ratio, 2);
         std::ofstream o("../benchmarks/obstacle_ratio_" +
-                        std::to_string(ratio) + ".json");
+                        PlannerUtils::num2str(ratio, 2) + ".json");
         o << std::setw(2) << nlohmann::json(global::settings);
         o.close();
       }
