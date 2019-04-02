@@ -22,8 +22,8 @@ class GNode : public GNode_base {
     READ_OR = 0;
     CHECK_SUCCESSOR = 0;
 
-    orientations = new double[global::settings.thetaStar.number_edges];
-    costs = new double[global::settings.thetaStar.number_edges];
+    orientations = new double[global::settings.thetaStar.number_edges.value()];
+    costs = new double[global::settings.thetaStar.number_edges.value()];
 
     for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       costs[i] = 0;
@@ -53,8 +53,8 @@ class GNode : public GNode_base {
     x_r = xx;
     y_r = yy;
 
-    orientations = new double[global::settings.thetaStar.number_edges];
-    costs = new double[global::settings.thetaStar.number_edges];
+    orientations = new double[global::settings.thetaStar.number_edges.value()];
+    costs = new double[global::settings.thetaStar.number_edges.value()];
 
     for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       costs[i] = 1000;
@@ -84,8 +84,8 @@ class GNode : public GNode_base {
     x_r = xx;
     y_r = yy;
 
-    orientations = new double[global::settings.thetaStar.number_edges];
-    costs = new double[global::settings.thetaStar.number_edges];
+    orientations = new double[global::settings.thetaStar.number_edges.value()];
+    costs = new double[global::settings.thetaStar.number_edges.value()];
 
     for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       costs[i] = 1000;
@@ -115,8 +115,8 @@ class GNode : public GNode_base {
     x_r = xx;
     y_r = yy;
 
-    orientations = new double[global::settings.thetaStar.number_edges];
-    costs = new double[global::settings.thetaStar.number_edges];
+    orientations = new double[global::settings.thetaStar.number_edges.value()];
+    costs = new double[global::settings.thetaStar.number_edges.value()];
 
     for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       costs[i] = 1000;
@@ -147,8 +147,8 @@ class GNode : public GNode_base {
     x_r = xx;
     y_r = yy;
 
-    orientations = new double[global::settings.thetaStar.number_edges];
-    costs = new double[global::settings.thetaStar.number_edges];
+    orientations = new double[global::settings.thetaStar.number_edges.value()];
+    costs = new double[global::settings.thetaStar.number_edges.value()];
 
     for (int i = 0; i < global::settings.thetaStar.number_edges; i++)
       costs[i] = 1000;
@@ -180,8 +180,8 @@ class GNode : public GNode_base {
     x_r = xx;
     y_r = yy;
 
-    orientations = new double[global::settings.thetaStar.number_edges];
-    costs = new double[global::settings.thetaStar.number_edges];
+    orientations = new double[global::settings.thetaStar.number_edges.value()];
+    costs = new double[global::settings.thetaStar.number_edges.value()];
 
     for (int i = 0; i < global::settings.thetaStar.number_edges; i++) {
       costs[i] = c[i];
@@ -215,8 +215,8 @@ class GNode : public GNode_base {
     READ_OR = 0;
     CHECK_SUCCESSOR = 0;
 
-    orientations = new double[global::settings.thetaStar.number_edges];
-    costs = new double[global::settings.thetaStar.number_edges];
+    orientations = new double[global::settings.thetaStar.number_edges.value()];
+    costs = new double[global::settings.thetaStar.number_edges.value()];
 
     for (int i = 0; i < global::settings.thetaStar.number_edges; i++) {
       costs[i] = c[i];
@@ -252,8 +252,8 @@ class GNode : public GNode_base {
     READ_OR = n.READ_OR;
     CHECK_SUCCESSOR = n.CHECK_SUCCESSOR;
 
-    orientations = new double[global::settings.thetaStar.number_edges];
-    costs = new double[global::settings.thetaStar.number_edges];
+    orientations = new double[global::settings.thetaStar.number_edges.value()];
+    costs = new double[global::settings.thetaStar.number_edges.value()];
 
     for (int i = 0; i < global::settings.thetaStar.number_edges; i++) {
       costs[i] = n.costs[i];
@@ -291,8 +291,8 @@ class GNode : public GNode_base {
     READ_OR = n.READ_OR;
     CHECK_SUCCESSOR = n.CHECK_SUCCESSOR;
 
-    orientations = new double[global::settings.thetaStar.number_edges];
-    costs = new double[global::settings.thetaStar.number_edges];
+    orientations = new double[global::settings.thetaStar.number_edges.value()];
+    costs = new double[global::settings.thetaStar.number_edges.value()];
 
     for (int i = 0; i < global::settings.thetaStar.number_edges; i++) {
       costs[i] = 0;
@@ -324,16 +324,20 @@ class GNode : public GNode_base {
     parent = p;
     // OMPL_INFORM("Settin grandparent parent %d, %d", p->x, p->y);
     hasParent = true;
+    return true;
   }
 
-  bool setChild(GNode_base *c) { child = c; }
+  bool setChild(GNode_base *c) {
+    child = c;
+    return true;
+  }
 
   /// ============================================================================================
   /// getLineCost(), not _baseused
   /// ============================================================================================
   double *getLineCost() {
     double *local_cost;
-    local_cost = new double[global::settings.thetaStar.number_edges];
+    local_cost = new double[global::settings.thetaStar.number_edges.value()];
     local_cost[0] = 1;
     for (int i = 1; i < global::settings.thetaStar.number_edges; i++) {
       local_cost[i] = 1000;
@@ -354,6 +358,7 @@ class GNode : public GNode_base {
     theta = atan2((y - parent_y) / dt, (x - parent_x) / dt);
 
     OMPL_INFORM("setOrientation %f instead of %f", theta, parent_node->theta);
+    return true;
   }
 
   /// ============================================================================================
@@ -608,7 +613,7 @@ class GNode : public GNode_base {
     delete (pr8);
 
     if (cnt_successors < 1) {
-//      OMPL_DEBUG("GNode has no successors!");
+      //      OMPL_DEBUG("GNode has no successors!");
       return false;
     } else {
       return true;
@@ -659,7 +664,7 @@ class GNode : public GNode_base {
   /// successor
   /// ============================================================================================
   double GetCostTrajFromParent(GNode &parent, GNode &successor) {
-    return static_cast<float>(
+    return static_cast<double>(
         global::settings.ompl.objective
             ->motionCost(base::StateFromXY(parent.x, parent.y),
                          base::StateFromXY(successor.x, successor.y))
@@ -686,7 +691,7 @@ class GNode : public GNode_base {
   /// Set the Type of Node, if Type ==1, the node connects to the successor with
   /// a steer function
   /// ============================================================================================
-  bool setType(int type) { this->steer = type; }
+  bool setType(int type) { this->steer = type; return true; }
 
   /// ===========================================
   /// bool GetSuccessors( ThetaStarSearch<GNode> *thetastarsearch, GNode

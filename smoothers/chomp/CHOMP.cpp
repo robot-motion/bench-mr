@@ -9,28 +9,29 @@ CHOMP::CHOMP() = default;
 
 void initialize(const og::PathGeometric &path, unsigned int N, const vec2f &p0,
                 const vec2f &p1, MatX &xi, MatX &q0, MatX &q1) {
+  // TODO this implementation of CHOMP cannot handle yaw angles
   xi.resize(N, 2);
   q0.resize(1, 2);
   q1.resize(1, 2);
 
+  og::PathGeometric p(path);
   q0 << p0.x(), p0.y();
   q1 << p1.x(), p1.y();
 
-//  const auto samples = PlannerUtils::equidistantSampling(
-//      Point::fromPath(path), static_cast<size_t>(N + 2));
-  og::PathGeometric p(path);
-  p.interpolate(N-2);
-  const auto samples = Point::fromPath(p, false);
+  p.interpolate(N + 2);
+  assert(p.getStateCount() == N + 2);
+
 #if defined(DEBUG) && defined(QT_SUPPORT)
   QtVisualizer::drawPath(path, Qt::black);
   QtVisualizer::drawNodes(path, Qt::black);
-  QtVisualizer::drawNodes(samples);
 #endif
-  OMPL_DEBUG("Samples: %d  --  N: %d", samples.size(), N);
-  xi.resize(samples.size() - 2, 2);
-  for (unsigned int i = 0; i < samples.size() - 2; ++i) {
-    xi(i, 0) = samples[i + 1].x;
-    xi(i, 1) = samples[i + 1].y;
+  OMPL_DEBUG("Samples: %d  --  N: %d", p.getStateCount(), N);
+  xi.resize(p.getStateCount() - 2, 2);
+  // Initialize with a straight line
+  for (unsigned int i = 1; i < p.getStateCount() - 1; ++i) {
+    const auto *state = p.getState(i)->as<State>();
+    xi(i - 1, 0) = state->getX();
+    xi(i - 1, 1) = state->getY();
   }
 }
 
@@ -104,8 +105,7 @@ ob::PlannerStatus CHOMP::run(const og::PathGeometric &path) {
     } else {
       pi = chomper.xi.row(i);
     }
-    if (!pi.hasNaN())
-      _path.emplace_back(Point(pi(0), pi(1)));
+    if (!pi.hasNaN()) _path.emplace_back(Point(pi(0), pi(1)));
   }
 
   OMPL_INFORM("CHOMP solution has %i nodes.", _path.size());

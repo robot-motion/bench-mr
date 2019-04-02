@@ -423,9 +423,9 @@ class PlannerUtils {
   }
 
   /**
-   * Makes angles positive (useful for comparisons).
+   * Makes angles positive (useful for comparisons of angles computed by arctan).
    */
   static double normalizeAngle(double angle) {
-    return std::fmod(angle + 2. * M_PI, 2. * M_PI);
+    return std::fmod(angle + M_PI, M_PI_2);
   }
 };

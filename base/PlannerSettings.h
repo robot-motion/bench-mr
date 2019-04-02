@@ -92,6 +92,27 @@ struct GlobalSettings : public Group {
       Property<double> scaling{1. / 22., "scaling", this};
 
     } polygon{"polygon", this};
+
+    /**
+     * Settings pertaining to the collision checker.
+     */
+    struct CollisionSettings : public Group {
+      using Group::Group;
+      /**
+       * Which model is used for collision checking.
+       */
+      Property<robot::Model> collision_model{robot::ROBOT_POLYGON,
+                                             "collision_model", this};
+
+      Property<Polygon> robot_shape{Polygon(), "robot_shape", this};
+      /**
+       * SVG file name of robot shape.
+       */
+      Property<std::string> robot_shape_source{"polygon_mazes/car.svg",
+                                               "robot_shape_source", this};
+
+      void initializeCollisionModel();
+    } collision{"collision", this};
   } env{"env", this};
 
   /**
@@ -126,19 +147,6 @@ struct GlobalSettings : public Group {
   Property<bool> evaluate_clearing{true, "evaluate_clearing", this};
 
   /**
-   * Which model is used for collision checking.
-   */
-  Property<robot::Model> collision_model{robot::ROBOT_POLYGON,
-                                         "collision_model", this};
-
-  Property<Polygon> robot_shape{Polygon(), "robot_shape", this};
-  /**
-   * SVG file name of robot shape.
-   */
-  Property<std::string> robot_shape_source{"polygon_mazes/car.svg",
-                                           "robot_shape_source", this};
-
-  /**
    * Radius threshold to evaluate whether the exact goal has been found.
    */
   Property<double> exact_goal_radius{1e-2, "exact_goal_radius", this};
@@ -158,7 +166,8 @@ struct GlobalSettings : public Group {
    * Threshold in radians of the difference between consecutive yaw angles to be
    * considered a cusp.
    */
-  Property<double> cusp_angle_threshold{30 * M_PI / 180., "cusp_angle_threshold", this};
+  Property<double> cusp_angle_threshold{60 * M_PI / 180.,
+                                        "cusp_angle_threshold", this};
 
   /**
    * Settings related to benchmarking.
@@ -341,8 +350,6 @@ struct GlobalSettings : public Group {
                                        this};  // in meters/sec
     Property<double> time_to_turn_45_degs_in_place{
         0.6, "time_to_turn_45_degs_in_place", this};  // in sec
-    //    Property<std::string> motion_primitive_filename{
-    //        "./sbpl_mprim/pr2.mprim", "motion_primitive_filename", this};
     Property<std::string> motion_primitive_filename{
         "./sbpl_mprim/unicycle_0.25.mprim", "motion_primitive_filename", this};
 

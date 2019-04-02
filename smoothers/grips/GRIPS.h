@@ -84,40 +84,11 @@ class GRIPS {
 
   static bool smooth(ompl::geometric::PathGeometric &path) {
     auto intermediary = ompl::geometric::PathGeometric(path);
-//    intermediary.interpolate();
     OMPL_DEBUG("GRIPS path has %d node(s).", path.getStateCount());
-    smooth(path, Point::fromPath(intermediary));
+    return smooth(path, Point::fromPath(intermediary));
   }
 
  private:
-  //    static void fixCollision(std::vector<GNode> &path,
-  //                             const std::vector<Tpoint>
-  //                             &originalPathIntermediaries, const Tpoint
-  //                             &node, unsigned int i)
-  //    {
-  //        auto closest = PlannerUtils::closestPoint(node,
-  //        originalPathIntermediaries); GNode repair; if
-  //        (closest.euclidianDistance(path[i - 1]) < MIN_NODE_DISTANCE)
-  //        {
-  //            path[i - 1].x_r = closest.x_r;
-  //            path[i - 1].y_r = closest.y_r;
-  ////                    path[i-1].theta = closest.theta;
-  //            repair = path[i - 1];
-  //        } else if (closest.euclidianDistance(path[i]) < MIN_NODE_DISTANCE)
-  //        {
-  //            path[i].x_r = closest.x_r;
-  //            path[i].y_r = closest.y_r;
-  ////                    path[i].theta = closest.theta;
-  //            repair = path[i];
-  //        } else {
-  //            repair = GNode(closest.x, closest.y, PlannerUtils::slope(path[i
-  //            - 1], path[i])); path.insert(path.begin() + i, repair);
-  //        }
-  //#ifdef DEBUG
-  //        QtVisualizer::drawNode(repair, Qt::cyan, 0.4);
-  //#endif
-  //    }
-
   static RoundStats roundStats;
 
   static void beginRound(RoundType type = ROUND_UNKOWN);

@@ -9,19 +9,18 @@
 namespace og = ompl::geometric;
 
 int main(int argc, char **argv) {
-  Log::instantiateRun();
-
-  const unsigned int rounds = 8;
+  const unsigned int rounds = 5;
   for (unsigned int i = 0; i < rounds; ++i) {
     OMPL_INFORM("+++ Run %d / %d +++", i + 1, rounds);
     delete global::settings.environment;
-    global::settings.environment = GridMaze::createRandomCorridor(
-        50, 50, 3,
-        30, i + 1);
+    global::settings.environment =
+        GridMaze::createRandomCorridor(50, 50, 3, 30, i + 1);
 
     global::settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
     global::settings.steer.car_turning_radius = 3;
     global::settings.steer.initializeSteering();
+    global::settings.env.collision.initializeCollisionModel();
+    if (i == 0) Log::instantiateRun();
 
     auto info = nlohmann::json({{"plans", {}}});
     global::settings.environment->to_json(info["environment"]);

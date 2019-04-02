@@ -23,8 +23,8 @@ struct PathEvaluation {
     std::vector<Point> &cusps = stats.cusps.value();
     const auto path = Point::fromPath(p);
     for (unsigned int i = 1; i < path.size() - 1; ++i) {
-      const double yaw_prev = PlannerUtils::slope(path[i - 1], path[i]);
-      const double yaw_next = PlannerUtils::slope(path[i], path[i + 1]);
+      const double yaw_prev = PlannerUtils::normalizeAngle(PlannerUtils::slope(path[i - 1], path[i]));
+      const double yaw_next = PlannerUtils::normalizeAngle(PlannerUtils::slope(path[i], path[i + 1]));
       if (std::abs(yaw_next - yaw_prev) > global::settings.cusp_angle_threshold)
         cusps.emplace_back(path[i]);
     }
@@ -61,7 +61,7 @@ struct PathEvaluation {
 
       computeCusps(stats, path);
     }
-    return stats.path_found && stats.exact_goal_path;
+    return stats.path_found;
   }
 
   template <class PLANNER>
@@ -102,7 +102,7 @@ struct PathEvaluation {
   template <class PLANNER>
   static bool evaluate(nlohmann::json &info) {
     PLANNER planner;
-    evaluate(planner, info);
+    return evaluate(planner, info);
   }
 
   template <class PLANNER>

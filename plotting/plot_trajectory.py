@@ -4,7 +4,6 @@ import click
 import numpy as np
 from utils import convert_planner_name
 
-
 plot_trajectory_options = [
     click.option('--draw_arrows', default=False, type=bool),
     click.option('--draw_dots', default=False, type=bool),
@@ -28,7 +27,7 @@ def plot_trajectory(traj, planner: str, settings, color, add_label=True, alpha: 
             click.echo("Planner %s found no solution!" % planner)
         return
     traj = np.array(traj)
-    if settings["collision_model"] == 0:
+    if settings["env"]["collision"]["collision_model"] == 0:
         # point collision model
         if add_label:
             plt.plot(traj[:, 0], traj[:, 1], '-', color=color, label=planner)
@@ -38,7 +37,7 @@ def plot_trajectory(traj, planner: str, settings, color, add_label=True, alpha: 
             plt.plot(traj[:, 0], traj[:, 1], '.', color=color)
     else:
         # polygon collision model
-        points = np.array(settings["robot_shape"])
+        points = np.array(settings["env"]["collision"]["robot_shape"])
         if points.shape[0] == 0:
             raise Exception("Robot shape is empty!")
         if draw_lines:
@@ -46,7 +45,8 @@ def plot_trajectory(traj, planner: str, settings, color, add_label=True, alpha: 
         if add_label:
             plt.plot([], '-', color=color, label=planner)
         for i in range(traj.shape[0]):
-            if i % plot_every_nth_polygon != 0 and not (plot_last_polygon and i == traj.shape[0] - 1):
+            if plot_every_nth_polygon == 0 or (
+                    i % plot_every_nth_polygon != 0 and not (plot_last_polygon and i == traj.shape[0] - 1)):
                 continue
             state = traj[i, :]
             c, s = np.cos(-state[2]), np.sin(-state[2])
@@ -70,7 +70,7 @@ def plot_nodes(traj, planner: str, settings, color, add_label=False, alpha: floa
             click.echo("Planner %s found no solution!" % planner)
         return
     traj = np.array(traj)
-    if settings["collision_model"] == 0:
+    if settings["env"]["collision"]["collision_model"] == 0:
         # point collision model
         if add_label:
             plt.plot(traj[:, 0], traj[:, 1], '.', color=color, alpha=alpha, label=planner)

@@ -15,7 +15,7 @@ class Log {
 
   static void storeRun();
 
-  static void save(std::string filename = "", std::string path = "log/");
+  static void save(std::string filename = "", const std::string &path = "log/");
 
   static std::string filename();
 

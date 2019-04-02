@@ -7,7 +7,7 @@ from plot_env import plot_env, plot_env_options
 from plot_trajectory import plot_trajectory, plot_nodes, plot_trajectory_options
 from color import get_color, get_colors, color_options
 
-from utils import add_options, group, parse_run_ids, parse_planners
+from utils import add_options, group, parse_run_ids, parse_planners, parse_smoothers, show_legend
 
 
 @group.command()
@@ -41,13 +41,16 @@ def main(**kwargs):
 
 def visualize(json_file: str, run_id: str = 'all',
               show_smoother=False,
+              show_only_smoother=False,
               draw_nodes=True,
               draw_cusps=False,
               cusp_radius: float = 1,
-              max_plots_per_line: int = 5, headless=False,
+              max_plots_per_line: int = 5,
+              headless=False,
               combine_views=False,
               save_file: str = None,
               ignore_planners='',
+              ignore_smoothers='',
               fig_width: float = 6, fig_height: float = 6,
               custom_min_x: float = None,
               custom_min_y: float = None,
@@ -76,6 +79,10 @@ def visualize(json_file: str, run_id: str = 'all',
     if len(ignore_planners) > 0 and not silence:
         click.echo('Ignoring the following planner(s): %s' % ', '.join(ignore_planners))
 
+    ignore_smoothers = parse_smoothers(ignore_smoothers)
+    if len(ignore_smoothers) > 0 and not silence:
+        click.echo('Ignoring the following smoother(s): %s' % ', '.join(ignore_smoothers))
+
     data = json.load(open(json_file, "r"))
     run_ids = parse_run_ids(run_id, len(data["runs"]))
 
@@ -85,8 +92,24 @@ def visualize(json_file: str, run_id: str = 'all',
         axes_v = int(math.ceil(len(run_ids) / max_plots_per_line))
         plt.figure("MPB %s" % json_file, figsize=(axes_h * fig_width, axes_v * fig_height))
 
+    plot_labels = []
+    for i in run_ids:
+        run = data["runs"][i]
+        for j, (planner, plan) in enumerate(run["plans"].items()):
+            if planner.lower() in ignore_planners:
+                continue
+            if not show_only_smoother:
+                plot_labels.append(planner)
+            if show_smoother and "smoothing" in plan and plan["smoothing"] is not None:
+                for k, (smoother, smoothing) in enumerate(plan["smoothing"].items()):
+                    if smoothing["name"] in ignore_smoothers:
+                        continue
+                    plot_labels.append("%s (%s)" % (planner, smoother))
+    colors = get_colors(len(plot_labels), **kwargs)
+
     plot_counter = 1
     for i in run_ids:
+        color_counter = 0
         run = data["runs"][i]
         if combine_views:
             plt.subplot(axes_v, axes_h, plot_counter)
@@ -106,25 +129,40 @@ def visualize(json_file: str, run_id: str = 'all',
             if planner.lower() in ignore_planners:
                 continue
 
-            if draw_cusps:
-                circles = []
-                for cusp in plan["stats"]["cusps"]:
-                    circle = patches.Circle(cusp, cusp_radius, ec="none")
-                    circles.append(circle)
-                collection = PatchCollection(circles, alpha=0.5, color=get_color(j, **kwargs))
-                plt.gca().add_collection(collection)
+            if not show_only_smoother:
+                if draw_cusps:
+                    circles = []
+                    for cusp in plan["stats"]["cusps"]:
+                        circle = patches.Circle(cusp, cusp_radius, ec="none")
+                        circles.append(circle)
+                    collection = PatchCollection(circles, alpha=0.5, color=colors[color_counter])
+                    plt.gca().add_collection(collection)
 
-            plot_trajectory(plan["trajectory"], planner, settings, color=get_color(j, **kwargs), **kwargs)
+                plot_trajectory(plan["trajectory"], planner, settings, color=colors[color_counter], **kwargs)
+                color_counter += 1
             if draw_nodes:
-                plot_nodes(plan["path"], planner, settings, color=get_color(j, **kwargs), **kwargs)
+                plot_nodes(plan["path"], planner, settings, color=colors[color_counter], **kwargs)
+
             if show_smoother and "smoothing" in plan and plan["smoothing"] is not None:
                 for k, (smoother, smoothing) in enumerate(plan["smoothing"].items()):
+                    if smoothing["name"] in ignore_smoothers:
+                        continue
                     plot_trajectory(smoothing["trajectory"], "%s (%s)" % (planner, smoothing['name']), settings,
-                                    color=get_color(j + k + 1, **kwargs), **kwargs)
+                                    color=colors[color_counter], **kwargs)
+                    if draw_cusps:
+                        circles = []
+                        for cusp in smoothing["stats"]["cusps"]:
+                            circle = patches.Circle(cusp, cusp_radius, ec="none")
+                            circles.append(circle)
+                        collection = PatchCollection(circles, alpha=0.5, color=colors[color_counter])
+                        plt.gca().add_collection(collection)
                     if draw_nodes and "path" in smoothing:
                         plot_nodes(smoothing["path"], "%s (%s)" % (planner, smoother), settings,
-                                   color=get_color(j + k + 1, **kwargs), **kwargs)
+                                   color=colors[color_counter], **kwargs)
+                    color_counter += 1
 
+        plt.gca().autoscale(False)
+        plt.gca().set_aspect('equal', 'box')
         if custom_min_x is not None and custom_max_y is not None:
             plt.gca().set_xlim([custom_min_x, custom_max_x])
             plt.gca().set_ylim([custom_min_y, custom_max_y])
@@ -135,11 +173,10 @@ def visualize(json_file: str, run_id: str = 'all',
             plt.gca().set_xlim([0, env["width"]])
             plt.gca().set_ylim([0, env["height"]])
 
-        if not combine_views or plot_counter % axes_h == 0:
-            plt.legend()
+        if not combine_views or plot_counter % axes_h == axes_h-1:
+            show_legend(**kwargs)
 
         if not combine_views and save_file is not None:
-            plt.tight_layout()
             ext = save_file.rindex('.')
             if len(run_ids) > 1:
                 filename = save_file[:ext] + '_%i' % i + save_file[ext:]
@@ -150,7 +187,7 @@ def visualize(json_file: str, run_id: str = 'all',
                 click.echo("Saved %s." % filename)
 
     if combine_views and save_file is not None:
-        plt.tight_layout()
+        plt.subplots_adjust(wspace=0.1, hspace=0.1)
         plt.savefig(save_file, dpi=dpi, bbox_inches='tight')
         if not silence:
             click.echo("Saved %s." % save_file)

@@ -1,10 +1,10 @@
 import numpy as np
 
+from utils import show_legend, convert_planner_name
+from definitions import smoother_names
 
-def plot_aggregate(ax, runs, planners: [str], show_legend=True, **_):
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
-    # ax = plt.axes(projection='3d')
+
+def plot_aggregate(ax, runs, planners: [str], **kwargs):
     found = {planner: 0 for planner in planners}
     collision_free = {planner: 0 for planner in planners}
     exact = {planner: 0 for planner in planners}
@@ -22,24 +22,72 @@ def plot_aggregate(ax, runs, planners: [str], show_legend=True, **_):
                     exact[planner] += 1
 
     width = 0.25
-    depth = 0.45
-    x = np.arange(len(planners))
-    y = np.ones(len(planners))
-    bottom = np.zeros(len(planners))
-    found_zs = [found[planner] for planner in planners]
-    ax.bar3d(x+0.09, y + 1.0, bottom, width, depth, found_zs, shade=False)
-    plt.plot([], [], label="Found solutions")
-    collision_free_zs = [collision_free[planner] for planner in planners]
-    ax.bar3d(x+0.39, y + 0.5, bottom, width, depth, collision_free_zs, shade=False)
-    plt.plot([], [], label="Collision-free")
-    exact_zs = [exact[planner] for planner in planners]
-    ax.bar3d(x+0.69, y + 0.0, bottom, width, depth, exact_zs, shade=False)
-    plt.plot([], [], label="Exact")
-    plt.title("Aggregated", fontsize=20, pad=40)
+    xs = np.arange(len(planners)) + 0.5
+    ys = [len(runs) for _ in planners]
+    ax.bar(xs, ys, width=0.71, linewidth=2, color="lightgray", edgecolor="black", linestyle="-", label="Total runs")
+    ys = [found[planner] for planner in planners]
+    ax.bar(xs, ys, width=0.7, label="Found solutions")
+    ys = [collision_free[planner] for planner in planners]
+    ax.bar(xs-0.15, ys, hatch='/', width=width, label="Collision-free")
+    ys = [exact[planner] for planner in planners]
+    ax.bar(xs+0.15, ys, hatch='\\', width=width, color="yellow", label="Exact solution")
 
-    ax.set_yticks([])
-    ax.view_init(0, -90)
-    ax.dist = 5.8
-    ax.set_zlim([0, len(runs)])
-    if show_legend:
-        plt.legend(loc="center left")
+    ax.grid()
+    show_legend(**kwargs)
+
+
+def plot_smoother_aggregate(ax, runs, planners: [str], smoothers: [str], separate_planners=False, show_planners=True, **kwargs):
+    if separate_planners:
+        bar_names = []
+        for planner in planners:
+            if separate_planners and show_planners:
+                bar_names.append(planner)
+            for smoother in smoothers:
+                bar_names.append("%s (%s)" % (convert_planner_name(planner), smoother))
+    else:
+        bar_names = smoothers
+
+    total_solutions = len(runs)
+    found = {bar_name: 0 for bar_name in bar_names}
+    collision_free = {bar_name: 0 for bar_name in bar_names}
+    exact = {bar_name: 0 for bar_name in bar_names}
+
+    for run in runs:
+        for j, (planner, plan) in enumerate(run["plans"].items()):
+            if planner not in planners:
+                continue
+
+            if plan["stats"]["path_found"]:
+                if separate_planners and show_planners:
+                    found[planner] += 1
+                    if not plan["stats"]["path_collides"]:
+                        collision_free[planner] += 1
+                    if plan["stats"]["exact_goal_path"]:
+                        exact[planner] += 1
+                for smoother, smoothing in plan["smoothing"].items():
+                    if smoothing["name"] not in smoothers:
+                        continue
+                    if separate_planners:
+                        bar_name = "%s (%s)" % (convert_planner_name(planner), smoother_names[smoother])
+                    else:
+                        bar_name = smoothing["name"]
+                    if smoothing["stats"]["path_found"]:
+                        found[bar_name] += 1
+                        if not smoothing["stats"]["path_collides"]:
+                            collision_free[bar_name] += 1
+                        if smoothing["stats"]["exact_goal_path"]:
+                            exact[bar_name] += 1
+
+    width = 0.25
+    xs = np.arange(len(bar_names)) + 0.5
+    ys = [total_solutions for _ in bar_names]
+    ax.bar(xs, ys, width=0.71, linewidth=2, color="lightgray", edgecolor="black", linestyle="-", label="Total runs")
+    ys = [found[bar_name] for bar_name in bar_names]
+    ax.bar(xs, ys, width=0.7, label="Found solutions")
+    ys = [collision_free[bar_name] for bar_name in bar_names]
+    ax.bar(xs - 0.15, ys, hatch='/', width=width, label="Collision-free")
+    ys = [exact[bar_name] for bar_name in bar_names]
+    ax.bar(xs + 0.15, ys, hatch='\\', width=width, color="yellow", label="Exact solution")
+
+    ax.grid()
+    show_legend(**kwargs)

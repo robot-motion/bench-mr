@@ -12,17 +12,6 @@ stat_names = {
     'aggregate': 'Aggregate'
 }
 
-steer_functions = [
-    'reeds_shepp',
-    'dubins',
-    'posq',
-    'clothoid',
-    'linear',
-    'cc_dubins',
-    'hc_reeds_shepp',
-    'cc_reeds_shepp'
-]
-
 steer_function_names = {
     'reeds_shepp': 'Reeds-Shepp',
     'dubins': 'Dubins',
@@ -33,3 +22,16 @@ steer_function_names = {
     'hc_reeds_shepp': 'HC Reeds-Shepp',
     'cc_reeds_shepp': 'CC Reeds-Shepp'
 }
+
+steer_functions = list(steer_function_names.keys())
+
+smoother_names = {
+    'chomp': 'CHOMP',
+    'grips': 'GRIPS',
+    'ompl_anytime_ps': 'Anytime PS',
+    'ompl_bspline': 'B-Spline',
+    'ompl_shortcut': 'Shortcut',
+    'ompl_simplify_max': 'SimplifyMax'
+}
+
+smoothers = list(smoother_names.values())

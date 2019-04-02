@@ -32,6 +32,8 @@ inline std::string to_string(Steering::SteeringType t) {
       return "HC Reeds-Shepp";
     case STEER_TYPE_CC_REEDS_SHEPP:
       return "CC Reeds-Shepp";
+    default:
+      return "Unknown";
   }
 }
 
