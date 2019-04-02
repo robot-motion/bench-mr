@@ -45,10 +45,10 @@ int main(int argc, char **argv) {
   global::settings.steer.car_turning_radius = 100;
   global::settings.steer.initializeSteering();
 
-  global::settings.collision_model = robot::ROBOT_POLYGON;
-  global::settings.robot_shape_source = robot_filename;
-  global::settings.robot_shape = SvgPolygonLoader::load(robot_filename)[0];
-  global::settings.robot_shape.value().center();
+  global::settings.env.collision.collision_model = robot::ROBOT_POLYGON;
+  global::settings.env.collision.robot_shape_source = robot_filename;
+  global::settings.env.collision.robot_shape = SvgPolygonLoader::load(robot_filename)[0];
+  global::settings.env.collision.robot_shape.value().center();
 
   auto info = nlohmann::json({{"plans", {}}});
   global::settings.environment->to_json(info["environment"]);
