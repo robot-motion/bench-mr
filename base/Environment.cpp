@@ -53,10 +53,10 @@ bool Environment::distanceGradient(double x, double y, double &dx, double &dy,
 void Environment::estimateStartGoalOrientations() {
   const auto cacheSteeringType = global::settings.steer.steering_type;
   const auto cacheEstimateTheta = global::settings.estimate_theta;
-  const auto cacheCollisionMode = global::settings.collision_model;
+  const auto cacheCollisionMode = global::settings.env.collision.collision_model;
   global::settings.steer.steering_type = Steering::STEER_TYPE_LINEAR;
   global::settings.estimate_theta = false;
-  global::settings.collision_model = robot::ROBOT_POINT;
+  global::settings.env.collision.collision_model = robot::ROBOT_POINT;
   global::settings.steer.initializeSteering();
   auto *thetaStar = new ThetaStar;
   if (thetaStar->run()) {
@@ -75,7 +75,7 @@ void Environment::estimateStartGoalOrientations() {
   delete thetaStar;
   global::settings.steer.steering_type = cacheSteeringType;
   global::settings.estimate_theta = cacheEstimateTheta;
-  global::settings.collision_model = cacheCollisionMode;
+  global::settings.env.collision.collision_model = cacheCollisionMode;
   global::settings.steer.initializeSteering();
 }
 

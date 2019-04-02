@@ -9,9 +9,9 @@ SbplPlanner::SbplPlanner()
   // define the robot shape
   vector<sbpl_2Dpt_t> perimeterptsV;
 
-  if (global::settings.collision_model == robot::ROBOT_POLYGON) {
+  if (global::settings.env.collision.collision_model == robot::ROBOT_POLYGON) {
     sbpl_2Dpt_t shape_point;
-    Polygon robot = global::settings.robot_shape.value();
+    Polygon robot = global::settings.env.collision.robot_shape.value();
     robot.scale(global::settings.sbpl.scaling);
     for (auto &point : robot.points) {
       shape_point.x = point.x;
@@ -33,8 +33,10 @@ SbplPlanner::SbplPlanner()
       nullptr,  // mapdata
       0, 0, 0,  // start (x, y, theta, t)
       0, 0, 0,  // goal (x, y, theta)
-      0, 0, 0,  // goal tolerance
-      perimeterptsV,
+                // goal tolerance
+      global::settings.sbpl.goal_tolerance_x,
+      global::settings.sbpl.goal_tolerance_y,
+      global::settings.sbpl.goal_tolerance_theta, perimeterptsV,
       global::settings.sbpl.resolution,  // cell size
       global::settings.sbpl.fordward_velocity,
       global::settings.sbpl.time_to_turn_45_degs_in_place,

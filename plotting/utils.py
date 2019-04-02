@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import click
 
-from definitions import steer_functions, steer_function_names
+from definitions import steer_functions, steer_function_names, smoother_names
 import numpy as np
 
 # Fix random seed (used by kernel density estimation in violin plots)
@@ -100,6 +100,17 @@ def parse_planners(planners: str) -> {str: str}:
     return {s.strip().lower(): s.strip() for s in planners.split(',') if len(s.strip()) > 0}
 
 
+def parse_smoothers(smoothers: str) -> {str: str}:
+    smoothers = [s.strip().lower().replace(' ', '') for s in smoothers.split(',') if len(s.strip()) > 0]
+    result = {}
+    for key, val in smoother_names.items():
+        for s in smoothers:
+            if (s in key.lower().replace(' ', '').replace('_', '').replace('-', '')
+                    or s in val.lower().replace(' ', '').replace('_', '').replace('-', '')):
+                result[val] = s
+    return result
+
+
 def parse_metrics(metrics: str) -> [str]:
     from definitions import stat_names
     if metrics.lower().strip() == "all":
@@ -109,7 +120,7 @@ def parse_metrics(metrics: str) -> [str]:
 
 def print_run_info(data, run_id: int, run_ids: [int]):
     run = data["runs"][run_id]
-    title = '%s Run #%i (%i / %i) %s' % ('+' * 25, run_id, run_ids.index(run_id)+1, len(run_ids), '+' * 25)
+    title = '%s Run #%i (%i / %i) %s' % ('+' * 25, run_id, run_ids.index(run_id) + 1, len(run_ids), '+' * 25)
     click.echo(title)
     steering = steer_function_names[steer_functions[data["settings"]["steer"]["steering_type"]]]
     if "settings" in run:
@@ -131,3 +142,13 @@ def print_run_info(data, run_id: int, run_ids: [int]):
 
 def convert_planner_name(planner: str) -> str:
     return planner.replace('star', '*').replace("two", "2")
+
+
+def show_legend(show_legend=True, show_legend_outside=True, legend_location="best", **_):
+    if not show_legend:
+        return
+    import matplotlib.pyplot as plt
+    if show_legend_outside:
+        plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+    else:
+        plt.legend(loc=legend_location)

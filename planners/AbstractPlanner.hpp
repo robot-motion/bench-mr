@@ -68,14 +68,15 @@ class AbstractPlanner {
     ss = new og::SimpleSetup(global::settings.ompl.state_space);
     auto &si = global::settings.ompl.space_info;
 
-    if (global::settings.collision_model == robot::ROBOT_POINT) {
+    if (global::settings.env.collision.collision_model == robot::ROBOT_POINT) {
       ss->setStateValidityChecker([&](const ob::State *state) -> bool {
         const auto *s = state->as<ob::SE2StateSpace::StateType>();
         const double x = s->getX(), y = s->getY();
         return !global::settings.environment->collides(x, y);
       });
     } else {
-      if (global::settings.robot_shape.value().points.size() < 3) {
+      if (global::settings.env.collision.robot_shape.value().points.size() <
+          3) {
         OMPL_ERROR(
             "Robot shape is empty or not convex. Cannot perform polygon-based "
             "collision detection.");
@@ -83,7 +84,8 @@ class AbstractPlanner {
       }
       ss->setStateValidityChecker([&](const ob::State *state) -> bool {
         return !global::settings.environment->collides(
-            global::settings.robot_shape.value().transformed(state));
+            global::settings.env.collision.robot_shape.value().transformed(
+                state));
       });
     }
 
@@ -116,6 +118,6 @@ class AbstractPlanner {
     ss->setup();
   }
 
-public:
+ public:
   virtual ob::Planner *omplPlanner() { return nullptr; }
 };

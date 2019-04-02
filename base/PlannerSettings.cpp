@@ -4,8 +4,8 @@
 #include <ompl/base/spaces/DubinsStateSpace.h>
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
 #include <ompl/base/spaces/SE2StateSpace.h>
-#include <steering_functions/include/ompl_state_spaces/CurvatureStateSpace.hpp>
 #include <utils/OptimizationObjective.h>
+#include <steering_functions/include/ompl_state_spaces/CurvatureStateSpace.hpp>
 #include "GridMaze.h"
 #include "PolygonMaze.h"
 #include "steer_functions/POSQ/POSQStateSpace.h"
@@ -68,8 +68,7 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
       std::make_shared<ompl::base::SpaceInformation>(
           global::settings.ompl.state_space);
   global::settings.ompl.objective = ompl::base::OptimizationObjectivePtr(
-      new OptimizationObjective(
-          global::settings.ompl.space_info));
+      new OptimizationObjective(global::settings.ompl.space_info));
   global::settings.ompl.objective->setCostThreshold(
       ob::Cost(global::settings.ompl.cost_threshold));
 
@@ -103,15 +102,18 @@ void PlannerSettings::GlobalSettings::EnvironmentSettings::createEnvironment() {
   } else {
     OMPL_ERROR("Unknown environment type \"%s\".", type.value().c_str());
   }
+  collision.initializeCollisionModel();
+}
 
+void PlannerSettings::GlobalSettings::EnvironmentSettings::CollisionSettings::
+    initializeCollisionModel() {
   // Load polygon for polygon-based collision checker if necessary
-  if (global::settings.collision_model == robot::ROBOT_POLYGON) {
-    global::settings.robot_shape =
-        SvgPolygonLoader::load(global::settings.robot_shape_source)[0];
-    global::settings.robot_shape.value().center();
-    global::settings.robot_shape.value().scale(polygon.scaling);
+  if (collision_model == robot::ROBOT_POLYGON) {
+    robot_shape = SvgPolygonLoader::load(robot_shape_source)[0];
+    robot_shape.value().center();
+    robot_shape.value().scale(global::settings.env.polygon.scaling);
     OMPL_INFORM("Loaded polygon robot model from %s with %d vertices.",
-                global::settings.robot_shape_source.value().c_str(),
-                global::settings.robot_shape.value().points.size());
+                robot_shape_source.value().c_str(),
+                robot_shape.value().points.size());
   }
 }
