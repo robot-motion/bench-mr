@@ -48,7 +48,7 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
       double distance =
           global::settings.environment->bilinearDistance(s->getX(), s->getY());
       distance = std::max(.1, distance);
-      s->setX(s->getX() - eta * dx / distance);
+      s->setX(s->getX() + eta * dx / distance);
       s->setY(s->getY() + eta * dy / distance);
     }
     eta *= global::settings.smoothing.grips.eta_discount;  // discount factor
@@ -85,9 +85,9 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
       tpath = PlannerUtils::toSteeredPoints(current, next);
 
       for (auto &p : tpath) {
-        double distance =
+        const double distance =
             global::settings.environment->bilinearDistance(p.x, p.y);
-        double difference = distance - lastDistance;
+        const double difference = distance - lastDistance;
         if (lastDifference < 0 && difference > 0 &&
             lastNodePosition.distance(p.x, p.y) >=
                 global::settings.smoothing.grips.min_node_distance &&

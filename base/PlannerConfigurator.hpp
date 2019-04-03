@@ -18,4 +18,10 @@ class PlannerConfigurator {
     planner.setGoalBias(global::settings.ompl.rrt_star.goal_bias);
     planner.setRange(global::settings.ompl.rrt_star.max_distance);
   }
+
+    static void configure(og::RRT &planner) {
+//        planner.setGoalBias(global::settings.ompl.rrt_star.goal_bias);
+//        planner.setRange(global::settings.ompl.rrt_star.max_distance);
+//        planner.set
+    }
 };

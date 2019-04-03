@@ -105,6 +105,7 @@ def visualize(json_file: str, run_id: str = 'all',
                     if smoothing["name"] in ignore_smoothers:
                         continue
                     plot_labels.append("%s (%s)" % (planner, smoother))
+    plot_labels = list(set(plot_labels))
     colors = get_colors(len(plot_labels), **kwargs)
 
     plot_counter = 1
@@ -139,9 +140,9 @@ def visualize(json_file: str, run_id: str = 'all',
                     plt.gca().add_collection(collection)
 
                 plot_trajectory(plan["trajectory"], planner, settings, color=colors[color_counter], **kwargs)
+                if draw_nodes:
+                    plot_nodes(plan["path"], planner, settings, color=colors[color_counter], **kwargs)
                 color_counter += 1
-            if draw_nodes:
-                plot_nodes(plan["path"], planner, settings, color=colors[color_counter], **kwargs)
 
             if show_smoother and "smoothing" in plan and plan["smoothing"] is not None:
                 for k, (smoother, smoothing) in enumerate(plan["smoothing"].items()):
@@ -186,11 +187,12 @@ def visualize(json_file: str, run_id: str = 'all',
             if not silence:
                 click.echo("Saved %s." % filename)
 
-    if combine_views and save_file is not None:
-        plt.subplots_adjust(wspace=0.1, hspace=0.1)
-        plt.savefig(save_file, dpi=dpi, bbox_inches='tight')
-        if not silence:
-            click.echo("Saved %s." % save_file)
+    if combine_views:
+        plt.subplots_adjust(wspace=0.4 / fig_width, hspace=0.7 / fig_height)
+        if save_file is not None:
+            plt.savefig(save_file, dpi=dpi, bbox_inches='tight')
+            if not silence:
+                click.echo("Saved %s." % save_file)
     if not headless:
         plt.show()
 

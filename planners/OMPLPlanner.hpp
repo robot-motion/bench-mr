@@ -22,7 +22,10 @@
 #include <ompl/geometric/planners/fmt/BFMT.h>
 #include <ompl/geometric/planners/fmt/FMT.h>
 #include <ompl/geometric/planners/kpiece/KPIECE1.h>
+#include <ompl/geometric/planners/pdst/PDST.h>
 #include <ompl/geometric/planners/prm/PRMstar.h>
+#include <ompl/geometric/planners/prm/SPARS.h>
+#include <ompl/geometric/planners/prm/SPARStwo.h>
 #include <ompl/geometric/planners/rrt/InformedRRTstar.h>
 #include <ompl/geometric/planners/rrt/RRT.h>
 #include <ompl/geometric/planners/rrt/RRTsharp.h>
@@ -31,9 +34,6 @@
 #include <ompl/geometric/planners/sbl/SBL.h>
 #include <ompl/geometric/planners/sst/SST.h>
 #include <ompl/geometric/planners/stride/STRIDE.h>
-#include <ompl/geometric/planners/pdst/PDST.h>
-#include <ompl/geometric/planners/prm/SPARS.h>
-#include <ompl/geometric/planners/prm/SPARStwo.h>
 
 #include "base/PlannerSettings.h"
 #include "planners/AbstractPlanner.hpp"
@@ -47,8 +47,7 @@ template <class PLANNER>
 class OMPLPlanner : public AbstractPlanner {
  public:
   OMPLPlanner() : AbstractPlanner() {
-    _omplPlanner =
-        ob::PlannerPtr(new PLANNER(ss->getSpaceInformation()));
+    _omplPlanner = ob::PlannerPtr(new PLANNER(ss->getSpaceInformation()));
   }
 
   ob::PlannerStatus run() override {
@@ -78,13 +77,19 @@ class OMPLPlanner : public AbstractPlanner {
                 solved.asString().c_str());
 
     if (solved) {
-      //            ss->simplifySolution(); // TODO define time limit?
       // Output the length of the path found
+      _solution.clear();
+      _solution.append(global::settings.environment->startState());
+      const auto &path = ss->getSolutionPath();
+      for (unsigned int i = 0; i < path.getStateCount(); ++i) {
+        _solution.append(path.getState(i));
+      }
+
       OMPL_INFORM(
           "%s found a solution of length %f with an optimization objective "
           "value of %f",
-          _omplPlanner->getName().c_str(), ss->getSolutionPath().length(),
-          ss->getSolutionPath().cost(ss->getOptimizationObjective()));
+          _omplPlanner->getName().c_str(), _solution.length(),
+          _solution.cost(ss->getOptimizationObjective()));
     } else
       OMPL_WARN("No solution found.");
     return solved;
@@ -93,12 +98,8 @@ class OMPLPlanner : public AbstractPlanner {
   std::string name() const override { return _omplPlanner->getName(); }
 
   og::PathGeometric solution() const override {
-    try {
-      return ss->getSolutionPath();
-    } catch (...) {
-      // no solution was found
-      return og::PathGeometric(global::settings.ompl.space_info);
-    }
+    og::PathGeometric path(_solution);
+    return og::PathGeometric(_solution);
   }
 
   bool hasReachedGoalExactly() const override {
@@ -113,6 +114,7 @@ class OMPLPlanner : public AbstractPlanner {
 
  private:
   ob::PlannerPtr _omplPlanner;
+  og::PathGeometric _solution{global::settings.ompl.space_info};
 };
 
 typedef OMPLPlanner<og::RRT> RRTPlanner;

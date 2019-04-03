@@ -23,9 +23,13 @@ struct PathEvaluation {
     std::vector<Point> &cusps = stats.cusps.value();
     const auto path = Point::fromPath(p);
     for (unsigned int i = 1; i < path.size() - 1; ++i) {
-      const double yaw_prev = PlannerUtils::normalizeAngle(PlannerUtils::slope(path[i - 1], path[i]));
-      const double yaw_next = PlannerUtils::normalizeAngle(PlannerUtils::slope(path[i], path[i + 1]));
-      if (std::abs(yaw_next - yaw_prev) > global::settings.cusp_angle_threshold)
+      const double yaw_prev =
+          std::fmod(PlannerUtils::slope(path[i - 1], path[i]), 2. * M_PI);
+      const double yaw_next =
+          std::fmod(PlannerUtils::slope(path[i], path[i + 1]), 2. * M_PI);
+
+      if (std::fmod(std::abs(yaw_next - yaw_prev), 2. * M_PI) >
+          global::settings.cusp_angle_threshold)
         cusps.emplace_back(path[i]);
     }
   }
@@ -72,9 +76,9 @@ struct PathEvaluation {
     bool success = false;
     if (planner.run()) {
       success = PathEvaluation::evaluate(stats, planner.solution(), &planner);
-      j["path"] = Log::serializePath(planner.solutionPath());
+      j["path"] = Log::serializeTrajectory(planner.solution(), false);
     } else {
-      j["path"] = Log::serializePath({});
+      j["path"] = {};
     }
     std::cout << stats << std::endl;
     std::cout << "Steer function: "
@@ -140,6 +144,7 @@ struct PathEvaluation {
       j["chomp"] = {{"time", chomp.planningTime()},
                     {"name", "CHOMP"},
                     {"cost", chomp.solution().length()},
+                    {"path", Log::serializeTrajectory(chomp.solution(), false)},
                     {"trajectory", chomp.solutionPath()},
                     {"stats", nlohmann::json(chomp_stats)["stats"]}};
     }
@@ -155,6 +160,7 @@ struct PathEvaluation {
           {"time", tr.elapsed()},
           {"name", "Shortcut"},
           {"cost", tr.trajectory.length()},
+          {"path", Log::serializeTrajectory(tr.trajectory, false)},
           {"trajectory", Log::serializeTrajectory(tr.trajectory)},
           {"stats", nlohmann::json(stats)["stats"]}};
     }
@@ -167,6 +173,7 @@ struct PathEvaluation {
           {"time", tr.elapsed()},
           {"name", "B-Spline"},
           {"cost", tr.trajectory.length()},
+          {"path", Log::serializeTrajectory(tr.trajectory, false)},
           {"trajectory", Log::serializeTrajectory(tr.trajectory)},
           {"stats", nlohmann::json(stats)["stats"]}};
     }
@@ -179,28 +186,9 @@ struct PathEvaluation {
           {"time", tr.elapsed()},
           {"name", "SimplifyMax"},
           {"cost", tr.trajectory.length()},
+          {"path", Log::serializeTrajectory(tr.trajectory, false)},
           {"trajectory", Log::serializeTrajectory(tr.trajectory)},
           {"stats", nlohmann::json(stats)["stats"]}};
-    }
-
-    if (global::settings.benchmark.smoothing.ompl_anytime_ps) {
-      // OMPL Anytime Path Shortening
-      if (planner.omplPlanner() == nullptr) {
-        OMPL_WARN(
-            "OMPL smoothing method Anytime Path Shortening is only available "
-            "for OMPL planners.");
-      } else {
-        // Anytime Path Shortening
-        PathStatistics stats;
-        TimedResult tr = smoother.anytimePathShortening(planner.omplPlanner());
-        evaluate(stats, tr.trajectory, &planner);
-        j["ompl_anytime_ps"] = {
-            {"time", tr.elapsed()},
-            {"name", "Anytime PS"},
-            {"cost", tr.trajectory.length()},
-            {"trajectory", Log::serializeTrajectory(tr.trajectory)},
-            {"stats", nlohmann::json(stats)["stats"]}};
-      }
     }
 
     return true;

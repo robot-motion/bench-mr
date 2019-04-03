@@ -128,7 +128,7 @@ struct GlobalSettings : public Group {
   Property<double> max_planning_time{15, "max_planning_time", this};
 
   /**
-   * For maps with more cells than this threshold, a fast, approximate algorithm
+   * For maps with more cells than this threshold, a fast approximating algorithm
    * is used to compute the obstacle distance field (necessary for clearance
    * evaluations and GRIPS).
    */
@@ -220,7 +220,6 @@ struct GlobalSettings : public Group {
       Property<bool> ompl_shortcut{true, "ompl_shortcut", this};
       Property<bool> ompl_bspline{true, "ompl_bspline", this};
       Property<bool> ompl_simplify_max{true, "ompl_simplify_max", this};
-      Property<bool> ompl_anytime_ps{true, "ompl_anytime_ps", this};
     } smoothing{"smoothing", this};
 
     /**
@@ -240,7 +239,6 @@ struct GlobalSettings : public Group {
       Property<bool> prm{true, "prm", this};
       Property<bool> prm_star{true, "prm_star", this};
       Property<bool> est{true, "est", this};
-      // TODO investigate why SBL has problems with Anytime PS
       Property<bool> sbl{false, "sbl", this};
       Property<bool> fmt{true, "fmt", this};
       Property<bool> bfmt{true, "bfmt", this};
@@ -427,9 +425,6 @@ struct GlobalSettings : public Group {
       Property<double> shortcut_range_ratio{0.33, "shortcut_range_ratio", this};
       Property<double> shortcut_snap_to_vertex{0.005, "shortcut_snap_to_vertex",
                                                this};
-
-      Property<bool> anytime_shortcut{true, "anytime_shortcut", this};
-      Property<bool> anytime_hybridize{true, "anytime_hybridize", this};
     } ompl{"ompl", this};
 
     struct ChompSettings : public Group {

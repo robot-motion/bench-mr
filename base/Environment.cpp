@@ -45,7 +45,7 @@ bool Environment::distanceGradient(double x, double y, double &dx, double &dy,
                dr = bilinearDistance(x + p, y, cellSize);
   const double db = bilinearDistance(x, y - p, cellSize),
                dt = bilinearDistance(x, y + p, cellSize);
-  dx = (dl - dr) / (p * 2.);
+  dx = (dr - dl) / (p * 2.);
   dy = (dt - db) / (p * 2.);
   return true;
 }

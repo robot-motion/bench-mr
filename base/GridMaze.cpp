@@ -102,15 +102,19 @@ GridMaze *GridMaze::createRandomCorridor(unsigned int width,
   for (unsigned int i = 0; i <= environment->cells(); ++i)
     environment->_grid[i] = true;
 
-  std::vector<Point> positions{Point(width / 2., height / 2.)};
+  typedef Eigen::Matrix<double, 3, 1> Vector3;
+  std::vector<Vector3> nodes{Vector3{width / 2., height / 2., 0.}};
   for (int k = 0; k < branches; ++k) {
-    const int x = 2 + rand() % (width - 2);
-    const int y = 2 + rand() % (height - 2);
+    const int x = borderSize + (int)radius +
+                  rand() % (width - (int)radius - 2 * borderSize - 1);
+    const int y = borderSize + (int)radius +
+                  rand() % (height - (int)radius - 2 * borderSize - 1);
 
     // find closest vertex
     double minDistance = std::numeric_limits<double>::max();
     Point closest;
-    for (const auto &pos : positions) {
+    for (const auto &node : nodes) {
+      const Point pos(node.x(), node.y());
       double d = pos.distance(x, y);
       if (d < minDistance) {
         minDistance = d;
@@ -126,7 +130,8 @@ GridMaze *GridMaze::createRandomCorridor(unsigned int width,
                     closest.x + std::ceil(radius),
                     std::max(closest.y, (double)y) + std::ceil(radius)),
           false);
-      positions.emplace_back(Point(closest.x, y));
+      const double yaw = closest.y > y ? -M_PI_2 : M_PI_2;
+      nodes.emplace_back(Vector3{closest.x, static_cast<double>(y), yaw});
     } else {
       // connect horizontally
       environment->fill(
@@ -135,33 +140,39 @@ GridMaze *GridMaze::createRandomCorridor(unsigned int width,
                     std::max(closest.x, (double)x) + std::ceil(radius),
                     closest.y + std::ceil(radius)),
           false);
-      positions.emplace_back(Point(x, closest.y));
+      const double yaw = closest.x > x ? -M_PI : 0;
+      nodes.emplace_back(Vector3{static_cast<double>(x), closest.y, yaw});
     }
   }
   environment->fillBorder(true, borderSize);
 
   // find start / goal positions
   double max_dist = 0;
-  for (auto &p : positions) {
-    if (environment->occupied(p.x, p.y)) {
+  for (auto &p : nodes) {
+    if (environment->occupied(p.x(), p.y())) {
 #ifdef DEBUG
       QtVisualizer::drawNode(p.x, p.y);
 #endif
-      OMPL_WARN("(%f %f) is occupied.", p.x, p.y);
+      OMPL_WARN("(%f %f) is occupied.", p.x(), p.y());
       continue;
     }
-    for (auto &q : positions) {
+    const Point start(p.x(), p.y());
+    for (auto &node : nodes) {
+      const Point q(node.x(), node.y());
       if (environment->occupied(q.x, q.y)) continue;
-      double dist = p.distance(q);
+      double dist = start.distance(q);
       if (dist > max_dist) {
         max_dist = dist;
-        environment->setStart(p);
+        environment->setStart(start);
         environment->setGoal(q);
+        // flip start yaw angle to be "inwards" the map
+        environment->setThetas(PlannerUtils::normalizeAngle(p(2) - M_PI),
+                               PlannerUtils::normalizeAngle(node(2)));
       }
     }
   }
-
   std::cout << *environment << std::endl;
+  environment->computeDistances();
   return environment;
 }
 
