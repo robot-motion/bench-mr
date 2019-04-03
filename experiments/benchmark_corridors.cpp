@@ -19,6 +19,7 @@ int main(int argc, char **argv) {
     global::settings.max_planning_time = 3;
     global::settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
     global::settings.steer.initializeSteering();
+    global::settings.env.collision.initializeCollisionModel();
 
     auto info = nlohmann::json({{"plans", {}}});
     global::settings.environment->to_json(info["environment"]);

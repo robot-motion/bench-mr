@@ -22,9 +22,7 @@ def plot_trajectory(traj, planner: str, settings, color, add_label=True, alpha: 
     import matplotlib.pyplot as plt
     from matplotlib.patches import Polygon
     planner = convert_planner_name(planner)
-    if len(traj) == 0:
-        if not silence:
-            click.echo("Planner %s found no solution!" % planner)
+    if traj is None or len(traj) == 0:
         return
     traj = np.array(traj)
     if settings["env"]["collision"]["collision_model"] == 0:
@@ -54,31 +52,25 @@ def plot_trajectory(traj, planner: str, settings, color, add_label=True, alpha: 
             poly = Polygon(state[:2] + np.matmul(points, rotation), True, fill=False, linestyle='--', edgecolor=color,
                            alpha=alpha)
             plt.gca().add_patch(poly)
-    if draw_arrows:
-        import math
-        for i in range(traj.shape[0]):
-            state = traj[i, :]
-            dx, dy = math.cos(state[2]), math.sin(state[2])
-            plt.arrow(state[0], state[1], dx * 2., dy * 2., color=color, width=0.01, head_width=0.2, alpha=alpha)
-
-
-def plot_nodes(traj, planner: str, settings, color, add_label=False, alpha: float = 1., silence=False,
-               draw_arrows=False, **_):
-    import matplotlib.pyplot as plt
-    if len(traj) == 0:
-        if not silence:
-            click.echo("Planner %s found no solution!" % planner)
-        return
-    traj = np.array(traj)
-    if settings["env"]["collision"]["collision_model"] == 0:
-        # point collision model
-        if add_label:
-            plt.plot(traj[:, 0], traj[:, 1], '.', color=color, alpha=alpha, label=planner)
-        else:
-            plt.plot(traj[:, 0], traj[:, 1], '.', color=color, alpha=alpha)
     # if draw_arrows:
     #     import math
     #     for i in range(traj.shape[0]):
     #         state = traj[i, :]
     #         dx, dy = math.cos(state[2]), math.sin(state[2])
     #         plt.arrow(state[0], state[1], dx * 2., dy * 2., color=color, width=0.01, head_width=0.2, alpha=alpha)
+
+
+def plot_nodes(traj, planner: str, settings, color, add_label=False, node_alpha: float = 1., silence=False,
+               draw_arrows=False, **_):
+    import matplotlib.pyplot as plt
+    if traj is None or len(traj) == 0:
+        if not silence:
+            click.echo("Planner %s found no solution!" % planner)
+        return
+    traj = np.array(traj)
+    if draw_arrows:
+        import math
+        for i in range(traj.shape[0]):
+            state = traj[i, :]
+            dx, dy = math.cos(state[2]), math.sin(state[2])
+            plt.arrow(state[0], state[1], dx * 2., dy * 2., color=color, width=0.01, head_width=0.2, alpha=node_alpha)

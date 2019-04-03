@@ -128,7 +128,7 @@ def plot_planner_stats(json_file: str,
             if plot_violins:
                 violins = [stats[planner] or [] for planner in planners]
                 try:
-                    vs = plt.violinplot(violins, ticks, points=50, widths=0.6,
+                    vs = plt.violinplot(violins, ticks, points=50, widths=0.8,
                                         showmeans=True, showextrema=False, showmedians=True)
                     for i, body in enumerate(vs["bodies"]):
                         body.set_facecolor(violin_colors[i])
@@ -320,7 +320,7 @@ def plot_smoother_stats(json_file: str,
             if plot_violins:
                 violins = [stats[bar_name] or [] for bar_name in bar_names]
                 try:
-                    vs = plt.violinplot(violins, ticks, points=50, widths=0.6,
+                    vs = plt.violinplot(violins, ticks, points=50, widths=0.8,
                                         showmeans=True, showextrema=False, showmedians=True)
                     for i, body in enumerate(vs["bodies"]):
                         body.set_facecolor(violin_colors[i])

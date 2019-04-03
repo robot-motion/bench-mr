@@ -16,7 +16,9 @@
         "est": true,
         "fmt": true,
         "informed_rrt_star": true,
-        "kpiece1": true,
+        "kpiece": true,
+        "pdst": true,
+        "prm": true,
         "prm_star": true,
         "rrt": true,
         "rrt_sharp": true,
@@ -24,15 +26,16 @@
         "sbl": false,
         "sbpl": true,
         "sorrt_star": true,
+        "spars2": true,
+        "sparse": true,
         "sst": true,
-        "stride": true,
+        "stride": false,
         "theta_star": true
       },
       "runs": 5,
       "smoothing": {
         "chomp": true,
         "grips": true,
-        "ompl_anytime_ps": true,
         "ompl_bspline": true,
         "ompl_shortcut": true,
         "ompl_simplify_max": true
@@ -45,13 +48,107 @@
         7
       ]
     },
-    "collision_model": 0,
+    "cusp_angle_threshold": 1.0471975511965976,
     "distance_computation_method": 0,
     "env": {
+      "collision": {
+        "collision_model": 1,
+        "robot_shape": [
+          [
+            1.6776394214876036,
+            -1.1064549586776877
+          ],
+          [
+            -2.0131673966942145,
+            -1.1064549586776877
+          ],
+          [
+            -2.1229446694214875,
+            -1.0644999586776875
+          ],
+          [
+            -2.2124005785123964,
+            -0.9499481404958694
+          ],
+          [
+            -2.2726155785123963,
+            -0.7797685950413235
+          ],
+          [
+            -2.294670123966942,
+            -0.5709308677685967
+          ],
+          [
+            -2.294670123966942,
+            0.7922218595041308
+          ],
+          [
+            -2.2726155785123963,
+            1.0010595867768584
+          ],
+          [
+            -2.2124005785123964,
+            1.1712391322314037
+          ],
+          [
+            -2.1229446694214875,
+            1.2857909504132217
+          ],
+          [
+            -2.0131673966942145,
+            1.3277459504132219
+          ],
+          [
+            1.6776394214876036,
+            1.3277459504132219
+          ],
+          [
+            1.7874166942148761,
+            1.2857909504132217
+          ],
+          [
+            1.87687305785124,
+            1.1712391322314037
+          ],
+          [
+            1.93708805785124,
+            1.0010595867768584
+          ],
+          [
+            1.9591416942148765,
+            0.7922218595041308
+          ],
+          [
+            1.9591416942148765,
+            -0.5709308677685967
+          ],
+          [
+            1.93708805785124,
+            -0.7797685950413235
+          ],
+          [
+            1.87687305785124,
+            -0.9499481404958694
+          ],
+          [
+            1.7874166942148761,
+            -1.0644999586776875
+          ],
+          [
+            1.6776394214876036,
+            -1.1064549586776877
+          ],
+          [
+            1.6776394214876036,
+            -1.1064549586776877
+          ]
+        ],
+        "robot_shape_source": "polygon_mazes/car.svg"
+      },
       "goal": {
         "theta": 0.0,
-        "x": 96.0,
-        "y": 94.0
+        "x": 92.0,
+        "y": 86.0
       },
       "grid": {
         "corridor": {
@@ -71,9 +168,9 @@
         "source": "polygon_mazes/parking1.svg"
       },
       "start": {
-        "theta": 0.0,
-        "x": 7.0,
-        "y": 7.0
+        "theta": 2.4492935982947064e-16,
+        "x": 9.0,
+        "y": 13.0
       },
       "type": "grid"
     },
@@ -87,11 +184,13 @@
     "max_planning_time": 15.0,
     "ompl": {
       "cost_threshold": 100.0,
+      "rrt_star": {
+        "goal_bias": 0.05,
+        "max_distance": 0.0
+      },
       "seed": 1,
       "state_equality_tolerance": 0.0001
     },
-    "robot_shape": [],
-    "robot_shape_source": "polygon_mazes/car.svg",
     "sbpl": {
       "fordward_velocity": 0.4,
       "goal_tolerance_theta": 6.283185307179586,
@@ -124,8 +223,6 @@
         "min_node_distance": 3.0
       },
       "ompl": {
-        "anytime_hybridize": true,
-        "anytime_shortcut": true,
         "bspline_epsilon": 0.005,
         "bspline_max_steps": 5,
         "shortcut_max_empty_steps": 0,

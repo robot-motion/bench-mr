@@ -100,27 +100,27 @@ struct Point {
     y += p.y;
     return *this;
   }
-  Point operator+(const Point &p) const { return Point(x + p.x, y + p.y); }
+  Point operator+(const Point &p) const { return {x + p.x, y + p.y}; }
   Point &operator-=(const Point &p) {
     x -= p.x;
     y -= p.y;
     return *this;
   }
-  Point operator-(const Point &p) const { return Point(x - p.x, y - p.y); }
+  Point operator-(const Point &p) const { return {x - p.x, y - p.y}; }
 
   Point &operator*=(double d) {
     x *= d;
     y *= d;
     return *this;
   }
-  Point operator*(double d) const { return Point(x * d, y * d); }
+  Point operator*(double d) const { return {x * d, y * d}; }
 
   Point &operator/=(double d) {
     x /= d;
     y /= d;
     return *this;
   }
-  Point operator/(double d) const { return Point(x / d, y / d); }
+  Point operator/(double d) const { return {x / d, y / d}; }
 
   ompl::base::State *toState(double theta = 0) const;
 

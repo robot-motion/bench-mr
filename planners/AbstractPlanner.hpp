@@ -72,6 +72,8 @@ class AbstractPlanner {
       ss->setStateValidityChecker([&](const ob::State *state) -> bool {
         const auto *s = state->as<ob::SE2StateSpace::StateType>();
         const double x = s->getX(), y = s->getY();
+//        if (global::settings.environment->collides(x, y))
+//            std::cout << "[" << x << " " << y << "] is occupied\n";
         return !global::settings.environment->collides(x, y);
       });
     } else {

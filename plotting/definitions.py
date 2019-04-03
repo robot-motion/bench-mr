@@ -28,7 +28,6 @@ steer_functions = list(steer_function_names.keys())
 smoother_names = {
     'chomp': 'CHOMP',
     'grips': 'GRIPS',
-    'ompl_anytime_ps': 'Anytime PS',
     'ompl_bspline': 'B-Spline',
     'ompl_shortcut': 'Shortcut',
     'ompl_simplify_max': 'SimplifyMax'

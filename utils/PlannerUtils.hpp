@@ -21,19 +21,19 @@ class PlannerUtils {
   static double slope(const N &x1, const N &y1, const N &x2, const N &y2) {
     const auto dy = y2 - y1;
     const auto dx = x2 - x1;
-    return std::atan2(dy, dx);
+    return normalizeAngle(std::atan2(dy, dx));
   }
 
   static double slope(const Point &a, const Point &b) {
     const auto dy = b.y - a.y;
     const auto dx = b.x - a.x;
-    return std::atan2(dy, dx);
+    return normalizeAngle(std::atan2(dy, dx));
   }
 
   static double slope(const ompl::base::State *a, const ompl::base::State *b) {
     const auto dy = b->as<State>()->getY() - a->as<State>()->getY();
     const auto dx = b->as<State>()->getX() - a->as<State>()->getX();
-    return std::atan2(dy, dx);
+    return normalizeAngle(std::atan2(dy, dx));
   }
 
   static bool equals(const ompl::base::State *a, const ompl::base::State *b) {
@@ -51,51 +51,41 @@ class PlannerUtils {
         og::PathGeometric(global::settings.ompl.space_info, a, b));
   }
 
+  /**
+   * Point-based (!) collision check of the path.
+   */
   static bool collides(const std::vector<Point> &path) {
-    for (unsigned int i = 0; i < path.size(); ++i) {
-      if (global::settings.environment->collides(path[i])) {
-//         || global::settings.environment->bilinearDistance(path[i].x,
-//         path[i].y) < 1.5) {
-#ifdef DEBUG
-        // QtVisualizer::drawPath(path, QColor(255, 100, 0, 170));
-#endif
+    for (const auto &point : path) {
+      if (global::settings.environment->collides(point)) {
+        //         || global::settings.environment->bilinearDistance(path[i].x,
+        //         path[i].y) < 1.5) {
         return true;
       }
-
-      //      // check intermediary points
-      //            if (i < path.size() - 1) {
-      //              double dx = (path[i + 1].x - path[i].x);
-      //              double dy = (path[i + 1].y - path[i].y);
-      //              double size = std::sqrt(dx * dx + dy * dy);
-      //              const double scale = 0.1;
-      //              dx = dx / size * scale;
-      //              dy = dy / size * scale;
-      //
-      //              auto steps = (int)(size / std::sqrt(dx * dx + dy * dy));
-      //
-      //              for (int j = 1; j <= steps; ++j) {
-      //                if (global::settings.environment->collides(path[i].x +
-      //                dx * j,
-      //                                                           path[i].y +
-      //                                                           dy * j)) {
-      //      #if QT_SUPPORT
-      //      //                        QtVisualizer::drawNode(path[i].x + dx *
-      //      j, / path[i].y + /                        dy * j, / QColor(255*.8,
-      //      255*0, / 255*.9), / 0.3); #ifdef DEBUG
-      //                  // QtVisualizer::drawPath(path, QColor(250, 0, 0,
-      //                  70));
-      //      #endif
-      //      #endif
-      //                  return true;
-      //                }
-      //              }
-      //            }
     }
-#if QT_SUPPORT
-#ifdef DEBUG
-    // QtVisualizer::drawPath(path, QColor(70, 150, 0, 120));
-#endif
-#endif
+    return false;
+  }
+
+  /**
+   * Collision check that respects the collision_model set in global::settings.
+   */
+  static bool collides(const ompl::geometric::PathGeometric &path) {
+    if (global::settings.env.collision.collision_model == robot::ROBOT_POINT) {
+      for (unsigned int i = 0; i < path.getStateCount(); ++i) {
+        const auto *state = path.getState(i)->as<State>();
+        if (global::settings.environment->collides(state->getX(),
+                                                   state->getY()))
+          return true;
+      }
+    } else {
+      // polygon-based collision check
+      for (std::size_t i = 0; i < path.getStateCount(); ++i) {
+        const auto *state = path.getState(i)->as<State>();
+        if (global::settings.environment->collides(
+                global::settings.env.collision.robot_shape.value().transformed(
+                    state)))
+          return true;
+      }
+    }
     return false;
   }
 
@@ -110,10 +100,7 @@ class PlannerUtils {
 #endif
     ompl::geometric::PathGeometric p(global::settings.ompl.space_info, a, b);
     p = interpolated(p);
-    const auto path = Point::fromPath(p, false);
-    const auto result = collides(path);
-    p.clear();
-    return result;
+    return collides(p);
   }
 
   static bool collides(const ompl::base::State *a, const ompl::base::State *b,
@@ -129,9 +116,7 @@ class PlannerUtils {
               << std::endl;
 #endif
     path = interpolated(path);
-    const auto points = Point::fromPath(path, false);
-    const auto result = collides(points);
-    return result;
+    return collides(path);
   }
 
   static bool collides(const std::vector<Point> &path,
@@ -147,40 +132,6 @@ class PlannerUtils {
         collisions.emplace_back(path[i]);
         continue;
       }
-
-      // check intermediary points
-      //      if (i < path.size() - 1) {
-      //        double dx = (path[i + 1].x - path[i].x);
-      //        double dy = (path[i + 1].y - path[i].y);
-      //        double size = std::sqrt(dx * dx + dy * dy);
-      //        const double scale = 0.15;  // 1.5;
-      //        dx = dx / size * scale;
-      //        dy = dy / size * scale;
-      //
-      //        auto steps = (int)(size / std::sqrt(dx * dx + dy * dy));
-      //
-      //        for (int j = 1; j <= steps; ++j) {
-      //          if (global::settings.environment->collides(path[i].x + dx * j,
-      //                                                     path[i].y + dy *
-      //                                                     j))
-      //          //  || global::settings.environment->collides(path[i].x + dx *
-      //          j + .5,
-      //          //  path[i].y + dy * j
-      //          //  + .5))
-      //          {
-      //#if QT_SUPPORT
-      ////                        QtVisualizer::drawNode(path[i].x + dx * j,
-      /// path[i].y + /                        dy * j, / QColor(255*.8, 255*0,
-      /// 255*.9), /                                               0.3);
-      //#ifdef DEBUG
-      //            // QtVisualizer::drawPath(path, QColor(250, 0, 0, 70));
-      //#endif
-      //#endif
-      //            collisions.emplace_back(path[j]);
-      //            continue;
-      //          }
-      //        }
-      //      }
     }
 #ifdef DEBUG
     // QtVisualizer::drawPath(path, QColor(150, 200, 0, 70));
@@ -251,12 +202,12 @@ class PlannerUtils {
       if (AverageAngles) {
         double l = slope(states[i - 1], states[i]);
         double r = slope(states[i], states[i + 1]);
-        if (std::abs(l - r) >= M_PI) {
-          if (l > r)
-            l += 2. * M_PI;
-          else
-            r += 2. * M_PI;
-        }
+                if (std::abs(l - r) >= M_PI) {
+                  if (l > r)
+                    l += 2. * M_PI;
+                  else
+                    r += 2. * M_PI;
+                }
         states[i]->as<State>()->setYaw((l + r) * 0.5);
       } else
         states[i]->as<State>()->setYaw(slope(states[i - 1], states[i]));
@@ -423,9 +374,9 @@ class PlannerUtils {
   }
 
   /**
-   * Makes angles positive (useful for comparisons of angles computed by arctan).
+   * Normalizes angles to [-pi, pi].
    */
-  static double normalizeAngle(double angle) {
-    return std::fmod(angle + M_PI, M_PI_2);
+  inline static double normalizeAngle(double angle) {
+    return std::atan2(std::sin(angle), std::cos(angle));
   }
 };

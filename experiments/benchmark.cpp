@@ -124,6 +124,7 @@ int main(int argc, char **argv) {
       delete global::settings.environment;
       global::settings.environment =
           GridMaze::createFromMovingAiScenario(scenario);
+      global::settings.env.collision.initializeCollisionModel();
 
       auto info =
           nlohmann::json({{"optimalDistance", scenario.optimal_length}});
