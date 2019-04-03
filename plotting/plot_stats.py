@@ -239,6 +239,11 @@ def plot_smoother_stats(json_file: str,
                     bar_names.append("%s (%s)" % (convert_planner_name(planner), smoother))
     else:
         bar_names = smoothers
+        for smoother in smoothers:
+            if smoother in ignore_smoothers:
+                continue
+            if smoother not in valid_smoothers:
+                valid_smoothers.append(smoother)
 
     violin_colors = get_colors(len(bar_names), **kwargs)
     ticks = np.arange(len(bar_names)) + 0.5
@@ -318,7 +323,7 @@ def plot_smoother_stats(json_file: str,
             plt.gca().set_axisbelow(True)
 
             if plot_violins:
-                violins = [stats[bar_name] or [] for bar_name in bar_names]
+                violins = [stats[bar_name] or [] for bar_name in bar_names if bar_name in stats]
                 try:
                     vs = plt.violinplot(violins, ticks, points=50, widths=0.8,
                                         showmeans=True, showextrema=False, showmedians=True)
