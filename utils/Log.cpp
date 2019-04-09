@@ -38,19 +38,16 @@ void Log::log(const nlohmann::json &stats) {
 
 void Log::save(std::string filename, const std::string &path) {
   if (filename.empty()) filename = Log::filename() + (std::string) ".json";
-  char *absFilename = nullptr;
-  absFilename = realpath((path + filename).c_str(), absFilename);
-  if (absFilename == nullptr) {
-    const std::string new_filename = Log::filename() + (std::string) ".json";
-    OMPL_WARN("Could not generate absolute filename for \"%s\", saving log at \"%s\" instead.",
-              filename.c_str(), new_filename.c_str());
-    filename = new_filename;
-    absFilename = const_cast<char *>(filename.c_str());
+  char absFilename[PATH_MAX + 1];
+  if (realpath(path.c_str(), absFilename) != nullptr) {
+    filename = std::string(absFilename) + '/' + filename;
+  } else {
+    OMPL_WARN("Could not resolve path \"%s\", saving at current folder.", path.c_str());
   }
-  std::ofstream o(absFilename);
+  std::ofstream o(filename);
   o << std::setw(4) << _currentRun << std::endl;
   o.close();
-  OMPL_INFORM("Saved path statistics log file at %s", absFilename);
+  OMPL_INFORM("Saved log at %s", filename.c_str());
 }
 
 void Log::storeRun() { _json["runs"].push_back(_currentRun); }

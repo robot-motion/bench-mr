@@ -120,6 +120,9 @@ target_link_libraries(compute_distances ${EXTRA_LIB})
 add_executable(posq_testing experiments/posq_testing.cpp)
 target_link_libraries(posq_testing ${EXTRA_LIB})
 
+add_executable(sbpl_testing experiments/sbpl_testing.cpp)
+target_link_libraries(sbpl_testing ${EXTRA_LIB})
+
 add_executable(show_polygon_mazes experiments/show_polygon_mazes.cpp)
 target_link_libraries(show_polygon_mazes ${EXTRA_LIB})
 

@@ -9,7 +9,14 @@
 using namespace params;
 
 namespace sbpl {
-enum Planner { SBPL_ARASTAR, SBPL_ADSTAR, SBPL_RSTAR, SBPL_ANASTAR };
+enum Planner {
+  SBPL_ARASTAR,
+  SBPL_ADSTAR,
+  SBPL_RSTAR,
+  SBPL_ANASTAR,
+  SBPL_MHA,
+  SBPL_LAZY_ARA
+};
 }
 
 namespace robot {
@@ -128,9 +135,9 @@ struct GlobalSettings : public Group {
   Property<double> max_planning_time{15, "max_planning_time", this};
 
   /**
-   * For maps with more cells than this threshold, a fast approximating algorithm
-   * is used to compute the obstacle distance field (necessary for clearance
-   * evaluations and GRIPS).
+   * For maps with more cells than this threshold, a fast approximating
+   * algorithm is used to compute the obstacle distance field (necessary for
+   * clearance evaluations and GRIPS).
    */
   Property<unsigned int> fast_odf_threshold{100 * 100, "fast_odf_threshold",
                                             this};
@@ -216,7 +223,7 @@ struct GlobalSettings : public Group {
     struct SmoothingSettings : public Group {
       using Group::Group;
       Property<bool> grips{true, "grips", this};
-      Property<bool> chomp{true, "chomp", this};
+      Property<bool> chomp{false, "chomp", this};
       Property<bool> ompl_shortcut{true, "ompl_shortcut", this};
       Property<bool> ompl_bspline{true, "ompl_bspline", this};
       Property<bool> ompl_simplify_max{true, "ompl_simplify_max", this};
@@ -235,7 +242,11 @@ struct GlobalSettings : public Group {
       Property<bool> rrt_sharp{true, "rrt_sharp", this};
       Property<bool> sorrt_star{true, "sorrt_star", this};
       Property<bool> informed_rrt_star{true, "informed_rrt_star", this};
-      Property<bool> sbpl{true, "sbpl", this};
+      Property<bool> sbpl_arastar{true, "sbpl_arastar", this};
+      Property<bool> sbpl_adstar{true, "sbpl_adstar", this};
+      Property<bool> sbpl_anastar{false, "sbpl_anastar", this};
+      Property<bool> sbpl_lazy_ara{false, "sbpl_lazy_ara", this};
+      Property<bool> sbpl_mha{true, "sbpl_mha", this};
       Property<bool> prm{true, "prm", this};
       Property<bool> prm_star{true, "prm_star", this};
       Property<bool> est{true, "est", this};
@@ -344,21 +355,18 @@ struct GlobalSettings : public Group {
      * planners that don't have notion of epsilon, 1 means optimal search.
      */
     Property<double> initial_solution_eps{3, "initial_solution_eps", this};
-    Property<double> fordward_velocity{0.4, "fordward_velocity",
+    Property<double> fordward_velocity{0.2, "fordward_velocity",
                                        this};  // in meters/sec
     Property<double> time_to_turn_45_degs_in_place{
         0.6, "time_to_turn_45_degs_in_place", this};  // in sec
+
     Property<std::string> motion_primitive_filename{
         "./sbpl_mprim/unicycle_0.25.mprim", "motion_primitive_filename", this};
-
     /**
-     * These tolerances are most likely ignored by SPBL at the moment.
+     * XXX Important: number of theta directions must match resolution in motion
+     * primitive definition file.
      */
-    Property<double> goal_tolerance_x{1, "goal_tolerance_x", this};
-    Property<double> goal_tolerance_y{1, "goal_tolerance_y", this};
-    Property<double> goal_tolerance_theta{2 * M_PI, "goal_tolerance_theta",
-                                          this};
-
+    Property<unsigned int> num_theta_dirs{16u, "num_theta_dirs", this};
     /**
      * XXX Important: resolution must match resolution in motion primitive
      * definition file.
@@ -370,15 +378,15 @@ struct GlobalSettings : public Group {
      * Scale environment to accommodate extents of SBPL's motion primitives.
      * Intuition: the smaller this number the larger the turning radius.
      */
-    Property<double> scaling{5, "scaling", this};
+    Property<double> scaling{8, "scaling", this};
 
     /**
-     * XXX Important: number of theta directions must match resolution in motion
-     * primitive definition file.
+     * These tolerances are most likely ignored by SPBL at the moment.
      */
-    Property<unsigned int> num_theta_dirs{16u, "num_theta_dirs", this};
-
-    Property<sbpl::Planner> planner{sbpl::SBPL_ARASTAR, "planner", this};
+    Property<double> goal_tolerance_x{1, "goal_tolerance_x", this};
+    Property<double> goal_tolerance_y{1, "goal_tolerance_y", this};
+    Property<double> goal_tolerance_theta{2 * M_PI, "goal_tolerance_theta",
+                                          this};
   } sbpl{"sbpl", this};
 
   struct SmoothingSettings : public Group {

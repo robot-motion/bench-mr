@@ -60,7 +60,7 @@ def plot_trajectory(traj, planner: str, settings, color, add_label=True, alpha: 
     #         plt.arrow(state[0], state[1], dx * 2., dy * 2., color=color, width=0.01, head_width=0.2, alpha=alpha)
 
 
-def plot_nodes(traj, planner: str, settings, color, add_label=False, node_alpha: float = 1., silence=False,
+def plot_nodes(traj, planner: str, settings, color, node_alpha: float = 1., silence=False,
                draw_arrows=False, **_):
     import matplotlib.pyplot as plt
     if traj is None or len(traj) == 0:

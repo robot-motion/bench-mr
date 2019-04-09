@@ -45,11 +45,18 @@ struct PathEvaluation {
     } else {
       stats.path_found = true;
       auto solution = PlannerUtils::interpolated(path);
-      stats.exact_goal_path =
-          Point(solution.getStates().back())
-              .distance(global::settings.environment->goal()) <=
-          global::settings.exact_goal_radius;
-      stats.path_collides = !planner->isValid(solution);
+
+      // assume if SBPL has found a solution, it does not collide and is exact
+      if (planner->name().rfind("SBPL", 0) == 0) {
+        stats.path_collides = false;
+        stats.exact_goal_path = true;
+      } else {
+        stats.path_collides = !planner->isValid(solution);
+        stats.exact_goal_path =
+            Point(solution.getStates().back())
+                .distance(global::settings.environment->goal()) <=
+            global::settings.exact_goal_radius;
+      }
       stats.path_length = solution.length();
       stats.curvature = CurvatureMetric::evaluate(solution);
       stats.smoothness = solution.smoothness();

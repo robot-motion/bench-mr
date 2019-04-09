@@ -32,6 +32,13 @@ def main(**kwargs):
     plot_planner_stats(**kwargs)
 
 
+# each violin has to have at least 2 entries
+def ensure_valid_violin(arr):
+    if not arr or len(arr) == 1:
+        return [float('nan'), float('nan')]
+    return arr
+
+
 def plot_planner_stats(json_file: str,
                        run_id: str = 'all',
                        plot_violins=True,
@@ -126,7 +133,7 @@ def plot_planner_stats(json_file: str,
             plt.gca().set_axisbelow(True)
 
             if plot_violins:
-                violins = [stats[planner] or [] for planner in planners]
+                violins = [ensure_valid_violin(stats[planner]) for planner in planners]
                 try:
                     vs = plt.violinplot(violins, ticks, points=50, widths=0.8,
                                         showmeans=True, showextrema=False, showmedians=True)
@@ -322,8 +329,11 @@ def plot_smoother_stats(json_file: str,
             plt.grid()
             plt.gca().set_axisbelow(True)
 
+            bar_names = list(stats.keys())
+            ticks = np.arange(len(bar_names)) + 0.5
+
             if plot_violins:
-                violins = [stats[bar_name] or [] for bar_name in bar_names if bar_name in stats]
+                violins = [ensure_valid_violin(stats[bar_name]) for bar_name in bar_names]
                 try:
                     vs = plt.violinplot(violins, ticks, points=50, widths=0.8,
                                         showmeans=True, showextrema=False, showmedians=True)
