@@ -2,7 +2,7 @@
   "settings": {
     "auto_choose_distance_computation_method": true,
     "benchmark": {
-      "log_file": "corridor_radius_5.log",
+      "log_file": "corridor_radius_5",
       "moving_ai": {
         "active": false,
         "end": -1,
@@ -41,7 +41,11 @@
         "ompl_simplify_max": true
       },
       "steer_functions": [
-        0
+        0,
+        1,
+        2,
+        6,
+        7
       ]
     },
     "cusp_angle_threshold": 1.0471975511965976,

@@ -7,7 +7,7 @@ from plot_env import plot_env, plot_env_options
 from plot_trajectory import plot_trajectory, plot_nodes, plot_trajectory_options
 from color import get_color, get_colors, color_options
 
-from utils import add_options, group, parse_run_ids, parse_planners, parse_smoothers, show_legend
+from utils import add_options, group, parse_run_ids, parse_planners, parse_smoothers, show_legend, convert_planner_name
 
 
 @group.command()
@@ -57,6 +57,7 @@ def visualize(json_file: str, run_id: str = 'all',
               custom_max_x: float = None,
               custom_max_y: float = None,
               silence=False,
+              show_legend_once=True,
               dpi: int = 200, **kwargs):
     kwargs.update(locals())
     if not silence:
@@ -98,6 +99,7 @@ def visualize(json_file: str, run_id: str = 'all',
         for j, (planner, plan) in enumerate(run["plans"].items()):
             if planner.lower() in ignore_planners:
                 continue
+            planner = convert_planner_name(planner)
             if not show_only_smoother:
                 plot_labels.append(planner)
             if show_smoother and "smoothing" in plan and plan["smoothing"] is not None:
@@ -109,6 +111,7 @@ def visualize(json_file: str, run_id: str = 'all',
     colors = get_colors(len(plot_labels), **kwargs)
 
     plot_counter = 1
+    legend_shown = False
     for i in run_ids:
         color_counter = 0
         run = data["runs"][i]
@@ -139,7 +142,8 @@ def visualize(json_file: str, run_id: str = 'all',
                     collection = PatchCollection(circles, alpha=0.5, color=colors[color_counter])
                     plt.gca().add_collection(collection)
 
-                plot_trajectory(plan["trajectory"], planner, settings, color=colors[color_counter], **kwargs)
+                plot_trajectory(plan["trajectory"], planner, settings, color=colors[color_counter], add_label=False,
+                                **kwargs)
                 if draw_nodes:
                     plot_nodes(plan["path"], planner, settings, color=colors[color_counter], **kwargs)
                 color_counter += 1
@@ -149,7 +153,7 @@ def visualize(json_file: str, run_id: str = 'all',
                     if smoothing["name"] in ignore_smoothers:
                         continue
                     plot_trajectory(smoothing["trajectory"], "%s (%s)" % (planner, smoothing['name']), settings,
-                                    color=colors[color_counter], **kwargs)
+                                    color=colors[color_counter], add_label=False, **kwargs)
                     if draw_cusps:
                         circles = []
                         for cusp in smoothing["stats"]["cusps"]:
@@ -174,8 +178,12 @@ def visualize(json_file: str, run_id: str = 'all',
             plt.gca().set_xlim([0, env["width"]])
             plt.gca().set_ylim([0, env["height"]])
 
-        if not combine_views or plot_counter % axes_h == axes_h-1:
-            show_legend(**kwargs)
+        if not combine_views or plot_counter % axes_h == axes_h - 1:
+            for label, color in zip(plot_labels, colors):
+                plt.plot([], [], color=color, label=label)
+            if not show_legend_once or not legend_shown:
+                show_legend(**kwargs)
+            legend_shown = True
 
         if not combine_views and save_file is not None:
             ext = save_file.rindex('.')

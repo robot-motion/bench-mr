@@ -106,9 +106,9 @@ GridMaze *GridMaze::createRandomCorridor(unsigned int width,
   std::vector<Vector3> nodes{Vector3{width / 2., height / 2., 0.}};
   for (int k = 0; k < branches; ++k) {
     const int x = borderSize + (int)radius +
-                  rand() % (width - (int)radius - 2 * borderSize - 1);
+                  rand() % (width - (int)radius * 2 - 2 * borderSize - 1);
     const int y = borderSize + (int)radius +
-                  rand() % (height - (int)radius - 2 * borderSize - 1);
+                  rand() % (height - (int)radius * 2 - 2 * borderSize - 1);
 
     // find closest vertex
     double minDistance = std::numeric_limits<double>::max();

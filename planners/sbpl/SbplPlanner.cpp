@@ -2,7 +2,8 @@
 #include <utils/PlannerUtils.hpp>
 #include <utils/Stopwatch.hpp>
 
-SbplPlanner::SbplPlanner()
+template <sbpl::Planner PlannerT>
+SbplPlanner<PlannerT>::SbplPlanner()
     : _solution(og::PathGeometric(global::settings.ompl.space_info)) {
   _env = new EnvironmentNAVXYTHETALAT;
 
@@ -12,7 +13,6 @@ SbplPlanner::SbplPlanner()
   if (global::settings.env.collision.collision_model == robot::ROBOT_POLYGON) {
     sbpl_2Dpt_t shape_point;
     Polygon robot = global::settings.env.collision.robot_shape.value();
-    robot.scale(global::settings.sbpl.scaling);
     for (auto &point : robot.points) {
       shape_point.x = point.x;
       shape_point.y = point.y;
@@ -20,16 +20,18 @@ SbplPlanner::SbplPlanner()
     }
   }
 
-  OMPL_DEBUG("Constructing SBPL Planner");
+  OMPL_DEBUG("Constructing %s Planner", name().c_str());
 
   std::cout << "Motion primitive filename: "
             << global::settings.sbpl.motion_primitive_filename << std::endl;
 
+  const auto cells_x = static_cast<int>(global::settings.environment->width() *
+                                        global::settings.sbpl.scaling);
+  const auto cells_y = static_cast<int>(global::settings.environment->height() *
+                                        global::settings.sbpl.scaling);
+
   _env->InitializeEnv(
-      static_cast<int>(global::settings.environment->width() *
-                       global::settings.sbpl.scaling),
-      static_cast<int>(global::settings.environment->height() *
-                       global::settings.sbpl.scaling),
+      cells_x, cells_y,
       nullptr,  // mapdata
       0, 0, 0,  // start (x, y, theta, t)
       0, 0, 0,  // goal (x, y, theta)
@@ -63,9 +65,12 @@ SbplPlanner::SbplPlanner()
     throw SBPL_Exception("ERROR: InitializeMDPCfg failed");
   }
 
-  switch (global::settings.sbpl.planner.value()) {
+  switch (PlannerT) {
     case sbpl::SBPL_ARASTAR:
       _sbPlanner = new ARAPlanner(_env, ForwardSearch);
+      break;
+    case sbpl::SBPL_LAZY_ARA:
+      _sbPlanner = new LazyARAPlanner(_env, ForwardSearch);
       break;
     case sbpl::SBPL_ADSTAR:
       _sbPlanner = new ADPlanner(_env, ForwardSearch);
@@ -76,60 +81,31 @@ SbplPlanner::SbplPlanner()
     case sbpl::SBPL_ANASTAR:
       _sbPlanner = new anaPlanner(_env, ForwardSearch);
       break;
+    case sbpl::SBPL_MHA:
+      _heuristic = new EmbeddedHeuristic(_env);
+      _sbPlanner = new MHAPlanner(_env, _heuristic, nullptr, 0);
+      break;
+    default:
+      throw SBPL_Exception("ERROR: This SBPL planner is not supported.");
   }
 
-  OMPL_DEBUG("Initialized SBPL Planner");
+  OMPL_DEBUG("Initialized %s Planner", name().c_str());
 
   int startTheta = 0, goalTheta = 0;
-  if (global::settings.estimate_theta) {
-    // handle weird behavior when start and goal nodes appear on different sides
-    // as usual
-    // TODO verify
-    //    if (global::settings.environment->start().x <
-    //    global::settings.environment->goal().x) {
-    //      startTheta =
-    //          static_cast<int>(std::round((global::settings.environment->startTheta())
-    //          /
-    //                                      M_PI *
-    //                                      global::settings.sbpl.num_theta_dirs))
-    //                                      %
-    //          global::settings.sbpl.num_theta_dirs;
-    //      goalTheta =
-    //          static_cast<int>(std::round((global::settings.environment->goalTheta())
-    //          /
-    //                                      M_PI *
-    //                                      global::settings.sbpl.num_theta_dirs))
-    //                                      %
-    //          global::settings.sbpl.num_theta_dirs;
-    //    } else {
-    startTheta = static_cast<int>(std::round(
-                     (global::settings.environment->startTheta() + M_PI / 2) /
-                     M_PI * global::settings.sbpl.num_theta_dirs)) %
-                 global::settings.sbpl.num_theta_dirs;
-    goalTheta = static_cast<int>(std::round(
-                    (global::settings.environment->goalTheta() + M_PI / 2) /
-                    M_PI * global::settings.sbpl.num_theta_dirs)) %
-                global::settings.sbpl.num_theta_dirs;
-    //    }
+  double fraction = global::settings.sbpl.num_theta_dirs / (2. * M_PI);
+  startTheta = static_cast<int>(std::round(
+                   global::settings.environment->startTheta() * fraction)) %
+               global::settings.sbpl.num_theta_dirs;
+  goalTheta = static_cast<int>(std::round(
+                  (global::settings.environment->goalTheta()) * fraction)) %
+              global::settings.sbpl.num_theta_dirs;
 
-    std::cout << "startTheta: "
-              << (global::settings.environment->startTheta() * 180. / M_PI)
-              << " deg   " << startTheta << std::endl;
-    std::cout << "goalTheta: "
-              << (global::settings.environment->goalTheta() * 180. / M_PI)
-              << " deg   " << goalTheta << std::endl;
-
-//#if DEBUG
-#if QT_SUPPORT
-    QtVisualizer::drawNode(global::settings.environment->start().x,
-                           global::settings.environment->start().y,
-                           orientations.first);
-    QtVisualizer::drawNode(global::settings.environment->goal().x,
-                           global::settings.environment->goal().y,
-                           orientations.second);
-#endif
-    //#endif
-  }
+  std::cout << "SBPL startTheta: "
+            << (global::settings.environment->startTheta() * 180. / M_PI)
+            << " deg   " << startTheta << std::endl;
+  std::cout << "SBPL goalTheta: "
+            << (global::settings.environment->goalTheta() * 180. / M_PI)
+            << " deg   " << goalTheta << std::endl;
 
   _sbPlanner->set_search_mode(
       global::settings.sbpl.search_until_first_solution);
@@ -150,21 +126,23 @@ SbplPlanner::SbplPlanner()
       goalTheta));
 }
 
-SbplPlanner::~SbplPlanner() {
+template <sbpl::Planner PlannerT>
+SbplPlanner<PlannerT>::~SbplPlanner() {
   delete _sbPlanner;
   delete _env;
+  delete _heuristic;
 }
 
-ob::PlannerStatus SbplPlanner::run() {
+template <sbpl::Planner PlannerT>
+ob::PlannerStatus SbplPlanner<PlannerT>::run() {
   _solution.clear();
   std::vector<int> stateIDs;
   Stopwatch stopwatch;
   _sbPlanner->force_planning_from_scratch_and_free_memory();
   stopwatch.start();
-  OMPL_DEBUG("Replanning");
   if (dynamic_cast<ARAPlanner *>(_sbPlanner) != nullptr) {
-    ((ARAPlanner *)_sbPlanner)
-        ->costs_changed();  // use by ARA* planner (non-incremental)
+    // used by ARA* planner (non-incremental)
+    ((ARAPlanner *)_sbPlanner)->costs_changed();
   }
   //    else if (dynamic_cast<ADPlanner*> (_sbPlanner) != NULL) {
   //        // get the affected states
@@ -176,14 +154,13 @@ ob::PlannerStatus SbplPlanner::run() {
   //        printf("%d states were affected\n",
   //        (int)preds_of_changededgesIDV.size());
   //    }
-  OMPL_DEBUG("Notified of changes");
   //    _sbPlanner->InitializeSearchStateSpace();
   int result =
       _sbPlanner->replan(global::settings.max_planning_time, &stateIDs);
-  OMPL_DEBUG("SBPL finished.");
+  OMPL_DEBUG("%s finished.", name().c_str());
   _planningTime = stopwatch.stop();
   if (result) {
-    OMPL_INFORM("SBPL found a solution!");
+    OMPL_INFORM("%s found a solution!", name().c_str());
     std::vector<sbpl_xy_theta_pt_t> xythetaPath;
     _env->ConvertStateIDPathintoXYThetaPath(&stateIDs, &xythetaPath);
     for (auto &xyt : xythetaPath) {
@@ -196,14 +173,18 @@ ob::PlannerStatus SbplPlanner::run() {
                              xyt.theta));
     }
   } else {
-    OMPL_WARN("SBPL found no solution.");
+    OMPL_WARN("%s found no solution.", name().c_str());
   }
   return {result == 1, false};
 }
 
-og::PathGeometric SbplPlanner::solution() const { return _solution; }
+template <sbpl::Planner PlannerT>
+og::PathGeometric SbplPlanner<PlannerT>::solution() const {
+  return _solution;
+}
 
-bool SbplPlanner::hasReachedGoalExactly() const {
+template <sbpl::Planner PlannerT>
+bool SbplPlanner<PlannerT>::hasReachedGoalExactly() const {
   if (_solution.getStateCount() == 0) return false;
   const auto *last =
       _solution
@@ -213,4 +194,15 @@ bool SbplPlanner::hasReachedGoalExactly() const {
          last->getY() == global::settings.environment->goal().y;
 }
 
-double SbplPlanner::planningTime() const { return _planningTime; }
+template <sbpl::Planner PlannerT>
+double SbplPlanner<PlannerT>::planningTime() const {
+  return _planningTime;
+}
+
+// template specializations
+template class SbplPlanner<sbpl::SBPL_ADSTAR>;
+template class SbplPlanner<sbpl::SBPL_ARASTAR>;
+template class SbplPlanner<sbpl::SBPL_RSTAR>;
+template class SbplPlanner<sbpl::SBPL_ANASTAR>;
+template class SbplPlanner<sbpl::SBPL_MHA>;
+template class SbplPlanner<sbpl::SBPL_LAZY_ARA>;
