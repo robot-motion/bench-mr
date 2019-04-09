@@ -8,7 +8,7 @@ Benchmarking motion planners for wheeled mobile robots in cluttered environments
 * [OMPL](https://github.com/ompl/ompl) - included as submodule, needs to be installed first
 * [Jupyter Lab](https://github.com/jupyterlab/jupyterlab) with [Python 3 kernel](https://ipython.readthedocs.io/en/latest/install/kernel_install.html#kernels-for-python-2-and-3) and [ipywidgets extension](https://ipywidgets.readthedocs.io/en/stable/user_install.html#installing-the-jupyterlab-extension) for plotting and evaluation (see `Benchmark.ipynb`)
 
-# Using Docker
+## Using Docker
 
 1. Build the Docker image
     ```bash
@@ -31,7 +31,7 @@ Benchmarking motion planners for wheeled mobile robots in cluttered environments
    ```
    Alternatively, run the provided script `./docker_connect.sh` that executes this command.
 
-# Getting started
+## Getting started
 
 1.  Check out the submodules
     ```bash
