@@ -21,7 +21,7 @@ Benchmarking motion planners for wheeled mobile robots in cluttered environments
     ```
    Optionally, you can mount your local `mpb` copy to it respective folder inside the docker via
    ```bash
-   docker run -v .:/root/code/mpb -it mpb
+   docker run -v $(pwd):/root/code/mpb -it mpb
    ```
    Now you can edit files from outside the docker and use docker to build and run the experiments.
 
