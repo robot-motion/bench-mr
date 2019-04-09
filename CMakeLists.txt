@@ -85,41 +85,49 @@ else (Qt5_FOUND)
     set(EXTRA_SRC ${EXTRA_SRC})
 endif (Qt5_FOUND)
 
-#file(GLOB_RECURSE CHOMP_SRC chomp/*)
-set(ALL_SRC ${Base} ${Utils} ${Steer} ${Metrics} ${Planners} ${Smoothers} ${EXTRA_SRC})
+add_library(mpb_core ${Base} ${Utils} ${Metrics} ${EXTRA_SRC})
+target_link_libraries(mpb_core ${EXTRA_LIB})
 
-link_directories(base/)
-link_directories(steer_functions/)
+add_library(mpb_steering ${Steer})
+target_link_libraries(mpb_steering mpb_core ${EXTRA_LIB})
 
-add_executable(benchmark experiments/benchmark.cpp ${ALL_SRC})
+add_library(mpb_planners ${Planners})
+target_link_libraries(mpb_planners mpb_core ${EXTRA_LIB})
+
+add_library(mpb_smoothers ${Smoothers})
+target_link_libraries(mpb_smoothers mpb_core ${EXTRA_LIB})
+
+set(EXTRA_LIB ${EXTRA_LIB} mpb_core mpb_steering mpb_planners mpb_smoothers)
+
+add_executable(benchmark experiments/benchmark.cpp)
 target_link_libraries(benchmark ${EXTRA_LIB})
 
-add_executable(benchmark_corridors experiments/benchmark_corridors.cpp ${ALL_SRC})
+add_executable(benchmark_corridors experiments/benchmark_corridors.cpp)
 target_link_libraries(benchmark_corridors ${EXTRA_LIB})
 
-add_executable(parking experiments/parking.cpp ${ALL_SRC})
+add_executable(parking experiments/parking.cpp)
 target_link_libraries(parking ${EXTRA_LIB})
 
-add_executable(smoothing experiments/smoothing.cpp ${ALL_SRC})
+add_executable(smoothing experiments/smoothing.cpp)
 target_link_libraries(smoothing ${EXTRA_LIB})
 
-add_executable(movingAi experiments/movingai_cities_scenarios.cpp ${ALL_SRC})
+add_executable(movingAi experiments/movingai_cities_scenarios.cpp)
 target_link_libraries(movingAi ${EXTRA_LIB})
 
-add_executable(compute_distances experiments/compute_distances.cpp ${ALL_SRC})
+add_executable(compute_distances experiments/compute_distances.cpp)
 target_link_libraries(compute_distances ${EXTRA_LIB})
 
-add_executable(posq_testing experiments/posq_testing.cpp ${ALL_SRC})
+add_executable(posq_testing experiments/posq_testing.cpp)
 target_link_libraries(posq_testing ${EXTRA_LIB})
 
-add_executable(show_polygon_mazes experiments/show_polygon_mazes.cpp ${ALL_SRC})
+add_executable(show_polygon_mazes experiments/show_polygon_mazes.cpp)
 target_link_libraries(show_polygon_mazes ${EXTRA_LIB})
 
-add_executable(generate_corridor_radii_benchmarks experiments/generate_corridor_radii_benchmarks.cpp ${ALL_SRC})
+add_executable(generate_corridor_radii_benchmarks experiments/generate_corridor_radii_benchmarks.cpp)
 target_link_libraries(generate_corridor_radii_benchmarks ${EXTRA_LIB})
 
-add_executable(generate_obstacle_ratio_benchmarks experiments/generate_obstacle_ratio_benchmarks.cpp ${ALL_SRC})
+add_executable(generate_obstacle_ratio_benchmarks experiments/generate_obstacle_ratio_benchmarks.cpp)
 target_link_libraries(generate_obstacle_ratio_benchmarks ${EXTRA_LIB})
 
-add_executable(generate_turning_radii_benchmarks experiments/generate_turning_radii_benchmarks.cpp ${ALL_SRC})
+add_executable(generate_turning_radii_benchmarks experiments/generate_turning_radii_benchmarks.cpp)
 target_link_libraries(generate_turning_radii_benchmarks ${EXTRA_LIB})
