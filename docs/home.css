@@ -16,7 +16,7 @@
 
 #submit_button {
 	margin-left: 30%;
-	margin-top: 10%;
+	margin-top: 5%;
 }
 
 .table thead th {
@@ -44,7 +44,8 @@
 }
 
 #plots_area {
-	margin-left: 20%;
+	margin-left: 2%;
+	margin-top: 5%;
 }
 
 

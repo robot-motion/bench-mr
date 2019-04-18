@@ -8,232 +8,29 @@
 		<link rel="stylesheet" type="text/css" href="home.css">
 		
 		<script>
-			var myData;
-			var planner_count = 0;
-			var filled = false;
-
-			function loadJSON(callback) {   
-				var xmlr = new XMLHttpRequest();
-					xmlr.overrideMimeType("application/json");
-				xmlr.open('GET', 'avg.json', true); // Replace 'avg' with the path to your file
-				xmlr.onreadystatechange = function () {
-					if (xmlr.readyState == 4 && xmlr.status == "200") {
-						// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
-						callback(xmlr.responseText);
-					}
-				};
-				xmlr.send(null);  
-			}
-
-			function getData() {
-				loadJSON(function(response) {
-					planner_count = 0;
-					// Parse JSON string into object
-					myData = JSON.parse(response);
-				});
-			}
-
-			function fillTable(planners_chosen){
-				
-				if(filled){
-					empty_table();
-				}
-
-				document.getElementById("home_message").style.display = "none";
-				document.getElementById("data_table_area").style.display = "block";
-
-				//add head and body
-				var table = document.getElementById("data_table");
-				// var table_head = document.getElementById("data_table_head");
-				// var table_body = document.getElementById("data_table_body");
-				var table_head = document.createElement("thead");
-				var table_body = document.createElement("tbody");
-
-				for(var planner in myData){
-					planner_count++;
-				}
-
-				// add title
-				var title = document.createElement("tr");
-				var att_title = document.createElement("td");
-				att_title.appendChild(document.createTextNode("Attribute"));
-				title.appendChild(att_title);
-
-				for(var planner in myData){
-					if(planners_chosen.includes(planner)){
-						var title_td = document.createElement("td");
-						title_td.appendChild(document.createTextNode(planner));
-						title.appendChild(title_td);
-					}
-				}
-				
-				//add curvature
-				var curv = document.createElement("tr");
-				var att_curv = document.createElement("td")
-				att_curv.appendChild(document.createTextNode("Curvature"));
-				curv.appendChild(att_curv);
-
-				for(var planner in myData){
-					if(planners_chosen.includes(planner)){
-						var curv_data = document.createElement("td");
-						var temp = myData[planner]["curvature"];
-						if(temp == "null"){
-							temp = "N/A";
-						}
-						curv_data.appendChild(document.createTextNode(temp));
-						curv.appendChild(curv_data);
-					}
-				}
-
-				//add path length
-				var pl = document.createElement("tr");
-				var att_pl = document.createElement("td");
-				att_pl.appendChild(document.createTextNode("Path_Length"));
-				pl.appendChild(att_pl);
-
-				for(var planner in myData){
-					if(planners_chosen.includes(planner)){
-						var pl_data = document.createElement("td");
-						var temp = myData[planner]["path_length"];
-						if(temp == "null"){
-							temp = "N/A";
-						}
-						pl_data.appendChild(document.createTextNode(temp));
-						pl.appendChild(pl_data);
-					}
-				}
-
-				//add smoothness
-				var smth = document.createElement("tr");
-				var att_smth = document.createElement("td");
-				att_smth.appendChild(document.createTextNode("Smoothness"));
-				smth.appendChild(att_smth);
-
-				for(var planner in myData){
-					if(planners_chosen.includes(planner)){
-						var smth_data = document.createElement("td");
-						var temp = myData[planner]["smoothness"];
-						if(temp == "null"){
-							temp = "N/A";
-						}
-						smth_data.appendChild(document.createTextNode(temp));
-						smth.appendChild(smth_data);
-					}
-				}
-
-				//add planning time
-				var pt = document.createElement("tr");
-				var att_pt = document.createElement("td");
-				att_pt.appendChild(document.createTextNode("Planning_Time"));
-				pt.appendChild(att_pt);
-
-				for(var planner in myData){
-					if(planners_chosen.includes(planner)){
-						var pt_data = document.createElement("td");
-						var temp = myData[planner]["planning_time"];
-						if(temp == "null"){
-							temp = "N/A";
-						}
-						pt_data.appendChild(document.createTextNode(temp));
-						pt.appendChild(pt_data);
-					}
-				}
-
-				table_head.appendChild(title);
-				table_body.appendChild(curv);
-				table_body.appendChild(pl);
-				table_body.appendChild(smth);
-				table_body.appendChild(pt);
-
-				table.appendChild(table_head);
-				table.appendChild(table_body);
-
-
-				filled = true;
-			}
-
-			function empty_table(){
-				var parent = document.getElementById("data_table");
-				while(parent.hasChildNodes()){
-					parent.removeChild(parent.firstChild);
-				}
-			}
-
 			function show_graph(selected_graph){
 				document.getElementById("plots_area").innerHTML = "";
 				if(selected_graph != "None"){
-					document.getElementById("plots_area").innerHTML = "<img src='" + selected_graph + ".png" + "'>";
+					document.getElementById("plots_area").innerHTML = "<img src='" + selected_graph + ".png" + "' style='width: 100%; height: 110%'>";
 				}
 			}
 
 			function get_result(){
-				var planners_chosen = [];
-				if(document.getElementById("check_0").checked){
-					planners_chosen.push("BFMT");
-				}
-				if(document.getElementById("check_1").checked){
-					planners_chosen.push("CForest");
-				}
-				if(document.getElementById("check_2").checked){
-					planners_chosen.push("EST");
-				}
-				if(document.getElementById("check_3").checked){
-					planners_chosen.push("FMT");
-				}
-				if(document.getElementById("check_4").checked){
-					planners_chosen.push("InformedRRTstar");
-				}
-				if(document.getElementById("check_5").checked){
-					planners_chosen.push("KPIECE1");
-				}
-				if(document.getElementById("check_6").checked){
-					planners_chosen.push("PRMstar");
-				}
-				if(document.getElementById("check_7").checked){
-					planners_chosen.push("RRT");
-				}
-				if(document.getElementById("check_8").checked){
-					planners_chosen.push("RRT#");
-				}
-				if(document.getElementById("check_9").checked){
-					planners_chosen.push("RRTstar");
-				}
-				if(document.getElementById("check_10").checked){
-					planners_chosen.push("SBL");
-				}
-				if(document.getElementById("check_11").checked){
-					planners_chosen.push("SORRTstar");
-				}
-				if(document.getElementById("check_12").checked){
-					planners_chosen.push("SST");
-				}
-				if(document.getElementById("check_13").checked){
-					planners_chosen.push("STRIDE");
-				}
-				if(document.getElementById("check_14").checked){
-					planners_chosen.push("Theta*");
-				}
-				if(document.getElementById("check_15").checked){
-					planners_chosen.push("kBITstar");
-				}
-
-
-
-				fillTable(planners_chosen);
-
-				var selection = document.getElementById("plots_select");
+				document.getElementById("home_message").style.display = "none";
+				var selection = document.getElementById("scenario_select");
 				var selected_graph = selection.options[selection.selectedIndex].text;
+				selected_graph = "violin_plots/planner_stats_" + selected_graph;
 				show_graph(selected_graph);
 			}
 
 		</script>
 	</head>
 	
-	<body onload="getData()">
+	<body>
 		
 		<!-- header -->
 		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-		  	<a class="navbar-brand" href="home.html">MPB</a>
+		  	<a class="navbar-brand" href="index.html">MPB</a>
 		  	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 		    	<span class="navbar-toggler-icon"></span>
 		  	</button>
@@ -241,30 +38,16 @@
 		  	<div class="collapse navbar-collapse" id="navbarSupportedContent">
 		    	<ul class="navbar-nav mr-auto">
 		      		<li class="nav-item active">
-		        		<a class="nav-link" href="home.html">Home <span class="sr-only">(current)</span></a>
+		        		<a class="nav-link" href="index.html">Overview <span class="sr-only">(current)</span></a>
 		      		</li>
 		      		<li class="nav-item">
-		      			<a class="nav-link" href="#">Other Things</a>
-		      		</li>
-		      		<!-- <li class="nav-item dropdown">
-		        		<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-		          		Dropdown
-		        		</a>
-		        		<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-		          			<a class="dropdown-item" href="#">Action</a>
-		         			<a class="dropdown-item" href="#">Another action</a>
-		         	 		<div class="dropdown-divider"></div>
-		         	 		<a class="dropdown-item" href="#">Something else here</a>
-		       	 		</div>
-		      		</li>
-		     		<li class="nav-item">
-		      	  		<a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-		      		</li> -->
+		      			<a class="nav-link" href="planners.html">Planners</a>
+					</li>
+					  
+					<li class="nav-item">
+						<a class="nav-link" href="smoothers.html">Smoothers</a>
+					</li>
 		    	</ul>
-		    	<!-- <form class="form-inline my-2 my-lg-0">
-		     	 	<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-		     	 	<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-		   		</form> -->
 		  	</div>
 		</nav>
 		
@@ -276,147 +59,24 @@
 						<!-- select form -->
 						<form>
 						  	<div class="form-group">
-						    	<label for="exampleFormControlSelect1">Configuration</label>
-						    	<select class="form-control" id="config_select">
-									<option value="1">Parking_1</option>
-									<option value="2">Parking_2</option>
-									<option value="3">Parking_3</option>
-									<option value="4">MovingAi_1</option>
-									<option value="5">MovingAi_2</option>
+						    	<label for="exampleFormControlSelect1">Scenarios</label>
+						    	<select class="form-control" id="scenario_select">
+									<option value="1">grid_corridor_50_wide</option>
+									<option value="2">grid_corridor_50</option>
+									<option value="3">grid_corridor_100_0.1</option>
+									<option value="4">movingai_berlin_256</option>
+									<option value="5">movingai_denver_256</option>
+									<option value="6">parking1</option>
+									<option value="7">parking2</option>
+									<option value="8">parking3</option>
+									<option value="9">turning_radius2.000000</option>
+									<option value="10">turning_radius3.000000</option>
+									<option value="11">turning_radius4.000000</option>
+									<option value="12">turning_radius5.000000</option>
+									<option value="13">turning_radius6.000000</option>
+									<option value="14">warehouse</option>
 						    	</select>
-						  	</div>
-						  	<div class="form-group">
-						    	<label for="exampleFormControlSelect1">Plots</label>
-						    	<select class="form-control" id="plots_select">
-									<option value="1">None</option>
-									<option value="2">parking1</option>
-									<option value="3">parking2</option>
-									<option value="4">parking3</option>
-						    	</select>
-						  	</div>
-						  	<div class="form-group">
-						    	<label for="exampleFormControlSelect1">Example select</label>
-						    	<select class="form-control" id="exampleFormControlSelect1">
-									<option>1</option>
-									<option>2</option>
-									<option>3</option>
-									<option>4</option>
-									<option>5</option>
-						    	</select>
-						  	</div>
-						  	
-						  	<div class="form-check">
-  								<input class="form-check-input" type="checkbox" value="" id="check_0">
-  								<label class="form-check-label" for="check_0">
-    								BFMT
-  								</label>
-  								
-  								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_1">
-  								<label class="form-check-label" for="check_1">
-    								CForest
-  								</label>
-  								
-  								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_2">
-  								<label class="form-check-label" for="check_2">
-    								EST
-  								</label>
-  								
-  								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_3">
-  								<label class="form-check-label" for="check_3">
-    								FMT
-  								</label>
-  								
-  								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_4">
-  								<label class="form-check-label" for="check_4">
-    								InformedRRTstar
-  								</label>
-  								
-  								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_5">
-  								<label class="form-check-label" for="check_5">
-    								KPIECE1
-								</label>
-
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_6">
-  								<label class="form-check-label" for="check_6">
-    								PRMstar
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_7">
-  								<label class="form-check-label" for="check_7">
-    								RRT
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_8">
-  								<label class="form-check-label" for="check_8">
-    								RRT#
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_9">
-  								<label class="form-check-label" for="check_9">
-    								RRTstar
-  								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_10">
-  								<label class="form-check-label" for="check_10">
-    								SBL
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_11">
-  								<label class="form-check-label" for="check_11">
-    								SORRTstar
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_12">
-  								<label class="form-check-label" for="check_12">
-    								SST
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_13">
-  								<label class="form-check-label" for="check_13">
-    								STRIDE
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_14">
-  								<label class="form-check-label" for="check_14">
-    								Theta*
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_15">
-  								<label class="form-check-label" for="check_15">
-    								kBITstar
-  								</label>
-							</div>
-							
+						  	</div>							
 							<button type="button" onclick="get_result()" class="btn btn-primary" id="submit_button">Get Result</button>				
 						</form>
 					</div>
@@ -431,15 +91,9 @@
 						</div>
 					</div>
 
-					<!-- table to display data -->
-					<div class="col" id="data_table_area">
-						<table class="table table-bordered" id="data_table">
-						</table>
+					<!-- images -->
+					<div class="col" id="plots_area">
 					</div>
-				</div>
-
-				<!-- images -->
-				<div class="row" id="plots_area">
 				</div>
 			</div>
 		</div>
