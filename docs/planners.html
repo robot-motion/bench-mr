@@ -12,10 +12,13 @@
 			var planner_count = 0;
 			var filled = false;
 
-			function loadJSON(callback) {   
+			function loadJSON(callback, scenarioName) {  
+                console.log('In loadJSON: ' + scenarioName); 
 				var xmlr = new XMLHttpRequest();
-					xmlr.overrideMimeType("application/json");
-				xmlr.open('GET', 'avg.json', true); // Replace 'avg' with the path to your file
+                    xmlr.overrideMimeType("application/json");
+                var fPath = 'avg_results/avg_result_' + scenarioName + '.json';
+
+				xmlr.open('GET', fPath, true); // Replace fPath with the path to your file
 				xmlr.onreadystatechange = function () {
 					if (xmlr.readyState == 4 && xmlr.status == "200") {
 						// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
@@ -25,12 +28,17 @@
 				xmlr.send(null);  
 			}
 
-			function getData() {
+			function getData(scenarioName) {
+
+                console.log('In getData: ' + scenarioName);
+
 				loadJSON(function(response) {
 					planner_count = 0;
 					// Parse JSON string into object
 					myData = JSON.parse(response);
-				});
+                }, scenarioName);
+                
+                console.log('Finished loading: ' + myData);
 			}
 
 			function fillTable(planners_chosen){
@@ -38,7 +46,8 @@
 				if(filled){
 					empty_table();
 				}
-
+                console.log(planners_chosen);
+                 console.log(myData);
 				document.getElementById("home_message").style.display = "none";
 				document.getElementById("data_table_area").style.display = "block";
 
@@ -167,6 +176,10 @@
 			}
 
 			function get_result(){
+                var scenario_selection = document.getElementById("scenario_select");
+				var selected_scenario_text = scenario_selection.options[scenario_selection.selectedIndex].text;
+                getData(selected_scenario_text);
+                
 				var planners_chosen = [];
 				if(document.getElementById("check_0").checked){
 					planners_chosen.push("BFMT");
@@ -221,15 +234,15 @@
 
 				fillTable(planners_chosen);
 
-				var selection = document.getElementById("plots_select");
-				var selected_graph = selection.options[selection.selectedIndex].text;
-				show_graph(selected_graph);
+				// var selection = document.getElementById("plots_select");
+				// var selected_graph = selection.options[selection.selectedIndex].text;
+				// show_graph(selected_graph);
 			}
 
 		</script>
 	</head>
-	
-	<body onload="getData()">
+    
+	<body onload="getData('grid_corridor_50_wide')">
 		
 		<!-- header -->
 		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -250,25 +263,7 @@
 					<li class="nav-item">
 						<a class="nav-link" href="smoothers.html">Smoothers</a>
 					</li>
-		      		<!-- <li class="nav-item dropdown">
-		        		<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-		          		Dropdown
-		        		</a>
-		        		<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-		          			<a class="dropdown-item" href="#">Action</a>
-		         			<a class="dropdown-item" href="#">Another action</a>
-		         	 		<div class="dropdown-divider"></div>
-		         	 		<a class="dropdown-item" href="#">Something else here</a>
-		       	 		</div>
-		      		</li>
-		     		<li class="nav-item">
-		      	  		<a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-		      		</li> -->
 		    	</ul>
-		    	<!-- <form class="form-inline my-2 my-lg-0">
-		     	 	<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-		     	 	<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-		   		</form> -->
 		  	</div>
 		</nav>
 		
@@ -280,32 +275,22 @@
 						<!-- select form -->
 						<form>
 						  	<div class="form-group">
-						    	<label for="exampleFormControlSelect1">Scenarios</label>
-						    	<select class="form-control" id="config_select">
-									<option value="1">Parking_1</option>
-									<option value="2">Parking_2</option>
-									<option value="3">Parking_3</option>
-									<option value="4">MovingAi_1</option>
-									<option value="5">MovingAi_2</option>
-						    	</select>
-						  	</div>
-						  	<div class="form-group">
-						    	<label for="exampleFormControlSelect1">Plots</label>
-						    	<select class="form-control" id="plots_select">
-									<option value="1">None</option>
-									<option value="2">parking1</option>
-									<option value="3">parking2</option>
-									<option value="4">parking3</option>
-						    	</select>
-						  	</div>
-						  	<div class="form-group">
-						    	<label for="exampleFormControlSelect1">Example select</label>
-						    	<select class="form-control" id="exampleFormControlSelect1">
-									<option>1</option>
-									<option>2</option>
-									<option>3</option>
-									<option>4</option>
-									<option>5</option>
+						    	<label for="scenario_select">Scenarios</label>
+						    	<select class="form-control" id="scenario_select">
+									<option value="1">grid_corridor_50_wide</option>
+									<option value="2">grid_corridor_50</option>
+									<option value="3">grid_corridor_100_0.1</option>
+									<option value="4">movingai_berlin_256</option>
+									<option value="5">movingai_denver_256</option>
+									<option value="6">parking1</option>
+									<option value="7">parking2</option>
+									<option value="8">parking3</option>
+									<option value="9">turning_radius2.000000</option>
+									<option value="10">turning_radius3.000000</option>
+									<option value="11">turning_radius4.000000</option>
+									<option value="12">turning_radius5.000000</option>
+									<option value="13">turning_radius6.000000</option>
+									<option value="14">warehouse</option>
 						    	</select>
 						  	</div>
 						  	
