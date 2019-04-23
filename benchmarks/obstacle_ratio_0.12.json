@@ -2,7 +2,7 @@
   "settings": {
     "auto_choose_distance_computation_method": true,
     "benchmark": {
-      "log_file": "corridor_radius_8",
+      "log_file": "corridor_radius_0.12",
       "moving_ai": {
         "active": false,
         "end": -1,
@@ -150,19 +150,19 @@
         "robot_shape_source": "polygon_mazes/car.svg"
       },
       "goal": {
-        "theta": 1.5707963267948966,
-        "x": 17.0,
-        "y": 87.0
+        "theta": 0.0,
+        "x": 91.0,
+        "y": 91.0
       },
       "grid": {
         "corridor": {
           "branches": 50,
-          "radius": 8.0
+          "radius": 5.0
         },
-        "generator": "corridor",
+        "generator": "random",
         "height": 100,
         "random": {
-          "obstacle_ratio": 0.1
+          "obstacle_ratio": 0.12
         },
         "seed": 1,
         "width": 100
@@ -172,9 +172,9 @@
         "source": "polygon_mazes/parking1.svg"
       },
       "start": {
-        "theta": 1.5707963267948968,
-        "x": 72.0,
-        "y": 9.0
+        "theta": 0.0,
+        "x": 4.0,
+        "y": 6.0
       },
       "type": "grid"
     },

@@ -24,7 +24,11 @@
         "rrt_sharp": true,
         "rrt_star": true,
         "sbl": false,
-        "sbpl": true,
+        "sbpl_adstar": true,
+        "sbpl_anastar": false,
+        "sbpl_arastar": true,
+        "sbpl_lazy_ara": false,
+        "sbpl_mha": true,
         "sorrt_star": true,
         "spars2": true,
         "sparse": true,
@@ -34,7 +38,7 @@
       },
       "runs": 5,
       "smoothing": {
-        "chomp": true,
+        "chomp": false,
         "grips": true,
         "ompl_bspline": true,
         "ompl_shortcut": true,
@@ -146,9 +150,9 @@
         "robot_shape_source": "polygon_mazes/car.svg"
       },
       "goal": {
-        "theta": -3.141592653589793,
-        "x": 14.0,
-        "y": 7.0
+        "theta": 0.0,
+        "x": 92.0,
+        "y": 93.0
       },
       "grid": {
         "corridor": {
@@ -168,9 +172,9 @@
         "source": "polygon_mazes/parking1.svg"
       },
       "start": {
-        "theta": -1.5707963267948966,
-        "x": 85.0,
-        "y": 94.0
+        "theta": 2.4492935982947064e-16,
+        "x": 5.0,
+        "y": 20.0
       },
       "type": "grid"
     },
@@ -192,16 +196,15 @@
       "state_equality_tolerance": 0.0001
     },
     "sbpl": {
-      "fordward_velocity": 0.4,
+      "fordward_velocity": 0.2,
       "goal_tolerance_theta": 6.283185307179586,
       "goal_tolerance_x": 1.0,
       "goal_tolerance_y": 1.0,
       "initial_solution_eps": 3.0,
       "motion_primitive_filename": "./sbpl_mprim/unicycle_0.25.mprim",
       "num_theta_dirs": 16,
-      "planner": 0,
       "resolution": 0.25,
-      "scaling": 5.0,
+      "scaling": 8.0,
       "search_until_first_solution": false,
       "time_to_turn_45_degs_in_place": 0.6
     },
