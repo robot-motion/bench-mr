@@ -9,6 +9,8 @@
 
 #include <params.hpp>
 
+#include "Primitives.h"
+
 using namespace params;
 
 struct PathStatistics : public Group {
