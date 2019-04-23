@@ -3,9 +3,9 @@
 #include <ctime>
 #include <iostream>
 #include <vector>
+#include <nlohmann/json.hpp>
 
 #include <utils/ScenarioLoader.h>
-#include <utils/json.hpp>
 
 #include "Environment.h"
 #include "PlannerSettings.h"

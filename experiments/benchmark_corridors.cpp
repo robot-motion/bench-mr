@@ -1,4 +1,5 @@
 #include "base/PlannerSettings.h"
+#include "base/GridMaze.h"
 
 #include "planners/OMPLPlanner.hpp"
 #include "planners/sbpl/SbplPlanner.h"

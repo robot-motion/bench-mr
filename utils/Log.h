@@ -1,10 +1,12 @@
+#pragma once
+
 #include <chrono>
+#include <nlohmann/json.hpp>
 
 #include <base/Primitives.h>
 
 #include "base/PathStatistics.hpp"
 
-#include "json.hpp"
 
 class Log {
  public:

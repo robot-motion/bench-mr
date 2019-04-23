@@ -269,8 +269,8 @@ struct Polygon {
    * Cast to the polygon format compatible with the `collision2d` library.
    */
   operator std::vector<Eigen::Matrix<double, 2, 1>>() const {
-    std::vector<Eigen::Matrix<double, 2, 1>> v(points.size());
-    v.assign(points.begin(), points.end());
+    std::vector<Eigen::Matrix<double, 2, 1>> v;
+    for (const auto &p : points) v.emplace_back(Eigen::Matrix<double, 2, 1>{p.x, p.y});
     return v;
   }
 

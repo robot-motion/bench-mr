@@ -1,8 +1,9 @@
-#include <base/GridMaze.h>
-#include <utils/Log.h>
-#include <utils/Stopwatch.hpp>
-#include "base/PlannerSettings.h"
+#include "utils/Log.h"
 #include "utils/ScenarioLoader.h"
+#include "utils/Stopwatch.hpp"
+
+#include "base/GridMaze.h"
+#include "base/PlannerSettings.h"
 
 namespace og = ompl::geometric;
 
