@@ -84,8 +84,6 @@ class QtVisualizer {
   static void drawLabel(const std::string &text, double x, double y,
                         const QColor &color = Qt::black, float size = 1.f);
 
-  static void drawStats(const PathStatistics &stats);
-
   static void addLegendEntry(LegendEntry entry);
 
   static void drawLegend();

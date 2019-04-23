@@ -14,7 +14,10 @@
 #include <utility>
 
 #include "QtVisualizer.h"
-#include "PlannerSettings.h"
+
+#include "base/Environment.h"
+#include "base/PlannerSettings.h"
+#include "base/Primitives.h"
 
 
 QApplication *QtVisualizer::_app = nullptr;
@@ -98,7 +101,7 @@ void QtVisualizer::visualize(Environment *environment, int run,
     }
 
     for (unsigned y = 0; y <= environment->height(); ++y) {
-      if (environment->occupiedCell(x, y))
+      if (environment->collides(x, y))
         _scene->addRect(x, y, 1, 1, pen, QColor(128, 128, 128));
       //            _scene->addEllipse(x-.25, y-.25, 0.4, 0.4, pen,
       //                            QColor::fromHslF(std::max(0., std::min(.65,
@@ -248,85 +251,6 @@ void QtVisualizer::drawLabel(const std::string &text, double x, double y,
   textItem->setPos(x, y);
   textItem->setScale(size * 0.05);
   textItem->setDefaultTextColor(color);
-}
-
-void QtVisualizer::drawStats(const PathStatistics &stats) {
-  if (_statsTextTop == 0)
-    _scene->addRect(-14.4, 1.3, 12, 48, QPen(Qt::black, 0.01),
-                    QBrush(QColor(255, 255, 255, 180)));
-  QFont font("Consolas", 10);
-  auto *textItem =
-      _scene->addText(QString("Ours collides (%1) ? %2")
-                          .arg(QString::fromStdString(stats.planner))
-                          .arg(stats.ourSmoothingCollides),
-                      font);
-  textItem->setPos(-14, _statsTextTop + 1.5);
-  _statsTextTop += 1;
-  textItem->setScale(0.05);
-  textItem->setDefaultTextColor(Qt::black);
-  textItem = _scene->addText(
-      QString("Curvature: %1").arg(stats.ourSmoothingCurvature), font);
-  textItem->setPos(-14, _statsTextTop + 1.5);
-  _statsTextTop += 1;
-  textItem->setScale(0.05);
-  textItem->setDefaultTextColor(Qt::black);
-  textItem = _scene->addText(QString("B-Spline collides (%1) ? %2")
-                                 .arg(QString::fromStdString(stats.planner))
-                                 .arg(stats.omplSmoothing1Collides),
-                             font);
-  textItem->setPos(-14, _statsTextTop + 1.5);
-  _statsTextTop += 1;
-  textItem->setScale(0.05);
-  textItem->setDefaultTextColor(Qt::black);
-  textItem = _scene->addText(
-      QString("Curvature: %1").arg(stats.omplSmoothing1Curvature), font);
-  textItem->setPos(-14, _statsTextTop + 1.5);
-  _statsTextTop += 1;
-  textItem->setScale(0.05);
-  textItem->setDefaultTextColor(Qt::black);
-  textItem = _scene->addText(QString("SimplifyMax collides (%1) ? %2")
-                                 .arg(QString::fromStdString(stats.planner))
-                                 .arg(stats.omplSmoothing2Collides),
-                             font);
-  textItem->setPos(-14, _statsTextTop + 1.5);
-  _statsTextTop += 1;
-  textItem->setScale(0.05);
-  textItem->setDefaultTextColor(Qt::black);
-  textItem = _scene->addText(
-      QString("Curvature: %1").arg(stats.omplSmoothing2Curvature), font);
-  textItem->setPos(-14, _statsTextTop + 1.5);
-  _statsTextTop += 1;
-  textItem->setScale(0.05);
-  textItem->setDefaultTextColor(Qt::black);
-  textItem = _scene->addText(QString("ShortcutPath collides (%1) ? %2")
-                                 .arg(QString::fromStdString(stats.planner))
-                                 .arg(stats.omplSmoothing3Collides),
-                             font);
-  textItem->setPos(-14, _statsTextTop + 1.5);
-  _statsTextTop += 1;
-  textItem->setScale(0.05);
-  textItem->setDefaultTextColor(Qt::black);
-  textItem = _scene->addText(
-      QString("Curvature: %1").arg(stats.omplSmoothing3Curvature), font);
-  textItem->setPos(-14, _statsTextTop + 1.5);
-  _statsTextTop += 1;
-  textItem->setScale(0.05);
-  textItem->setDefaultTextColor(Qt::black);
-  textItem = _scene->addText(QString("Anytime PS collides (%1) ? %2")
-                                 .arg(QString::fromStdString(stats.planner))
-                                 .arg(stats.omplSmoothing4Collides),
-                             font);
-  textItem->setPos(-14, _statsTextTop + 1.5);
-  _statsTextTop += 1;
-  textItem->setScale(0.05);
-  textItem->setDefaultTextColor(Qt::black);
-  textItem = _scene->addText(
-      QString("Curvature: %1").arg(stats.omplSmoothing4Curvature), font);
-  textItem->setPos(-14, _statsTextTop + 1.5);
-  _statsTextTop += 1;
-  textItem->setScale(0.05);
-  textItem->setDefaultTextColor(Qt::black);
-  _statsTextTop += 0.5;
 }
 
 void QtVisualizer::drawNodes(const std::vector<Point> &nodes,
