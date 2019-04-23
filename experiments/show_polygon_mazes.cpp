@@ -1,6 +1,7 @@
-#include <base/PolygonMaze.h>
-#include <utils/Log.h>
+#include "base/PolygonMaze.h"
 #include "base/PlannerSettings.h"
+
+#include "utils/Log.h"
 
 namespace og = ompl::geometric;
 

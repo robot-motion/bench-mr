@@ -1,4 +1,5 @@
 #include "base/PlannerSettings.h"
+#include "base/GridMaze.h"
 
 #include "metrics/PathLengthMetric.h"
 
@@ -7,7 +8,6 @@
 #include "planners/thetastar/ThetaStar.h"
 
 #include "utils/ScenarioLoader.h"
-
 #include "utils/PathEvaluation.hpp"
 
 #include "smoothers/grips/GRIPS.h"

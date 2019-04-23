@@ -8,9 +8,10 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-#set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+
+remove_definitions(-Wignored-attributes)
 
 add_subdirectory(chomp)
 include_directories(chomp)
@@ -37,16 +38,9 @@ pkg_check_modules(SBPL REQUIRED sbpl)
 include_directories(${SBPL_INCLUDE_DIRS})
 link_directories(${SBPL_LIBRARY_DIRS})
 
-# set(Qt5Core_DIR "/home/eric/Qt/5.11.1/gcc_64/lib")
-# set(Qt5Widgets_DIR "/home/eric/Qt/5.11.1/gcc_64/lib")
-# set(Qt5Charts_DIR "/home/eric/Qt/5.11.1/gcc_64/lib")
-# set(Qt5_DIR "/home/eric/Qt/5.11.1/gcc_64/lib")
-# set(QT_QMAKE_EXECUTABLE "/home/eric/Qt/5.11.1/gcc_64/bin/qmake")
-# set(CMAKE_PREFIX_PATH /home/eric/Qt/5.11.1/gcc_64;${CMAKE_PREFIX_PATH})
-
-# find_package(Qt5 COMPONENTS Core Widgets Charts Svg)
-# include_directories( ${CMAKE_BINARY_DIR} )
-# set(CMAKE_AUTOMOC ON)
+find_package(Qt5 COMPONENTS Core Widgets Charts Svg)
+include_directories( ${CMAKE_BINARY_DIR} )
+set(CMAKE_AUTOMOC ON)
 
 find_package(Boost 1.58 REQUIRED COMPONENTS serialization filesystem system program_options)
 include_directories(${Boost_INCLUDE_DIR})

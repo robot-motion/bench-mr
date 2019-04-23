@@ -4,7 +4,6 @@
 #include <algorithm>
 
 #include "../AbstractPlanner.hpp"
-#include "base/GridMaze.h"
 
 #include "gnode.h"
 #include "stl_thetastar.h"
