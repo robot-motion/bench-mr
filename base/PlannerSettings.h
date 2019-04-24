@@ -190,9 +190,14 @@ struct GlobalSettings : public Group {
      * run.
      */
     Property<std::vector<Steering::SteeringType>> steer_functions{
-        {Steering::STEER_TYPE_REEDS_SHEPP, Steering::STEER_TYPE_DUBINS,
-         Steering::STEER_TYPE_POSQ, Steering::STEER_TYPE_HC_REEDS_SHEPP,
-         Steering::STEER_TYPE_CC_REEDS_SHEPP},
+        {
+           Steering::STEER_TYPE_REEDS_SHEPP,
+           Steering::STEER_TYPE_DUBINS,
+           // TODO reactivate other steer functions
+//           Steering::STEER_TYPE_POSQ,
+//           Steering::STEER_TYPE_HC_REEDS_SHEPP,
+//           Steering::STEER_TYPE_CC_REEDS_SHEPP
+         },
         "steer_functions",
         this};
 

@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
       if (seed == 1) {
         // save benchmark configuration
         global::settings.benchmark.log_file =
-            "corridor_radius_" + PlannerUtils::num2str(ratio, 2);
+            "obstacle_ratio_" + PlannerUtils::num2str(ratio, 2) + ".json";
         std::ofstream o("../benchmarks/obstacle_ratio_" +
                         PlannerUtils::num2str(ratio, 2) + ".json");
         o << std::setw(2) << nlohmann::json(global::settings);
@@ -43,8 +43,6 @@ int main(int argc, char **argv) {
       }
     }
   }
-
-  Log::save("obstacle_ratios.json");
 
   return EXIT_SUCCESS;
 }
