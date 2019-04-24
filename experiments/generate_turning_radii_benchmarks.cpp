@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
     global::settings.steer.car_turning_radius = static_cast<double>(radius);
     // save benchmark configuradiusn
     global::settings.benchmark.log_file =
-        "turning_radius" + std::to_string(radius);
+        "turning_radius_" + std::to_string(radius) + ".json";
     std::ofstream o("../benchmarks/turning_radius_" + std::to_string(radius) +
                     ".json");
     o << std::setw(2) << nlohmann::json(global::settings);

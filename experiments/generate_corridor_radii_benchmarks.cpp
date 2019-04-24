@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
       if (seed == 1) {
         // save benchmark configuration
         global::settings.benchmark.log_file =
-            "corridor_radius_" + std::to_string(radius);
+            "corridor_radius_" + std::to_string(radius) + ".json";
         std::ofstream o("../benchmarks/corridor_radius_" +
                         std::to_string(radius) + ".json");
         o << std::setw(2) << nlohmann::json(global::settings);
@@ -43,8 +43,6 @@ int main(int argc, char **argv) {
       }
     }
   }
-
-  Log::save("corridor_radii.json");
 
   return EXIT_SUCCESS;
 }
