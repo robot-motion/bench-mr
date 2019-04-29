@@ -92,6 +92,8 @@ def plot_planner_stats(json_file: str,
     violin_colors = get_colors(len(planners), **kwargs)
     ticks = np.arange(len(planners)) + 0.5
 
+    valid_planners = []
+
     for si, stat_key in enumerate(stat_keys):
         ax = None
         if combine_views:
@@ -107,10 +109,12 @@ def plot_planner_stats(json_file: str,
             for run_id in run_ids:
                 run = data["runs"][run_id]
                 for j, (planner, plan) in enumerate(run["plans"].items()):
-                    if planner in ignore_planners:
+                    if planner.lower() in ignore_planners:
                         continue
                     if planner not in stats:
                         stats[planner] = []
+                    if planner not in valid_planners:
+                        valid_planners.append(planner)
                     if stat_key not in plan["stats"]:
                         stat = np.nan
                     elif stat_key == "cusps":
@@ -133,7 +137,8 @@ def plot_planner_stats(json_file: str,
             plt.gca().set_axisbelow(True)
 
             if plot_violins:
-                violins = [ensure_valid_violin(stats[planner]) for planner in planners]
+                ticks = np.arange(len(valid_planners)) + 0.5
+                violins = [ensure_valid_violin(stats[planner]) for planner in valid_planners]
                 try:
                     vs = plt.violinplot(violins, ticks, points=50, widths=0.8,
                                         showmeans=True, showextrema=False, showmedians=True)
@@ -151,8 +156,8 @@ def plot_planner_stats(json_file: str,
                 except:
                     pass
 
-        plt.xticks(ticks, [convert_planner_name(p) for p in planners], rotation=ticks_rotation, fontsize=14)
-        plt.gca().set_xlim([0, len(planners)])
+        plt.xticks(ticks, [convert_planner_name(p) for p in valid_planners], rotation=ticks_rotation, fontsize=14)
+        plt.gca().set_xlim([0, len(valid_planners)])
         plt.title(stat_names[stat_key], fontsize=18, pad=15)
 
         if not combine_views and save_file is not None:

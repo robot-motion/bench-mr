@@ -178,7 +178,7 @@ def visualize(json_file: str, run_id: str = 'all',
             plt.gca().set_xlim([0, env["width"]])
             plt.gca().set_ylim([0, env["height"]])
 
-        if not combine_views or plot_counter % axes_h == axes_h - 1:
+        if not combine_views and plot_counter % axes_h == axes_h - 1:
             for label, color in zip(plot_labels, colors):
                 plt.plot([], [], color=color, label=label)
             if not show_legend_once or not legend_shown:
