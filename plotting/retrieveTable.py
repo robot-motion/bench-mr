@@ -1,6 +1,8 @@
 from utils import parse_run_ids, parse_steer_functions, parse_planners
 from retrieve import retrieve_planner_stats_by_run, retrieve_planner_stats_by_steering
 import json
+import os
+import statistics
 
 def write_result_to_json(result: dict, path: str):
     with open(path, 'w') as rj:
@@ -33,10 +35,12 @@ def retrieve_useful_stats_from_result(result: dict):
 
     return useful
 
-def compute_average(useful: dict):
+def compute_average_and_std(useful: dict):
     total_sum = {}
     total_count = {}
     avg_result = {}
+    result_list = {}
+    std_result = {}
 
     #initialize
     for key_0 in useful:
@@ -44,10 +48,14 @@ def compute_average(useful: dict):
             avg_result[planner] = {}
             total_sum[planner] = {}
             total_count[planner] = {}
+            result_list[planner] = {}
+            std_result[planner] = {}
             for att in useful[key_0][planner]:
                     avg_result[planner][att] = 0.0
                     total_sum[planner][att] = 0.0
                     total_count[planner][att] = 0
+                    result_list[planner][att] = []
+                    std_result[planner][att] = 0.0
 
     for key_0 in useful:
         for planner in useful[key_0]:
@@ -55,6 +63,20 @@ def compute_average(useful: dict):
                 if useful[key_0][planner][att] != None:
                     total_count[planner][att] += 1
                     total_sum[planner][att] += useful[key_0][planner][att]
+                    result_list[planner][att].append(useful[key_0][planner][att])
+                    # print(key_0, planner, att, result_list[planner][att])
+
+    for planner in result_list:
+        for att in result_list[planner]:
+            # print(planner, att, result_list[planner][att])
+            if len(result_list[planner][att]) > 1:
+                # print(result_list[planner][att])
+                std_result[planner][att] = statistics.stdev(result_list[planner][att])
+            else:
+                if len(result_list[planner][att]) == 0:
+                    std_result[planner][att] = None
+                else:
+                    std_result[planner][att] = 0.0
 
     for planner in total_sum:
         for att in total_sum[planner]:
@@ -63,17 +85,20 @@ def compute_average(useful: dict):
             else:
                 avg_result[planner][att] = None
     
-    return avg_result
+    return avg_result, std_result
 
 
 
+for fname in os.listdir('../results'):
+    print(fname)
 
-result = retrieve_planner_stats_by_steering("../results/warehouse.json")
+    try:
+        result = retrieve_planner_stats_by_steering('../results/' + fname)
+        useful_result = retrieve_useful_stats_from_result(result)
+        avg_result, std_result = compute_average_and_std(useful_result)
 
-useful = retrieve_useful_stats_from_result(result)
-
-avg_result = compute_average(useful)
-
-write_result_to_json(result, '../docs/clean_results/clean_result_warehouse.json')
-write_result_to_json(useful, '../useful_results/useful_result_warehouse.json')
-write_result_to_json(avg_result, '../avg_results/avg_result_warehouse.json')
+        write_result_to_json(avg_result, '../docs/avg_results/avg_result_' + fname)
+        write_result_to_json(std_result, '../docs/std_results/std_result_' + fname)
+    except Exception:
+        print('Error parsing: ' + fname)
+        continue
