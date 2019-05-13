@@ -165,6 +165,12 @@ def visualize(json_file: str, run_id: str = 'all',
                         plot_nodes(smoothing["path"], "%s (%s)" % (planner, smoother), settings,
                                    color=colors[color_counter], **kwargs)
                     color_counter += 1
+                    
+        if combine_views and plot_counter-1 == axes_h:
+            for label, color in zip(plot_labels, colors):
+                plt.plot([], [], color=color, label=label)
+            show_legend(**kwargs)
+            legend_shown = True
 
         plt.gca().autoscale(False)
         plt.gca().set_aspect('equal', 'box')
