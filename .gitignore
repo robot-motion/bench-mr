@@ -49,3 +49,6 @@ bin/*
 
 plotting/*.png
 plotting/*.pdf
+
+# Ignore Mac DS_Store files
+.DS_Store
