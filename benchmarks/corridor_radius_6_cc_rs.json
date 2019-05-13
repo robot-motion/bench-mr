@@ -45,8 +45,7 @@
         "ompl_simplify_max": true
       },
       "steer_functions": [
-        0,
-        1
+        7
       ]
     },
     "cusp_angle_threshold": 1.0471975511965976,
