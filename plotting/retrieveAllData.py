@@ -1,14 +1,18 @@
 from utils import parse_run_ids, parse_steer_functions, parse_planners
 from retrieve import retrieve_planner_stats_by_run, retrieve_planner_stats_by_steering
+from trajectory import visualize
+from plot_stats import plot_smoother_stats
+from plot_stats import plot_planner_stats
 import json
 import os
 import statistics
+import matplotlib as mpl
+mpl.rcParams['mathtext.fontset'] = 'cm'
+mpl.rcParams['pdf.fonttype'] = 42
 
 def write_result_to_json(result: dict, path: str):
     with open(path, 'w') as rj:
         json.dump(result, rj)
-
-
 
 def retrieve_useful_stats_from_result(result: dict):
     useful = {}
@@ -85,11 +89,26 @@ def compute_average_and_std(useful: dict):
             else:
                 avg_result[planner][att] = None
     
+    for planner in std_result:
+        for att in std_result[planner]:
+            if std_result[planner][att] != None:
+                std_result[planner][att] = float("%0.4f" % std_result[planner][att])
     return avg_result, std_result
 
+def get_directory():
+    file_list = []
+    for fname in os.listdir('../results'):
+        if fname != 'smoothers.json':
+            file_list.append(fname)
+    return file_list
 
+with open('../docs/scenario_list.json', 'w') as rj:
+    json.dump(get_directory(), rj)
 
 for fname in os.listdir('../results'):
+    if fname == 'smoothers.json':
+        continue
+    
     print(fname)
 
     try:
@@ -102,3 +121,74 @@ for fname in os.listdir('../results'):
     except Exception:
         print('Error parsing: ' + fname)
         continue
+'''
+# plot planners stats violin plots
+for fname in os.listdir('../results'):
+    print("Plotting planner stats for: " + fname)
+    plot_planner_stats('../results/%s' % fname,
+                    combine_views=True,
+                    plot_violins=True,
+                    save_file="../docs/violin_plots/%s" % fname.replace('.json', '.png'),
+                    ticks_rotation=90,
+                    max_plots_per_line=3,
+                    fig_width=10,
+                    fig_height=7,
+                    ignore_planners="SBPL_ADstar,SBPL_ARstar,SBPL_MHA"
+    )
+    print('done')
+
+# plot smoother trajectory
+for fname in os.listdir('../results'):
+    if fname == 'smoothers.json':
+        continue
+
+    try:
+        visualize('../results/%s' % fname,
+                plot_every_nth_polygon=0,
+                set_title=False,
+                max_plots_per_line=2,
+                combine_views=True,
+                draw_nodes=True,
+                draw_arrows=True,
+                fig_width=6, fig_height=6,
+                run_id='0,1,3,4',
+                line_width=2,
+                line_alpha=1,
+                node_alpha=0.3,
+                #draw_cusps=True,
+                show_smoother=True,
+                color_map_name='tab10',
+                max_colors=10,
+                draw_start_goal_thetas=True,
+                #show_only_smoother=True,
+                # ignore_smoothers="GRIPS, bspline, simplifymax, shortcut",
+                ignore_smoothers='CHOMP, bspline, shortcut',
+                save_file='../docs/smoothers_trajectory_plots/%s' % fname.replace('.json', '.png')
+        )
+    except Exception:
+        print("Error visualizing " + fname)
+
+
+# plot smoother stats seperated
+plot_smoother_stats('../results/smoothers.json',
+                    combine_views=True,
+                    plot_violins=True,
+                    fig_width=25,
+                    max_plots_per_line=3,
+                    separate_planners=True,
+                    #ignore_smoothers='chomp',
+                    save_file='../docs/smoothers_stats/smoothers_stats_seperated.png'
+)
+
+# plot smoother stats merged
+plot_smoother_stats('../results/smoothers.json',
+                    combine_views=True,
+                    plot_violins=True,
+                    fig_width=15,
+                    max_plots_per_line=3,
+                    separate_planners=False,
+                    ignore_smoothers='chomp',
+                    save_file='../docs/smoothers_stats/smoothers_stats_merged.png'
+)
+
+'''

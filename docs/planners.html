@@ -8,17 +8,18 @@
 		<link rel="stylesheet" type="text/css" href="home.css">
 		
 		<script>
-			var myData;
+            var myData;
+            var stdData;
 			var planner_count = 0;
-			var filled = false;
+            var filled = false;
+            var scenario_list;
 
-			function loadJSON(callback, scenarioName) {  
-                console.log('In loadJSON: ' + scenarioName); 
+			function loadJSON(callback, fPath) {  
+                console.log('In loadJSON: ' + fPath); 
 				var xmlr = new XMLHttpRequest();
                     xmlr.overrideMimeType("application/json");
-                var fPath = 'avg_results/avg_result_' + scenarioName + '.json';
 
-				xmlr.open('GET', fPath, true); // Replace fPath with the path to your file
+				xmlr.open('GET', fPath, false); // Replace fPath with the path to your file
 				xmlr.onreadystatechange = function () {
 					if (xmlr.readyState == 4 && xmlr.status == "200") {
 						// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
@@ -36,7 +37,12 @@
 					planner_count = 0;
 					// Parse JSON string into object
 					myData = JSON.parse(response);
-                }, scenarioName);
+                }, 'avg_results/avg_result_' + scenarioName + '.json');
+                
+                loadJSON(function(response) {
+                    stdData = JSON.parse(response);
+                }, 'std_results/std_result_' + scenarioName + '.json');
+
                 
                 console.log('Finished loading: ' + myData);
 			}
@@ -85,11 +91,16 @@
 				for(var planner in myData){
 					if(planners_chosen.includes(planner)){
 						var curv_data = document.createElement("td");
-						var temp = myData[planner]["curvature"];
+                        var temp = myData[planner]["curvature"];
+                        var std_temp = stdData[planner]["curvature"];
 						if(temp == "null"){
 							temp = "N/A";
-						}
-						curv_data.appendChild(document.createTextNode(temp));
+                        }
+                        if(std_temp == "null"){
+                            temp = "N/A";
+                        }
+
+						curv_data.appendChild(document.createTextNode(temp + " " + unescape('%B1') + " " + std_temp));
 						curv.appendChild(curv_data);
 					}
 				}
@@ -103,11 +114,15 @@
 				for(var planner in myData){
 					if(planners_chosen.includes(planner)){
 						var pl_data = document.createElement("td");
-						var temp = myData[planner]["path_length"];
+                        var temp = myData[planner]["path_length"];
+                        var std_temp = stdData[planner]["path_length"];
 						if(temp == "null"){
 							temp = "N/A";
-						}
-						pl_data.appendChild(document.createTextNode(temp));
+                        }
+                        if(std_temp == "null"){
+                            std_temp = "N/A";
+                        }
+						pl_data.appendChild(document.createTextNode(temp + " " + unescape('%B1') + " " + std_temp));
 						pl.appendChild(pl_data);
 					}
 				}
@@ -121,11 +136,15 @@
 				for(var planner in myData){
 					if(planners_chosen.includes(planner)){
 						var smth_data = document.createElement("td");
-						var temp = myData[planner]["smoothness"];
+                        var temp = myData[planner]["smoothness"];
+                        var std_temp = stdData[planner]["smoothness"];
 						if(temp == "null"){
 							temp = "N/A";
-						}
-						smth_data.appendChild(document.createTextNode(temp));
+                        }
+                        if(std_temp == "null"){
+                            std_temp = "N/A";
+                        }
+						smth_data.appendChild(document.createTextNode(temp + " " + unescape('%B1') + " " + std_temp));
 						smth.appendChild(smth_data);
 					}
 				}
@@ -139,11 +158,15 @@
 				for(var planner in myData){
 					if(planners_chosen.includes(planner)){
 						var pt_data = document.createElement("td");
-						var temp = myData[planner]["planning_time"];
+                        var temp = myData[planner]["planning_time"];
+                        var std_temp = stdData[planner]["planning_time"];
 						if(temp == "null"){
 							temp = "N/A";
-						}
-						pt_data.appendChild(document.createTextNode(temp));
+                        }
+                        if(std_temp == "null"){
+                            std_temp = "N/A";
+                        }
+						pt_data.appendChild(document.createTextNode(temp + " " + unescape('%B1') + " " + std_temp));
 						pt.appendChild(pt_data);
 					}
 				}
@@ -239,11 +262,35 @@
 				// show_graph(selected_graph);
 			}
             
+            function load_list_file(callback) {  
+				var xmlr = new XMLHttpRequest();
+                    xmlr.overrideMimeType("application/json");
+                var fPath = 'scenario_list.json';
+
+				xmlr.open('GET', fPath, false); // Replace fPath with the path to your file
+				xmlr.onreadystatechange = function () {
+					if (xmlr.readyState == 4 && xmlr.status == "200") {
+						// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+						callback(xmlr.responseText);
+					}
+				};
+				xmlr.send(null);  
+			}
+
+			function get_scenario_list() {
+				load_list_file(function(response) {
+					// Parse JSON string into object
+					scenario_list = JSON.parse(response);
+					scenario_list.sort();
+				});
+			}
+            get_scenario_list();
+			console.log(scenario_list);
+			console.log(scenario_list.length);
 		</script>
 	</head>
     
-	<body onload="getData('grid_corridor_50_wide')">
-		
+	<body onload="getData('grid_corridor_50')">
 		<!-- header -->
 		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 		  	<a class="navbar-brand" href="index.html">MPB</a>
@@ -277,20 +324,12 @@
 						  	<div class="form-group">
 						    	<label for="scenario_select">Scenarios</label>
 						    	<select class="form-control" id="scenario_select">
-									<option value="1">grid_corridor_50_wide</option>
-									<option value="2">grid_corridor_50</option>
-									<option value="3">grid_corridor_100_0.1</option>
-									<option value="4">movingai_berlin_256</option>
-									<option value="5">movingai_denver_256</option>
-									<option value="6">parking1</option>
-									<option value="7">parking2</option>
-									<option value="8">parking3</option>
-									<option value="9">turning_radius2.000000</option>
-									<option value="10">turning_radius3.000000</option>
-									<option value="11">turning_radius4.000000</option>
-									<option value="12">turning_radius5.000000</option>
-									<option value="13">turning_radius6.000000</option>
-									<option value="14">warehouse</option>
+									<script>
+										var scenario_select = document.getElementById('scenario_select');
+										for(var i=0; i<scenario_list.length; i++){
+											scenario_select.innerHTML += '<option value="' + (i+1) + '">' + scenario_list[i].replace('.json', '') + '</option>';
+										}
+									</script>
 						    	</select>
 						  	</div>
 						  	

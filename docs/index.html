@@ -8,8 +8,11 @@
 		<link rel="stylesheet" type="text/css" href="home.css">
 		
 		<script>
+			var scenario_list;
+
 			function show_graph(selected_graph){
 				document.getElementById("plots_area").innerHTML = "";
+				console.log(selected_graph);
 				if(selected_graph != "None"){
 					document.getElementById("plots_area").innerHTML = "<img src='" + selected_graph + ".png" + "' style='width: 100%; height: 110%'>";
 				}
@@ -19,9 +22,36 @@
 				document.getElementById("home_message").style.display = "none";
 				var selection = document.getElementById("scenario_select");
 				var selected_graph = selection.options[selection.selectedIndex].text;
-				selected_graph = "violin_plots/planner_stats_" + selected_graph;
+				selected_graph = "violin_plots/" + selected_graph;
 				show_graph(selected_graph);
 			}
+
+			function loadJSON(callback) {  
+				console.log("In loadJSON");
+				var xmlr = new XMLHttpRequest();
+                    xmlr.overrideMimeType("application/json");
+                var fPath = 'scenario_list.json';
+
+				xmlr.open('GET', fPath, false); // Replace fPath with the path to your file
+				xmlr.onreadystatechange = function () {
+					if (xmlr.readyState == 4 && xmlr.status == "200") {
+						// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+						callback(xmlr.responseText);
+					}
+				};
+				xmlr.send(null);  
+			}
+
+			function get_scenario_list() {
+				loadJSON(function(response) {
+					// Parse JSON string into object
+					scenario_list = JSON.parse(response);
+					scenario_list.sort();
+				});
+			}
+			get_scenario_list();
+			console.log(scenario_list);
+			console.log(scenario_list.length);
 
 		</script>
 	</head>
@@ -61,7 +91,13 @@
 						  	<div class="form-group">
 						    	<label for="exampleFormControlSelect1">Scenarios</label>
 						    	<select class="form-control" id="scenario_select">
-									<option value="1">grid_corridor_50_wide</option>
+									<script>
+										var scenario_select = document.getElementById('scenario_select');
+										for(var i=0; i<scenario_list.length; i++){
+											scenario_select.innerHTML += '<option value="' + (i+1) + '">' + scenario_list[i].replace('.json', '') + '</option>';
+										}
+									</script>
+									<!-- <option value="1">grid_corridor_50_wide</option>
 									<option value="2">grid_corridor_50</option>
 									<option value="3">grid_corridor_100_0.1</option>
 									<option value="4">movingai_berlin_256</option>
@@ -74,7 +110,7 @@
 									<option value="11">turning_radius4.000000</option>
 									<option value="12">turning_radius5.000000</option>
 									<option value="13">turning_radius6.000000</option>
-									<option value="14">warehouse</option>
+									<option value="14">warehouse</option> -->
 						    	</select>
 						  	</div>							
 							<button type="button" onclick="get_result()" class="btn btn-primary" id="submit_button">Get Result</button>				

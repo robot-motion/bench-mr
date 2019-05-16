@@ -10,12 +10,13 @@
 		<script>
 			var myData;
 			var planner_count = 0;
-			var filled = false;
+            var filled = false;
+            var scenario_list;
 
 			function loadJSON(callback) {   
 				var xmlr = new XMLHttpRequest();
 					xmlr.overrideMimeType("application/json");
-				xmlr.open('GET', 'avg.json', true); // Replace 'avg' with the path to your file
+				xmlr.open('GET', 'avg.json', false); // Replace 'avg' with the path to your file
 				xmlr.onreadystatechange = function () {
 					if (xmlr.readyState == 4 && xmlr.status == "200") {
 						// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
@@ -224,7 +225,34 @@
 				var selection = document.getElementById("plots_select");
 				var selected_graph = selection.options[selection.selectedIndex].text;
 				show_graph(selected_graph);
+            }
+            
+            function load_list_file(callback) {  
+				var xmlr = new XMLHttpRequest();
+                    xmlr.overrideMimeType("application/json");
+                var fPath = 'scenario_list.json';
+
+				xmlr.open('GET', fPath, false); // Replace fPath with the path to your file
+				xmlr.onreadystatechange = function () {
+					if (xmlr.readyState == 4 && xmlr.status == "200") {
+						// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+						callback(xmlr.responseText);
+					}
+				};
+				xmlr.send(null);  
 			}
+
+			function get_scenario_list() {
+				load_list_file(function(response) {
+					// Parse JSON string into object
+					scenario_list = JSON.parse(response);
+					scenario_list.sort();
+				});
+			}
+            get_scenario_list();
+			console.log(scenario_list);
+            console.log(scenario_list.length);
+            
 
 		</script>
 	</head>
@@ -281,126 +309,19 @@
 						<form>
 						  	<div class="form-group">
 						    	<label for="exampleFormControlSelect1">Scenarios</label>
-						    	<select class="form-control" id="config_select">
-									<option value="1">Parking_1</option>
-									<option value="2">Parking_2</option>
-									<option value="3">Parking_3</option>
-									<option value="4">MovingAi_1</option>
-									<option value="5">MovingAi_2</option>
+						    	<select class="form-control" id="scenario_select">
+                                        <script>
+                                                var scenario_select = document.getElementById('scenario_select');
+                                                for(var i=0; i<scenario_list.length; i++){
+                                                    scenario_select.innerHTML += '<option value="' + (i+1) + '">' + scenario_list[i].replace('.json', '') + '</option>';
+                                                }
+                                            </script>
 						    	</select>
 						  	</div>
-						  	
-						  	<div class="form-check">
-  								<input class="form-check-input" type="checkbox" value="" id="check_0">
-  								<label class="form-check-label" for="check_0">
-    								BFMT
-  								</label>
-  								
-  								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_1">
-  								<label class="form-check-label" for="check_1">
-    								CForest
-  								</label>
-  								
-  								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_2">
-  								<label class="form-check-label" for="check_2">
-    								EST
-  								</label>
-  								
-  								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_3">
-  								<label class="form-check-label" for="check_3">
-    								FMT
-  								</label>
-  								
-  								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_4">
-  								<label class="form-check-label" for="check_4">
-    								InformedRRTstar
-  								</label>
-  								
-  								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_5">
-  								<label class="form-check-label" for="check_5">
-    								KPIECE1
-								</label>
-
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_6">
-  								<label class="form-check-label" for="check_6">
-    								PRMstar
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_7">
-  								<label class="form-check-label" for="check_7">
-    								RRT
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_8">
-  								<label class="form-check-label" for="check_8">
-    								RRT#
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_9">
-  								<label class="form-check-label" for="check_9">
-    								RRTstar
-  								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_10">
-  								<label class="form-check-label" for="check_10">
-    								SBL
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_11">
-  								<label class="form-check-label" for="check_11">
-    								SORRTstar
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_12">
-  								<label class="form-check-label" for="check_12">
-    								SST
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_13">
-  								<label class="form-check-label" for="check_13">
-    								STRIDE
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_14">
-  								<label class="form-check-label" for="check_14">
-    								Theta*
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_15">
-  								<label class="form-check-label" for="check_15">
-    								kBITstar
-  								</label>
-							</div>
+                              
+                            <input type="radio" name="binary" value="merged">&nbsp Merged &nbsp</input>
+                            <input type="radio" name="binary" value="seperated">&nbsp Seperated by Planners</input>
+                              
 							
 							<button type="button" onclick="get_result()" class="btn btn-primary" id="submit_button">Get Result</button>				
 						</form>
