@@ -1,5 +1,3 @@
-#include "gui/QtVisualizer.h"
-
 #include "base/GridMaze.h"
 #include "base/PlannerSettings.h"
 
