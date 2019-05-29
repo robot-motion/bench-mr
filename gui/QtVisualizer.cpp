@@ -12,13 +12,13 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMenu>
 #include <utility>
+#include <utils/PlannerUtils.hpp>
 
 #include "QtVisualizer.h"
 
 #include "base/Environment.h"
 #include "base/PlannerSettings.h"
 #include "base/Primitives.h"
-
 
 QApplication *QtVisualizer::_app = nullptr;
 QMainWindow *QtVisualizer::_window = nullptr;
@@ -28,14 +28,11 @@ QGraphicsScene *QtVisualizer::_scene = nullptr;
 std::vector<LegendEntry> QtVisualizer::_legend;
 std::list<QGraphicsItem *> QtVisualizer::_storedItems;
 
-int QtVisualizer::_statsTextTop = -2;
-
 bool QtVisualizer::_showStartGoal = true;
 
 void QtVisualizer::initialize() {
   int argc = 0;
   _app = new QApplication(argc, nullptr);
-  _statsTextTop = 0;
   _window = new QMainWindow;
   _scene = new QGraphicsScene;
   _view = new VisualizationView(_scene);
@@ -50,6 +47,7 @@ void QtVisualizer::initialize() {
 
   //    _window->setWindowFlags(Qt::WindowStaysOnTopHint);
   _window->setWindowTitle(QString("Motion Planning Visualizer"));
+  _window->show();
 }
 
 QtVisualizer::~QtVisualizer() {
@@ -63,6 +61,7 @@ int QtVisualizer::exec() { return _app->exec(); }
 
 void QtVisualizer::visualize(Environment *environment, int run,
                              bool renderDistances) {
+  if (_scene == nullptr) initialize();
   _window->setWindowTitle(
       QString("Theta* Trajectory Planning (run %1)").arg(run));
   _scene->setSceneRect(0, 0, environment->width() + 1,
@@ -82,20 +81,23 @@ void QtVisualizer::visualize(Environment *environment, int run,
       blackPen.setWidthF(0.01f);
 
       if (x <= environment->width()) {
-        QLabel *htext = new QLabel(QString::fromStdString(std::to_string(x)));
-        htext->setFont(QFont("Consolas", 1));
-        htext->setAlignment(Qt::AlignLeft);
-        htext->setAttribute(Qt::WA_TranslucentBackground);
-        _scene->addWidget(htext)->setGeometry(QRectF(x + 0.15, -1.2, 2, 2));
+        //        QLabel *htext = new
+        //        QLabel(QString::fromStdString(std::to_string(x)));
+        //        htext->setFont(QFont("Consolas", 1));
+        //        htext->setAlignment(Qt::AlignLeft);
+        //        htext->setAttribute(Qt::WA_TranslucentBackground);
+        //        auto * widget = _scene->addWidget(htext);
+        //        widget->setGeometry(QRectF(x + 0.15, -1.2, 2, 2));
         _scene->addLine(x, -2, x, 0, blackPen);
       }
 
       if (x <= environment->height()) {
-        QLabel *vtext = new QLabel(QString::fromStdString(std::to_string(x)));
-        vtext->setFont(QFont("Consolas", 1));
-        vtext->setAlignment(Qt::AlignRight);
-        vtext->setAttribute(Qt::WA_TranslucentBackground);
-        _scene->addWidget(vtext)->setGeometry(QRectF(-2.2, x, 2, 2));
+        //        QLabel *vtext = new
+        //        QLabel(QString::fromStdString(std::to_string(x)));
+        //        vtext->setFont(QFont("Consolas", 1));
+        //        vtext->setAlignment(Qt::AlignRight);
+        //        vtext->setAttribute(Qt::WA_TranslucentBackground);
+        //        _scene->addWidget(vtext)->setGeometry(QRectF(-2.2, x, 2, 2));
         _scene->addLine(-2, x, 0, x, blackPen);
       }
     }
@@ -144,6 +146,7 @@ void QtVisualizer::visualize(Environment *environment, int run,
 
 void QtVisualizer::drawNode(const ompl::base::State *node, const QColor &color,
                             double radius, bool drawArrow) {
+  if (_scene == nullptr) initialize();
   const auto *node2d = node->as<ompl::base::SE2StateSpace::StateType>();
   if (drawArrow) {
     QPen pen(color);
@@ -163,6 +166,7 @@ void QtVisualizer::drawNode(const Point &point, const QColor &color,
 
 void QtVisualizer::drawNode(double x, double y, const QColor &color,
                             double radius) {
+  if (_scene == nullptr) initialize();
   QPen pen(color);
   pen.setWidthF(0.);
   _scene->addEllipse(x - radius, y - radius, 2 * radius, 2 * radius, pen,
@@ -172,6 +176,7 @@ void QtVisualizer::drawNode(double x, double y, const QColor &color,
 void QtVisualizer::drawNode(double x, double y, double theta,
                             const QColor &color, double radius,
                             bool drawArrow) {
+  if (_scene == nullptr) initialize();
   if (drawArrow) {
     QPen pen(color);
     pen.setWidthF(radius * 0.5);
@@ -198,8 +203,9 @@ void QtVisualizer::drawTrajectory(const ompl::base::State *a,
 void QtVisualizer::drawPath(const ompl::geometric::PathGeometric &p,
                             const QColor &color, float penWidth,
                             Qt::PenStyle penStyle) {
-  ompl::geometric::PathGeometric path(p);
+  ompl::geometric::PathGeometric path = PlannerUtils::interpolated(p);
   if (path.getStates().empty()) return;
+  if (_scene == nullptr) initialize();
   QPen pen(color);
   pen.setWidthF(0.05f * penWidth);
   pen.setStyle(penStyle);
@@ -217,6 +223,7 @@ void QtVisualizer::drawPath(const std::vector<Point> &nodes,
                             const QColor &color, float penWidth,
                             Qt::PenStyle penStyle) {
   if (nodes.empty()) return;
+  if (_scene == nullptr) initialize();
   QPen pen(color);
   pen.setWidthF(0.05f * penWidth);
   pen.setStyle(penStyle);
@@ -229,6 +236,7 @@ void QtVisualizer::drawPath(const std::vector<Point> &nodes,
 
 void QtVisualizer::drawPath(const std::vector<Point> &nodes, QPen pen) {
   if (nodes.empty()) return;
+  if (_scene == nullptr) initialize();
   pen.setWidthF(pen.widthF() * 0.05f);
   QPainterPath pp;
   pp.moveTo(nodes[0].x, nodes[0].y);
@@ -246,6 +254,7 @@ void QtVisualizer::drawNodes(ompl::geometric::PathGeometric path,
 
 void QtVisualizer::drawLabel(const std::string &text, double x, double y,
                              const QColor &color, float size) {
+  if (_scene == nullptr) initialize();
   QFont font("Consolas", 12);
   auto *textItem = _scene->addText(QString::fromStdString(text), font);
   textItem->setPos(x, y);
@@ -264,6 +273,7 @@ void QtVisualizer::addLegendEntry(LegendEntry entry) {
 }
 
 void QtVisualizer::drawLegend() {
+  if (_scene == nullptr) initialize();
   double x = global::settings.environment->width() + 3;
   double y = 0;
   _scene->addRect(x, y, 10,
@@ -298,6 +308,7 @@ void QtVisualizer::drawLegend() {
 void QtVisualizer::showStartGoal(bool show) { _showStartGoal = show; }
 
 void QtVisualizer::savePng(const QString &fileName) {
+  if (_scene == nullptr) initialize();
   QRectF newSceneRect;
   for (auto *item : _scene->items()) {
     newSceneRect |= item->mapToScene(item->boundingRect()).boundingRect();
@@ -318,6 +329,7 @@ void QtVisualizer::savePng(const QString &fileName) {
 }
 
 void QtVisualizer::saveSvg(const QString &fileName) {
+  if (_scene == nullptr) initialize();
   QRectF newSceneRect;
   for (auto *item : _scene->items()) {
     newSceneRect |= item->mapToScene(item->boundingRect()).boundingRect();

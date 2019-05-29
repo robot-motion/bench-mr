@@ -90,4 +90,4 @@ def plot_smoother_aggregate(ax, runs, planners: [str], smoothers: [str], separat
     ax.bar(xs + 0.15, ys, hatch='\\', width=width, color="yellow", label="Exact solution")
 
     ax.grid()
-    # show_legend(**kwargs)
+    show_legend(**kwargs)

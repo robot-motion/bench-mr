@@ -3,6 +3,7 @@ import json
 import click
 import math
 
+from definitions import smoother_names
 from plot_env import plot_env, plot_env_options
 from plot_trajectory import plot_trajectory, plot_nodes, plot_trajectory_options
 from color import get_color, get_colors, color_options
@@ -39,7 +40,8 @@ def main(**kwargs):
     visualize(**kwargs)
 
 
-def visualize(json_file: str, run_id: str = 'all',
+def visualize(json_file: str,
+              run_id: str = 'all',
               show_smoother=False,
               show_only_smoother=False,
               draw_nodes=True,
@@ -61,7 +63,7 @@ def visualize(json_file: str, run_id: str = 'all',
               dpi: int = 200, **kwargs):
     kwargs.update(locals())
     if not silence:
-        click.echo("Visualizing %s..." % click.format_filename(json_file))
+        click.echo("Visualizing %s" % click.format_filename(json_file))
 
     if headless:
         import matplotlib
@@ -106,8 +108,7 @@ def visualize(json_file: str, run_id: str = 'all',
                 for k, (smoother, smoothing) in enumerate(plan["smoothing"].items()):
                     if smoothing["name"] in ignore_smoothers:
                         continue
-                    plot_labels.append("%s (%s)" % (planner, smoother))
-    plot_labels = list(set(plot_labels))
+                    plot_labels.append("%s (%s)" % (planner, smoother_names[smoother]))
     colors = get_colors(len(plot_labels), **kwargs)
 
     plot_counter = 1

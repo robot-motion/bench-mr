@@ -30,6 +30,15 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
   stopWatch.start();
 
   PlannerUtils::updateAngles(path, AverageAngles);
+#ifdef DEBUG
+#if QT_SUPPORT
+  QtVisualizer::drawTrajectory(path, Qt::lightGray);
+  for (auto &o : originalPathIntermediaries)
+    QtVisualizer::drawNode(o, Qt::darkGreen, 0.03);
+  QtVisualizer::show();
+  QtVisualizer::exec();
+#endif
+#endif
 
   double dx, dy;
   double eta =
@@ -55,13 +64,6 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
 
     PlannerUtils::updateAngles(path, AverageAngles);
 
-#ifdef DEBUG
-#if QT_SUPPORT
-    QtVisualizer::drawTrajectory(path, QColor(150, 150, 150, 200));
-    QtVisualizer::drawNodes(path, false, QColor(70, 180, 250, 150), .2);
-#endif
-#endif
-
     // add/remove nodes if necessary
     auto tpath =
         PlannerUtils::toSteeredPoints(path.getState(0u), path.getState(1u));
@@ -84,6 +86,10 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
 
       tpath = PlannerUtils::toSteeredPoints(current, next);
 
+      const double avg_theta =
+          0.5 * (PlannerUtils::normalizeAngle(current->getYaw()) +
+                 PlannerUtils::normalizeAngle(next->getYaw()));
+
       for (auto &p : tpath) {
         const double distance =
             global::settings.environment->bilinearDistance(p.x, p.y);
@@ -94,7 +100,7 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
             nextNodePosition.distance(p.x, p.y) >=
                 global::settings.smoothing.grips.min_node_distance) {
           // local minimum
-          npath.append(p.toState());
+          npath.append(p.toState(avg_theta));
           lastNodePosition = Point(p.x, p.y);
 
           ++insertedNodes;
@@ -113,15 +119,16 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
     path = npath;
 
     PlannerUtils::updateAngles(path, AverageAngles);
-    endRound(path);
-  }
-
 #ifdef DEBUG
 #if QT_SUPPORT
-  for (auto &o : originalPathIntermediaries)
-    QtVisualizer::drawNode(o, Qt::darkGreen, 0.1);
+    QtVisualizer::drawTrajectory(path, Qt::blue, 0.2f);
+    QtVisualizer::show();
+    QtVisualizer::exec();
 #endif
 #endif
+
+    endRound(path);
+  }
 
   // try to remove nodes
   size_t lastPathLength;
@@ -146,63 +153,64 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
 
     fixes = 0;
 
-    // determine unremovable nodes
-    std::vector<unsigned int> unremovable;
-    std::vector<unsigned int> local_unremovable{0};
+    // determine irremovable nodes
+    std::vector<unsigned int> irremovable;
+    std::vector<unsigned int> local_irremovable{0};
     for (unsigned int i = 1; i < path.getStateCount() - 1; ++i) {
 #if DEBUG
       std::cout << "PlannerUtils::collides(["
                 << path.getState(i - 1)->as<State>()->getX() << " "
-                << path.getState(i - 1)->as<State>()->getY() << "]"
-                << ", [" << path.getState(i + 1)->as<State>()->getX() << " "
+                << path.getState(i - 1)->as<State>()->getY() << "], ["
+                << path.getState(i + 1)->as<State>()->getX() << " "
                 << path.getState(i + 1)->as<State>()->getY() << "]) ? "
                 << PlannerUtils::collides(path.getState(i - 1),
                                           path.getState(i + 1))
                 << std::endl;
 #endif
-      if (PlannerUtils::collides(path.getState(local_unremovable.back()),
+      if (PlannerUtils::collides(path.getState(local_irremovable.back()),
                                  path.getState(i + 1))) {
-        local_unremovable.push_back(i);
+        local_irremovable.push_back(i);
 
 #ifdef DEBUG
         OMPL_DEBUG("%i <--> %i WOULD COLLIDE (%.2f %.2f)", i - 1, i + 1,
-                   path.getState(i).x_r, path.getState(i).y_r);
+                   path.getState(i)->as<State>()->getX(),
+                   path.getState(i)->as<State>()->getY());
 #endif
       }
     }
-    local_unremovable.push_back((unsigned int)(path.getStateCount() - 1));
-    unremovable = local_unremovable;
+    local_irremovable.push_back((unsigned int)(path.getStateCount() - 1));
+    irremovable = local_irremovable;
 
 #ifdef DEBUG
-    OMPL_DEBUG("GRIPS: we have %d unremovable nodes (before: %d).",
-               unremovable.size(), path.getStateCount());
+    OMPL_DEBUG("GRIPS: we have %d irremovable nodes (before: %d).",
+               irremovable.size(), path.getStateCount());
 
 #if QT_SUPPORT
-    for (auto i : unremovable) {
-      QtVisualizer::drawNode(path.getState(i).x_r, path.getState(i).y_r,
-                             Qt::darkRed, 0.4);
-      OMPL_INFORM("UNREMOVABLE %.2f %.2f", path.getState(i).x_r,
-                  path.getState(i).y_r);
+    for (auto i : irremovable) {
+      QtVisualizer::drawNode(path.getState(i)->as<State>()->getX(),
+                             path.getState(i)->as<State>()->getY(), Qt::darkRed,
+                             0.4);
+      OMPL_INFORM("irremovable %.2f %.2f",
+                  path.getState(i)->as<State>()->getX(),
+                  path.getState(i)->as<State>()->getY());
     }
 #endif
 #endif
     PlannerUtils::updateAngles(path, AverageAngles, true);
 #ifdef DEBUG
 #if QT_SUPPORT
-    for (unsigned int i = 0; i < path.getStateCount()(); ++i) {
+    for (unsigned int i = 0; i < path.getStateCount(); ++i) {
       QtVisualizer::drawNode(path.getState(i), QColor(0, 0, 0, 100), 0.3,
                              false);
-      //            QtVisualizer::drawLabel(std::to_string(i),
-      //            path.getState(i).x_r + 0.2, path.getState(i).y_r + 0.2);
     }
 #endif
 #endif
 
     // compute final trajectory
     std::vector<ob::State *> finalPath;
-    for (unsigned int ui = 1; ui < unremovable.size(); ++ui) {
-      const auto i = unremovable[ui - 1];
-      const auto j = unremovable[ui];
+    for (unsigned int ui = 1; ui < irremovable.size(); ++ui) {
+      const auto i = irremovable[ui - 1];
+      const auto j = irremovable[ui];
 
       if (finalPath.empty() ||
           !PlannerUtils::equals(path.getState(i), finalPath.back()))
@@ -223,35 +231,25 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
       for (auto u = i; u <= j - 1; ++u) {
         for (auto v = u + 1; v <= j; ++v) {
           og::PathGeometric uv(global::settings.ompl.space_info);
-          if (PlannerUtils::collides(path.getState(u), path.getState(v), uv))
-            continue;  // a break has the same effect for linear steering and
-                       // would be more efficient
-
-          double edgeWeight = uv.length();
-
+          uv = PlannerUtils::interpolated(uv);
+          if (PlannerUtils::collides(path.getState(u), path.getState(v), uv)) {
 #ifdef DEBUG
 #if QT_SUPPORT
-//                    double dX = path.getState(v).x_r - path.getState(u).x_r;
-//                    double dY = path.getState(v).y_r - path.getState(u).y_r;
-//                    double rad = std::atan2(dY, dX);
-//                    double plusMinus = v % 2 == 0 ? 1 : -1;
-//                    double x = (path.getState(u).x_r + path.getState(v).x_r) *
-//                    0.5 + plusMinus * std::pow(edgeWeight, .7)*std::cos(M_PI_2
-//                    + rad); double y = (path.getState(u).y_r +
-//                    path.getState(v).y_r) * 0.5 + plusMinus *
-//                    std::pow(edgeWeight, .7)*std::sin(M_PI_2 + rad);
-//                    QtVisualizer::drawPath(vector<Tpoint>({
-//                                                                  Tpoint(path.getState(u).x_r,
-//                                                                  path.getState(u).y_r),
-//                                                                  Tpoint(x,
-//                                                                  y),
-//                                                                  Tpoint(path.getState(v).x_r,
-//                                                                  path.getState(v).y_r)}),
-//                                                                  Qt::black);
-//                    QtVisualizer::drawLabel(std::to_string(edgeWeight), x-2,
-//                    y, Qt::black);
+            QtVisualizer::drawTrajectory(path.getState(u), path.getState(v),
+                                         Qt::red, 3);
 #endif
 #endif
+            continue;
+          } else {
+#ifdef DEBUG
+#if QT_SUPPORT
+            QtVisualizer::drawTrajectory(path.getState(u), path.getState(v),
+                                         QColor(0, 150, 0, 100), 5);
+#endif
+#endif
+          }
+
+          const double edgeWeight = uv.length();
           if (distances[u - i] + edgeWeight < distances[v - i]) {
             distances[v - i] = distances[u - i] + edgeWeight;
             predecessors[v - i] = u - i;
@@ -275,9 +273,7 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
     if (!PlannerUtils::equals(path.getStates().back(), finalPath.back()))
       finalPath.emplace_back(path.getStates().back());
 
-    //    path.clear();
     path.getStates() = finalPath;
-    //    path = finalPath;
     nodesPerRound.push_back((int)path.getStateCount());
     endRound(path);
 
@@ -295,18 +291,12 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
 
 #ifdef DEBUG
 #if QT_SUPPORT
-  //    for (auto &n : path)
-  //            QtVisualizer::drawNode(n, Qt::darkGreen, .1);
-
-  //        QtVisualizer::drawTrajectory(path, QColor(200, 0, 180), 3.f);
+  QtVisualizer::drawTrajectory(path, QColor(200, 0, 180), 1.f);
   QtVisualizer::drawNodes(path, false, Qt::magenta, 0.2f);
+  OMPL_INFORM("Path Length after GRIPS: %f", PathLengthMetric::evaluate(path));
+#endif
+#endif
 
-  OMPL_INFORM("Path Length after our PS: %f", PathLengthMetric::evaluate(path));
-//    OMPL_INFORM("Speed Arc Length: %f", SpeedArcLengthMetric::evaluate(path,
-//    this, global::settings.steering)); OMPL_INFORM("Peaks: %f",
-//    PeaksMetric::evaluate(path, this, global::settings.steering));
-#endif
-#endif
   OMPL_INFORM("Post-smoothing SUCCEEDED after %i pruning rounds.",
               pruningRound);
 

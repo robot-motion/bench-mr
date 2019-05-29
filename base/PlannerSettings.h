@@ -320,8 +320,8 @@ struct GlobalSettings : public Group {
     struct HC_CC_Settings : public Group {
       using Group::Group;
 
-      Property<double> kappa{5, "kappa", this};
-      Property<double> sigma{0.315, "sigma", this};
+      Property<double> kappa{20, "kappa", this};
+      Property<double> sigma{1.5, "sigma", this};
     } hc_cc{"hc_cc", this};
 
     struct PosqSettings : public Group {
@@ -407,7 +407,7 @@ struct GlobalSettings : public Group {
       /*
        * Gradient descent rate.
        */
-      Property<double> eta{0.5, "eta", this};
+      Property<double> eta{0.9, "eta", this};
       /*
        * Discount factor for gradient descent rate.
        */

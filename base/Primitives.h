@@ -162,6 +162,12 @@ struct Polygon {
     for (auto &p : points) p *= scaling;
   }
 
+  Polygon scaled(double scaling) {
+    Polygon poly(*this);
+    for (auto &p : poly.points) p *= scaling;
+    return poly;
+  }
+
   /**
    * Loads polygon from a path tag inside an SVG file.
    */
@@ -270,7 +276,8 @@ struct Polygon {
    */
   operator std::vector<Eigen::Matrix<double, 2, 1>>() const {
     std::vector<Eigen::Matrix<double, 2, 1>> v;
-    for (const auto &p : points) v.emplace_back(Eigen::Matrix<double, 2, 1>{p.x, p.y});
+    for (const auto &p : points)
+      v.emplace_back(Eigen::Matrix<double, 2, 1>{p.x, p.y});
     return v;
   }
 

@@ -26,7 +26,6 @@ steer_function_names = {
 steer_functions = list(steer_function_names.keys())
 
 smoother_names = {
-    'chomp': 'CHOMP',
     'grips': 'GRIPS',
     'ompl_bspline': 'B-Spline',
     'ompl_shortcut': 'Shortcut',

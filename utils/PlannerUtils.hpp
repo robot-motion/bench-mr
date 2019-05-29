@@ -202,12 +202,12 @@ class PlannerUtils {
       if (AverageAngles) {
         double l = slope(states[i - 1], states[i]);
         double r = slope(states[i], states[i + 1]);
-                if (std::abs(l - r) >= M_PI) {
-                  if (l > r)
-                    l += 2. * M_PI;
-                  else
-                    r += 2. * M_PI;
-                }
+        //                if (std::abs(l - r) >= M_PI) {
+        //                  if (l > r)
+        //                    l += 2. * M_PI;
+        //                  else
+        //                    r += 2. * M_PI;
+        //                }
         states[i]->as<State>()->setYaw((l + r) * 0.5);
       } else
         states[i]->as<State>()->setYaw(slope(states[i - 1], states[i]));

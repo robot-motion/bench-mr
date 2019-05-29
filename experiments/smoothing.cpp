@@ -1,5 +1,7 @@
-#include "base/PlannerSettings.h"
+#include "gui/QtVisualizer.h"
+
 #include "base/GridMaze.h"
+#include "base/PlannerSettings.h"
 
 #include "planners/OMPLPlanner.hpp"
 #include "planners/sbpl/SbplPlanner.h"
@@ -17,7 +19,7 @@ int main(int argc, char **argv) {
     global::settings.environment =
         GridMaze::createRandomCorridor(50, 50, 3, 30, i + 1);
 
-    global::settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
+    global::settings.steer.steering_type = Steering::STEER_TYPE_HC_REEDS_SHEPP;
     global::settings.steer.car_turning_radius = 3;
     global::settings.steer.initializeSteering();
     global::settings.env.collision.initializeCollisionModel();
@@ -30,7 +32,7 @@ int main(int argc, char **argv) {
     Log::log(info);
   }
 
-  Log::save("smoothing.json");
+  Log::save("smoothing_hc_rs.json");
 
   return EXIT_SUCCESS;
 }

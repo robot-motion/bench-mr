@@ -371,6 +371,8 @@ bool GridMaze::collides(const Polygon &polygon) {
 
   for (auto y = start_y; y < end_y; ++y) {
     for (auto x = start_x; x < end_x; ++x) {
+      // TODO use more efficient polygon representation of GridMaze to speed up
+      // the collision checks against polygon shapes
       if (occupiedCell(x, y)) {
         // create Polygon for this cell and do collision check
         const Polygon cell({{x * _voxelSize, y * _voxelSize},
