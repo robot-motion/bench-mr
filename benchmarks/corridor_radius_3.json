@@ -216,7 +216,7 @@
         "objective_type": 0
       },
       "grips": {
-        "eta": 0.5,
+        "eta": 0.9,
         "eta_discount": 0.8,
         "gradient_descent_rounds": 5,
         "max_pruning_rounds": 100,
@@ -234,8 +234,8 @@
     "steer": {
       "car_turning_radius": 4.0,
       "hc_cc": {
-        "kappa": 5.0,
-        "sigma": 0.315
+        "kappa": 20.0,
+        "sigma": 1.5
       },
       "posq": {
         "alpha": 3.0,
