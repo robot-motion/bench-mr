@@ -4,7 +4,9 @@ from utils import show_legend, convert_planner_name
 from definitions import smoother_names
 
 
-def plot_aggregate(ax, runs, planners: [str], **kwargs):
+def plot_aggregate(ax, runs, planners: [str], ticks_rotation=90, **kwargs):
+    import matplotlib.pyplot as plt
+
     found = {planner: 0 for planner in planners}
     collision_free = {planner: 0 for planner in planners}
     exact = {planner: 0 for planner in planners}
@@ -32,11 +34,18 @@ def plot_aggregate(ax, runs, planners: [str], **kwargs):
     ys = [exact[planner] for planner in planners]
     ax.bar(xs+0.15, ys, hatch='\\', width=width, color="yellow", label="Exact solution")
 
+    plt.xticks(xs, planners, rotation=ticks_rotation, fontsize=14)
+    plt.gca().set_xlim([0, len(planners)])
+    plt.title("Aggregate", fontsize=18, pad=15)
+
     ax.grid()
     show_legend(**kwargs)
 
 
-def plot_smoother_aggregate(ax, runs, planners: [str], smoothers: [str], separate_planners=False, show_planners=True, **kwargs):
+def plot_smoother_aggregate(ax, runs, planners: [str], smoothers: [str], separate_planners=False, show_planners=True,
+                            ticks_rotation=90, **kwargs):
+    import matplotlib.pyplot as plt
+
     if separate_planners:
         bar_names = []
         for planner in planners:
@@ -88,6 +97,10 @@ def plot_smoother_aggregate(ax, runs, planners: [str], smoothers: [str], separat
     ax.bar(xs - 0.15, ys, hatch='/', width=width, label="Collision-free")
     ys = [exact[bar_name] for bar_name in bar_names]
     ax.bar(xs + 0.15, ys, hatch='\\', width=width, color="yellow", label="Exact solution")
+
+    plt.xticks(xs, bar_names, rotation=ticks_rotation, fontsize=14)
+    plt.gca().set_xlim([0, len(bar_names)])
+    plt.title("Aggregate", fontsize=18, pad=15)
 
     ax.grid()
     show_legend(**kwargs)

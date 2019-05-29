@@ -89,7 +89,9 @@ def plot_planner_stats(json_file: str,
                 continue
             if planner not in planners:
                 planners.append(planner)
-    violin_colors = get_colors(len(planners), **kwargs)
+    if 'num_colors' not in kwargs:
+        kwargs['num_colors'] = len(planners)
+    violin_colors = get_colors(**kwargs)
     ticks = np.arange(len(planners)) + 0.5
 
     valid_planners = []
@@ -99,7 +101,7 @@ def plot_planner_stats(json_file: str,
         if combine_views:
             ax = plt.subplot(axes_v, axes_h, si + 1)
         else:
-            plt.figure("Run %i - %s (%s)" % (run_id, json_file, stat_names[stat_key]))
+            plt.figure("Run %i - %s (%s)" % (run_id, json_file, stat_names[stat_key]), figsize=(fig_width, fig_height))
             ax = plt.gca()
 
         if stat_key == "aggregate":
@@ -130,7 +132,7 @@ def plot_planner_stats(json_file: str,
                     if not plot_violins:
                         plt.scatter([planners.index(planner) + 0.85 - 0.5 * run_id / len(data["runs"])],
                                     [stat],
-                                    color=violin_colors[planners.index(planner)],
+                                    color=violin_colors[planners.index(planner) % kwargs['num_colors']],
                                     s=4)
             kwargs['run_id'] = run_id
             plt.grid()
@@ -143,7 +145,7 @@ def plot_planner_stats(json_file: str,
                     vs = plt.violinplot(violins, ticks, points=50, widths=0.8,
                                         showmeans=True, showextrema=False, showmedians=True)
                     for i, body in enumerate(vs["bodies"]):
-                        body.set_facecolor(violin_colors[i])
+                        body.set_facecolor(violin_colors[i % kwargs['num_colors']])
                         body.set_edgecolor((0, 0, 0, 0))
                     for partname in ('cmeans', 'cmedians'):
                         vs[partname].set_edgecolor("black")
@@ -257,7 +259,9 @@ def plot_smoother_stats(json_file: str,
             if smoother not in valid_smoothers:
                 valid_smoothers.append(smoother)
 
-    violin_colors = get_colors(len(bar_names), **kwargs)
+    if 'num_colors' not in kwargs:
+        kwargs['num_colors'] = len(planners)
+    violin_colors = get_colors(**kwargs)
     ticks = np.arange(len(bar_names)) + 0.5
 
     for si, stat_key in enumerate(stat_keys):
@@ -265,7 +269,7 @@ def plot_smoother_stats(json_file: str,
         if combine_views:
             ax = plt.subplot(axes_v, axes_h, si + 1)
         else:
-            plt.figure("Run %i - %s (%s)" % (run_id, json_file, stat_names[stat_key]))
+            plt.figure("Run %i - %s (%s)" % (run_id, json_file, stat_names[stat_key]), figsize=(fig_width, fig_height))
             ax = plt.gca()
 
         if stat_key == "aggregate":
@@ -297,7 +301,7 @@ def plot_smoother_stats(json_file: str,
                         if not plot_violins:
                             plt.scatter([bar_names.index(planner) + 0.85 - 0.5 * run_id / len(data["runs"])],
                                         [stat],
-                                        color=violin_colors[bar_names.index(planner)],
+                                        color=violin_colors[bar_names.index(planner) % kwargs['num_colors']],
                                         s=4)
                     if "smoothing" in plan:
                         for smoother, smoothing in plan["smoothing"].items():
@@ -328,7 +332,7 @@ def plot_smoother_stats(json_file: str,
                             if not plot_violins:
                                 plt.scatter([bar_names.index(bar_name) + 0.85 - 0.5 * run_id / len(data["runs"])],
                                             [stat],
-                                            color=violin_colors[bar_names.index(bar_name)],
+                                            color=violin_colors[bar_names.index(bar_name) % kwargs['num_colors']],
                                             s=4)
             kwargs['run_id'] = run_id
             plt.grid()
@@ -343,7 +347,7 @@ def plot_smoother_stats(json_file: str,
                     vs = plt.violinplot(violins, ticks, points=50, widths=0.8,
                                         showmeans=True, showextrema=False, showmedians=True)
                     for i, body in enumerate(vs["bodies"]):
-                        body.set_facecolor(violin_colors[i])
+                        body.set_facecolor(violin_colors[i % kwargs['num_colors']])
                         body.set_edgecolor((0, 0, 0, 0))
                     for partname in ('cmeans', 'cmedians'):
                         vs[partname].set_edgecolor("black")
@@ -356,9 +360,9 @@ def plot_smoother_stats(json_file: str,
                 except:
                     pass
 
-        plt.xticks(ticks, bar_names, rotation=ticks_rotation, fontsize=14)
-        plt.gca().set_xlim([0, len(bar_names)])
-        plt.title(stat_names[stat_key], fontsize=18, pad=15)
+            plt.xticks(ticks, bar_names, rotation=ticks_rotation, fontsize=14)
+            plt.gca().set_xlim([0, len(bar_names)])
+            plt.title(stat_names[stat_key], fontsize=18, pad=15)
 
         if not combine_views and save_file is not None:
             plt.tight_layout()
