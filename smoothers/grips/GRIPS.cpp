@@ -29,7 +29,7 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
   smoothingTime = 0;
   stopWatch.start();
 
-  PlannerUtils::updateAngles(path, AverageAngles);
+  PlannerUtils::updateAngles(path, AverageAngles, true);
 #ifdef DEBUG
 #if QT_SUPPORT
   QtVisualizer::drawTrajectory(path, Qt::lightGray);
@@ -62,7 +62,7 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
     }
     eta *= global::settings.smoothing.grips.eta_discount;  // discount factor
 
-    PlannerUtils::updateAngles(path, AverageAngles);
+    PlannerUtils::updateAngles(path, AverageAngles, true);
 
     // add/remove nodes if necessary
     auto tpath =
@@ -118,7 +118,7 @@ bool GRIPS::smooth(ompl::geometric::PathGeometric &path,
         path.getState(static_cast<unsigned int>(path.getStateCount() - 1)));
     path = npath;
 
-    PlannerUtils::updateAngles(path, AverageAngles);
+    PlannerUtils::updateAngles(path, AverageAngles, true);
 #ifdef DEBUG
 #if QT_SUPPORT
     QtVisualizer::drawTrajectory(path, Qt::blue, 0.2f);

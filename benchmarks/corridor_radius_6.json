@@ -12,27 +12,27 @@
       "planning": {
         "bfmt": true,
         "bit_star": true,
-        "cforest": true,
+        "cforest": false,
         "est": true,
-        "fmt": true,
+        "fmt": false,
         "informed_rrt_star": true,
         "kpiece": true,
-        "pdst": true,
-        "prm": true,
-        "prm_star": true,
+        "pdst": false,
+        "prm": false,
+        "prm_star": false,
         "rrt": true,
-        "rrt_sharp": true,
+        "rrt_sharp": false,
         "rrt_star": true,
         "sbl": false,
         "sbpl_adstar": true,
         "sbpl_anastar": false,
-        "sbpl_arastar": true,
+        "sbpl_arastar": false,
         "sbpl_lazy_ara": false,
-        "sbpl_mha": true,
-        "sorrt_star": true,
-        "spars2": true,
-        "sparse": true,
-        "sst": true,
+        "sbpl_mha": false,
+        "sorrt_star": false,
+        "spars2": false,
+        "sparse": false,
+        "sst": false,
         "stride": false,
         "theta_star": true
       },
@@ -45,8 +45,7 @@
         "ompl_simplify_max": true
       },
       "steer_functions": [
-        0,
-        1
+        7
       ]
     },
     "cusp_angle_threshold": 1.0471975511965976,
@@ -179,7 +178,7 @@
     "evaluate_clearing": true,
     "exact_goal_radius": 0.01,
     "fast_odf_threshold": 10000,
-    "interpolation_limit": 1000,
+    "interpolation_limit": 100,
     "log_env_distances": false,
     "max_path_length": 10000.0,
     "max_planning_time": 15.0,
@@ -234,8 +233,8 @@
     "steer": {
       "car_turning_radius": 4.0,
       "hc_cc": {
-        "kappa": 20.0,
-        "sigma": 1.5
+        "kappa": 0.2,
+        "sigma": 0.2
       },
       "posq": {
         "alpha": 3.0,

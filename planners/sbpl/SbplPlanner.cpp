@@ -44,19 +44,14 @@ SbplPlanner<PlannerT>::SbplPlanner()
       global::settings.sbpl.time_to_turn_45_degs_in_place,
       20u,  // obstacle threshold
       global::settings.sbpl.motion_primitive_filename.value().c_str());
-  for (int ix(0); ix < global::settings.environment->width() *
-                           global::settings.sbpl.scaling;
-       ++ix)
-    for (int iy(0); iy < global::settings.environment->height() *
-                             global::settings.sbpl.scaling;
-         ++iy)
-      _env->UpdateCost(
-          ix, iy,
-          static_cast<unsigned char>(global::settings.environment->collides(
-                                         ix / global::settings.sbpl.scaling,
-                                         iy / global::settings.sbpl.scaling)
-                                         ? 20u
-                                         : 1u));
+  for (int ix = 0; ix < cells_x; ++ix) {
+    for (int iy = 0; iy < cells_y; ++iy) {
+      const bool collides = global::settings.environment->collides(
+          ix / global::settings.sbpl.scaling,
+          iy / global::settings.sbpl.scaling);
+      _env->UpdateCost(ix, iy, static_cast<unsigned char>(collides ? 20u : 1u));
+    }
+  }
   OMPL_DEBUG("Initialized SBPL environment");
 
   // Initialize MDP Info
@@ -129,7 +124,7 @@ SbplPlanner<PlannerT>::SbplPlanner()
 template <sbpl::Planner PlannerT>
 SbplPlanner<PlannerT>::~SbplPlanner() {
   delete _sbPlanner;
-  delete _env;
+//  delete _env;
   delete _heuristic;
 }
 

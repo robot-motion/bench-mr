@@ -127,6 +127,14 @@ struct PathEvaluation {
     auto &j = info["plans"][planner.name()]["smoothing"];
 
     if (global::settings.benchmark.smoothing.grips) {
+      const double cached_min_node_dist =
+          global::settings.smoothing.grips.min_node_distance;
+      if (global::settings.steer.steering_type ==
+          Steering::STEER_TYPE_CC_DUBINS) {
+        // XXX increase min distance between vertices to ensure GRIPS can steer
+        // using CC Dubins
+        global::settings.smoothing.grips.min_node_distance = 40.;
+      }
       // GRIPS
       og::PathGeometric grips(planner.solution());
       GRIPS::smooth(grips);
@@ -141,6 +149,7 @@ struct PathEvaluation {
                     {"path", Log::serializeTrajectory(grips, false)},
                     {"stats", nlohmann::json(grips_stats)["stats"]},
                     {"round_stats", GRIPS::statsPerRound}};
+      global::settings.smoothing.grips.min_node_distance = cached_min_node_dist;
     }
     if (global::settings.benchmark.smoothing.chomp) {
       // CHOMP

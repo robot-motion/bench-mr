@@ -161,8 +161,7 @@ struct GlobalSettings : public Group {
   /**
    * Any og::PathGeometric with more nodes will not get interpolated.
    */
-  Property<unsigned int> interpolation_limit{1000u, "interpolation_limit",
-                                             this};
+  Property<unsigned int> interpolation_limit{100u, "interpolation_limit", this};
 
   /**
    * Maximal length a og::PathGeometric can have to be interpolated.
@@ -190,14 +189,12 @@ struct GlobalSettings : public Group {
      * run.
      */
     Property<std::vector<Steering::SteeringType>> steer_functions{
-        {
-           Steering::STEER_TYPE_REEDS_SHEPP,
-           Steering::STEER_TYPE_DUBINS,
-           // TODO reactivate other steer functions
-//           Steering::STEER_TYPE_POSQ,
-//           Steering::STEER_TYPE_HC_REEDS_SHEPP,
-//           Steering::STEER_TYPE_CC_REEDS_SHEPP
-         },
+        {//           Steering::STEER_TYPE_REEDS_SHEPP,
+         //           Steering::STEER_TYPE_DUBINS,
+         // TODO reactivate other steer functions
+         //           Steering::STEER_TYPE_POSQ,
+         //           Steering::STEER_TYPE_HC_REEDS_SHEPP,
+         Steering::STEER_TYPE_CC_REEDS_SHEPP},
         "steer_functions",
         this};
 
@@ -239,31 +236,57 @@ struct GlobalSettings : public Group {
      */
     struct PlanningSettings : public Group {
       using Group::Group;
+      //      Property<bool> theta_star{true, "theta_star", this};
+      //      Property<bool> rrt{true, "rrt", this};
+      //      Property<bool> rrt_star{true, "rrt_star", this};
+      //      Property<bool> bit_star{true, "bit_star", this};
+      //      Property<bool> cforest{true, "cforest", this};
+      //      Property<bool> rrt_sharp{true, "rrt_sharp", this};
+      //      Property<bool> sorrt_star{true, "sorrt_star", this};
+      //      Property<bool> informed_rrt_star{true, "informed_rrt_star", this};
+      //      Property<bool> sbpl_arastar{true, "sbpl_arastar", this};
+      //      Property<bool> sbpl_adstar{true, "sbpl_adstar", this};
+      //      Property<bool> sbpl_anastar{false, "sbpl_anastar", this};
+      //      Property<bool> sbpl_lazy_ara{false, "sbpl_lazy_ara", this};
+      //      Property<bool> sbpl_mha{true, "sbpl_mha", this};
+      //      Property<bool> prm{true, "prm", this};
+      //      Property<bool> prm_star{true, "prm_star", this};
+      //      Property<bool> est{true, "est", this};
+      //      Property<bool> sbl{false, "sbl", this};
+      //      Property<bool> fmt{true, "fmt", this};
+      //      Property<bool> bfmt{true, "bfmt", this};
+      //      Property<bool> sst{true, "sst", this};
+      //      Property<bool> kpiece{true, "kpiece", this};
+      //      Property<bool> stride{false, "stride", this};
+      //      Property<bool> spars{true, "sparse", this};
+      //      Property<bool> spars2{true, "spars2", this};
+      //      Property<bool> pdst{true, "pdst", this};
+
       Property<bool> theta_star{true, "theta_star", this};
       Property<bool> rrt{true, "rrt", this};
       Property<bool> rrt_star{true, "rrt_star", this};
       Property<bool> bit_star{true, "bit_star", this};
-      Property<bool> cforest{true, "cforest", this};
-      Property<bool> rrt_sharp{true, "rrt_sharp", this};
-      Property<bool> sorrt_star{true, "sorrt_star", this};
+      Property<bool> cforest{false, "cforest", this};
+      Property<bool> rrt_sharp{false, "rrt_sharp", this};
+      Property<bool> sorrt_star{false, "sorrt_star", this};
       Property<bool> informed_rrt_star{true, "informed_rrt_star", this};
-      Property<bool> sbpl_arastar{true, "sbpl_arastar", this};
+      Property<bool> sbpl_arastar{false, "sbpl_arastar", this};
       Property<bool> sbpl_adstar{true, "sbpl_adstar", this};
       Property<bool> sbpl_anastar{false, "sbpl_anastar", this};
       Property<bool> sbpl_lazy_ara{false, "sbpl_lazy_ara", this};
-      Property<bool> sbpl_mha{true, "sbpl_mha", this};
-      Property<bool> prm{true, "prm", this};
-      Property<bool> prm_star{true, "prm_star", this};
+      Property<bool> sbpl_mha{false, "sbpl_mha", this};
+      Property<bool> prm{false, "prm", this};
+      Property<bool> prm_star{false, "prm_star", this};
       Property<bool> est{true, "est", this};
       Property<bool> sbl{false, "sbl", this};
-      Property<bool> fmt{true, "fmt", this};
+      Property<bool> fmt{false, "fmt", this};
       Property<bool> bfmt{true, "bfmt", this};
-      Property<bool> sst{true, "sst", this};
+      Property<bool> sst{false, "sst", this};
       Property<bool> kpiece{true, "kpiece", this};
       Property<bool> stride{false, "stride", this};
-      Property<bool> spars{true, "sparse", this};
-      Property<bool> spars2{true, "spars2", this};
-      Property<bool> pdst{true, "pdst", this};
+      Property<bool> spars{false, "sparse", this};
+      Property<bool> spars2{false, "spars2", this};
+      Property<bool> pdst{false, "pdst", this};
     } planning{"planning", this};
   } benchmark{"benchmark", this};
 
@@ -320,8 +343,8 @@ struct GlobalSettings : public Group {
     struct HC_CC_Settings : public Group {
       using Group::Group;
 
-      Property<double> kappa{20, "kappa", this};
-      Property<double> sigma{1.5, "sigma", this};
+      Property<double> kappa{0.2, "kappa", this};
+      Property<double> sigma{0.2, "sigma", this};
     } hc_cc{"hc_cc", this};
 
     struct PosqSettings : public Group {
