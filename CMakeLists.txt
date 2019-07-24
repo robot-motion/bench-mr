@@ -105,6 +105,9 @@ target_link_libraries(parking ${EXTRA_LIB})
 add_executable(smoothing experiments/smoothing.cpp)
 target_link_libraries(smoothing ${EXTRA_LIB})
 
+add_executable(anytime experiments/anytime.cpp)
+target_link_libraries(anytime ${EXTRA_LIB})
+
 add_executable(movingAi experiments/movingai_cities_scenarios.cpp)
 target_link_libraries(movingAi ${EXTRA_LIB})
 

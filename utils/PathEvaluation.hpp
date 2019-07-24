@@ -72,6 +72,7 @@ struct PathEvaluation {
 
       computeCusps(stats, path);
     }
+    OMPL_INFORM("Path evaluation complete.");
     return stats.path_found;
   }
 
@@ -208,6 +209,56 @@ struct PathEvaluation {
     }
 
     return true;
+  }
+
+  /**
+   * Evaluates an anytime path planner by running the planner for each of the
+   * provided time intervals (in seconds). This method populates the
+   * "intermediary_solutions" field of the JSON object for the given planner.
+   */
+  template <class PLANNER>
+  static bool evaluateAnytime(nlohmann::json &info) {
+    PLANNER planner;
+    const std::vector<double> times =
+        global::settings.benchmark.anytime_intervals;
+    PathStatistics stats(planner.name());
+    auto &j = info["plans"][planner.name()];
+    std::vector<nlohmann::json> intermediaries;
+    bool success = false;
+    const double cached_time_limit = global::settings.max_planning_time;
+    for (double time : times) {
+      OMPL_INFORM(("Running " + planner.name() + " for " +
+                   std::to_string(time) + "s...")
+                      .c_str());
+      global::settings.max_planning_time = time;
+      if (planner.run()) {
+        success = PathEvaluation::evaluate(stats, planner.solution(), &planner);
+        j["path"] = Log::serializeTrajectory(planner.solution(), false);
+      } else {
+        j["path"] = {};
+      }
+      std::cout << stats << std::endl;
+      std::cout << "Steer function: "
+                << Steering::to_string(global::settings.steer.steering_type)
+                << std::endl;
+
+      // add intermediary solutions
+      nlohmann::json s{
+          {"time", planner.planningTime()},
+          {"max_time", time},
+          {"cost", stats.path_length},
+          {"trajectory", Log::serializeTrajectory(planner.solution())},
+          {"path", Log::serializeTrajectory(planner.solution(), false)},
+          {"stats", nlohmann::json(stats)["stats"]}};
+      intermediaries.emplace_back(s);
+    }
+
+    j["intermediary_solutions"] = intermediaries;
+    j["trajectory"] = Log::serializeTrajectory(planner.solution());
+    j["stats"] = nlohmann::json(stats)["stats"];
+    // restore global time limit
+    global::settings.max_planning_time = cached_time_limit;
+    return success;
   }
 
   PathEvaluation() = delete;

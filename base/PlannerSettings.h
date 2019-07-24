@@ -198,6 +198,12 @@ struct GlobalSettings : public Group {
         "steer_functions",
         this};
 
+    /**
+     * Time intervals used for the anytime planner benchmark.
+     */
+    Property<std::vector<double>> anytime_intervals{
+        {1., 3., 5., 10., 15., 20., 25., 30.}, "anytime_intervals", this};
+
     struct MovingAiSettings : public Group {
       using Group::Group;
 

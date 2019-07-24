@@ -141,7 +141,7 @@ def print_run_info(data, run_id: int, run_ids: [int]):
 
 
 def convert_planner_name(planner: str) -> str:
-    return planner.replace('star', '*').replace("two", "2").replace('_', ' ')
+    return planner.replace('star', '*').replace("two", "2").replace('_', ' ').replace('kBIT', 'BIT')
 
 
 def show_legend(show_legend=True, show_legend_outside=True, legend_location="best", **_):

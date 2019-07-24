@@ -17,18 +17,14 @@ plot_env_options = [
 
 
 @add_options(plot_env_options)
-def plot_env(env, run_id: int = -1, colors=(None, None), draw_start_goal=True, draw_start_goal_thetas=False,
-             set_title=True, show_distances=False, **_):
+def plot_env(env, run_id: int = -1, colors=(None, None),
+             draw_start_goal=True, draw_start_goal_thetas=False,
+             set_title=True, show_distances=False,
+             custom_min_x=None, custom_min_y=None,
+             custom_max_x=None, custom_max_y=None,
+             **_):
     """
     Plots the json branch for an environment.
-    :param show_distances:
-    :param set_title:
-    :param run_id:
-    :param draw_start_goal_thetas:
-    :param draw_start_goal:
-    :param env:
-    :param colors:
-    :return:
     """
     import matplotlib.pyplot as plt
     from matplotlib.patches import Polygon
@@ -107,6 +103,18 @@ def plot_env(env, run_id: int = -1, colors=(None, None), draw_start_goal=True, d
                       color=colors[1])
     if set_title:
         plt.title(title)
+
+    plt.gca().autoscale(False)
+    plt.gca().set_aspect('equal', 'box')
+    if custom_min_x is not None and custom_max_y is not None:
+        plt.gca().set_xlim([custom_min_x, custom_max_x])
+        plt.gca().set_ylim([custom_min_y, custom_max_y])
+    elif "min_x" in env and "max_y" in env:
+        plt.gca().set_xlim([env["min_x"], env["max_x"]])
+        plt.gca().set_ylim([env["min_y"], env["max_y"]])
+    elif "width" in env and "height" in env:
+        plt.gca().set_xlim([0, env["width"]])
+        plt.gca().set_ylim([0, env["height"]])
 
 
 @click.command()

@@ -49,7 +49,7 @@ def visualize(json_file: str,
               cusp_radius: float = 1,
               max_plots_per_line: int = 5,
               headless=False,
-              combine_views=False,
+              combine_views=True,
               save_file: str = None,
               ignore_planners='',
               ignore_smoothers='',
@@ -89,6 +89,7 @@ def visualize(json_file: str,
     data = json.load(open(json_file, "r"))
     run_ids = parse_run_ids(run_id, len(data["runs"]))
 
+    axes_h, axes_v = 1, 1
     if combine_views:
         max_plots_per_line = min(max_plots_per_line, len(run_ids))
         axes_h = max_plots_per_line

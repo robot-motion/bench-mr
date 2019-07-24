@@ -9,7 +9,8 @@ stat_names = {
     'planning_time': 'Computation Time',
     'cost': 'Path Length',
     'cusps': 'Cusps',
-    'aggregate': 'Aggregate'
+    'aggregate': 'Aggregate',
+    'exact_solutions': 'Exact Solutions'
 }
 
 steer_function_names = {
@@ -23,7 +24,16 @@ steer_function_names = {
     'cc_reeds_shepp': 'CC Reeds-Shepp'
 }
 
-steer_functions = list(steer_function_names.keys())
+steer_functions = [
+    'reeds_shepp',
+    'dubins',
+    'posq',
+    'clothoid',
+    'linear',
+    'cc_dubins',
+    'hc_reeds_shepp',
+    'cc_reeds_shepp'
+]
 
 smoother_names = {
     'grips': 'GRIPS',
