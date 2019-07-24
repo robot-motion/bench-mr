@@ -38,12 +38,6 @@ void Log::log(const nlohmann::json &stats) {
 
 void Log::save(std::string filename, const std::string &path) {
   if (filename.empty()) filename = Log::filename() + (std::string) ".json";
-  char absFilename[PATH_MAX + 1];
-  if (realpath(path.c_str(), absFilename) != nullptr) {
-    filename = std::string(absFilename) + '/' + filename;
-  } else {
-    OMPL_WARN("Could not resolve path \"%s\", saving at current folder.", path.c_str());
-  }
   std::ofstream o(filename);
   o << std::setw(4) << _currentRun << std::endl;
   o.close();

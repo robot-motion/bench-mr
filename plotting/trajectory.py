@@ -60,6 +60,7 @@ def visualize(json_file: str,
               custom_max_y: float = None,
               silence=False,
               show_legend_once=True,
+              use_existing_subplot=False,
               dpi: int = 200, **kwargs):
     kwargs.update(locals())
     if not silence:
@@ -94,7 +95,8 @@ def visualize(json_file: str,
         max_plots_per_line = min(max_plots_per_line, len(run_ids))
         axes_h = max_plots_per_line
         axes_v = int(math.ceil(len(run_ids) / max_plots_per_line))
-        plt.figure("MPB %s" % json_file, figsize=(axes_h * fig_width, axes_v * fig_height))
+        if not use_existing_subplot:
+            plt.figure("MPB %s" % json_file, figsize=(axes_h * fig_width, axes_v * fig_height))
 
     plot_labels = []
     for i in run_ids:
@@ -119,18 +121,19 @@ def visualize(json_file: str,
     for i in run_ids:
         color_counter = 0
         run = data["runs"][i]
-        if combine_views:
-            plt.subplot(axes_v, axes_h, plot_counter)
-            plot_counter += 1
-        else:
-            plt.figure("Run %i - %s" % (i, json_file), figsize=(fig_width, fig_height))
+        if not use_existing_subplot:
+            if combine_views:
+                plt.subplot(axes_v, axes_h, plot_counter)
+                plot_counter += 1
+            else:
+                plt.figure("Run %i - %s" % (i, json_file), figsize=(fig_width, fig_height))
         kwargs['run_id'] = (i if len(data["runs"]) > 1 else -1)
         env = run["environment"]
         plot_env(env, **kwargs)
         if "settings" in run:
             settings = run["settings"]
-            if not silence:
-                print("Using settings from run %i." % i)
+            # if not silence:
+            #     print("Using settings from run %i." % i)
         else:
             settings = data["settings"]
         for j, (planner, plan) in enumerate(run["plans"].items()):
