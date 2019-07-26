@@ -69,7 +69,6 @@ def visualize(json_file: str,
     if headless:
         import matplotlib
         matplotlib.use('Agg')
-        click.echo("Running headless")
     import matplotlib.pyplot as plt
 
     from matplotlib import patches

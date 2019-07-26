@@ -49,8 +49,8 @@ def plot_planner_stats(json_file: str,
                        ignore_planners='',
                        silence=False,
                        ticks_rotation=90,
-                       fig_width: float = 5,
-                       fig_height: float = 4,
+                       fig_width: float = 6,
+                       fig_height: float = 6,
                        metrics='path_length, curvature, planning_time, mean_clearing_distance, cusps, aggregate',
                        dpi: int = 200, **kwargs):
     kwargs.update(locals())

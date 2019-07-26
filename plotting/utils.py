@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import click
 
-from definitions import steer_functions, steer_function_names, smoother_names
+from definitions import steer_functions, steer_function_names, smoother_names, smoothers
 import numpy as np
 
 # Fix random seed (used by kernel density estimation in violin plots)
@@ -100,11 +100,13 @@ def parse_planners(planners: str) -> {str: str}:
     return {s.strip().lower(): s.strip() for s in planners.split(',') if len(s.strip()) > 0}
 
 
-def parse_smoothers(smoothers: str) -> {str: str}:
-    smoothers = [s.strip().lower().replace(' ', '') for s in smoothers.split(',') if len(s.strip()) > 0]
+def parse_smoothers(ss: str) -> {str: str}:
+    if ss == 'all':
+        return smoothers
+    ss = [s.strip().lower().replace(' ', '') for s in ss.split(',') if len(s.strip()) > 0]
     result = {}
     for key, val in smoother_names.items():
-        for s in smoothers:
+        for s in ss:
             if (s in key.lower().replace(' ', '').replace('_', '').replace('-', '')
                     or s in val.lower().replace(' ', '').replace('_', '').replace('-', '')):
                 result[val] = s
