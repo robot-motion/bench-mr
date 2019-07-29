@@ -3,7 +3,9 @@ import json
 
 
 def retrieve_planner_stats_by_run(json_file: str, planners: str = 'all', run_id: str = 'all'):
-    data = json.load(open(json_file, "r"))
+    file = open(json_file, "r")
+    data = json.load(file)
+    file.close()
     run_ids = parse_run_ids(run_id, len(data["runs"]))
     all_planners = (planners == 'all')
     planners = parse_planners(planners)

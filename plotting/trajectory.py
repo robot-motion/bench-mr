@@ -86,7 +86,9 @@ def visualize(json_file: str,
     if len(ignore_smoothers) > 0 and not silence:
         click.echo('Ignoring the following smoother(s): %s' % ', '.join(ignore_smoothers))
 
-    data = json.load(open(json_file, "r"))
+    file = open(json_file, "r")
+    data = json.load(file)
+    file.close()
     run_ids = parse_run_ids(run_id, len(data["runs"]))
 
     axes_h, axes_v = 1, 1

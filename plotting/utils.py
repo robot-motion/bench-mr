@@ -130,6 +130,7 @@ def print_run_info(data, run_id: int, run_ids: [int]):
     click.echo('+ Steering:        %s ' % steering)
     env = run["environment"]
     click.echo('+ Environment:     %s' % env["name"])
+    click.echo('+ Planners:        %s' % (', '.join(run["plans"].keys())))
     total_count = len(run["plans"])
     found_count = len([plan for plan in run["plans"].values() if plan["stats"]["path_found"]])
     exact_count = len(

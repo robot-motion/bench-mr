@@ -19,7 +19,8 @@ class MPB:
     def __init__(self,
                  config_file: str = '../bin/benchmark_template.json',
                  output_path: str = ''):
-        self.config = json.load(open(config_file, 'r'))["settings"]  # type: dict
+        with open(config_file, 'r') as f:
+            self.config = json.load(f)["settings"]  # type: dict
         self.output_path = output_path  # type: str
         self.id = None  # type: Optional[str]
         self._planners = []  # type: [str]
@@ -106,9 +107,10 @@ class MPB:
                 self["benchmark.smoothing." + p] = False
 
     def save_settings(self, filename: str):
-        json.dump({
-            "settings": self.config
-        }, open(filename, 'w'), indent=2)
+        with open(filename, 'w') as f:
+            json.dump({
+                "settings": self.config
+            }, f, indent=2)
 
     def set_id(self, id: str):
         self.id = id
@@ -152,7 +154,16 @@ class MPB:
         if show_progress_bar:
             pbar.close()
         logfile.close()
-        return tsk.poll()
+        code = tsk.poll()
+        tsk.terminate()
+        return code
+
+    def print_info(self):
+        with open(self.results_filename, "r") as f:
+            data = json.load(f)
+            run_ids = list(range(len(data["runs"])))
+            for run_id in run_ids:
+                print_run_info(data, run_id, run_ids)
 
     def visualize_trajectories(self, **kwargs):
         from trajectory import visualize

@@ -69,7 +69,9 @@ def visualize_traj_convergence(json_file: str, run_id: str = 'all',
 
     planners = parse_planners(planners)
 
-    data = json.load(open(json_file, "r"))
+    file = open(json_file, "r")
+    data = json.load(file)
+    file.close()
     run_ids = parse_run_ids(run_id, len(data["runs"]))
 
     if combine_views:

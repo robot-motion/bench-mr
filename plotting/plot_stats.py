@@ -72,7 +72,9 @@ def plot_planner_stats(json_file: str,
     if len(ignore_planners) > 0 and not silence:
         click.echo('Ignoring the following planner(s): %s' % ', '.join(ignore_planners))
 
-    data = json.load(open(json_file, "r"))
+    file = open(json_file, "r")
+    data = json.load(file)
+    file.close()
     run_ids = parse_run_ids(run_id, len(data["runs"]))
 
     if combine_views:
@@ -217,7 +219,9 @@ def plot_smoother_stats(json_file: str,
     if len(ignore_smoothers) > 0 and not silence:
         click.echo('Ignoring the following smoother(s): %s' % ', '.join(ignore_smoothers))
 
-    data = json.load(open(json_file, "r"))
+    file = open(json_file, "r")
+    data = json.load(file)
+    file.close()
     run_ids = parse_run_ids(run_id, len(data["runs"]))
 
     if combine_views:
