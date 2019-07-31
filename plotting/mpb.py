@@ -12,7 +12,7 @@ from multiprocessing import Pool
 from tqdm import tqdm_notebook
 
 MPB_BINARY = './benchmark'
-MPB_BINARY_DIR = '../../bin'
+MPB_BINARY_DIR = '../bin'
 
 
 class MPB:
@@ -184,6 +184,35 @@ class MPB:
     def plot_smoother_stats(self, **kwargs):
         from plot_stats import plot_smoother_stats
         plot_smoother_stats(self.results_filename, **kwargs)
+        
+    @staticmethod
+    def merge(mpbs, target_filename: str):
+        """
+        Merges results of the given MPB instances into one file.
+        """
+        target = None
+        for i, m in enumerate(mpbs):
+            with open(m.results_filename) as res_file:
+                res = json.load(res_file)
+                if i == 0:
+                    target = res
+                else:
+                    # TODO check settings, environments are the same for each run before merging
+                    for run_id, run in enumerate(res["runs"]):
+                        if run_id >= len(target["runs"]):
+                            print("Run #%i does not exist in %s but in %s. Skipping."
+                                  % (run_id, mpbs[i-1].results_filename, m.results_filename), file=sys.stderr)
+                        else:
+                            for planner, plan in run["plans"].items():
+                                if planner in target["runs"][run_id]["plans"]:
+                                    print("Planner %s already exists in %s and in %s. Skipping."
+                                          % (planner, mpbs[i-1].results_filename, m.results_filename), file=sys.stderr)
+                                else:
+                                    target["runs"][run_id]["plans"][planner] = plan
+        
+        with open(target_filename, "w") as target_file:
+            json.dump(target, target_file, indent=2)
+            print("Successfully merged [%s] into %s." % (", ".join(m.results_filename for m in mpbs), target_filename))
 
 
 class MultipleMPB:
@@ -277,3 +306,19 @@ class MultipleMPB:
             m.visualize_trajectories(**kwargs)
             plt.title("%s" % m.id)
         plt.tight_layout()
+        
+    def plot_planner_stats(self, **kwargs):
+        from plot_stats import plot_planner_stats
+        import matplotlib.pyplot as plt
+        for i, m in enumerate(self.benchmarks):            
+            m.plot_planner_stats(**kwargs)
+            plt.suptitle(m.id, fontsize=24, y=1.05)
+            plt.tight_layout()
+
+    def plot_smoother_stats(self, **kwargs):
+        from plot_stats import plot_smoother_stats
+        import matplotlib.pyplot as plt
+        for i, m in enumerate(self.benchmarks):            
+            m.plot_smoother_stats(**kwargs)
+            plt.suptitle(m.id, fontsize=24, y=1.05)
+            plt.tight_layout()

@@ -307,7 +307,7 @@ def plot_smoother_stats(json_file: str,
                                         [stat],
                                         color=violin_colors[bar_names.index(planner) % kwargs['num_colors']],
                                         s=4)
-                    if "smoothing" in plan:
+                    if "smoothing" in plan and plan["smoothing"] is not None:
                         for smoother, smoothing in plan["smoothing"].items():
                             if smoother in ignore_smoothers:
                                 continue

@@ -73,6 +73,8 @@ def plot_smoother_aggregate(ax, runs, planners: [str], smoothers: [str], separat
                         collision_free[planner] += 1
                     if plan["stats"]["exact_goal_path"]:
                         exact[planner] += 1
+                if "smoothing" not in plan or plan["smoothing"] is None:
+                    continue
                 for smoother, smoothing in plan["smoothing"].items():
                     if smoothing["name"] not in smoothers:
                         continue

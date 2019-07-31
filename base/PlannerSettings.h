@@ -230,11 +230,11 @@ struct GlobalSettings : public Group {
      */
     struct SmoothingSettings : public Group {
       using Group::Group;
-      Property<bool> grips{true, "grips", this};
+      Property<bool> grips{false, "grips", this};
       Property<bool> chomp{false, "chomp", this};
-      Property<bool> ompl_shortcut{true, "ompl_shortcut", this};
-      Property<bool> ompl_bspline{true, "ompl_bspline", this};
-      Property<bool> ompl_simplify_max{true, "ompl_simplify_max", this};
+      Property<bool> ompl_shortcut{false, "ompl_shortcut", this};
+      Property<bool> ompl_bspline{false, "ompl_bspline", this};
+      Property<bool> ompl_simplify_max{false, "ompl_simplify_max", this};
     } smoothing{"smoothing", this};
 
     /**
