@@ -34,7 +34,9 @@ RUN \
     nlohmann-json-dev \
     python3-pip \
     ffmpeg \
-    libhdf5-dev
+    libhdf5-dev \
+    npm \
+    nodejs
 
 RUN mkdir -p /root/code
 
@@ -65,7 +67,11 @@ RUN python3 -m pip install \
     'xlrd' \
     'jupyterlab' \
     'click' \
-    'bitarray==0.8.3'
+    'bitarray==0.8.3' \
+    'tqdm'
+
+# Install ipywidgets for Jupyter Lab
+RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager
 
 # Copy mpb folder
 COPY . /root/code/mpb

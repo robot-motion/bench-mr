@@ -102,6 +102,9 @@ def visualize(json_file: str,
     plot_labels = []
     for i in run_ids:
         run = data["runs"][i]
+        if run["plans"] is None:
+            print("No plans were found in %s at run #%i." % (json_file, i))
+            continue
         for j, (planner, plan) in enumerate(run["plans"].items()):
             if planner.lower() in ignore_planners:
                 continue
@@ -137,6 +140,8 @@ def visualize(json_file: str,
             #     print("Using settings from run %i." % i)
         else:
             settings = data["settings"]
+        if run["plans"] is None:
+            continue
         for j, (planner, plan) in enumerate(run["plans"].items()):
             if planner.lower() in ignore_planners:
                 continue
