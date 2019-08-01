@@ -103,9 +103,6 @@ void config_steering_and_run(int run_id, int start_id, int end_id,
 }
 
 int main(int argc, char **argv) {
-  std::cout << std::setw(2)
-            << nlohmann::json::parse(nlohmann::json(global::settings).dump())
-            << std::endl;
   std::ofstream o("benchmark_template.json");
   o << std::setw(2) << nlohmann::json(global::settings);
   o.close();
@@ -118,7 +115,8 @@ int main(int argc, char **argv) {
   std::ifstream stream(argv[1]);
   const nlohmann::json settings = nlohmann::json::parse(stream);
   global::settings.load(settings);
-  std::cout << "Loaded the following settings:" << std::endl
+  std::cout << "Loaded the following settings from " << argv[1] << ":"
+            << std::endl
             << global::settings << std::endl;
 
   Log::instantiateRun();

@@ -23,13 +23,7 @@ class MPB:
         if not os.path.exists(bin_path):
             raise Exception('Error: Could not find benchmark binary file at %s. ' % bin_path +
                             'Make sure you have built it and set the correct MPB_BINARY_DIR variable in %s.' % __file__)
-        if not os.path.exists(config_file):
-            raise Exception('Could not find configuration template file at %s. ' % os.path.abspath(
-                os.path.join(MPB_BINARY_DIR, 'benchmark_template.json')) +
-                            'Make sure you run the benchmark binary without CLI arguments to generate ' +
-                            'benchmark_template.json.')
-        with open(config_file, 'r') as f:
-            self.config = json.load(f)["settings"]  # type: dict
+        self.config = MPB.get_config(config_file)  # type: dict
         self.output_path = output_path  # type: str
         self.id = None  # type: Optional[str]
         self._planners = [planner for planner, used in self["benchmark.planning"].items() if used]  # type: [str]
@@ -45,19 +39,35 @@ class MPB:
         self.config_filename = config_file  # type: Optional[str]
         self.results_filename = None  # type: Optional[str]
 
-    def __getitem__(self, item: str):
+    def __getitem__(self, item: str) -> dict:
         c = self.config
         for s in item.split('.'):
             c = c[s]
         return c
 
-    def __setitem__(self, item: str, value):
+    def __setitem__(self, item: str, value: object) -> object:
         c = self.config
         splits = item.split('.')
         for s in splits[:-1]:
             c = c[s]
         c[splits[-1]] = value
-        return c
+        return value
+
+    def update(self, config: dict) -> dict:
+        for key, value in config.items():
+            self[key] = value
+        return self.config
+
+    @staticmethod
+    def get_config(config_file: str = os.path.join(MPB_BINARY_DIR, 'benchmark_template.json')) -> dict:
+        if not os.path.exists(config_file):
+            raise Exception('Could not find configuration template file at %s. ' % os.path.abspath(
+                os.path.join(MPB_BINARY_DIR, 'benchmark_template.json')) +
+                            'Make sure you run the benchmark binary without CLI arguments to generate ' +
+                            'benchmark_template.json.')
+        with open(config_file, 'r') as f:
+            config = json.load(f)["settings"]  # type: dict
+        return config
 
     def set_random_grid_env(self,
                             width: int = 50,
@@ -125,7 +135,7 @@ class MPB:
         self.results_filename = os.path.join(subfolder, self.id) + "_results.json"
         self["benchmark.log_file"] = os.path.abspath(self.results_filename)
 
-    def run(self, id: str = None, runs: Optional[int] = 1, subfolder: str = '', show_progress_bar: bool = True):
+    def run(self, id: str = None, runs: Optional[int] = 1, subfolder: str = '', show_progress_bar: bool = True) -> int:
         if runs:
             self["benchmark.runs"] = runs
         else:
@@ -154,6 +164,7 @@ class MPB:
             if line == '':
                 break
             if '<stats>' in line:
+                # some planner (and its smoothers) has finished
                 if show_progress_bar:
                     pbar.update(1)
                 # print('%s: %i / %i' % (id, iteration, total_iterations))
@@ -221,15 +232,19 @@ class MultipleMPB:
         self.benchmarks = []  # type: [MPB]
         self.subfolder = ''
 
-    def __getitem__(self, item: str, index: int = 0):
+    def __getitem__(self, item: str, index: int = 0) -> dict:
         return self.benchmarks[index][item]
 
     def __setitem__(self, item: str, value):
         for i in range(len(self.benchmarks)):
             self.benchmarks[i][item] = value
 
+    def update(self, config: dict):
+        for m in self.benchmarks:
+            m.update(config)
+
     @staticmethod
-    def run_(arg):
+    def run_(arg) -> int:
         config_filename, index, mpb_id, subfolder = arg
         mpb = MPB(config_file=config_filename)
         code = mpb.run(id=mpb_id,
@@ -242,7 +257,11 @@ class MultipleMPB:
             print("Benchmark %i (%s) failed. Return code: %i." % (index, mpb_id, code), file=sys.stderr)
         return code
 
-    def run_parallel(self, id: str = None, use_subfolder: bool = True, runs: int = 1, processes: int = os.cpu_count()):
+    def run_parallel(self,
+                     id: str = None,
+                     use_subfolder: bool = True,
+                     runs: int = 1,
+                     processes: int = os.cpu_count()) -> int:
         self["benchmark.runs"] = runs
         ts = time.time()
         if id:
@@ -287,6 +306,8 @@ class MultipleMPB:
                         continue
                     print("Benchmark %i failed with return code %i. See log file %s."
                           % (i, code, log_files[i]), file=sys.stderr)
+                return results[0]
+        return 0
 
     def visualize_trajectories(self, **kwargs):
         import matplotlib.pyplot as plt
