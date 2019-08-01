@@ -197,7 +197,7 @@ class MPB:
         plot_smoother_stats(self.results_filename, **kwargs)
         
     @staticmethod
-    def merge(mpbs, target_filename: str):
+    def merge(mpbs, target_filename: str, make_separate_runs: bool = False):
         """
         Merges results of the given MPB instances into one file.
         """
@@ -210,6 +210,9 @@ class MPB:
                 else:
                     # TODO check settings, environments are the same for each run before merging
                     for run_id, run in enumerate(res["runs"]):
+                        if make_separate_runs:
+                            target["runs"].append(run)
+                            continue
                         if run_id >= len(target["runs"]):
                             print("Run #%i does not exist in %s but in %s. Skipping."
                                   % (run_id, mpbs[i-1].results_filename, m.results_filename), file=sys.stderr)
