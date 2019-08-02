@@ -189,10 +189,13 @@ class MPB:
             pbar.close()
         logfile.close()
         code = tsk.poll()
-        tsk.terminate()
+        #         tsk.terminate()
         return code
 
     def print_info(self):
+        if not os.path.exists(self.results_filename):
+            print("No results file exists for MPB %s." % self.id)
+            return
         with open(self.results_filename, "r") as f:
             data = json.load(f)
             run_ids = list(range(len(data["runs"])))
@@ -200,14 +203,23 @@ class MPB:
                 print_run_info(data, run_id, run_ids)
 
     def visualize_trajectories(self, **kwargs):
+        if not os.path.exists(self.results_filename):
+            print("No results file exists for MPB %s." % self.id)
+            return
         from trajectory import visualize
         visualize(self.results_filename, **kwargs)
 
     def plot_planner_stats(self, **kwargs):
+        if not os.path.exists(self.results_filename):
+            print("No results file exists for MPB %s." % self.id)
+            return
         from plot_stats import plot_planner_stats
         plot_planner_stats(self.results_filename, **kwargs)
 
     def plot_smoother_stats(self, **kwargs):
+        if not os.path.exists(self.results_filename):
+            print("No results file exists for MPB %s." % self.id)
+            return
         from plot_stats import plot_smoother_stats
         plot_smoother_stats(self.results_filename, **kwargs)
         
@@ -218,6 +230,10 @@ class MPB:
         """
         target = None
         for i, m in enumerate(mpbs):
+            
+            if not os.path.exists(m.results_filename):
+                print("No results file exists for MPB %s. Skipping." % m.id)
+                continue
             with open(m.results_filename) as res_file:
                 res = json.load(res_file)
                 if i == 0:
