@@ -265,7 +265,7 @@ struct GlobalSettings : public Group {
       Property<bool> prm_star{true, "prm_star", this};
       Property<bool> est{true, "est", this};
       Property<bool> sbl{false, "sbl", this};
-      Property<bool> fmt{true, "fmt", this};
+      Property<bool> fmt{false, "fmt", this};
       Property<bool> bfmt{true, "bfmt", this};
       Property<bool> sst{true, "sst", this};
       Property<bool> kpiece{true, "kpiece", this};
