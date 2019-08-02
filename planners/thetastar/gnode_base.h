@@ -58,5 +58,5 @@ class GNode_base {
   /// bool isblock(double x, double y)
   /// Check if the cell is blocked by an obstacle
   /// ============================================================================================
-  static bool isblock(double x, double y);
+  static bool isblock(double x, double y, double theta);
 };

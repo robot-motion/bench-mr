@@ -5,6 +5,7 @@ import time
 import itertools
 import os
 import sys
+import resource
 from typing import Optional
 
 from utils import *
@@ -13,6 +14,9 @@ from tqdm import tqdm_notebook
 
 MPB_BINARY = './benchmark'
 MPB_BINARY_DIR = '../bin'
+
+# limit memory by this fraction of available memory if activated for parallel MPB execution
+MEMORY_LIMIT_FRACTION = min(0.9, 5. / os.cpu_count())
 
 
 class MPB:
@@ -135,6 +139,17 @@ class MPB:
         self.results_filename = os.path.join(subfolder, self.id) + "_results.json"
         self["benchmark.log_file"] = os.path.abspath(self.results_filename)
 
+    @staticmethod
+    def get_memory():
+        # thanks to https://stackoverflow.com/a/41125461
+        with open('/proc/meminfo', 'r') as mem:
+            free_memory = 0
+            for i in mem:
+                sline = i.split()
+                if str(sline[0]) in ('MemFree:', 'Buffers:', 'Cached:'):
+                    free_memory += int(sline[1])
+        return free_memory
+
     def run(self, id: str = None, runs: Optional[int] = 1, subfolder: str = '', show_progress_bar: bool = True) -> int:
         if runs:
             self["benchmark.runs"] = runs
@@ -248,7 +263,9 @@ class MultipleMPB:
 
     @staticmethod
     def run_(arg) -> int:
-        config_filename, index, mpb_id, subfolder = arg
+        config_filename, index, mpb_id, subfolder, memory_limit = arg
+        if memory_limit != 0:
+            resource.setrlimit(resource.RLIMIT_AS, memory_limit)
         mpb = MPB(config_file=config_filename)
         code = mpb.run(id=mpb_id,
                        runs=None,
@@ -264,7 +281,15 @@ class MultipleMPB:
                      id: str = None,
                      use_subfolder: bool = True,
                      runs: int = 1,
-                     processes: int = os.cpu_count()) -> int:
+                     processes: int = os.cpu_count(),
+                     limit_memory: bool = True) -> bool:
+        memory_limit = 0
+        if limit_memory:
+            print("Available memory: %.2f GB, limiting each MPB process to %.1f%% usage." %
+                  (MPB.get_memory() / 1e6, MEMORY_LIMIT_FRACTION * 100))
+            soft, hard = resource.getrlimit(resource.RLIMIT_AS)
+            memory_limit = (MPB.get_memory() * 1024 * MEMORY_LIMIT_FRACTION, hard)
+
         self["benchmark.runs"] = runs
         ts = time.time()
         if id:
@@ -299,7 +324,8 @@ class MultipleMPB:
                                zip(config_files,
                                    range(len(self.benchmarks)),
                                    ids,
-                                   [self.subfolder] * len(self.benchmarks)))
+                                   [self.subfolder] * len(self.benchmarks),
+                                   [memory_limit] * len(self.benchmarks)))
             if all([r == 0 for r in results]):
                 print("All benchmarks succeeded.")
             else:
@@ -309,8 +335,8 @@ class MultipleMPB:
                         continue
                     print("Benchmark %i failed with return code %i. See log file %s."
                           % (i, code, log_files[i]), file=sys.stderr)
-                return results[0]
-        return 0
+                return False
+        return True
 
     def visualize_trajectories(self, **kwargs):
         import matplotlib.pyplot as plt
@@ -332,7 +358,6 @@ class MultipleMPB:
         plt.tight_layout()
         
     def plot_planner_stats(self, **kwargs):
-        from plot_stats import plot_planner_stats
         import matplotlib.pyplot as plt
         for i, m in enumerate(self.benchmarks):            
             m.plot_planner_stats(**kwargs)
@@ -340,7 +365,6 @@ class MultipleMPB:
             plt.tight_layout()
 
     def plot_smoother_stats(self, **kwargs):
-        from plot_stats import plot_smoother_stats
         import matplotlib.pyplot as plt
         for i, m in enumerate(self.benchmarks):            
             m.plot_smoother_stats(**kwargs)

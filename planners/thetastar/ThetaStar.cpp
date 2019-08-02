@@ -1,6 +1,6 @@
 #include <ompl/base/Planner.h>
-#include <utils/PlannerUtils.hpp>
 #include <utility>
+#include <utils/PlannerUtils.hpp>
 #include <utils/Stopwatch.hpp>
 
 #include "ThetaStar.h"
@@ -51,6 +51,8 @@ bool ThetaStar::initialize() { return true; }
 bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start,
                        GNode goal) {
   paths.clear();
+  Stopwatch sw;
+  sw.start();
 
   //    OMPL_DEBUG("Theta*: Start: %d, %d --- Goal: %d, %d ", start.x, start.y,
   //    goal.x, goal.y);
@@ -76,6 +78,10 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start,
 
     unsigned int SearchState;
     do {
+      if (sw.elapsed() > global::settings.max_planning_time) {
+        OMPL_WARN("Theta* could not finish within the allotted time limit.");
+        return false;
+      }
       SearchState = thetastarsearch.SearchStep();
 
       _steps++;
@@ -83,8 +89,7 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start,
       if (SearchState != ThetaStarSearch<GNode>::SEARCH_STATE_SEARCHING) break;
 
       p = thetastarsearch.GetOpenListStart();
-      //            if (p == nullptr)
-      //                OMPL_INFORM("THETA*: No open nodes");
+      //      if (p == nullptr) OMPL_INFORM("THETA*: No open nodes");
 
 #if DEBUG
       while (p) {
@@ -211,7 +216,7 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start,
     }
 
     // Display the number of loops the search went through
-    OMPL_DEBUG("Theta* _steps: %d ", (int)_steps);
+    OMPL_DEBUG("Theta* steps: %d ", (int)_steps);
 
     SearchCount++;
 
@@ -294,7 +299,12 @@ ob::PlannerStatus ThetaStar::solve(const ob::PlannerTerminationCondition &ptc) {
 
   global_paths.clear();
 
-//  global::settings.steering->clearInternalData();
+  //  global::settings.steering->clearInternalData();
+  // XXX scale collision model to prevent that all solutions are colliding
+  const auto original_shape =
+      global::settings.env.collision.robot_shape.value();
+  if (global::settings.env.collision.collision_model == robot::ROBOT_POLYGON)
+    global::settings.env.collision.robot_shape.value().scale(2);
 
   OMPL_DEBUG("Theta*: Generate a new global path");
   Stopwatch sw;
@@ -302,6 +312,9 @@ ob::PlannerStatus ThetaStar::solve(const ob::PlannerTerminationCondition &ptc) {
   search(global_paths, startNode, goalNode);
   sw.stop();
   _planningTime = sw.elapsed();
+
+  // revert collision shape
+  global::settings.env.collision.robot_shape = original_shape;
 
   OMPL_INFORM("Theta* search finished");
   OMPL_DEBUG("Global path size: %d", (int)global_paths[0].size());

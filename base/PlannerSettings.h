@@ -223,6 +223,12 @@ struct GlobalSettings : public Group {
        * are allowed.
        */
       Property<int> end{-1, "end", this};
+
+      /**
+       * Create a border of width 1 to prevent solutions leading outside the map
+       * boundaries.
+       */
+      Property<bool> create_border{true, "create_border", this};
     } moving_ai{"moving_ai", this};
 
     /**

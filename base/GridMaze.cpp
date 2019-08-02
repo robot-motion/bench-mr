@@ -572,11 +572,14 @@ GridMaze *GridMaze::createFromMovingAiScenario(Scenario &scenario) {
 
   // construct map
   const auto &grid = scenario.getMap();
-  for (int x = 0; x < scenario.map_width; x++) {
-    for (int y = 0; y < scenario.map_height; y++)
+  for (unsigned int x = 0; x < scenario.map_width; x++) {
+    for (unsigned int y = 0; y < scenario.map_height; y++)
       // XXX the map is transposed!
-      environment->fill(y, x, grid[x][y] != '.');
+      environment->fill(x, y, grid[y][x] != '.');
   }
+
+  if (global::settings.benchmark.moving_ai.create_border.value())
+    environment->fillBorder(true);
 
   std::cout << "Loaded scenario " << scenario << std::endl;
   //  std::cout << *environment << std::endl;

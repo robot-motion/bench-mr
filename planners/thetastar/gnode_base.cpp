@@ -6,16 +6,19 @@
 #include "gui/QtVisualizer.h"
 #endif
 
-bool GNode_base::isblock(double x, double y) {
+bool GNode_base::isblock(double x, double y, double theta) {
   //    bool c = global::settings.environment->collides(x, y);
   //    QtVisualizer::drawNode(x, y, c ? Qt::red : Qt::darkGreen, 0.05);
   //    return c;
-  return global::settings.environment->collides(x, y) || global::settings.environment->bilinearDistance(x, y) <= 0.3;
+  //  return global::settings.environment->collides(x, y) ||
+  //         global::settings.environment->bilinearDistance(x, y) <= 0.5;
+  return !global::settings.environment->checkValidity(Point(x, y).toState(theta));
 }
 
 bool GNode_base::line(double x0, double y0, double y1, double x1) {
   double dx = (x1 - x0);
   double dy = (y1 - y0);
+  const double theta = std::atan2(dy, dx);
   const double size = std::sqrt(dx * dx + dy * dy);
   const double scale = 0.1;
   dx = dx / size * scale;
@@ -24,7 +27,7 @@ bool GNode_base::line(double x0, double y0, double y1, double x1) {
   const auto steps = (int)(size / std::sqrt(dx * dx + dy * dy));
 
   for (int j = 1; j < steps; ++j) {
-    if (GNode_base::isblock(x0 + dx * j, y0 + dy * j)) {
+    if (GNode_base::isblock(x0 + dx * j, y0 + dy * j, theta)) {
       return false;
     }
   }

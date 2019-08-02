@@ -23,6 +23,11 @@ class Environment {
     return collides(s->getX(), s->getY());
   }
 
+  /**
+   * Used by planners to determine if the state is valid or not.
+   */
+  bool checkValidity(const ob::State *state);
+
   inline const ob::RealVectorBounds &bounds() const { return _bounds; }
   inline double width() const { return _bounds.high.at(0); }
   inline double height() const { return _bounds.high.at(1); }

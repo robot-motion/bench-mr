@@ -14,6 +14,17 @@ bool Environment::collides(const ompl::geometric::PathGeometric &trajectory) {
   return false;
 }
 
+bool Environment::checkValidity(const ob::State *state) {
+  if (global::settings.env.collision.collision_model == robot::ROBOT_POINT) {
+    const auto *s = state->as<ob::SE2StateSpace::StateType>();
+    const double x = s->getX(), y = s->getY();
+    return !collides(x, y);
+  } else {
+    return !global::settings.environment->collides(
+        global::settings.env.collision.robot_shape.value().transformed(state));
+  }
+}
+
 double Environment::bilinearDistance(double x, double y, double cellSize) {
   const double xi =
       std::floor(std::max(std::min(width(), x), 0.) / cellSize) * cellSize;
@@ -53,7 +64,8 @@ bool Environment::distanceGradient(double x, double y, double &dx, double &dy,
 void Environment::estimateStartGoalOrientations() {
   const auto cacheSteeringType = global::settings.steer.steering_type;
   const auto cacheEstimateTheta = global::settings.estimate_theta;
-  const auto cacheCollisionMode = global::settings.env.collision.collision_model;
+  const auto cacheCollisionMode =
+      global::settings.env.collision.collision_model;
   global::settings.steer.steering_type = Steering::STEER_TYPE_LINEAR;
   global::settings.estimate_theta = false;
   global::settings.env.collision.collision_model = robot::ROBOT_POINT;
