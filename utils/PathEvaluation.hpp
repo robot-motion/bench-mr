@@ -88,6 +88,8 @@ struct PathEvaluation {
     } else {
       j["path"] = {};
       j["stats"] = nlohmann::json(stats)["stats"];
+      j["trajectory"] = {};
+      j["intermediary_solutions"] = {};
       return false;
     }
     std::cout << stats << std::endl;
