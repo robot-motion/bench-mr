@@ -3,6 +3,7 @@
 #include <ompl/util/Console.h>
 
 #include "../../base/PlannerSettings.h"
+#include "../../utils/PlannerUtils.hpp"
 
 #include "gnode_base.h"
 #include "stl_thetastar.h"
@@ -714,14 +715,9 @@ class GNode : public GNode_base {
   /// with the orientation being the one of the line connecting the two poses
   /// ============================================================================================
   bool lineofsight(GNode *parent_node, GNode *successor) {
-    // TODO reactivate?
-    //        bool res = global::settings.steering->Steer(parent_node,
-    //        successor);
-    //
-    //        successor->setParent(parent_node);
-    //
-    //        return res;
-
     return line(successor, parent_node);
+//       return PlannerUtils::collides(
+//           Point(parent_node->x_r, parent_node->y_r).toState(parent_node->theta),
+//           Point(successor->x_r, successor->y_r).toState(successor->theta));
   }
 };

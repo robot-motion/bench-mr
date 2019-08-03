@@ -10,9 +10,12 @@ bool GNode_base::isblock(double x, double y, double theta) {
   //    bool c = global::settings.environment->collides(x, y);
   //    QtVisualizer::drawNode(x, y, c ? Qt::red : Qt::darkGreen, 0.05);
   //    return c;
-  //  return global::settings.environment->collides(x, y) ||
-  //         global::settings.environment->bilinearDistance(x, y) <= 0.5;
-  return !global::settings.environment->checkValidity(Point(x, y).toState(theta));
+  if (global::settings.env.collision.collision_model == robot::ROBOT_POLYGON)
+    return !global::settings.environment->checkValidity(Point(x, y).toState(theta));
+    
+  // XXX ensure larger distance to prevent too low clearing distances
+  return global::settings.environment->collides(x, y) ||
+         global::settings.environment->bilinearDistance(x, y) <= 1.5;
 }
 
 bool GNode_base::line(double x0, double y0, double y1, double x1) {
@@ -20,7 +23,7 @@ bool GNode_base::line(double x0, double y0, double y1, double x1) {
   double dy = (y1 - y0);
   const double theta = std::atan2(dy, dx);
   const double size = std::sqrt(dx * dx + dy * dy);
-  const double scale = 0.1;
+  const double scale = 0.05;
   dx = dx / size * scale;
   dy = dy / size * scale;
 
