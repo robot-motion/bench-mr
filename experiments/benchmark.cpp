@@ -143,6 +143,7 @@ int main(int argc, char **argv) {
       auto info =
           nlohmann::json({{"optimalDistance", scenario.optimal_length}});
       config_steering_and_run(i, start_id, end_id, info);
+      Log::save(global::settings.benchmark.log_file);
     }
   } else {
     for (unsigned int i = 0; i < global::settings.benchmark.runs; ++i) {
@@ -159,10 +160,9 @@ int main(int argc, char **argv) {
 
       nlohmann::json info;
       config_steering_and_run(i, 0, global::settings.benchmark.runs, info);
+      Log::save(global::settings.benchmark.log_file);
     }
   }
-
-  Log::save(global::settings.benchmark.log_file);
 
   return EXIT_SUCCESS;
 }

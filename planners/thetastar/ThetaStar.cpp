@@ -319,7 +319,7 @@ ob::PlannerStatus ThetaStar::solve(const ob::PlannerTerminationCondition &ptc) {
   OMPL_INFORM("Theta* search finished");
   if (global_paths.empty() || global_paths[0].empty()) {
     OMPL_WARN("Theta*: No Path found");
-    return ob::PlannerStatus::ABORT;
+    return ob::PlannerStatus::TIMEOUT;
   }
 
   for (auto &gnodes : global_paths) {

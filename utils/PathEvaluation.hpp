@@ -87,6 +87,8 @@ struct PathEvaluation {
       j["path"] = Log::serializeTrajectory(planner.solution(), false);
     } else {
       j["path"] = {};
+      j["stats"] = nlohmann::json(stats)["stats"];
+      return false;
     }
     std::cout << stats << std::endl;
     std::cout << "Steer function: "
