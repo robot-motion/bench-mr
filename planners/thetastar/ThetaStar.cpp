@@ -317,8 +317,7 @@ ob::PlannerStatus ThetaStar::solve(const ob::PlannerTerminationCondition &ptc) {
   global::settings.env.collision.robot_shape = original_shape;
 
   OMPL_INFORM("Theta* search finished");
-  OMPL_DEBUG("Global path size: %d", (int)global_paths[0].size());
-  if ((int)global_paths[0].size() == 0) {
+  if (global_paths.empty() || global_paths[0].empty()) {
     OMPL_WARN("Theta*: No Path found");
     return ob::PlannerStatus::ABORT;
   }
