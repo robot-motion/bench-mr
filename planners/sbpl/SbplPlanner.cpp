@@ -124,7 +124,7 @@ SbplPlanner<PlannerT>::SbplPlanner()
 template <sbpl::Planner PlannerT>
 SbplPlanner<PlannerT>::~SbplPlanner() {
   delete _sbPlanner;
-//  delete _env;
+  delete _env;
   delete _heuristic;
 }
 

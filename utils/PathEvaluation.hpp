@@ -163,7 +163,9 @@ struct PathEvaluation {
       createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
       return false;
     }
-    return evaluate(planner, info);
+    auto result = evaluate(planner, info);
+    delete planner;
+    return result;
   }
 
   template <class PLANNER>
@@ -272,6 +274,7 @@ struct PathEvaluation {
           {"stats", nlohmann::json(stats)["stats"]}};
     }
 
+    delete planner;
     return true;
   }
 
