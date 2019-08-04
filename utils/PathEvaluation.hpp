@@ -81,17 +81,38 @@ struct PathEvaluation {
     PathStatistics stats(planner.name());
     auto &j = info["plans"][planner.name()];
     OMPL_INFORM(("Running " + planner.name() + "...").c_str());
-    bool success = false;
-    if (planner.run()) {
-      success = PathEvaluation::evaluate(stats, planner.solution(), &planner);
-      j["path"] = Log::serializeTrajectory(planner.solution(), false);
-    } else {
+    bool success;
+    try {
+      if (planner.run()) {
+        success = PathEvaluation::evaluate(stats, planner.solution(), &planner);
+        j["path"] = Log::serializeTrajectory(planner.solution(), false);
+      } else {
+        j["path"] = {};
+        j["stats"] = nlohmann::json(stats)["stats"];
+        j["trajectory"] = {};
+        j["intermediary_solutions"] = {};
+        return false;
+      }
+    } catch (std::bad_alloc &ba) {
+      // we ran out of memory
+      OMPL_ERROR("Error: Planner %s ran out of memory: %s.",
+                 planner.name().c_str(), ba.what());
+      j["path"] = {};
+      j["stats"] = nlohmann::json(stats)["stats"];
+      j["trajectory"] = {};
+      j["intermediary_solutions"] = {};
+      return false;
+    } catch (...) {
+      OMPL_ERROR(
+          "Error: An unknown exception occurred while running planner %s.",
+          planner.name().c_str());
       j["path"] = {};
       j["stats"] = nlohmann::json(stats)["stats"];
       j["trajectory"] = {};
       j["intermediary_solutions"] = {};
       return false;
     }
+
     std::cout << stats << std::endl;
     std::cout << "Steer function: "
               << Steering::to_string(global::settings.steer.steering_type)
