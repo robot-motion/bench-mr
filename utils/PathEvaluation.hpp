@@ -146,7 +146,7 @@ struct PathEvaluation {
 
   template <class PLANNER>
   static bool evaluate(nlohmann::json &info) {
-    PLANNER *planner;
+    PLANNER *planner = nullptr;
     try {
       planner = new PLANNER;
       PlannerConfigurator::configure(*planner);
@@ -155,12 +155,14 @@ struct PathEvaluation {
       OMPL_ERROR("Error: Run out of memory while creating planner %s: %s.",
                  AbstractPlanner::LastCreatedPlannerName.c_str(), ba.what());
       createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
+      delete planner;
       return false;
     } catch (...) {
       OMPL_ERROR(
           "Error: An unknown exception occurred while creating planner %s.",
           AbstractPlanner::LastCreatedPlannerName.c_str());
       createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
+      delete planner;
       return false;
     }
     auto result = evaluate(planner, info);
@@ -170,7 +172,7 @@ struct PathEvaluation {
 
   template <class PLANNER>
   static bool evaluateSmoothers(nlohmann::json &info) {
-    PLANNER *planner;
+    PLANNER *planner = nullptr;
     try {
       planner = new PLANNER;
       PlannerConfigurator::configure(*planner);
@@ -179,16 +181,19 @@ struct PathEvaluation {
       OMPL_ERROR("Error: Run out of memory while creating planner %s: %s.",
                  AbstractPlanner::LastCreatedPlannerName.c_str(), ba.what());
       createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
+      delete planner;
       return false;
     } catch (...) {
       OMPL_ERROR(
           "Error: An unknown exception occurred while creating planner %s.",
           AbstractPlanner::LastCreatedPlannerName.c_str());
       createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
+      delete planner;
       return false;
     }
     if (!evaluate<PLANNER>(*planner, info)) {
       OMPL_WARN("Cannot evaluate smoothers since no solution could be found.");
+      delete planner;
       return false;
     }
     auto &j = info["plans"][planner->name()]["smoothing"];

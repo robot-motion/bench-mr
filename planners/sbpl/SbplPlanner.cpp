@@ -4,7 +4,8 @@
 
 template <sbpl::Planner PlannerT>
 SbplPlanner<PlannerT>::SbplPlanner()
-    : AbstractPlanner(name()), _solution(og::PathGeometric(global::settings.ompl.space_info)) {
+    : AbstractPlanner(name()),
+      _solution(og::PathGeometric(global::settings.ompl.space_info)) {
   _env = new EnvironmentNAVXYTHETALAT;
 
   // define the robot shape
@@ -30,20 +31,26 @@ SbplPlanner<PlannerT>::SbplPlanner()
   const auto cells_y = static_cast<int>(global::settings.environment->height() *
                                         global::settings.sbpl.scaling);
 
-  _env->InitializeEnv(
-      cells_x, cells_y,
-      nullptr,  // mapdata
-      0, 0, 0,  // start (x, y, theta, t)
-      0, 0, 0,  // goal (x, y, theta)
-                // goal tolerance
-      global::settings.sbpl.goal_tolerance_x,
-      global::settings.sbpl.goal_tolerance_y,
-      global::settings.sbpl.goal_tolerance_theta, perimeterptsV,
-      global::settings.sbpl.resolution,  // cell size
-      global::settings.sbpl.fordward_velocity,
-      global::settings.sbpl.time_to_turn_45_degs_in_place,
-      20u,  // obstacle threshold
-      global::settings.sbpl.motion_primitive_filename.value().c_str());
+  try {
+    _env->InitializeEnv(
+        cells_x, cells_y,
+        nullptr,  // mapdata
+        0, 0, 0,  // start (x, y, theta, t)
+        0, 0, 0,  // goal (x, y, theta)
+        // goal tolerance
+        global::settings.sbpl.goal_tolerance_x,
+        global::settings.sbpl.goal_tolerance_y,
+        global::settings.sbpl.goal_tolerance_theta, perimeterptsV,
+        global::settings.sbpl.resolution,  // cell size
+        global::settings.sbpl.fordward_velocity,
+        global::settings.sbpl.time_to_turn_45_degs_in_place,
+        20u,  // obstacle threshold
+        global::settings.sbpl.motion_primitive_filename.value().c_str());
+  } catch (...) {
+    OMPL_ERROR("Error occurred while creating SBPL environment.");
+    delete _env;
+    throw;
+  }
   for (int ix = 0; ix < cells_x; ++ix) {
     for (int iy = 0; iy < cells_y; ++iy) {
       const bool collides = global::settings.environment->collides(
@@ -184,7 +191,7 @@ bool SbplPlanner<PlannerT>::hasReachedGoalExactly() const {
   const auto *last =
       _solution
           .getState(static_cast<unsigned int>(_solution.getStateCount() - 1))
-          ->as<State>();
+          ->template as<State>();
   return last->getX() == global::settings.environment->goal().x &&
          last->getY() == global::settings.environment->goal().y;
 }
