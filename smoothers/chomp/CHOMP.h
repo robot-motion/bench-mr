@@ -6,7 +6,7 @@
 #include <mzcommon/DtGrid.h>
 #include <utils/Stopwatch.hpp>
 
-#include "planners/AbstractPlanner.hpp"
+#include "planners/AbstractPlanner.h"
 
 using chomp::MatX;
 

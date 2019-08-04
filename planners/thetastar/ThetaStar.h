@@ -3,7 +3,7 @@
 #include <ompl/geometric/PathGeometric.h>
 #include <algorithm>
 
-#include "../AbstractPlanner.hpp"
+#include "planners/AbstractPlanner.h"
 
 #include "gnode.h"
 #include "stl_thetastar.h"

@@ -301,8 +301,8 @@ class MultipleMPB:
                      limit_memory: bool = True) -> bool:
         memory_limit = 0
         if limit_memory:
-            print("Available memory: %.2f GB, limiting each MPB process to %.1f%% usage." %
-                  (MPB.get_memory() / 1e6, MEMORY_LIMIT_FRACTION * 100))
+            print("Available memory: %.2f GB, limiting each MPB process to %.1f%% usage (%.2f GB)." %
+                  (MPB.get_memory() / 1e6, MEMORY_LIMIT_FRACTION * 100, MPB.get_memory() / 1e6 * MEMORY_LIMIT_FRACTION))
             soft, hard = resource.getrlimit(resource.RLIMIT_AS)
             memory_limit = (MPB.get_memory() * 1024 * MEMORY_LIMIT_FRACTION, hard)
 

@@ -12,7 +12,7 @@
 //#define TESTM 0
 
 ThetaStar::ThetaStar()
-    : AbstractPlanner(), ob::Planner(ss->getSpaceInformation(), "Theta*") {
+    : AbstractPlanner(name()), ob::Planner(ss->getSpaceInformation(), "Theta*") {
   srand((unsigned int)(time(nullptr)));
 
   /// Euclidean Cost
@@ -28,7 +28,7 @@ ThetaStar::ThetaStar()
 }
 
 ThetaStar::ThetaStar(bool astar, std::string name)
-    : AbstractPlanner(),
+    : AbstractPlanner(name),
       ob::Planner(ss->getSpaceInformation(), std::move(name)) {
   srand((unsigned int)(time(nullptr)));
 

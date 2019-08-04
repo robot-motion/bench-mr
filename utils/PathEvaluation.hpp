@@ -8,12 +8,29 @@
 
 #include "base/PathStatistics.hpp"
 #include "base/PlannerConfigurator.hpp"
-#include "planners/AbstractPlanner.hpp"
+#include "planners/AbstractPlanner.h"
 #include "utils/Log.h"
 
 #include "smoothers/grips/GRIPS.h"
 
 struct PathEvaluation {
+ private:
+  /**
+   * Creates an empty entry for the given planner in the JSON info object. Used
+   * in cases where the planner failed to find a solution or an error was
+   * encountered.
+   */
+  static void createEmptyEntry(const std::string &planner_name,
+                               nlohmann::json &info) {
+    static PathStatistics empty_stats;
+    auto &j = info["plans"][planner_name];
+    j["path"] = {};
+    j["stats"] = nlohmann::json(empty_stats)["stats"];
+    j["trajectory"] = {};
+    j["intermediary_solutions"] = {};
+  }
+
+ public:
   /**
    * Identifies cusps in a solution path by comparing the yaw angles between
    * every second state.
@@ -87,29 +104,20 @@ struct PathEvaluation {
         success = PathEvaluation::evaluate(stats, planner.solution(), &planner);
         j["path"] = Log::serializeTrajectory(planner.solution(), false);
       } else {
-        j["path"] = {};
-        j["stats"] = nlohmann::json(stats)["stats"];
-        j["trajectory"] = {};
-        j["intermediary_solutions"] = {};
+        createEmptyEntry(planner.name(), info);
         return false;
       }
     } catch (std::bad_alloc &ba) {
       // we ran out of memory
       OMPL_ERROR("Error: Planner %s ran out of memory: %s.",
                  planner.name().c_str(), ba.what());
-      j["path"] = {};
-      j["stats"] = nlohmann::json(stats)["stats"];
-      j["trajectory"] = {};
-      j["intermediary_solutions"] = {};
+      createEmptyEntry(planner.name(), info);
       return false;
     } catch (...) {
       OMPL_ERROR(
           "Error: An unknown exception occurred while running planner %s.",
           planner.name().c_str());
-      j["path"] = {};
-      j["stats"] = nlohmann::json(stats)["stats"];
-      j["trajectory"] = {};
-      j["intermediary_solutions"] = {};
+      createEmptyEntry(planner.name(), info);
       return false;
     }
 
@@ -138,19 +146,50 @@ struct PathEvaluation {
 
   template <class PLANNER>
   static bool evaluate(nlohmann::json &info) {
-    PLANNER planner;
+    PLANNER *planner;
+    try {
+      planner = new PLANNER;
+      PlannerConfigurator::configure(*planner);
+    } catch (std::bad_alloc &ba) {
+      // we ran out of memory
+      OMPL_ERROR("Error: Run out of memory while creating planner %s: %s.",
+                 AbstractPlanner::LastCreatedPlannerName.c_str(), ba.what());
+      createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
+      return false;
+    } catch (...) {
+      OMPL_ERROR(
+          "Error: An unknown exception occurred while creating planner %s.",
+          AbstractPlanner::LastCreatedPlannerName.c_str());
+      createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
+      return false;
+    }
     return evaluate(planner, info);
   }
 
   template <class PLANNER>
   static bool evaluateSmoothers(nlohmann::json &info) {
-    PLANNER planner;
-    PlannerConfigurator::configure(planner);
-    if (!evaluate<PLANNER>(planner, info)) {
+    PLANNER *planner;
+    try {
+      planner = new PLANNER;
+      PlannerConfigurator::configure(*planner);
+    } catch (std::bad_alloc &ba) {
+      // we ran out of memory
+      OMPL_ERROR("Error: Run out of memory while creating planner %s: %s.",
+                 AbstractPlanner::LastCreatedPlannerName.c_str(), ba.what());
+      createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
+      return false;
+    } catch (...) {
+      OMPL_ERROR(
+          "Error: An unknown exception occurred while creating planner %s.",
+          AbstractPlanner::LastCreatedPlannerName.c_str());
+      createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
+      return false;
+    }
+    if (!evaluate<PLANNER>(*planner, info)) {
       OMPL_WARN("Cannot evaluate smoothers since no solution could be found.");
       return false;
     }
-    auto &j = info["plans"][planner.name()]["smoothing"];
+    auto &j = info["plans"][planner->name()]["smoothing"];
 
     if (global::settings.benchmark.smoothing.grips) {
       const double cached_min_node_dist =
@@ -162,10 +201,10 @@ struct PathEvaluation {
         global::settings.smoothing.grips.min_node_distance = 40.;
       }
       // GRIPS
-      og::PathGeometric grips(planner.solution());
+      og::PathGeometric grips(planner->solution());
       GRIPS::smooth(grips);
       PathStatistics grips_stats;
-      evaluate(grips_stats, grips, &planner);
+      evaluate(grips_stats, grips, planner);
       j["grips"] = {{"time", GRIPS::smoothingTime},
                     {"name", "GRIPS"},
                     {"inserted_nodes", GRIPS::insertedNodes},
@@ -180,9 +219,9 @@ struct PathEvaluation {
     if (global::settings.benchmark.smoothing.chomp) {
       // CHOMP
       CHOMP chomp;
-      chomp.run(planner.solution());
+      chomp.run(planner->solution());
       PathStatistics chomp_stats;
-      evaluate(chomp_stats, chomp.solution(), &planner);
+      evaluate(chomp_stats, chomp.solution(), planner);
       j["chomp"] = {{"time", chomp.planningTime()},
                     {"name", "CHOMP"},
                     {"cost", chomp.solution().length()},
@@ -192,12 +231,12 @@ struct PathEvaluation {
     }
 
     // OMPL Smoothers
-    OmplSmoother smoother(planner.simpleSetup(), planner.solution());
+    OmplSmoother smoother(planner->simpleSetup(), planner->solution());
     if (global::settings.benchmark.smoothing.ompl_shortcut) {
       // Shortcut
       PathStatistics stats;
       TimedResult tr = smoother.shortcutPath();
-      evaluate(stats, tr.trajectory, &planner);
+      evaluate(stats, tr.trajectory, planner);
       j["ompl_shortcut"] = {
           {"time", tr.elapsed()},
           {"name", "Shortcut"},
@@ -210,7 +249,7 @@ struct PathEvaluation {
       // B-Spline
       PathStatistics stats;
       TimedResult tr = smoother.smoothBSpline();
-      evaluate(stats, tr.trajectory, &planner);
+      evaluate(stats, tr.trajectory, planner);
       j["ompl_bspline"] = {
           {"time", tr.elapsed()},
           {"name", "B-Spline"},
@@ -223,7 +262,7 @@ struct PathEvaluation {
       // Simplify Max
       PathStatistics stats;
       TimedResult tr = smoother.simplifyMax();
-      evaluate(stats, tr.trajectory, &planner);
+      evaluate(stats, tr.trajectory, planner);
       j["ompl_simplify_max"] = {
           {"time", tr.elapsed()},
           {"name", "SimplifyMax"},
@@ -241,6 +280,7 @@ struct PathEvaluation {
    * provided time intervals (in seconds). This method populates the
    * "intermediary_solutions" field of the JSON object for the given planner.
    */
+  // TODO remove? Python front-end adds this functionality
   template <class PLANNER>
   static bool evaluateAnytime(nlohmann::json &info) {
     PLANNER planner;

@@ -4,7 +4,7 @@
 
 template <sbpl::Planner PlannerT>
 SbplPlanner<PlannerT>::SbplPlanner()
-    : _solution(og::PathGeometric(global::settings.ompl.space_info)) {
+    : AbstractPlanner(name()), _solution(og::PathGeometric(global::settings.ompl.space_info)) {
   _env = new EnvironmentNAVXYTHETALAT;
 
   // define the robot shape

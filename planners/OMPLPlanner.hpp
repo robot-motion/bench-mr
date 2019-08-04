@@ -36,7 +36,7 @@
 #include <ompl/geometric/planners/stride/STRIDE.h>
 
 #include "base/PlannerSettings.h"
-#include "planners/AbstractPlanner.hpp"
+#include "planners/AbstractPlanner.h"
 #include "utils/PlannerUtils.hpp"
 #include "utils/Stopwatch.hpp"
 
@@ -46,8 +46,9 @@ namespace og = ompl::geometric;
 template <class PLANNER>
 class OMPLPlanner : public AbstractPlanner {
  public:
-  OMPLPlanner() : AbstractPlanner() {
+  OMPLPlanner() : AbstractPlanner("OMPL") {
     _omplPlanner = ob::PlannerPtr(new PLANNER(ss->getSpaceInformation()));
+    AbstractPlanner::LastCreatedPlannerName = name();
   }
 
   ob::PlannerStatus run() override {

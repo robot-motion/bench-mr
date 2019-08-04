@@ -2,7 +2,7 @@
 
 #include <sbpl/headers.h>
 
-#include "../AbstractPlanner.hpp"
+#include "planners/AbstractPlanner.h"
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
