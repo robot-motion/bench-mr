@@ -91,6 +91,7 @@ def plot_planner_stats(json_file: str,
                 continue
             if planner not in planners:
                 planners.append(planner)
+    planners = sorted(planners, key=convert_planner_name)
     if 'num_colors' not in kwargs:
         kwargs['num_colors'] = len(planners)
     violin_colors = get_colors(**kwargs)
@@ -112,9 +113,12 @@ def plot_planner_stats(json_file: str,
             stats = {}
             for run_id in run_ids:
                 run = data["runs"][run_id]
-                for j, (planner, plan) in enumerate(run["plans"].items()):
+                for j, planner in enumerate(planners):
                     if planner.lower() in ignore_planners:
                         continue
+                    if planner not in run["plans"]:
+                        continue
+                    plan = run["plans"][planner]
                     if planner not in stats:
                         stats[planner] = []
                     if planner not in valid_planners:
@@ -238,6 +242,7 @@ def plot_smoother_stats(json_file: str,
                 continue
             if planner not in planners:
                 planners.append(planner)
+    planners = sorted(planners, key=convert_planner_name)
 
     valid_smoothers = []
     # determine x-ticks names
@@ -284,9 +289,12 @@ def plot_smoother_stats(json_file: str,
             stats = {}
             for run_id in run_ids:
                 run = data["runs"][run_id]
-                for j, (planner, plan) in enumerate(run["plans"].items()):
+                for j, planner in enumerate(planners):
                     if planner in ignore_planners:
                         continue
+                    if planner not in run["plans"]:
+                        continue                    
+                    plan = run["plans"][planner]
                     if separate_planners and show_planners:
                         if planner not in stats:
                             stats[planner] = []
@@ -342,7 +350,7 @@ def plot_smoother_stats(json_file: str,
             plt.grid()
             plt.gca().set_axisbelow(True)
 
-            bar_names = list(stats.keys())
+            bar_names = planners
             ticks = np.arange(len(bar_names)) + 0.5
 
             if plot_violins:
