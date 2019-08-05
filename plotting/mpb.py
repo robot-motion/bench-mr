@@ -162,35 +162,53 @@ class MPB:
         self.set_subfolder(subfolder)
         log_filename = os.path.join(subfolder, self.id + ".log")
         logfile = open(log_filename, 'w')
-        self.save_settings(self.config_filename)
         print("Running MPB with ID %s (log file at %s)..." % (self.id, log_filename))
         total_iterations = len(self._planners) * len(self._steer_functions) * runs
         if show_progress_bar:
-            pbar = tqdm_notebook(range(total_iterations), desc=self.id)
-        tsk = subprocess.Popen([MPB_BINARY, os.path.abspath(self.config_filename)],
-                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                               cwd=os.path.abspath(MPB_BINARY_DIR))
-        iteration = 1
-        while True:
-            line = tsk.stdout.readline()
-            if line is None:
-                break
-            line = line.decode('UTF-8')
-            if line == '':
-                break
-            if '<stats>' in line:
-                # some planner (and its smoothers) has finished
-                if show_progress_bar:
-                    pbar.update(1)
-                # print('%s: %i / %i' % (id, iteration, total_iterations))
-                iteration += 1
-            logfile.write(line)
+            pbar = tqdm_notebook(range(total_iterations), desc=self.id, ncols='100%')
+        success = True
+        results_filenames = []
+        for ip, planner in enumerate(self._planners):
+            pbar.display('%s (%i / %i)' % (convert_planner_name(planner), ip + 1, len(self._planners)))
+            if ip == 0:
+                results_filename = self.results_filename
+            else:
+                results_filename = os.path.join(subfolder, self.id + "_results_%s.json" % planner)
+            self["benchmark.log_file"] = os.path.abspath(results_filename)
+            for p in self["benchmark.planning"].keys():
+                self["benchmark.planning." + p] = p == planner
+            self.save_settings(self.config_filename)
+            tsk = subprocess.Popen([MPB_BINARY, os.path.abspath(self.config_filename)],
+                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                   cwd=os.path.abspath(MPB_BINARY_DIR))
+            while True:
+                line = tsk.stdout.readline()
+                if line is None:
+                    break
+                line = line.decode('UTF-8')
+                if line == '':
+                    break
+                # if '<stats>' in line:
+                #     # some planner (and its smoothers) has finished
+                #     if show_progress_bar:
+                #         pbar.update(1)
+                logfile.write(line)
+            code = tsk.poll()
+            if code is not None and code != 0:
+                print("Error (%i) occurred for MPB with ID %s using planner %s." % (
+                    code, self.id, convert_planner_name(planner)),
+                      file=sys.stderr)
+                success = False
+                continue
+            results_filenames.append(results_filename)
+            if ip > 0:
+                MPB.merge([self.results_filename, results_filename], self.results_filename, silence=True)
+            if show_progress_bar:
+                pbar.update(1)
         if show_progress_bar:
             pbar.close()
         logfile.close()
-        code = tsk.poll()
-        #         tsk.terminate()
-        return code
+        return 0 if success else 1
 
     def print_info(self):
         if not os.path.exists(self.results_filename):
@@ -222,19 +240,28 @@ class MPB:
             return
         from plot_stats import plot_smoother_stats
         plot_smoother_stats(self.results_filename, **kwargs)
-        
+
     @staticmethod
-    def merge(mpbs, target_filename: str, make_separate_runs: bool = False):
+    def merge(mpbs, target_filename: str, make_separate_runs: bool = False, silence: bool = False):
         """
         Merges results of the given MPB instances into one file.
         """
+        results_filenames = []
+        for i, m in enumerate(mpbs):
+            if isinstance(m, MPB):
+                results_filenames.append(m.results_filename)
+            elif type(m) == str:
+                results_filenames.append(m)
+            else:
+                raise TypeError("MPB.merge requires list of MPB instances or filenames.")
+
         target = None
         for i, m in enumerate(mpbs):
-            
-            if not os.path.exists(m.results_filename):
-                print("No results file exists for MPB %s. Skipping." % m.id)
+            if not os.path.exists(results_filenames[i]):
+                if not silence:
+                    print("No results file exists for MPB %s. Skipping." % m.id)
                 continue
-            with open(m.results_filename) as res_file:
+            with open(results_filenames[i]) as res_file:
                 res = json.load(res_file)
                 if i == 0:
                     target = res
@@ -245,19 +272,23 @@ class MPB:
                             target["runs"].append(run)
                             continue
                         if run_id >= len(target["runs"]):
-                            print("Run #%i does not exist in %s but in %s. Skipping."
-                                  % (run_id, mpbs[i-1].results_filename, m.results_filename), file=sys.stderr)
+                            if not silence:
+                                print("Run #%i does not exist in %s but in %s. Skipping."
+                                      % (run_id, results_filenames[i - 1], results_filenames[i]), file=sys.stderr)
                         else:
                             for planner, plan in run["plans"].items():
                                 if planner in target["runs"][run_id]["plans"]:
-                                    print("Planner %s already exists in %s and in %s. Skipping."
-                                          % (planner, mpbs[i-1].results_filename, m.results_filename), file=sys.stderr)
+                                    if not silence:
+                                        print("Planner %s already exists in %s and in %s. Skipping."
+                                              % (planner, results_filenames[i - 1], results_filenames[i]),
+                                              file=sys.stderr)
                                 else:
                                     target["runs"][run_id]["plans"][planner] = plan
-        
+
         with open(target_filename, "w") as target_file:
             json.dump(target, target_file, indent=2)
-            print("Successfully merged [%s] into %s." % (", ".join(m.results_filename for m in mpbs), target_filename))
+            if not silence:
+                print("Successfully merged [%s] into %s." % (", ".join(results_filenames), target_filename))
 
 
 class MultipleMPB:
@@ -372,17 +403,17 @@ class MultipleMPB:
             m.visualize_trajectories(**kwargs)
             plt.title("%s" % m.id)
         plt.tight_layout()
-        
+
     def plot_planner_stats(self, **kwargs):
         import matplotlib.pyplot as plt
-        for i, m in enumerate(self.benchmarks):            
+        for i, m in enumerate(self.benchmarks):
             m.plot_planner_stats(**kwargs)
             plt.suptitle(m.id, fontsize=24, y=1.05)
             plt.tight_layout()
 
     def plot_smoother_stats(self, **kwargs):
         import matplotlib.pyplot as plt
-        for i, m in enumerate(self.benchmarks):            
+        for i, m in enumerate(self.benchmarks):
             m.plot_smoother_stats(**kwargs)
             plt.suptitle(m.id, fontsize=24, y=1.05)
             plt.tight_layout()

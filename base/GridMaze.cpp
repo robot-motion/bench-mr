@@ -99,7 +99,7 @@ GridMaze *GridMaze::createRandomCorridor(unsigned int width,
   auto *environment = new GridMaze(seed, width, height);
   environment->_type = "corridor";
 
-  for (unsigned int i = 0; i <= environment->cells(); ++i)
+  for (unsigned int i = 0; i < environment->cells(); ++i)
     environment->_grid[i] = true;
 
   typedef Eigen::Matrix<double, 3, 1> Vector3;
@@ -592,10 +592,10 @@ GridMaze *GridMaze::createFromMovingAiScenario(Scenario &scenario) {
 
 double GridMaze::obstacleRatio() const {
   int occ = 0;
-  for (unsigned int x = 0; x <= width(); ++x) {
-    for (unsigned int y = 0; y <= height(); ++y) occ += (int)occupiedCell(x, y);
+  for (unsigned int x = 0; x < _voxels_x; ++x) {
+    for (unsigned int y = 0; y < _voxels_y; ++y) occ += (int)occupiedCell(x, y);
   }
-  return (double)(occ) / ((width() + 1) * (height() + 1));
+  return (double)(occ) / (double)(cells());
 }
 
 std::string GridMaze::generatorType() const { return _type; }

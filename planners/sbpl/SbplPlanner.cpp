@@ -13,8 +13,8 @@ SbplPlanner<PlannerT>::SbplPlanner()
 
   if (global::settings.env.collision.collision_model == robot::ROBOT_POLYGON) {
     sbpl_2Dpt_t shape_point;
-    Polygon robot = global::settings.env.collision.robot_shape.value();
-    for (auto &point : robot.points) {
+    const Polygon robot = global::settings.env.collision.robot_shape.value();
+    for (const auto &point : robot.points) {
       shape_point.x = point.x;
       shape_point.y = point.y;
       perimeterptsV.push_back(shape_point);
