@@ -109,12 +109,17 @@ class MPB:
                 self._planners.append(p)
             else:
                 self["benchmark.planning." + p] = False
-        print("Selected planners:", self._planners)
+        if len(planners) != len(self._planners):
+            print("Error: Some planner could not be unified. Selected planners:", self._planners,
+                  file=sys.stderr)
 
     def set_steer_functions(self, steerings: [str]):
         self._steer_functions = list(set(itertools.chain.from_iterable(map(parse_steer_functions, steerings))))
         self["benchmark.steer_functions"] = self._steer_functions
-        print("Selected steer functions:", [steer_functions[index] for index in self._steer_functions])
+        if len(steerings) != len(self._steer_functions):
+            print("Error: Some steer function could not be unified. Selected steer functions:",
+                  [steer_functions[index] for index in self._steer_functions],
+                  file=sys.stderr)
 
     def set_smoothers(self, smoothers: [str]):
         self._smoothers = []
@@ -124,7 +129,9 @@ class MPB:
                 self._smoothers.append(p)
             else:
                 self["benchmark.smoothing." + p] = False
-        print("Selected smoothers:", self._smoothers)
+        if len(smoothers) != len(self._smoothers):
+            print("Error: Some smoother could not be unified. Selected smoothers:", self._smoothers,
+                  file=sys.stderr)
 
     def save_settings(self, filename: str):
         with open(filename, 'w') as f:
@@ -171,8 +178,8 @@ class MPB:
         success = True
         results_filenames = []
         if shuffle_planners:
-            # shuffle planners to avoid multiple parallel MPBs run the same heavy-load planners (e.g. CForest)
-            # at the same time
+            # shuffle planners to avoid multiple parallel MPBs run the same heavy-load planners
+            # (e.g. CForest takes all available threads, SBPL leaks memory) at the same time
             random.shuffle(self._planners)
         for ip, planner in enumerate(self._planners):
             pbar.display('%s (%i / %i)' % (convert_planner_name(planner), ip + 1, len(self._planners)))
