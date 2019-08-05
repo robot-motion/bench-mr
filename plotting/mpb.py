@@ -1,4 +1,5 @@
 import json
+import random
 import subprocess
 import datetime
 import time
@@ -150,7 +151,8 @@ class MPB:
                     free_memory += int(sline[1])
         return free_memory
 
-    def run(self, id: str = None, runs: Optional[int] = 1, subfolder: str = '', show_progress_bar: bool = True) -> int:
+    def run(self, id: str = None, runs: Optional[int] = 1, subfolder: str = '',
+            show_progress_bar: bool = True, shuffle_planners: bool = True) -> int:
         if runs:
             self["benchmark.runs"] = runs
         else:
@@ -168,6 +170,10 @@ class MPB:
             pbar = tqdm_notebook(range(total_iterations), desc=self.id, ncols='100%')
         success = True
         results_filenames = []
+        if shuffle_planners:
+            # shuffle planners to avoid multiple parallel MPBs run the same heavy-load planners (e.g. CForest)
+            # at the same time
+            random.shuffle(self._planners)
         for ip, planner in enumerate(self._planners):
             pbar.display('%s (%i / %i)' % (convert_planner_name(planner), ip + 1, len(self._planners)))
             if ip == 0:
@@ -200,14 +206,17 @@ class MPB:
                       file=sys.stderr)
                 success = False
                 continue
-            results_filenames.append(results_filename)
             if ip > 0:
+                results_filenames.append(results_filename)
                 MPB.merge([self.results_filename, results_filename], self.results_filename, silence=True)
             if show_progress_bar:
                 pbar.update(1)
         if show_progress_bar:
             pbar.close()
         logfile.close()
+        # remove partial results files
+        for results_filename in results_filenames:
+            os.remove(results_filename)
         return 0 if success else 1
 
     def print_info(self):
