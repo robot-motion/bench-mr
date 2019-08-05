@@ -6,8 +6,10 @@ import time
 import itertools
 import os
 import sys
+import psutil
 import resource
 from typing import Optional
+from threading import Timer
 
 from utils import *
 from multiprocessing import Pool
@@ -159,7 +161,8 @@ class MPB:
         return free_memory
 
     def run(self, id: str = None, runs: Optional[int] = 1, subfolder: str = '',
-            show_progress_bar: bool = True, shuffle_planners: bool = True) -> int:
+            show_progress_bar: bool = True, shuffle_planners: bool = True,
+            kill_after_timeout: bool = True) -> int:
         if runs:
             self["benchmark.runs"] = runs
         else:
@@ -194,6 +197,23 @@ class MPB:
             tsk = subprocess.Popen([MPB_BINARY, os.path.abspath(self.config_filename)],
                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                    cwd=os.path.abspath(MPB_BINARY_DIR))
+            proc = psutil.Process(tsk.pid)
+            create_time = time.time()
+            kill_timer = None
+            if kill_after_timeout:
+                # kill process after 2 * max planning time
+                def kill_process():
+                    try:
+                        proc.kill()
+                        print("Killed %s with planner %s after %.2fs exceeded timeout."
+                              % (self.id, planner, time.time() - create_time))
+                    except psutil.NoSuchProcess:
+                        pass
+                    except:
+                        print('Error occurred while trying to kill %s with planner %s.'
+                              % (self.id, planner), file=sys.stderr)
+                kill_timer = Timer(self["max_planning_time"] * 2, kill_process)
+                kill_timer.start()
             while True:
                 line = tsk.stdout.readline()
                 if line is None:
@@ -218,13 +238,18 @@ class MPB:
                 MPB.merge([self.results_filename, results_filename], self.results_filename, silence=True)
             if show_progress_bar:
                 pbar.update(1)
+            if kill_timer is not None:
+                kill_timer.cancel()
         if show_progress_bar:
             pbar.close()
         logfile.close()
         # remove partial results files
         for results_filename in results_filenames:
-            os.remove(results_filename)
-        return 0 if success else 1
+            try:
+                os.remove(results_filename)
+            except:
+                print("Error: results %s do not exist." % results_filename, file=sys.stderr)
+        return 0 if success else -1
 
     def print_info(self):
         if not os.path.exists(self.results_filename):
@@ -278,28 +303,31 @@ class MPB:
                     print("No results file exists for MPB %s. Skipping." % m.id)
                 continue
             with open(results_filenames[i]) as res_file:
-                res = json.load(res_file)
-                if i == 0:
-                    target = res
-                else:
-                    # TODO check settings, environments are the same for each run before merging
-                    for run_id, run in enumerate(res["runs"]):
-                        if make_separate_runs:
-                            target["runs"].append(run)
-                            continue
-                        if run_id >= len(target["runs"]):
-                            if not silence:
-                                print("Run #%i does not exist in %s but in %s. Skipping."
-                                      % (run_id, results_filenames[i - 1], results_filenames[i]), file=sys.stderr)
-                        else:
-                            for planner, plan in run["plans"].items():
-                                if planner in target["runs"][run_id]["plans"]:
-                                    if not silence:
-                                        print("Planner %s already exists in %s and in %s. Skipping."
-                                              % (planner, results_filenames[i - 1], results_filenames[i]),
-                                              file=sys.stderr)
-                                else:
-                                    target["runs"][run_id]["plans"][planner] = plan
+                try:
+                    res = json.load(res_file)
+                    if i == 0:
+                        target = res
+                    else:
+                        # TODO check settings, environments are the same for each run before merging
+                        for run_id, run in enumerate(res["runs"]):
+                            if make_separate_runs:
+                                target["runs"].append(run)
+                                continue
+                            if run_id >= len(target["runs"]):
+                                if not silence:
+                                    print("Run #%i does not exist in %s but in %s. Skipping."
+                                          % (run_id, results_filenames[i - 1], results_filenames[i]), file=sys.stderr)
+                            else:
+                                for planner, plan in run["plans"].items():
+                                    if planner in target["runs"][run_id]["plans"]:
+                                        if not silence:
+                                            print("Planner %s already exists in %s and in %s. Skipping."
+                                                  % (planner, results_filenames[i - 1], results_filenames[i]),
+                                                  file=sys.stderr)
+                                    else:
+                                        target["runs"][run_id]["plans"][planner] = plan
+                except json.decoder.JSONDecodeError:
+                    print("Error while decoding JSON file %s." % results_filenames[i], file=sys.stderr)
 
         with open(target_filename, "w") as target_file:
             json.dump(target, target_file, indent=2)
