@@ -11,7 +11,7 @@ namespace og = ompl::geometric;
 
 int main(int argc, char **argv) {
   global::settings.max_planning_time = 15;
-  for (unsigned int i = 0; i < 10; ++i) {
+  for (unsigned int i = 0; i < 1; ++i) {
     delete global::settings.environment;
     global::settings.environment =
         GridMaze::createRandomCorridor(150, 150, 8, 160, i + 1);

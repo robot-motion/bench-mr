@@ -4,6 +4,11 @@ std::string AbstractPlanner::LastCreatedPlannerName = "";
 
 AbstractPlanner::AbstractPlanner(const std::string &name) {
   LastCreatedPlannerName = name;
+  if (ss) {
+    ss->clear();
+    ss->clearStartStates();
+  }
+  delete ss;
   ss = new og::SimpleSetup(global::settings.ompl.state_space);
   auto &si = global::settings.ompl.space_info;
 
@@ -57,3 +62,5 @@ AbstractPlanner::AbstractPlanner(const std::string &name) {
 
   ss->setup();
 }
+
+AbstractPlanner::~AbstractPlanner() { delete ss; }

@@ -413,6 +413,7 @@ void GridMaze::computeDistances() {
   OMPL_INFORM(("Computing distances via " +
                distance_computation::to_string(distanceComputationMethod()))
                   .c_str());
+  delete[] _distances;
   _distances = new double[(_voxels_x + 1) * (_voxels_y + 1)];
   if (distanceComputationMethod() == distance_computation::DEAD_RECKONING) {
     // more efficient, but less accurate Dead Reckoning Algorithm
@@ -518,17 +519,19 @@ void GridMaze::computeDistances() {
       }
     }
 
+    delete[] P;
+
     // indicate inside (0)
-    for (int y = 0; y < _voxels_y; ++y) {
-      for (int x = 0; x < _voxels_x; ++x) {
+    for (unsigned int y = 0; y < _voxels_y; ++y) {
+      for (unsigned int x = 0; x < _voxels_x; ++x) {
         const auto key = coord2key(x, y);
         if (_grid[key]) _distances[key] = 0;
       }
     }
   } else {
     // Brute-Force Algorithm
-    for (int x = 0; x < _voxels_x; ++x) {
-      for (int y = 0; y < _voxels_y; ++y) {
+    for (unsigned int x = 0; x < _voxels_x; ++x) {
+      for (unsigned int y = 0; y < _voxels_y; ++y) {
         if (_grid[coord2key(x, y)]) {
           _distances[coord2key(x, y)] = 0;
           continue;

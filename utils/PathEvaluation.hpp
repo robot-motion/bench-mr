@@ -165,7 +165,7 @@ struct PathEvaluation {
       delete planner;
       return false;
     }
-    auto result = evaluate(planner, info);
+    auto result = evaluate(*planner, info);
     delete planner;
     return result;
   }

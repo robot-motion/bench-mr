@@ -22,6 +22,7 @@ namespace og = ompl::geometric;
 class AbstractPlanner {
  public:
   virtual std::string name() const = 0;
+  virtual ~AbstractPlanner();
 
   /**
    * Stores the name of the planner created last. Used for tracing errors
