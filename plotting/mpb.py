@@ -289,7 +289,7 @@ class MPB:
         """
         results_filenames = []
         for i, m in enumerate(mpbs):
-            if isinstance(m, MPB):
+            if 'mpb.MPB' in str(type(m)):
                 results_filenames.append(m.results_filename)
             elif type(m) == str:
                 results_filenames.append(m)
@@ -307,6 +307,8 @@ class MPB:
                     res = json.load(res_file)
                     if i == 0:
                         target = res
+                        if "runs" not in target:
+                            target["runs"] = []
                     else:
                         # TODO check settings, environments are the same for each run before merging
                         for run_id, run in enumerate(res["runs"]):
@@ -461,3 +463,19 @@ class MultipleMPB:
             m.plot_smoother_stats(**kwargs)
             plt.suptitle(m.id, fontsize=24, y=1.05)
             plt.tight_layout()
+            
+    def get_all_planners(self) -> [str]:
+        planners = []
+        for m in self.benchmarks:
+            if m.results_filename is None or not os.path.exists(m.results_filename):
+                continue
+            with open(m.results_filename, 'r') as rf:
+                runs = json.load(rf)["runs"]
+                for run in runs:
+                    if "plans" not in run:
+                        continue
+                    for planner in run["plans"].keys():
+                        if planner not in planners:
+                            planners.append(planner)
+        planners = list(sorted(planners, key=convert_planner_name))
+        return planners
