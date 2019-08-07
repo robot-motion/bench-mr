@@ -305,10 +305,10 @@ class MPB:
             with open(results_filenames[i]) as res_file:
                 try:
                     res = json.load(res_file)
-                    if i == 0:
+                    if i == 0 or target is None:
                         target = res
-                        if "runs" not in target:
-                            target["runs"] = []
+                    if "runs" not in target:
+                        target["runs"] = []
                     else:
                         # TODO check settings, environments are the same for each run before merging
                         for run_id, run in enumerate(res["runs"]):
