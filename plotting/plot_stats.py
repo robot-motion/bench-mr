@@ -223,9 +223,7 @@ def plot_smoother_stats(json_file: str,
     if len(ignore_smoothers) > 0 and not silence:
         click.echo('Ignoring the following smoother(s): %s' % ', '.join(ignore_smoothers))
 
-    file = open(json_file, "r")
-    data = json.load(file)
-    file.close()
+    data = json.load(open(json_file, "r"))
     run_ids = parse_run_ids(run_id, len(data["runs"]))
 
     if combine_views:
@@ -242,7 +240,6 @@ def plot_smoother_stats(json_file: str,
                 continue
             if planner not in planners:
                 planners.append(planner)
-    planners = sorted(planners, key=convert_planner_name)
 
     valid_smoothers = []
     # determine x-ticks names
@@ -289,12 +286,9 @@ def plot_smoother_stats(json_file: str,
             stats = {}
             for run_id in run_ids:
                 run = data["runs"][run_id]
-                for j, planner in enumerate(planners):
+                for j, (planner, plan) in enumerate(run["plans"].items()):
                     if planner in ignore_planners:
                         continue
-                    if planner not in run["plans"]:
-                        continue                    
-                    plan = run["plans"][planner]
                     if separate_planners and show_planners:
                         if planner not in stats:
                             stats[planner] = []
@@ -315,7 +309,7 @@ def plot_smoother_stats(json_file: str,
                                         [stat],
                                         color=violin_colors[bar_names.index(planner) % kwargs['num_colors']],
                                         s=4)
-                    if "smoothing" in plan and plan["smoothing"] is not None:
+                    if "smoothing" in plan:
                         for smoother, smoothing in plan["smoothing"].items():
                             if smoother in ignore_smoothers:
                                 continue
@@ -350,7 +344,7 @@ def plot_smoother_stats(json_file: str,
             plt.grid()
             plt.gca().set_axisbelow(True)
 
-            bar_names = planners
+            bar_names = list(stats.keys())
             ticks = np.arange(len(bar_names)) + 0.5
 
             if plot_violins:

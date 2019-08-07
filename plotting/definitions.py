@@ -1,5 +1,5 @@
 stat_names = {
-    'curvature': 'Curvature',
+    'curvature': 'Maximum Curvature',
     'max_clearing_distance': 'Maximum Clearing Distance',
     'mean_clearing_distance': 'Mean Clearing Distance',
     'median_clearing_distance': 'Median Clearing Distance',
@@ -11,6 +11,27 @@ stat_names = {
     'cusps': 'Cusps',
     'aggregate': 'Aggregate',
     'exact_solutions': 'Exact Solutions'
+}
+
+metric_properties = {
+    'path_found': {
+        'sum': True
+    },
+    'planning_time': {
+        'show_std': True,
+        'highlight_optimum': True
+    },
+    'path_length': {
+        'show_std': True
+    },
+    'curvature': {
+        'show_std': True,
+        'minimize': True
+    },
+    'cusps': {
+        'minimize': True,
+        'sum': True
+    }
 }
 
 steer_function_names = {

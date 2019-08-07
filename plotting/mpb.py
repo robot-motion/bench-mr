@@ -469,13 +469,7 @@ class MultipleMPB:
         for m in self.benchmarks:
             if m.results_filename is None or not os.path.exists(m.results_filename):
                 continue
-            with open(m.results_filename, 'r') as rf:
-                runs = json.load(rf)["runs"]
-                for run in runs:
-                    if "plans" not in run:
-                        continue
-                    for planner in run["plans"].keys():
-                        if planner not in planners:
-                            planners.append(planner)
+            planners += get_planners(m.results_filename)
+        planners = list(set(planners))
         planners = list(sorted(planners, key=convert_planner_name))
         return planners

@@ -1,11 +1,24 @@
 #!/usr/bin/env python3
 import click
-
+import json
+import sys
 from definitions import steer_functions, steer_function_names, smoother_names, smoothers
 import numpy as np
 
 # Fix random seed (used by kernel density estimation in violin plots)
 np.random.seed(123)
+
+
+def safe_mean(xs):
+    return np.mean([x for x in xs if x is not None and not np.isnan(x)])
+
+
+def safe_std(xs):
+    return np.std([x for x in xs if x is not None and not np.isnan(x)])
+
+
+def safe_sum(xs):
+    return np.sum([x for x in xs if x is not None and not np.isnan(x)])
 
 
 def add_options(options):
@@ -156,3 +169,24 @@ def show_legend(show_legend=True, show_legend_outside=True, legend_location="bes
         plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
     else:
         plt.legend(loc=legend_location)
+
+
+def latexify(text: str) -> str:
+    text = text.replace('#', '\\#')
+    text = text.replace('%', '\\%')
+    text = text.replace('*', '${}^*$')
+    text = text.replace('_', '\\_')
+    return text
+
+
+def get_planners(results_filename: str) -> [str]:
+    planners = []
+    with open(results_filename, 'r') as rf:
+        runs = json.load(rf)["runs"]
+        for run in runs:
+            if "plans" not in run:
+                continue
+            for planner in run["plans"].keys():
+                if planner not in planners:
+                    planners.append(planner)
+    return planners
