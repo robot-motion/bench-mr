@@ -32,7 +32,7 @@ def latex_table(results_filename: str,
                         stats[metric][planner].append(plan["stats"][metric])
     output = ''
     if row_label != '':
-        output += '\\rowlabel{%s}\n\\\\' % latexify(row_label)
+        output += '\\rowlabel{%s}\n\\\\' % row_label
     for planner in planners:
         output += '%s & %% %s\n' % (latexify(planner).ljust(40), convert_planner_name(planner))
         for i, metric in enumerate(metrics):
