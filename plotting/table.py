@@ -14,8 +14,9 @@ def latex_table(results_filename: str,
         planners = [planner for planner in planners if planner in parsed_planners]
     else:        
         planners = get_planners(results_filename)
-    if len(planners):
+    if len(planners) == 0:
         print("Warning: No planners were selected for generating a table.", file=sys.stderr)
+        return 'No planners were selected for %s.' % results_filename
     stats = { metric: {planner: [] for planner in planners} for metric in metrics}
     with open(results_filename, 'r') as rf:
         for run in json.load(rf)["runs"]:
