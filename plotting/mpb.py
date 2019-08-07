@@ -10,6 +10,7 @@ import psutil
 import resource
 from typing import Optional
 from threading import Timer
+from copy import deepcopy
 
 from utils import *
 from multiprocessing import Pool
@@ -306,7 +307,7 @@ class MPB:
                 try:
                     res = json.load(res_file)
                     if i == 0 or target is None:
-                        target = res
+                        target = deepcopy(res)
                     if "runs" not in target:
                         target["runs"] = []
                     else:
