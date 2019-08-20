@@ -32,11 +32,10 @@ class MPB:
             raise Exception('Error: Could not find benchmark binary file at %s. ' % bin_path +
                             'Make sure you have built it and set the correct MPB_BINARY_DIR variable in %s.' % __file__)
         self.config = MPB.get_config(config_file)  # type: dict
+        print("Created MPB from config %s." % config_file)
         self.output_path = output_path  # type: str
         self.id = None  # type: Optional[str]
-        self._planners = [planner for planner, used in self["benchmark.planning"].items() if used]  # type: [str]
-        self._smoothers = [smoother for smoother, used in self["benchmark.smoothing"].items() if used]  # type: [str]
-        self._steer_functions = [steer_functions[index] for index in self["benchmark.steer_functions"]]  # type: [str]
+        self._update_pss()
 
         # print("planners:       \t", self._planners)
         # print("smoothers:      \t", self._smoothers)
@@ -59,12 +58,22 @@ class MPB:
         for s in splits[:-1]:
             c = c[s]
         c[splits[-1]] = value
+        self._update_pss()
         return value
 
     def update(self, config: dict) -> dict:
         for key, value in config.items():
             self[key] = value
+        self._update_pss()
         return self.config
+    
+    def _update_pss(self):
+        """
+        Update planners, smoothers, steer functions from config.
+        """
+        self._planners = [planner for planner, used in self["benchmark.planning"].items() if used]  # type: [str]
+        self._smoothers = [smoother for smoother, used in self["benchmark.smoothing"].items() if used]  # type: [str]
+        self._steer_functions = [steer_functions[index] for index in self["benchmark.steer_functions"]]  # type: [str]
 
     @staticmethod
     def get_config(config_file: str = os.path.join(MPB_BINARY_DIR, 'benchmark_template.json')) -> dict:
@@ -411,6 +420,7 @@ class MultipleMPB:
             config_files.append(filename)
             ids.append(mpb.id)
             mpb.set_subfolder(self.id if use_subfolder else '')
+        processes = min(processes, len(self.benchmarks))
         print("Creating pool of %i processes." % processes)
         sys.stdout.flush()
         with Pool(processes) as pool:
