@@ -152,7 +152,7 @@ struct PathEvaluation {
       PlannerConfigurator::configure(*planner);
     } catch (std::bad_alloc &ba) {
       // we ran out of memory
-      OMPL_ERROR("Error: Run out of memory while creating planner %s: %s.",
+      OMPL_ERROR("Error: Ran out of memory while creating planner %s: %s.",
                  AbstractPlanner::LastCreatedPlannerName.c_str(), ba.what());
       createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
       delete planner;
@@ -178,7 +178,7 @@ struct PathEvaluation {
       PlannerConfigurator::configure(*planner);
     } catch (std::bad_alloc &ba) {
       // we ran out of memory
-      OMPL_ERROR("Error: Run out of memory while creating planner %s: %s.",
+      OMPL_ERROR("Error: Ran out of memory while creating planner %s: %s.",
                  AbstractPlanner::LastCreatedPlannerName.c_str(), ba.what());
       createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
       delete planner;

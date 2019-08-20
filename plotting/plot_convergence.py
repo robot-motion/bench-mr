@@ -56,7 +56,7 @@ def plot_convergence(json_file: str, run_id: str = 'all',
         plt.figure("MPB Convergence %s" % json_file, figsize=(axes_h * 5, axes_v * 5))
 
     run_id = run_ids[0]
-    print_run_info(data, run_id)
+    print_run_info(data, run_id, run_ids)
     for si, stat_key in enumerate(stat_keys):
         run = data["runs"][run_id]
         if combine_views:

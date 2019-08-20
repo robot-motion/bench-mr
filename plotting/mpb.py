@@ -1,14 +1,12 @@
-import json
 import random
 import subprocess
 import datetime
 import time
 import itertools
 import os
-import sys
 import psutil
 import resource
-from typing import Optional
+from typing import Optional, Union
 from threading import Timer
 from copy import deepcopy
 
@@ -46,7 +44,7 @@ class MPB:
         self.config_filename = config_file  # type: Optional[str]
         self.results_filename = None  # type: Optional[str]
 
-    def __getitem__(self, item: str) -> dict:
+    def __getitem__(self, item: str) -> Union[str, int, float, dict]:
         c = self.config
         for s in item.split('.'):
             c = c[s]
@@ -121,6 +119,7 @@ class MPB:
                 self._planners.append(p)
             else:
                 self["benchmark.planning." + p] = False
+        self._planners = list(set(self._planners))
         if len(planners) != len(self._planners):
             print("Error: Some planner could not be unified. Selected planners:", self._planners,
                   file=sys.stderr)
@@ -141,6 +140,7 @@ class MPB:
                 self._smoothers.append(p)
             else:
                 self["benchmark.smoothing." + p] = False
+        self._smoothers = list(set(self._smoothers))
         if len(smoothers) != len(self._smoothers):
             print("Error: Some smoother could not be unified. Selected smoothers:", self._smoothers,
                   file=sys.stderr)
@@ -161,6 +161,9 @@ class MPB:
 
     @staticmethod
     def get_memory():
+        """
+        Retrieves free system memory.
+        """
         # thanks to https://stackoverflow.com/a/41125461
         with open('/proc/meminfo', 'r') as mem:
             free_memory = 0
@@ -195,7 +198,8 @@ class MPB:
             # (e.g. CForest takes all available threads, SBPL leaks memory) at the same time
             random.shuffle(self._planners)
         for ip, planner in enumerate(self._planners):
-            pbar.display('%s (%i / %i)' % (convert_planner_name(planner), ip + 1, len(self._planners)))
+            if show_progress_bar:
+                pbar.display('%s (%i / %i)' % (convert_planner_name(planner), ip + 1, len(self._planners)))
             if ip == 0:
                 results_filename = self.results_filename
             else:
