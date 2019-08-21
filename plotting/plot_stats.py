@@ -286,6 +286,8 @@ def plot_smoother_stats(json_file: str,
             stats = {}
             for run_id in run_ids:
                 run = data["runs"][run_id]
+                if not run["plans"]:
+                    continue
                 for j, (planner, plan) in enumerate(run["plans"].items()):
                     if planner in ignore_planners:
                         continue
@@ -310,6 +312,8 @@ def plot_smoother_stats(json_file: str,
                                         color=violin_colors[bar_names.index(planner) % kwargs['num_colors']],
                                         s=4)
                     if "smoothing" in plan:
+                        if not plan["smoothing"]:
+                            continue
                         for smoother, smoothing in plan["smoothing"].items():
                             if smoother in ignore_smoothers:
                                 continue

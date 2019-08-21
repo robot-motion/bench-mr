@@ -121,7 +121,7 @@ class MPB:
                 self["benchmark.planning." + p] = False
         self._planners = list(set(self._planners))
         if len(planners) != len(self._planners):
-            print("Error: Some planner could not be unified. Selected planners:", self._planners,
+            print("Error: Some planner could not be unified. From the given planners", planners, "the following were selected:", self._planners,
                   file=sys.stderr)
 
     def set_steer_functions(self, steerings: [str]):
@@ -173,7 +173,7 @@ class MPB:
                     free_memory += int(sline[1])
         return free_memory
 
-    def run(self, id: str = None, runs: Optional[int] = 1, subfolder: str = '',
+    def run(self, id: str = None, runs: Optional[int] = None, subfolder: str = '',
             show_progress_bar: bool = True, shuffle_planners: bool = True,
             kill_after_timeout: bool = True) -> int:
         if runs:
@@ -198,8 +198,17 @@ class MPB:
             # (e.g. CForest takes all available threads, SBPL leaks memory) at the same time
             random.shuffle(self._planners)
         for ip, planner in enumerate(self._planners):
-            if show_progress_bar:
-                pbar.display('%s (%i / %i)' % (convert_planner_name(planner), ip + 1, len(self._planners)))
+            run = 1
+            def pbar_prompt():
+                if not show_progress_bar:
+                    return
+                if runs > 1:
+                    pbar.display('%s (%i / %i) [run %i / %i]' % (convert_planner_name(planner), ip + 1, len(self._planners), run, runs))
+                else:
+                    pbar.display('%s (%i / %i)' % (convert_planner_name(planner), ip + 1, len(self._planners)))
+                    
+            pbar_prompt()
+                
             if ip == 0:
                 results_filename = self.results_filename
             else:
@@ -226,7 +235,7 @@ class MPB:
                     except:
                         print('Error occurred while trying to kill %s with planner %s.'
                               % (self.id, planner), file=sys.stderr)
-                kill_timer = Timer(self["max_planning_time"] * 2, kill_process)
+                kill_timer = Timer(self["max_planning_time"] * self["benchmark.runs"] * 2, kill_process)
                 kill_timer.start()
             while True:
                 line = tsk.stdout.readline()
@@ -235,10 +244,12 @@ class MPB:
                 line = line.decode('UTF-8')
                 if line == '':
                     break
-                # if '<stats>' in line:
-                #     # some planner (and its smoothers) has finished
-                #     if show_progress_bar:
-                #         pbar.update(1)
+                if '<stats>' in line:
+                    run += 1
+                    # some planner (and its smoothers) has finished
+                    if show_progress_bar:
+                        pbar.update(1)
+                        pbar_prompt()
                 logfile.write(line)
             code = tsk.poll()
             if code is not None and code != 0:
@@ -250,8 +261,8 @@ class MPB:
             if ip > 0:
                 results_filenames.append(results_filename)
                 MPB.merge([self.results_filename, results_filename], self.results_filename, silence=True)
-            if show_progress_bar:
-                pbar.update(1)
+            # if show_progress_bar:
+            #     pbar.update(1)
             if kill_timer is not None:
                 kill_timer.cancel()
         if show_progress_bar:
@@ -370,12 +381,12 @@ class MultipleMPB:
 
     @staticmethod
     def run_(arg) -> int:
-        config_filename, index, mpb_id, subfolder, memory_limit = arg
+        config_filename, index, mpb_id, subfolder, memory_limit, runs = arg
         if memory_limit != 0:
             resource.setrlimit(resource.RLIMIT_AS, memory_limit)
         mpb = MPB(config_file=config_filename)
         code = mpb.run(id=mpb_id,
-                       runs=None,
+                       runs=runs,
                        subfolder=subfolder,
                        show_progress_bar=True)
         if code == 0:
@@ -433,7 +444,8 @@ class MultipleMPB:
                                    range(len(self.benchmarks)),
                                    ids,
                                    [self.subfolder] * len(self.benchmarks),
-                                   [memory_limit] * len(self.benchmarks)))
+                                   [memory_limit] * len(self.benchmarks),
+                                   [runs] * len(self.benchmarks)))
             if all([r == 0 for r in results]):
                 print("All benchmarks succeeded.")
             else:
