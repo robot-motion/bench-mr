@@ -70,3 +70,30 @@ anytime_planners = ['rrt_star', 'rrt_sharp', 'informed_rrt_star', 'sorrt_star', 
                     'bit_star', 'spars', 'spars2']
 sbpl_planners = ['sbpl_adstar', 'sbpl_anastar', 'sbpl_arastar', 'sbpl_lazy_ara', 'sbpl_mha']
 all_planners = sampling_planners + anytime_planners + sbpl_planners
+
+planner_names = {
+    'rrt': 'RRT',
+    'est': 'EST',
+    'sbl': 'SBL',
+    'prm': 'PRM',
+    'theta_star': 'Theta*',
+    'sst': 'SST',
+    'fmt': 'FMT',
+    'kpiece': 'KPIECE',
+    'pdst': 'PDST',
+    'stride': 'STRIDE',
+    'rrt_star': 'RRT*',
+    'rrt_sharp': 'RRT#',
+    'informed_rrt_star': 'Informed RRT*',
+    'sorrt_star': 'SORRT*',
+    'prm_star': 'PRM*',
+    'bfmt': 'BFMT',
+    'cforest': 'CForest',
+    'bit_star': 'BIT*',
+    'spars': 'SPARS',
+    'spars2': 'SPARS2',
+    'sbpl_adstar': 'SBPL AD*',
+    'sbpl_anastar': 'SBPL ANA*',
+    'sbpl_lazy_ara': 'SBPL Lazy ARA*',
+    'sbpl_mha': 'SBPL MHA'    
+}

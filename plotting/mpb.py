@@ -308,7 +308,7 @@ class MPB:
         plot_smoother_stats(self.results_filename, **kwargs)
 
     @staticmethod
-    def merge(mpbs, target_filename: str, make_separate_runs: bool = False, silence: bool = False):
+    def merge(mpbs, target_filename: str, make_separate_runs: bool = False, silence: bool = False, plan_names: [str] = None):
         """
         Merges results of the given MPB instances into one file.
         """
@@ -322,10 +322,12 @@ class MPB:
                 raise TypeError("MPB.merge requires list of MPB instances or filenames.")
 
         target = None
+        plan_index = 0
         for i, m in enumerate(mpbs):
             if not os.path.exists(results_filenames[i]):
                 if not silence:
                     print("No results file exists for MPB %s. Skipping." % m.id)
+                plan_index += len(m._planners)
                 continue
             with open(results_filenames[i]) as res_file:
                 try:
@@ -345,7 +347,10 @@ class MPB:
                                     print("Run #%i does not exist in %s but in %s. Skipping."
                                           % (run_id, results_filenames[i - 1], results_filenames[i]), file=sys.stderr)
                             else:
-                                for planner, plan in run["plans"].items():
+                                for pi, (planner, plan) in enumerate(run["plans"].items()):
+                                    if plan_names:
+                                        target["runs"][run_id]["plans"][plan_names[plan_index + pi]] = plan
+                                        continue
                                     if planner in target["runs"][run_id]["plans"]:
                                         if not silence:
                                             print("Planner %s already exists in %s and in %s. Skipping."
@@ -355,6 +360,8 @@ class MPB:
                                         target["runs"][run_id]["plans"][planner] = plan
                 except json.decoder.JSONDecodeError:
                     print("Error while decoding JSON file %s." % results_filenames[i], file=sys.stderr)
+                
+            plan_index += len(m._planners)
 
         with open(target_filename, "w") as target_file:
             json.dump(target, target_file, indent=2)
