@@ -97,3 +97,31 @@ planner_names = {
     'sbpl_lazy_ara': 'SBPL Lazy ARA*',
     'sbpl_mha': 'SBPL MHA'    
 }
+
+# Names internally used by MPB/OMPL to appear in the "plans" dictionary of the results files
+planner_internal_names = {
+    'rrt': 'RRT',
+    'est': 'EST',
+    'sbl': 'SBL',
+    'prm': 'PRM',
+    'theta_star': 'Theta*',
+    'sst': 'SST',
+    'fmt': 'FMT',
+    'kpiece': 'KPIECE1',
+    'pdst': 'PDST',
+    'stride': 'STRIDE',
+    'rrt_star': 'RRTstar',
+    'rrt_sharp': 'RRT#',
+    'informed_rrt_star': 'InformedRRTstar',
+    'sorrt_star': 'SORRTstar',
+    'prm_star': 'PRMstar',
+    'bfmt': 'BFMT',
+    'cforest': 'CForest',
+    'bit_star': 'kBITstar',
+    'spars': 'SPARS',
+    'spars2': 'SPARStwo',
+    'sbpl_adstar': 'SBPL_ADstar',
+    'sbpl_anastar': 'SBPL_ANAstar',
+    'sbpl_lazy_ara': 'SBPL_Lazy_ARA',
+    'sbpl_mha': 'SBPL_MHA'
+}

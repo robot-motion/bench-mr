@@ -361,7 +361,8 @@ class MPB:
                 except json.decoder.JSONDecodeError:
                     print("Error while decoding JSON file %s." % results_filenames[i], file=sys.stderr)
                 
-            plan_index += len(m._planners)
+            if 'mpb.MPB' in str(type(m)):
+                plan_index += len(m._planners)
 
         with open(target_filename, "w") as target_file:
             json.dump(target, target_file, indent=2)
