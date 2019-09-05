@@ -74,7 +74,7 @@ struct PathEvaluation {
                 .distance(global::settings.environment->goal()) <=
             global::settings.exact_goal_radius;
       }
-      stats.path_length = solution.length();
+      stats.path_length = PathLengthMetric::evaluate(solution);
       stats.curvature = CurvatureMetric::evaluate(solution);
       stats.smoothness = solution.smoothness();
 
