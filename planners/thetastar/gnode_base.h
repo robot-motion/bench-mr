@@ -2,6 +2,8 @@
 
 #include <utility>
 
+#include "../../base/Primitives.h"
+
 // Base class for all the steering functions
 class GNode_base {
  public:
@@ -46,13 +48,17 @@ class GNode_base {
   GNode_base *parent{nullptr};
   GNode_base *child{nullptr};
 
+  inline ompl::base::State *toState() const {
+    return Point(x_r, y_r).toState(theta);
+  }
+
   // ============================================================================================
   /// line(GNode *successor,GNode *parent_node)
   /// Check if there is a geometric line of sight between the two nodes
   /// ============================================================================================
   static bool line(const GNode_base *successor, const GNode_base *parent_node);
 
-  static bool line(double x0, double y0, double y1, double x1);
+  //  static bool line(double x0, double y0, double y1, double x1);
 
   // ============================================================================================
   /// bool isblock(double x, double y)
