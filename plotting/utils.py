@@ -191,4 +191,5 @@ def get_planners(results_filename: str) -> [str]:
             for planner in run["plans"].keys():
                 if planner not in planners:
                     planners.append(planner)
+    planners = sorted(planners, key=convert_planner_name)
     return planners
