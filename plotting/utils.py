@@ -2,7 +2,7 @@
 import click
 import json
 import sys
-from definitions import steer_functions, steer_function_names, smoother_names, smoothers
+from definitions import steer_functions, steer_function_names, smoother_names, smoothers, planner_names
 import numpy as np
 
 # Fix random seed (used by kernel density estimation in violin plots)
@@ -157,6 +157,8 @@ def print_run_info(data, run_id: int, run_ids: [int]):
 
 
 def convert_planner_name(planner: str) -> str:
+    if planner in planner_names:
+        return planner_names[planner]
     return planner.replace('star', '*').replace("two", "2").replace('_', ' ').replace('kBIT', 'BIT') \
             .replace('KPIECE1', 'KPIECE').replace('Informed', 'Informed ')
 

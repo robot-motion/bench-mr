@@ -270,7 +270,7 @@ struct GlobalSettings : public Group {
       Property<bool> sst{true, "sst", this};
       Property<bool> kpiece{true, "kpiece", this};
       Property<bool> stride{false, "stride", this};
-      Property<bool> spars{true, "sparse", this};
+      Property<bool> spars{true, "spars", this};
       Property<bool> spars2{true, "spars2", this};
       Property<bool> pdst{true, "pdst", this};
     } planning{"planning", this};

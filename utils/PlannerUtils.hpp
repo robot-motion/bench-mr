@@ -69,22 +69,9 @@ class PlannerUtils {
    * Collision check that respects the collision_model set in global::settings.
    */
   static bool collides(const ompl::geometric::PathGeometric &path) {
-    if (global::settings.env.collision.collision_model == robot::ROBOT_POINT) {
-      for (unsigned int i = 0; i < path.getStateCount(); ++i) {
-        const auto *state = path.getState(i)->as<State>();
-        if (global::settings.environment->collides(state->getX(),
-                                                   state->getY()))
-          return true;
-      }
-    } else {
-      // polygon-based collision check
-      for (std::size_t i = 0; i < path.getStateCount(); ++i) {
-        const auto *state = path.getState(i)->as<State>();
-        if (global::settings.environment->collides(
-                global::settings.env.collision.robot_shape.value().transformed(
-                    state)))
-          return true;
-      }
+    for (std::size_t i = 0; i < path.getStateCount(); ++i) {
+      const auto *state = path.getState(i)->as<State>();
+      if (!global::settings.environment->checkValidity(state)) return true;
     }
     return false;
   }
@@ -122,7 +109,7 @@ class PlannerUtils {
   static bool collides(const std::vector<Point> &path,
                        std::vector<Point> &collisions) {
     collisions.clear();
-    for (unsigned int i = 1; i < path.size(); ++i) {
+    for (std::size_t i = 1; i < path.size(); ++i) {
       if (global::settings.environment->collides(path[i].x, path[i].y)) {
 #if QT_SUPPORT
 #ifdef DEBUG

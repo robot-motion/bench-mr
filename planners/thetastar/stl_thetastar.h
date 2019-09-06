@@ -850,7 +850,8 @@ class ThetaStarSearch {
   virtual int GetStepCount() { return m_Steps; }
 
   virtual void EnsureMemoryFreed() {
-    if (m_AllocateNodeCount == 0) std::cout << "memory clean" << std::endl;
+    //    if (m_AllocateNodeCount == 0) std::cout << "memory clean" <<
+    //    std::endl;
   }
 
  private:
@@ -963,20 +964,33 @@ class ThetaStarState {
  public:
   virtual ~ThetaStarState() {}
 
-  virtual float GoalDistanceEstimate(
-      T &nodeGoal) = 0;  // Heuristic function which computes the estimated cost
-                         // to the goal node
-  virtual bool IsGoal(
-      T &nodeGoal) = 0;  // Returns true if this node is the goal node
-  virtual bool GetSuccessors(
-      ThetaStarSearch<T> *thetastarsearch,
-      T *parent_node) = 0;  // Retrieves all successors to this node and adds
-                            // them via thetastarsearch.addSuccessor()
-  virtual float GetCost(
-      T &successor) = 0;  // Computes the cost of travelling from this node to
-                          // the successor node
-  virtual bool IsSameState(
-      T &rhs) = 0;  // Returns true if this node is the same as the rhs node
+  /**
+   * Heuristic function which computes the estimated cost to the goal node.
+   */
+  virtual float GoalDistanceEstimate(T &nodeGoal) = 0;
+
+  /**
+   * Returns true if this node is the goal node.
+   */
+  virtual bool IsGoal(T &nodeGoal) = 0;
+
+  /**
+   * Retrieves all successors to this node and adds them via
+   * thetastarsearch.addSuccessor().
+   */
+  virtual bool GetSuccessors(ThetaStarSearch<T> *thetastarsearch,
+                             T *parent_node) = 0;
+
+  /**
+   * Computes the cost of travelling from this node to the successor node.
+   */
+  virtual float GetCost(T &successor) = 0;
+
+  /**
+   * Returns true if this node is the same as the rhs node.
+   */
+  virtual bool IsSameState(T &rhs) = 0;
+
   virtual bool lineofsight(T *successor, T *parent_node) = 0;
 
   int OPTM_ORIENTATIONS;

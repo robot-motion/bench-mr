@@ -3,3 +3,4 @@ bitarray==0.8.3
 matplotlib>2
 numpy>1.15
 psutil
+tqdm

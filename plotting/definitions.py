@@ -64,3 +64,64 @@ smoother_names = {
 }
 
 smoothers = list(smoother_names.values())
+
+sampling_planners = ['rrt', 'est', 'sbl', 'prm', 'theta_star', 'sst', 'fmt', 'kpiece', 'pdst', 'stride']
+anytime_planners = ['rrt_star', 'rrt_sharp', 'informed_rrt_star', 'sorrt_star', 'prm_star', 'bfmt', 'cforest',
+                    'bit_star', 'spars', 'spars2']
+sbpl_planners = ['sbpl_adstar', 'sbpl_anastar', 'sbpl_arastar', 'sbpl_lazy_ara', 'sbpl_mha']
+all_planners = sampling_planners + anytime_planners + sbpl_planners
+
+planner_names = {
+    'rrt': 'RRT',
+    'est': 'EST',
+    'sbl': 'SBL',
+    'prm': 'PRM',
+    'theta_star': 'Theta*',
+    'sst': 'SST',
+    'fmt': 'FMT',
+    'kpiece': 'KPIECE',
+    'pdst': 'PDST',
+    'stride': 'STRIDE',
+    'rrt_star': 'RRT*',
+    'rrt_sharp': 'RRT#',
+    'informed_rrt_star': 'Informed RRT*',
+    'sorrt_star': 'SORRT*',
+    'prm_star': 'PRM*',
+    'bfmt': 'BFMT',
+    'cforest': 'CForest',
+    'bit_star': 'BIT*',
+    'spars': 'SPARS',
+    'spars2': 'SPARS2',
+    'sbpl_adstar': 'SBPL AD*',
+    'sbpl_anastar': 'SBPL ANA*',
+    'sbpl_lazy_ara': 'SBPL Lazy ARA*',
+    'sbpl_mha': 'SBPL MHA'    
+}
+
+# Names internally used by MPB/OMPL to appear in the "plans" dictionary of the results files
+planner_internal_names = {
+    'rrt': 'RRT',
+    'est': 'EST',
+    'sbl': 'SBL',
+    'prm': 'PRM',
+    'theta_star': 'Theta*',
+    'sst': 'SST',
+    'fmt': 'FMT',
+    'kpiece': 'KPIECE1',
+    'pdst': 'PDST',
+    'stride': 'STRIDE',
+    'rrt_star': 'RRTstar',
+    'rrt_sharp': 'RRT#',
+    'informed_rrt_star': 'InformedRRTstar',
+    'sorrt_star': 'SORRTstar',
+    'prm_star': 'PRMstar',
+    'bfmt': 'BFMT',
+    'cforest': 'CForest',
+    'bit_star': 'kBITstar',
+    'spars': 'SPARS',
+    'spars2': 'SPARStwo',
+    'sbpl_adstar': 'SBPL_ADstar',
+    'sbpl_anastar': 'SBPL_ANAstar',
+    'sbpl_lazy_ara': 'SBPL_Lazy_ARA',
+    'sbpl_mha': 'SBPL_MHA'
+}

@@ -1,13 +1,24 @@
 [![CircleCI](https://circleci.com/gh/eric-heiden/mpb.svg?style=svg&circle-token=331e9015b5539b432e663cb7591ba92a38a338d9)](https://circleci.com/gh/eric-heiden/mpb)
 
 # Motion Planning Benchmark
-Benchmarking motion planners for wheeled mobile robots in cluttered environments on scenarios close to real-world autonomous driving scenarios.
+Benchmarking motion planners for wheeled mobile robots in cluttered environments on scenarios close to real-world autonomous driving settings.
 
 ## Dependencies
 * [libccd-1.4+](https://github.com/danfis/libccd/releases/tag/v1.4) (because of the `chomp` implementation used here), included as submodule and automatically built
 * [OMPL](https://github.com/ompl/ompl) - included as submodule, needs to be installed first
 * [nlohmann/json](https://github.com/nlohmann/json) - not provided, needs to be installed first
+* [SBPL](https://github.com/sbpl/sbpl) - not provided, needs to be installed
 * [Jupyter Lab](https://github.com/jupyterlab/jupyterlab) with [Python 3 kernel](https://ipython.readthedocs.io/en/latest/install/kernel_install.html#kernels-for-python-2-and-3) for plotting and evaluation (see [plotting/README.md](plotting/README.md))
+
+The following boost libraries (version 1.58+) need to be installed:
+* `boost_serialization`
+* `boost_filesystem`
+* `boost_system`
+* `boost_program_options`
+
+The provided CHOMP implementation requires, GLUT and other OpenGL libraries to be present, which can be installed through the `freeglut3-dev` package. PNG via `libpng-dev`, expat via `libexpat1-dev`.
+
+To support visual debugging, Qt5 with the `Charts` and `Svg` modules needs to be installed (optional dependency).
 
 ## Using Docker
 

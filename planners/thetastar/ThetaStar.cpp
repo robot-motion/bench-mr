@@ -1,5 +1,6 @@
 #include <ompl/base/Planner.h>
 #include <utility>
+
 #include <utils/PlannerUtils.hpp>
 #include <utils/Stopwatch.hpp>
 
@@ -225,10 +226,7 @@ bool ThetaStar::search(std::vector<std::vector<GNode> > &paths, GNode start,
 
   paths.push_back(sol);
 
-  unsigned long path_size = paths.size();
-  OMPL_INFORM("Theta* found %d path(s).", (int)path_size);
-
-  return path_size > 0;
+  return !paths.empty() && !paths[0].empty();
 }
 
 ob::PlannerStatus ThetaStar::run() {
@@ -306,7 +304,7 @@ ob::PlannerStatus ThetaStar::solve(const ob::PlannerTerminationCondition &ptc) {
   if (global::settings.env.collision.collision_model == robot::ROBOT_POLYGON)
     global::settings.env.collision.robot_shape.value().scale(2);
 
-  OMPL_DEBUG("Theta*: Generate a new global path");
+  OMPL_DEBUG("Theta*: Generate a new global path.");
   Stopwatch sw;
   sw.start();
   search(global_paths, startNode, goalNode);
@@ -316,9 +314,9 @@ ob::PlannerStatus ThetaStar::solve(const ob::PlannerTerminationCondition &ptc) {
   // revert collision shape
   global::settings.env.collision.robot_shape = original_shape;
 
-  OMPL_INFORM("Theta* search finished");
+  OMPL_INFORM("Theta*: Search finished.");
   if (global_paths.empty() || global_paths[0].empty()) {
-    OMPL_WARN("Theta*: No Path found");
+    OMPL_WARN("Theta*: No path found.");
     return ob::PlannerStatus::TIMEOUT;
   }
 

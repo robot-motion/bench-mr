@@ -1,10 +1,9 @@
-import sys
-import json
 from utils import *
 from definitions import *
 
+
 def latex_table(results_filename: str,
-                planners = 'all',
+                planners='all',
                 row_label: str = '',
                 metrics: [str] = ['path_found', 'planning_time', 'path_length', 'curvature', 'cusps'],
                 time_limit: float = 3) -> str:
@@ -12,12 +11,12 @@ def latex_table(results_filename: str,
     parsed_planners = parse_planners(planners)
     if planners != 'all':
         planners = [planner for planner in planners if planner in parsed_planners]
-    else:        
+    else:
         planners = get_planners(results_filename)
     if len(planners) == 0:
         print("Warning: No planners were selected for generating a table.", file=sys.stderr)
         return 'No planners were selected for %s.' % results_filename
-    stats = { metric: {planner: [] for planner in planners} for metric in metrics}
+    stats = {metric: {planner: [] for planner in planners} for metric in metrics}
     with open(results_filename, 'r') as rf:
         for run in json.load(rf)["runs"]:
             for planner, plan in run["plans"].items():
@@ -40,8 +39,8 @@ def latex_table(results_filename: str,
             if metric == 'path_found' and safe_sum(stats[metric][planner]) == 0:
                 # no paths have been found
                 output += '\t0 &\n'
-                for j in range(len(metrics)-1):
-                    output += '\tN / A' + ('&' if j < len(metrics)-2 else '%') + '\n'
+                for j in range(len(metrics) - 1):
+                    output += '\tN / A' + ('&' if j < len(metrics) - 2 else '%') + '\n'
                 break
             else:
                 mu = safe_mean(stats[metric][planner])
@@ -58,6 +57,6 @@ def latex_table(results_filename: str,
                     line += '\t%i' % (safe_sum(stats[metric][planner]))
                 else:
                     line += '\t%.2f' % safe_mean(stats[metric][planner])
-                output += line + ('&' if i < len(metrics)-1 else '%') + '\n'
+                output += line + ('&' if i < len(metrics) - 1 else '%') + '\n'
         output += '\\\\\n'
     return output
