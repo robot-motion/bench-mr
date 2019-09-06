@@ -61,13 +61,16 @@ struct PathEvaluation {
       stats.exact_goal_path = false;
     } else {
       stats.path_found = true;
-      auto solution = PlannerUtils::interpolated(path);
+      auto solution = path;
 
       // assume if SBPL has found a solution, it does not collide and is exact
       if (planner->name().rfind("SBPL", 0) == 0) {
+        // do not interpolate the path returned by SBPL (it uses its own steer
+        // function)
         stats.path_collides = false;
         stats.exact_goal_path = true;
       } else {
+        solution = PlannerUtils::interpolated(path);
         stats.path_collides = !planner->isValid(solution);
         stats.exact_goal_path =
             Point(solution.getStates().back())
