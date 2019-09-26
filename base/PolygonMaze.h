@@ -63,8 +63,13 @@ class PolygonMaze : public Environment {
   bool collides(const Polygon &polygon) override {
     for (const auto &poly : _obstacles) {
       if (collision2d::intersect((collision2d::Polygon<double>)polygon,
-                                 (collision2d::Polygon<double>)poly))
+                                 (collision2d::Polygon<double>)poly)) {
+        // std::cerr << "Intersection between polygons " << polygon.min() << " "
+        //          << polygon.max() << " and " << poly.min() << " " <<
+        //          poly.max()
+        //          << std::endl;
         return true;
+      }
     }
     return false;
   }
@@ -82,6 +87,8 @@ class PolygonMaze : public Environment {
     j["max_y"] = _bounds.high[1];
     j["name"] = name();
   }
+
+  double unit() const override { return .2; }
 
  private:
   PolygonMaze() : Environment() {}

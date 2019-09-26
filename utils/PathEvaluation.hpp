@@ -92,7 +92,6 @@ struct PathEvaluation {
 
       computeCusps(stats, path);
     }
-    OMPL_INFORM("Path evaluation complete.");
     return stats.path_found;
   }
 

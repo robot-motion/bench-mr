@@ -82,7 +82,7 @@ class OMPLPlanner : public AbstractPlanner {
       _solution.clear();
       _solution.append(global::settings.environment->startState());
       const auto &path = ss->getSolutionPath();
-      for (unsigned int i = 0; i < path.getStateCount(); ++i) {
+      for (std::size_t i = 0; i < path.getStateCount(); ++i) {
         _solution.append(path.getState(i));
       }
 

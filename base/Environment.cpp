@@ -20,8 +20,14 @@ bool Environment::checkValidity(const ob::State *state) {
     const double x = s->getX(), y = s->getY();
     return !collides(x, y);
   } else {
-    return !global::settings.environment->collides(
+    bool valid = !global::settings.environment->collides(
         global::settings.env.collision.robot_shape.value().transformed(state));
+    if (!valid) {
+      const auto *s = state->as<ob::SE2StateSpace::StateType>();
+//      OMPL_DEBUG("State [%.2f %.2f %.2f] is invalid.", s->getX(), s->getY(),
+//                 s->getYaw());
+    }
+    return valid;
   }
 }
 

@@ -1,11 +1,10 @@
-#include "base/PolygonMaze.h"
 #include "base/PlannerSettings.h"
+#include "base/PolygonMaze.h"
 
 #include "planners/OMPLPlanner.hpp"
-#include "planners/thetastar/ThetaStar.h"
 
-#include "utils/ScenarioLoader.h"
 #include "utils/PathEvaluation.hpp"
+#include "utils/ScenarioLoader.h"
 
 namespace og = ompl::geometric;
 
@@ -28,10 +27,6 @@ int main(int argc, char **argv) {
   maze->setStart({0.0, -2.27});
   maze->setGoal({7.72, -7.72});
   maze->setThetas(0, -M_PI_2);
-  std::cout << "Start collides? " << std::boolalpha
-            << maze->collides(maze->start().x, maze->start().y) << std::endl;
-  std::cout << "Goal collides?  " << std::boolalpha
-            << maze->collides(maze->goal().x, maze->goal().y) << std::endl;
   global::settings.environment = maze;
 
   global::settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
@@ -41,6 +36,13 @@ int main(int argc, char **argv) {
   global::settings.env.collision.collision_model = robot::ROBOT_POLYGON;
   global::settings.env.collision.robot_shape_source = robot_filename;
   global::settings.env.collision.initializeCollisionModel();
+
+  std::cout << "Start valid? " << std::boolalpha
+            << maze->checkValidity(maze->start().toState(maze->startTheta()))
+            << std::endl;
+  std::cout << "Goal valid?  " << std::boolalpha
+            << maze->checkValidity(maze->goal().toState(maze->goalTheta()))
+            << std::endl;
 
   auto info = nlohmann::json({{"plans", {}}});
   global::settings.environment->to_json(info["environment"]);

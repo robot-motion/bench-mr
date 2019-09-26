@@ -13,7 +13,8 @@
 //#define TESTM 0
 
 ThetaStar::ThetaStar()
-    : AbstractPlanner(name()), ob::Planner(ss->getSpaceInformation(), "Theta*") {
+    : AbstractPlanner(name()),
+      ob::Planner(ss->getSpaceInformation(), "Theta*") {
   srand((unsigned int)(time(nullptr)));
 
   /// Euclidean Cost
@@ -246,6 +247,7 @@ ob::PlannerStatus ThetaStar::run() {
 
 og::PathGeometric ThetaStar::solution() const {
   og::PathGeometric path(ss->getSpaceInformation());
+  double unit = global::settings.environment->unit();
   auto gnodes = global_paths[0];
   if (gnodes.empty()) {
     OMPL_ERROR("Theta*: The computed path contains no GNodes!");
@@ -254,7 +256,7 @@ og::PathGeometric ThetaStar::solution() const {
   for (auto &node : gnodes) {
     auto *state =
         ss->getStateSpace()->allocState()->as<ob::SE2StateSpace::StateType>();
-    state->setXY(node.x_r, node.y_r);
+    state->setXY(node.x_r * unit, node.y_r * unit);
     state->setYaw(node.theta);
     path.append(state);
   }
@@ -274,6 +276,7 @@ ob::PlannerStatus ThetaStar::solve(const ob::PlannerTerminationCondition &ptc) {
   pdef_->clearSolutionNonExistenceProof();
 
   auto *goal = dynamic_cast<ob::GoalSampleableRegion *>(pdef_->getGoal().get());
+  double unit = global::settings.environment->unit();
 
   if (goal == nullptr) {
     OMPL_ERROR("%s: Unknown type of goal", getName().c_str());
@@ -288,21 +291,22 @@ ob::PlannerStatus ThetaStar::solve(const ob::PlannerTerminationCondition &ptc) {
 
   auto *goalState = ss->getStateSpace()->allocState();
   goal->sampleGoal(goalState);
-  GNode goalNode(goalState->as<ob::SE2StateSpace::StateType>()->getX(),
-                 goalState->as<ob::SE2StateSpace::StateType>()->getY());
+  GNode goalNode(goalState->as<ob::SE2StateSpace::StateType>()->getX() / unit,
+                 goalState->as<ob::SE2StateSpace::StateType>()->getY() / unit);
 
   auto *startState =
       pdef_->getStartState(0)->as<ob::SE2StateSpace::StateType>();
-  GNode startNode(startState->getX(), startState->getY());
+  GNode startNode(startState->getX() / unit, startState->getY() / unit);
 
   global_paths.clear();
 
   //  global::settings.steering->clearInternalData();
   // XXX scale collision model to prevent that all solutions are colliding
-  const auto original_shape =
-      global::settings.env.collision.robot_shape.value();
-  if (global::settings.env.collision.collision_model == robot::ROBOT_POLYGON)
-    global::settings.env.collision.robot_shape.value().scale(2);
+  //  const auto original_shape =
+  //      global::settings.env.collision.robot_shape.value();
+  //  if (global::settings.env.collision.collision_model ==
+  //  robot::ROBOT_POLYGON)
+  //    global::settings.env.collision.robot_shape.value().scale(1);
 
   OMPL_DEBUG("Theta*: Generate a new global path.");
   Stopwatch sw;
@@ -312,7 +316,7 @@ ob::PlannerStatus ThetaStar::solve(const ob::PlannerTerminationCondition &ptc) {
   _planningTime = sw.elapsed();
 
   // revert collision shape
-  global::settings.env.collision.robot_shape = original_shape;
+  //  global::settings.env.collision.robot_shape = original_shape;
 
   OMPL_INFORM("Theta*: Search finished.");
   if (global_paths.empty() || global_paths[0].empty()) {
@@ -323,7 +327,8 @@ ob::PlannerStatus ThetaStar::solve(const ob::PlannerTerminationCondition &ptc) {
   for (auto &gnodes : global_paths) {
     auto path(std::make_shared<og::PathGeometric>(ss->getSpaceInformation()));
     for (auto &node : gnodes)
-      path->append(base::StateFromXYT(node.x_r, node.y_r, node.theta));
+      path->append(
+          base::StateFromXYT(node.x_r * unit, node.y_r * unit, node.theta));
     pdef_->addSolutionPath(path, false, 0.0, getName());
   }
 

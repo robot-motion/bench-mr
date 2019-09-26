@@ -79,7 +79,7 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
             << std::endl;
 #endif
 
-  OMPL_INFORM("Initialized steer function %s",
+  OMPL_INFORM("Initialized steer function %s.",
               Steering::to_string(steering_type).c_str());
 }
 
@@ -115,5 +115,8 @@ void PlannerSettings::GlobalSettings::EnvironmentSettings::CollisionSettings::
     OMPL_INFORM("Loaded polygon robot model from %s with %d vertices.",
                 robot_shape_source.value().c_str(),
                 robot_shape.value().points.size());
+    OMPL_INFORM("\tBounds: [%.2f %.2f] -- [%.2f %.2f]",
+                robot_shape.value().min().x, robot_shape.value().min().y,
+                robot_shape.value().max().x, robot_shape.value().max().y);
   }
 }

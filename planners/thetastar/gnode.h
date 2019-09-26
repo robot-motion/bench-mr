@@ -320,19 +320,6 @@ class GNode : public GNode_base {
 
   bool operator<(const GNode &n) const { return (steer_cost < n.steer_cost); }
 
-  bool setParent(GNode_base *p) {
-    // OMPL_INFORM("Settin grandparent p %d, %d", p->x, p->y);
-    parent = p;
-    // OMPL_INFORM("Settin grandparent parent %d, %d", p->x, p->y);
-    hasParent = true;
-    return true;
-  }
-
-  bool setChild(GNode_base *c) {
-    child = c;
-    return true;
-  }
-
   /// ============================================================================================
   /// getLineCost(), not _baseused
   /// ============================================================================================
@@ -363,33 +350,6 @@ class GNode : public GNode_base {
   }
 
   /// ============================================================================================
-  /// double costTo(const GNode& n)
-  /// cost to go, not currently used
-  /// ============================================================================================
-  double costTo(const GNode &n) {
-    //        double xs = fabs(n.x * cellwidth - x * cellwidth);
-    //        double ys = fabs(n.y * cellheight - y * cellheight);
-    return std::sqrt(std::pow(n.x_r - x_r, 2.) + std::pow(n.y_r - y_r, 2.));
-  }
-
-  /// ============================================================================================
-  /// int GetMap(double x, double y)
-  /// get the cell enclosing the node
-  /// ============================================================================================
-  Point getCell() { return Point(std::round(x), std::round(y)); }
-
-  /// ============================================================================================
-  /// int GetMap(double x, double y)
-  /// Check in the Map, the value associated to the position (x,y)
-  /// ============================================================================================
-  int GetMap(double x, double y) {
-    if (global::settings.environment->collides(x, y))
-      return 1;
-    else
-      return 0;
-  }
-
-  /// ============================================================================================
   /// bool IsSameState( GNode &rhs )
   /// Check if we have the same state
   /// ============================================================================================
@@ -416,23 +376,18 @@ class GNode : public GNode_base {
     goal_x = nodeGoal.x;
     goal_y = nodeGoal.y;
 
-    // float xd = float( ( (float)x - (float)nodeGoal.x ) );
-    // float yd = float( ( (float)y - (float)nodeGoal.y) );
-    return fabsf(x - nodeGoal.x) + fabsf(y - nodeGoal.y);
+    float xd = ((float)x - (float)nodeGoal.x);
+    float yd = ((float)y - (float)nodeGoal.y);
+    //    return fabsf(x - nodeGoal.x) + fabsf(y - nodeGoal.y);
 
-    // return sqrt(xd*xd+yd*yd);
-  }
-
-  double euclidianDistance(const GNode &other) {
-    return std::sqrt(std::pow(other.x_r - x_r, 2.) +
-                     std::pow(other.y_r - y_r, 2.));
+    return sqrt(xd * xd + yd * yd);
   }
 
   /// ============================================================================================
   ///  bool IsGoal( GNode &nodeGoal )
   /// Check if the node is the Goal
   /// ============================================================================================
-  bool IsGoal(GNode &nodeGoal) {
+  bool IsGoal(const GNode &nodeGoal) {
     goal_x = nodeGoal.x;
     goal_y = nodeGoal.y;
 
@@ -464,28 +419,25 @@ class GNode : public GNode_base {
       parent_x = parent_node->x;
       parent_y = parent_node->y;
     } else {
-      OMPL_INFORM("NO PARENT NODE!!!");
+      OMPL_ERROR("GNode has no parent node.");
       return false;
     }
-
-    double unit;
 
     //
     // Try to find successors for each of the 8 directions (NW to SE)
     //
 
     // mod
-    unit = 1;
     GNode NewNode;
     int cnt_successors = 0;
 
-    GNode *th1 = new GNode(x, y, th);
-    GNode *pr1 = new GNode(x - unit, y);
+    auto *th1 = new GNode(x, y, th);
+    auto *pr1 = new GNode(x - 1, y, 1.0 * M_PI);
     pr1->CHECK_SUCCESSOR = 1;
     th1->CHECK_SUCCESSOR = 1;
-    if (lineofsight(th1, pr1) && !((parent_x == x - unit) && (parent_y == y))) {
+    if (lineofsight(th1, pr1) && !((parent_x == x - 1) && (parent_y == y))) {
       cnt_successors++;
-      NewNode = GNode(x - unit, y, pr1->theta);
+      NewNode = GNode(x - 1, y, pr1->theta);
       NewNode.steer_cost = pr1->steer_cost;
       // NewNode.setParent(this);
       thetastarsearch->AddSuccessor(NewNode);
@@ -493,14 +445,14 @@ class GNode : public GNode_base {
     delete (th1);
     delete (pr1);
 
-    GNode *th2 = new GNode(x, y, th);
-    GNode *pr2 = new GNode(x, y - unit);
+    auto *th2 = new GNode(x, y, th);
+    auto *pr2 = new GNode(x, y - 1, 1.5 * M_PI);
 
     pr2->CHECK_SUCCESSOR = 1;
     th2->CHECK_SUCCESSOR = 1;
-    if (lineofsight(th2, pr2) && !((parent_x == x) && (parent_y == y - unit))) {
+    if (lineofsight(th2, pr2) && !((parent_x == x) && (parent_y == y - 1))) {
       cnt_successors++;
-      NewNode = GNode(x, y - unit, pr2->theta);
+      NewNode = GNode(x, y - 1, pr2->theta);
       NewNode.steer_cost = pr2->steer_cost;
       // NewNode.setParent(this);
 
@@ -509,14 +461,14 @@ class GNode : public GNode_base {
     delete (th2);
     delete (pr2);
 
-    GNode *th3 = new GNode(x, y, th);
-    GNode *pr3 = new GNode(x + unit, y);
+    auto *th3 = new GNode(x, y, th);
+    auto *pr3 = new GNode(x + 1, y, 0.0 * M_PI);
 
     pr3->CHECK_SUCCESSOR = 1;
     th3->CHECK_SUCCESSOR = 1;
-    if (lineofsight(th3, pr3) && !((parent_x == x + unit) && (parent_y == y))) {
+    if (lineofsight(th3, pr3) && !((parent_x == x + 1) && (parent_y == y))) {
       cnt_successors++;
-      NewNode = GNode(x + unit, y, pr3->theta);
+      NewNode = GNode(x + 1, y, pr3->theta);
       NewNode.steer_cost = pr3->steer_cost;
       // NewNode.setParent(this);
 
@@ -525,15 +477,15 @@ class GNode : public GNode_base {
     delete (th3);
     delete (pr3);
 
-    GNode *th4 = new GNode(x, y, th);
-    GNode *pr4 = new GNode(x + unit, y + unit);
+    auto *th4 = new GNode(x, y, th);
+    auto *pr4 = new GNode(x + 1, y + 1, 0.25 * M_PI);
 
     pr4->CHECK_SUCCESSOR = 1;
     th4->CHECK_SUCCESSOR = 1;
     if (lineofsight(th4, pr4) &&
-        !((parent_x == x + unit) && (parent_y == y + unit))) {
+        !((parent_x == x + 1) && (parent_y == y + 1))) {
       cnt_successors++;
-      NewNode = GNode(x + unit, y + unit, pr4->theta);
+      NewNode = GNode(x + 1, y + 1, pr4->theta);
       NewNode.steer_cost = pr4->steer_cost;
       // NewNode.setParent(this);
 
@@ -542,16 +494,16 @@ class GNode : public GNode_base {
     delete (th4);
     delete (pr4);
 
-    GNode *th5 = new GNode(x, y, th);
-    GNode *pr5 = new GNode(x - unit, y - unit);
+    auto *th5 = new GNode(x, y, th);
+    auto *pr5 = new GNode(x - 1, y - 1, 1.25 * M_PI);
 
     pr5->CHECK_SUCCESSOR = 1;
     th5->CHECK_SUCCESSOR = 1;
     if (lineofsight(th5, pr5) &&
-        !((parent_x == x - unit) && (parent_y == y - unit))) {
+        !((parent_x == x - 1) && (parent_y == y - 1))) {
       cnt_successors++;
 
-      NewNode = GNode(x - unit, y - unit, pr5->theta);
+      NewNode = GNode(x - 1, y - 1, pr5->theta);
       NewNode.steer_cost = pr5->steer_cost;
       // NewNode.setParent(this);
 
@@ -560,16 +512,16 @@ class GNode : public GNode_base {
     delete (th5);
     delete (pr5);
 
-    GNode *th6 = new GNode(x, y, th);
-    GNode *pr6 = new GNode(x + unit, y - unit);
+    auto *th6 = new GNode(x, y, th);
+    auto *pr6 = new GNode(x + 1, y - 1, 1.75 * M_PI);
 
     pr6->CHECK_SUCCESSOR = 1;
     th6->CHECK_SUCCESSOR = 1;
     if (lineofsight(th6, pr6) &&
-        !((parent_x == x + unit) && (parent_y == y - unit))) {
+        !((parent_x == x + 1) && (parent_y == y - 1))) {
       cnt_successors++;
 
-      NewNode = GNode(x + unit, y - unit, pr6->theta);
+      NewNode = GNode(x + 1, y - 1, pr6->theta);
       NewNode.steer_cost = pr6->steer_cost;
       // NewNode.setParent(this);
 
@@ -578,16 +530,16 @@ class GNode : public GNode_base {
     delete (th6);
     delete (pr6);
 
-    GNode *th7 = new GNode(x, y, th);
-    GNode *pr7 = new GNode(x - unit, y + unit);
+    auto *th7 = new GNode(x, y, th);
+    auto *pr7 = new GNode(x - 1, y + 1, 0.75 * M_PI);
 
     pr7->CHECK_SUCCESSOR = 1;
     th7->CHECK_SUCCESSOR = 1;
     if (lineofsight(th7, pr7) &&
-        !((parent_x == x - unit) && (parent_y == y + unit))) {
+        !((parent_x == x - 1) && (parent_y == y + 1))) {
       cnt_successors++;
 
-      NewNode = GNode(x - unit, y + unit, pr7->theta);
+      NewNode = GNode(x - 1, y + 1, pr7->theta);
       NewNode.steer_cost = pr7->steer_cost;
       // NewNode.setParent(this);
 
@@ -596,15 +548,15 @@ class GNode : public GNode_base {
     delete (th7);
     delete (pr7);
 
-    GNode *th8 = new GNode(x, y, th);
-    GNode *pr8 = new GNode(x, (y + unit));
+    auto *th8 = new GNode(x, y, th);
+    auto *pr8 = new GNode(x, y + 1, 0.5 * M_PI);
 
     pr8->CHECK_SUCCESSOR = 1;
     th8->CHECK_SUCCESSOR = 1;
-    if (lineofsight(th8, pr8) && !((parent_x == x) && (parent_y == y + unit))) {
+    if (lineofsight(th8, pr8) && !((parent_x == x) && (parent_y == y + 1))) {
       cnt_successors++;
 
-      NewNode = GNode(x, (y + unit), pr8->theta);
+      NewNode = GNode(x, y + 1, pr8->theta);
       NewNode.steer_cost = pr8->steer_cost;
       // NewNode.setParent(this);
 
@@ -626,8 +578,9 @@ class GNode : public GNode_base {
   /// Euclidean Distance Cost
   /// ============================================================================================
   double GetCost(GNode &successor) {
-    double dx = (successor.x - x);
-    double dy = (successor.y - y);
+    double unit = global::settings.environment->unit();
+    double dx = (successor.x - x) * unit;
+    double dy = (successor.y - y) * unit;
 
     return std::sqrt(dx * dx + dy * dy);
   }
@@ -639,10 +592,13 @@ class GNode : public GNode_base {
   /// ============================================================================================
   float GetCostTraj(GNode &successor) {
     // return successor.steer_cost;
+
+    double unit = global::settings.environment->unit();
     return static_cast<float>(
         global::settings.ompl.objective
-            ->motionCost(base::StateFromXY(x, y),
-                         base::StateFromXY(successor.x, successor.y))
+            ->motionCost(
+                base::StateFromXY(x * unit, y * unit),
+                base::StateFromXY(successor.x * unit, successor.y * unit))
             .value());
 
     //    double res = global::settings.steering->getBestCost(
@@ -665,10 +621,12 @@ class GNode : public GNode_base {
   /// successor
   /// ============================================================================================
   double GetCostTrajFromParent(GNode &parent, GNode &successor) {
+    double unit = global::settings.environment->unit();
     return static_cast<double>(
         global::settings.ompl.objective
-            ->motionCost(base::StateFromXY(parent.x, parent.y),
-                         base::StateFromXY(successor.x, successor.y))
+            ->motionCost(
+                base::StateFromXY(parent.x * unit, parent.y * unit),
+                base::StateFromXY(successor.x * unit, successor.y * unit))
             .value());
     //    double res = global::settings.steering->getBestCost(
     //        parent.x, parent.y, successor.x, successor.y);
@@ -692,7 +650,10 @@ class GNode : public GNode_base {
   /// Set the Type of Node, if Type ==1, the node connects to the successor with
   /// a steer function
   /// ============================================================================================
-  bool setType(int type) { this->steer = type; return true; }
+  bool setType(int type) {
+    this->steer = type;
+    return true;
+  }
 
   /// ===========================================
   /// bool GetSuccessors( ThetaStarSearch<GNode> *thetastarsearch, GNode
@@ -715,9 +676,11 @@ class GNode : public GNode_base {
   /// with the orientation being the one of the line connecting the two poses
   /// ============================================================================================
   bool lineofsight(GNode *parent_node, GNode *successor) {
-    return line(successor, parent_node);
-//       return PlannerUtils::collides(
-//           Point(parent_node->x_r, parent_node->y_r).toState(parent_node->theta),
-//           Point(successor->x_r, successor->y_r).toState(successor->theta));
+    return line(parent_node, successor);
+    //       return PlannerUtils::collides(
+    //           Point(parent_node->x_r,
+    //           parent_node->y_r).toState(parent_node->theta),
+    //           Point(successor->x_r,
+    //           successor->y_r).toState(successor->theta));
   }
 };

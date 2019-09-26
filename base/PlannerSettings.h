@@ -333,6 +333,9 @@ struct GlobalSettings : public Group {
       Property<double> sigma{0.2, "sigma", this};
     } hc_cc{"hc_cc", this};
 
+    /**
+     * Settings related to the POSQ steer function.
+     */
     struct PosqSettings : public Group {
       using Group::Group;
 

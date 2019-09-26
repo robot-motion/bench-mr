@@ -11,8 +11,9 @@ bool GNode_base::isblock(double x, double y, double theta) {
   //    bool c = global::settings.environment->collides(x, y);
   //    QtVisualizer::drawNode(x, y, c ? Qt::red : Qt::darkGreen, 0.05);
   //    return c;
+    double unit = global::settings.environment->unit();
   return !global::settings.environment->checkValidity(
-      Point(x, y).toState(theta));
+      Point(x * unit, y * unit).toState(theta));
 
   // XXX ensure larger distance to prevent too low clearing distances
   return global::settings.environment->collides(x, y) ||
@@ -52,12 +53,18 @@ bool GNode_base::line(const GNode_base *successor,
   //  return c;
   //    return line(x0, y0, y1, x1);
 
-  //  std::cout << "line (" << parent_node->x_r << " " << parent_node->y_r
-  //            << ") - (" << successor->x_r << " " << successor->y_r
-  //            << "): " << std::boolalpha
-  //            << !PlannerUtils::collides(parent_node->toState(),
-  //                                       successor->toState())
-  //            << std::endl;
+  //    std::cout << "line (" << parent_node->x_r << " " << parent_node->y_r
+  //              << ") - (" << successor->x_r << " " << successor->y_r
+  //              << "): " << std::boolalpha
+  //              << !PlannerUtils::collides(parent_node->toState(),
+  //                                         successor->toState())
+  //              << std::endl;
 
-  return !PlannerUtils::collides(parent_node->toState(), successor->toState());
+  bool c =
+      !PlannerUtils::collides(parent_node->toState(), successor->toState());
+//  OMPL_DEBUG("Line [%.2f %.2f %.2f] -- [%.2f %.2f %.2f] ?  %s",
+//             parent_node->x_r, parent_node->y_r, parent_node->theta,
+//             successor->x_r, successor->y_r, successor->theta,
+//             (c ? "true" : "false"));
+  return c;
 }

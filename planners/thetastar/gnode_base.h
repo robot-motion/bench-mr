@@ -2,7 +2,8 @@
 
 #include <utility>
 
-#include "../../base/Primitives.h"
+#include <base/PlannerSettings.h>
+#include <base/Primitives.h>
 
 // Base class for all the steering functions
 class GNode_base {
@@ -10,7 +11,7 @@ class GNode_base {
   virtual ~GNode_base() = default;
 
   /// Cost associated to the best Node selected
-  float steer_cost{0};
+  double steer_cost{0};
 
   /// Number of outgoing edges per node
   int nEdges{0};
@@ -49,7 +50,8 @@ class GNode_base {
   GNode_base *child{nullptr};
 
   inline ompl::base::State *toState() const {
-    return Point(x_r, y_r).toState(theta);
+    double unit = global::settings.environment->unit();
+    return Point(x_r * unit, y_r * unit).toState(theta);
   }
 
   // ============================================================================================

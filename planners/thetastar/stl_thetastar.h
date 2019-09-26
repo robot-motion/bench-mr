@@ -114,7 +114,7 @@ class ThetaStarSearch {
   ThetaStarSearch()
       : m_AllocateNodeCount(0),
         m_State(SEARCH_STATE_NOT_INITIALISED),
-        m_CurrentSolutionNode(NULL),
+        m_CurrentSolutionNode(nullptr),
         m_CancelRequest(false) {
     m_useAstar = false;
     m_connectGrandParent = false;
@@ -124,7 +124,7 @@ class ThetaStarSearch {
   ThetaStarSearch(bool euclideanCostChoice)
       : m_AllocateNodeCount(0),
         m_State(SEARCH_STATE_NOT_INITIALISED),
-        m_CurrentSolutionNode(NULL),
+        m_CurrentSolutionNode(nullptr),
         m_CancelRequest(false) {
     m_euclideanCost = euclideanCostChoice;
     m_useAstar = false;
@@ -134,7 +134,7 @@ class ThetaStarSearch {
   ThetaStarSearch(int MaxNodes)
       : m_AllocateNodeCount(0),
         m_State(SEARCH_STATE_NOT_INITIALISED),
-        m_CurrentSolutionNode(NULL),
+        m_CurrentSolutionNode(nullptr),
         m_CancelRequest(false) {
     m_useAstar = false;
     m_connectGrandParent = false;
@@ -155,7 +155,7 @@ class ThetaStarSearch {
     m_Start = AllocateNode();
     m_Goal = AllocateNode();
 
-    assert((m_Start != NULL && m_Goal != NULL));
+    assert((m_Start != nullptr && m_Goal != nullptr));
 
     m_Start->m_UserState = Start;
     m_Goal->m_UserState = Goal;
@@ -251,8 +251,8 @@ class ThetaStarSearch {
 #endif
 
           if (nodeParent == nodeChild && nodeChild != m_Start) {
-            usleep(200);
 #ifdef DEBUG
+            usleep(200);
             nodeParent->m_UserState.PrintNodeInfo();
             nodeChild->m_UserState.PrintNodeInfo();
 #endif
@@ -260,7 +260,7 @@ class ThetaStarSearch {
           }
         } while (nodeChild != m_Start &&
                  nodeChild !=
-                     NULL);  // Start is always the first node by definition
+                     nullptr);  // Start is always the first node by definition
       }
 
       // delete nodes that aren't needed for the solution
@@ -285,7 +285,7 @@ class ThetaStarSearch {
       // successor of node 'n' to m_Successors
 
       bool ret = n->m_UserState.GetSuccessors(
-          this, n->parent ? &n->parent->m_UserState : NULL);
+          this, n->parent ? &n->parent->m_UserState : nullptr);
 
       // Look for continuation with next best open node
       while (!ret && !m_OpenList.empty()) {
@@ -294,7 +294,7 @@ class ThetaStarSearch {
         pop_heap(m_OpenList.begin(), m_OpenList.end(), HeapCompare_f());
         m_OpenList.pop_back();
         ret = n->m_UserState.GetSuccessors(
-            this, n->parent ? &n->parent->m_UserState : NULL);
+            this, n->parent ? &n->parent->m_UserState : nullptr);
       }
 
       if (!ret) {
@@ -348,7 +348,7 @@ class ThetaStarSearch {
           // State not in open list
           // Set its g value to inf
           (*successor)->g = INF_COST;
-          (*successor)->parent = NULL;
+          (*successor)->parent = nullptr;
         }
 
         if (!m_connectGrandParent)
@@ -367,7 +367,7 @@ class ThetaStarSearch {
 
     double tcost = 0;
 
-    if (n->parent != NULL &&
+    if (n->parent != nullptr &&
         n->m_UserState.lineofsight(&(n->parent->m_UserState),
                                    &((successor)->m_UserState)) &&
         !m_useAstar) {
@@ -493,7 +493,7 @@ class ThetaStarSearch {
 
     double tcost = 0;
 
-    if (n->parent->parent != NULL &&
+    if (n->parent->parent != nullptr &&
         n->m_UserState.lineofsight(&(n->parent->parent->m_UserState),
                                    &((successor)->m_UserState)) &&
         !m_useAstar) {
@@ -552,7 +552,7 @@ class ThetaStarSearch {
         // sort back element into heap
         push_heap(m_OpenList.begin(), m_OpenList.end(), HeapCompare_f());
       }
-    } else if (n->parent != NULL &&
+    } else if (n->parent != nullptr &&
                n->m_UserState.lineofsight(&(n->parent->m_UserState),
                                           &((successor)->m_UserState)) &&
                !m_useAstar) {
@@ -719,7 +719,7 @@ class ThetaStarSearch {
     if (m_Start) {
       return &m_Start->m_UserState;
     } else {
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -733,7 +733,7 @@ class ThetaStarSearch {
       }
     }
 
-    return NULL;
+    return nullptr;
   }
 
   // Get end node
@@ -742,7 +742,7 @@ class ThetaStarSearch {
     if (m_Goal) {
       return &m_Goal->m_UserState;
     } else {
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -756,7 +756,7 @@ class ThetaStarSearch {
       }
     }
 
-    return NULL;
+    return nullptr;
   }
 
   // Get final cost of solution
@@ -787,7 +787,7 @@ class ThetaStarSearch {
       return &(*iterDbgOpen)->m_UserState;
     }
 
-    return NULL;
+    return nullptr;
   }
 
   virtual UserState *GetOpenListNext() {
@@ -804,7 +804,7 @@ class ThetaStarSearch {
       return &(*iterDbgOpen)->m_UserState;
     }
 
-    return NULL;
+    return nullptr;
   }
 
   Node *GetCurrentBestRawNode() { return m_OpenList.front(); }
@@ -824,7 +824,7 @@ class ThetaStarSearch {
       return &(*iterDbgClosed)->m_UserState;
     }
 
-    return NULL;
+    return nullptr;
   }
 
   virtual UserState *GetClosedListNext() {
@@ -842,7 +842,7 @@ class ThetaStarSearch {
       return &(*iterDbgClosed)->m_UserState;
     }
 
-    return NULL;
+    return nullptr;
   }
 
   // Get the number of steps
@@ -956,42 +956,4 @@ class ThetaStarSearch {
   int m_AllocateNodeCount;
 
   bool m_CancelRequest;
-};
-
-/// Template Class to use as state during the Search
-template <class T>
-class ThetaStarState {
- public:
-  virtual ~ThetaStarState() {}
-
-  /**
-   * Heuristic function which computes the estimated cost to the goal node.
-   */
-  virtual float GoalDistanceEstimate(T &nodeGoal) = 0;
-
-  /**
-   * Returns true if this node is the goal node.
-   */
-  virtual bool IsGoal(T &nodeGoal) = 0;
-
-  /**
-   * Retrieves all successors to this node and adds them via
-   * thetastarsearch.addSuccessor().
-   */
-  virtual bool GetSuccessors(ThetaStarSearch<T> *thetastarsearch,
-                             T *parent_node) = 0;
-
-  /**
-   * Computes the cost of travelling from this node to the successor node.
-   */
-  virtual float GetCost(T &successor) = 0;
-
-  /**
-   * Returns true if this node is the same as the rhs node.
-   */
-  virtual bool IsSameState(T &rhs) = 0;
-
-  virtual bool lineofsight(T *successor, T *parent_node) = 0;
-
-  int OPTM_ORIENTATIONS;
 };

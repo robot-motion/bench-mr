@@ -85,6 +85,11 @@ class Environment {
     j["name"] = name();
   }
 
+  /**
+   * Unit, e.g. used by Theta* to determine neighboring states.
+   */
+  virtual double unit() const { return 1; }
+
  protected:
   Point _start;
   Point _goal;
