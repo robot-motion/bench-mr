@@ -1,3 +1,6 @@
+#include <chrono>
+#include <ctime>
+
 #include "base/GridMaze.h"
 #include "base/PlannerSettings.h"
 
@@ -72,13 +75,15 @@ void evaluatePlanners(nlohmann::json &info) {
 
 void run(nlohmann::json &info) {
   global::settings.environment->to_json(info["environment"]);
-
   evaluatePlanners(info);
   info["settings"] = nlohmann::json(global::settings)["settings"];
   Log::log(info);
 }
 
-void config_steering_and_run(int run_id, int start_id, int end_id,
+/**
+ * Run benchmark for every selected steer function.
+ */
+void config_steering_and_run(std::size_t run_id, std::size_t start_id,
                              const nlohmann::json &base) {
   nlohmann::json info(base);
   if (run_id == start_id) {
@@ -103,14 +108,19 @@ void config_steering_and_run(int run_id, int start_id, int end_id,
 }
 
 int main(int argc, char **argv) {
-  std::ofstream o("benchmark_template.json");
+  std::string template_filename = "benchmark_template.json";
+  std::ofstream o(template_filename);
   o << std::setw(2) << nlohmann::json(global::settings);
   o.close();
+  std::cout << "Saved " << template_filename << "." << std::endl;
 
   if (argc <= 1) {
     std::cout << "Usage: " << argv[0] << " configuration.json" << std::endl;
     return EXIT_FAILURE;
   }
+
+  auto now = chrono::system_clock::to_time_t(chrono::system_clock::now());
+  std::cout << "Time stamp: " << ctime(&now) << std::endl;
 
   std::ifstream stream(argv[1]);
   const nlohmann::json settings = nlohmann::json::parse(stream);
@@ -124,9 +134,11 @@ int main(int argc, char **argv) {
     ScenarioLoader scenarioLoader;
     scenarioLoader.load(global::settings.benchmark.moving_ai.scenario);
     const auto n = scenarioLoader.scenarios().size();
-    const int start_id = (global::settings.benchmark.moving_ai.start + n) % n;
-    const int end_id = (global::settings.benchmark.moving_ai.end + n) % n;
-    for (int i = start_id; i <= end_id; ++i) {
+    const std::size_t start_id =
+        (global::settings.benchmark.moving_ai.start + n) % n;
+    const std::size_t end_id =
+        (global::settings.benchmark.moving_ai.end + n) % n;
+    for (std::size_t i = start_id; i <= end_id; ++i) {
       std::cout << "##############################################"
                 << std::endl;
       std::cout << "# Moving AI Scenario " << i << "  (" << (i - start_id + 1)
@@ -142,11 +154,11 @@ int main(int argc, char **argv) {
 
       auto info =
           nlohmann::json({{"optimalDistance", scenario.optimal_length}});
-      config_steering_and_run(i, start_id, end_id, info);
+      config_steering_and_run(i, start_id, info);
       Log::save(global::settings.benchmark.log_file);
     }
   } else {
-    for (unsigned int i = 0; i < global::settings.benchmark.runs; ++i) {
+    for (std::size_t i = 0; i < global::settings.benchmark.runs; ++i) {
       std::cout << "##############################################"
                 << std::endl;
       std::cout << "# Benchmark Run " << i + 1 << " / "
@@ -159,7 +171,7 @@ int main(int argc, char **argv) {
       global::settings.steer.initializeSteering();
 
       nlohmann::json info;
-      config_steering_and_run(i, 0, global::settings.benchmark.runs, info);
+      config_steering_and_run(i, 0u, info);
       Log::save(global::settings.benchmark.log_file);
     }
   }
