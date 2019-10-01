@@ -178,8 +178,8 @@ def visualize(json_file: str,
                         plot_nodes(smoothing["path"], "%s (%s)" % (planner, smoother), settings,
                                    color=colors[color_counter], **kwargs)
                     color_counter += 1
-                    
-        if combine_views and plot_counter-1 == axes_h:
+        # print("combine_views:", combine_views, "plot_counter:", plot_counter, "axes_h:", axes_h)
+        if combine_views and (plot_counter-1 == axes_h or axes_h == 1):
             for label, color in zip(plot_labels, colors):
                 plt.plot([], [], color=color, label=label)
             show_legend(**kwargs)
