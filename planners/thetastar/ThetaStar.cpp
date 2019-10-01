@@ -234,11 +234,11 @@ ob::PlannerStatus ThetaStar::run() {
   ob::ScopedState<> start(ss->getStateSpace());
   start[0] = global::settings.environment->start().x;
   start[1] = global::settings.environment->start().y;
-  start[2] = 0;
+  start[2] = global::settings.environment->startTheta();
   ob::ScopedState<> goal(ss->getStateSpace());
   goal[0] = global::settings.environment->goal().x;
   goal[1] = global::settings.environment->goal().y;
-  goal[2] = 0;
+  goal[2] = global::settings.environment->goalTheta();
 
   pdef_->setStartAndGoalStates(start, goal);
 
@@ -292,11 +292,13 @@ ob::PlannerStatus ThetaStar::solve(const ob::PlannerTerminationCondition &ptc) {
   auto *goalState = ss->getStateSpace()->allocState();
   goal->sampleGoal(goalState);
   GNode goalNode(goalState->as<ob::SE2StateSpace::StateType>()->getX() / unit,
-                 goalState->as<ob::SE2StateSpace::StateType>()->getY() / unit);
+                 goalState->as<ob::SE2StateSpace::StateType>()->getY() / unit,
+                 goalState->as<ob::SE2StateSpace::StateType>()->getYaw());
 
   auto *startState =
       pdef_->getStartState(0)->as<ob::SE2StateSpace::StateType>();
-  GNode startNode(startState->getX() / unit, startState->getY() / unit);
+  GNode startNode(startState->getX() / unit, startState->getY() / unit,
+                  startState->getYaw());
 
   global_paths.clear();
 

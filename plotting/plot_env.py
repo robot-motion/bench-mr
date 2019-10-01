@@ -17,7 +17,7 @@ plot_env_options = [
 
 
 @add_options(plot_env_options)
-def plot_env(env, run_id: int = -1, colors=(None, None),
+def plot_env(env, run_id: int = -1, colors=('b', 'r'),
              draw_start_goal=True, draw_start_goal_thetas=False,
              set_title=True, show_distances=False,
              custom_min_x=None, custom_min_y=None,
@@ -34,7 +34,7 @@ def plot_env(env, run_id: int = -1, colors=(None, None),
     if run_id >= 0:
         title += 'Run %i ' % run_id
     if colors is None:
-        colors = [None, None]
+        colors = ['b', 'r']
     plt.gca().set_axisbelow(True)
     if env["type"] == "grid":
         w = env["width"]
@@ -96,11 +96,11 @@ def plot_env(env, run_id: int = -1, colors=(None, None),
             head_width = max(env["width"], env["height"]) / 100
             plt.arrow(start[0], start[1], math.cos(start[2]) * radius, math.sin(start[2]) * radius, width=0.01,
                       head_width=head_width,
-                      label="start", color=colors[0])
+                      label="start", fc=colors[0], color=colors[0], edgecolor=None)
             plt.arrow(goal[0], goal[1], math.cos(goal[2]) * radius, math.sin(goal[2]) * radius, width=0.01,
                       head_width=head_width,
                       label="start",
-                      color=colors[1])
+                      fc=colors[1], color=colors[1], edgecolor=None)
     if set_title:
         plt.title(title)
 

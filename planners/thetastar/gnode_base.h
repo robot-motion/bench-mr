@@ -58,7 +58,7 @@ class GNode_base {
   /// line(GNode *successor,GNode *parent_node)
   /// Check if there is a geometric line of sight between the two nodes
   /// ============================================================================================
-  static bool line(const GNode_base *successor, const GNode_base *parent_node);
+  static bool line(const GNode_base *parent_node, const GNode_base *successor);
 
   //  static bool line(double x0, double y0, double y1, double x1);
 
