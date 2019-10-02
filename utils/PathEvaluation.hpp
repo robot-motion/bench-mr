@@ -39,7 +39,7 @@ struct PathEvaluation {
                            const ompl::geometric::PathGeometric &p) {
     std::vector<Point> &cusps = stats.cusps.value();
     const auto path = Point::fromPath(p);
-    for (unsigned int i = 1; i < path.size() - 1; ++i) {
+    for (std::size_t i = 1; i < path.size() - 1; ++i) {
       const double yaw_prev =
           std::fmod(PlannerUtils::slope(path[i - 1], path[i]), 2. * M_PI);
       const double yaw_next =
@@ -71,7 +71,7 @@ struct PathEvaluation {
         stats.exact_goal_path = true;
       } else {
         solution = PlannerUtils::interpolated(path);
-        stats.path_collides = !planner->isValid(solution);
+        stats.path_collides = !planner->isValid(solution, stats.collisions);
         stats.exact_goal_path =
             Point(solution.getStates().back())
                 .distance(global::settings.environment->goal()) <=

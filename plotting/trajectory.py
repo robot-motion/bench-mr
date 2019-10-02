@@ -47,6 +47,8 @@ def visualize(json_file: str,
               draw_nodes=True,
               draw_cusps=False,
               cusp_radius: float = 1,
+              draw_collisions=True,
+              collision_radius: float = 1.2,
               max_plots_per_line: int = 5,
               headless=False,
               combine_views=True,
@@ -154,6 +156,13 @@ def visualize(json_file: str,
                         circles.append(circle)
                     collection = PatchCollection(circles, alpha=0.5, color=colors[color_counter])
                     plt.gca().add_collection(collection)
+                if draw_collisions and "collisions" in plan["stats"]:
+                    circles = []
+                    for collision in plan["stats"]["collisions"]:
+                        circle = patches.Circle(collision, collision_radius, ec="none")
+                        circles.append(circle)
+                    collection = PatchCollection(circles, alpha=0.5, color=colors[color_counter])
+                    plt.gca().add_collection(collection)
 
                 plot_trajectory(plan["trajectory"], planner, settings, color=colors[color_counter], add_label=False,
                                 **kwargs)
@@ -171,6 +180,13 @@ def visualize(json_file: str,
                         circles = []
                         for cusp in smoothing["stats"]["cusps"]:
                             circle = patches.Circle(cusp, cusp_radius, ec="none")
+                            circles.append(circle)
+                        collection = PatchCollection(circles, alpha=0.5, color=colors[color_counter])
+                        plt.gca().add_collection(collection)
+                    if draw_collisions and "collisions" in plan["stats"]:
+                        circles = []
+                        for collision in smoothing["stats"]["collisions"]:
+                            circle = patches.Circle(collision, collision_radius, ec="none")
                             circles.append(circle)
                         collection = PatchCollection(circles, alpha=0.5, color=colors[color_counter])
                         plt.gca().add_collection(collection)

@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
 
     global::settings.environment = maze;
 
-    global::settings.steer.steering_type = Steering::STEER_TYPE_DUBINS;
+    global::settings.steer.steering_type = Steering::STEER_TYPE_REEDS_SHEPP;
     global::settings.steer.initializeSteering();
 
     global::settings.env.collision.robot_shape_source = "polygon_mazes/car.svg";
