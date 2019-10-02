@@ -5,7 +5,8 @@ from definitions import *
 def latex_table(results_filename: str,
                 planners='all',
                 row_label: str = '',
-                metrics: [str] = ['path_found', 'planning_time', 'path_length', 'curvature', 'cusps'],
+                metrics: [str] = ['path_found', 'planning_time', 'path_length', 'curvature', 'mean_clearing_distance',
+                                  'cusps'],
                 time_limit: float = 3) -> str:
     metric_properties["planning_time"]["max"] = time_limit
     parsed_planners = parse_planners(planners)
@@ -17,6 +18,7 @@ def latex_table(results_filename: str,
         print("Warning: No planners were selected for generating a table.", file=sys.stderr)
         return 'No planners were selected for %s.' % results_filename
     stats = {metric: {planner: [] for planner in planners} for metric in metrics}
+    stats["colliding"] = {planner: [] for planner in planners}
     with open(results_filename, 'r') as rf:
         for run in json.load(rf)["runs"]:
             for planner, plan in run["plans"].items():
@@ -29,12 +31,13 @@ def latex_table(results_filename: str,
                         stats[metric][planner].append(len(plan["stats"][metric]))
                     else:
                         stats[metric][planner].append(plan["stats"][metric])
+                stats["colliding"][planner].append(1 - int(plan["stats"]["path_collides"]))
     output = ''
     if row_label != '':
         output += '\\rowlabel{%s}\n\\\\\n' % row_label
     for planner in planners:
         output += '%s & %% %s\n' % \
-            (latexify(convert_planner_name(planner)).ljust(40), convert_planner_name(planner))
+                  (latexify(convert_planner_name(planner)).ljust(40), convert_planner_name(planner))
         for i, metric in enumerate(metrics):
             if metric == 'path_found' and safe_sum(stats[metric][planner]) == 0:
                 # no paths have been found
@@ -42,6 +45,12 @@ def latex_table(results_filename: str,
                 for j in range(len(metrics) - 1):
                     output += '\tN / A' + ('&' if j < len(metrics) - 2 else '%') + '\n'
                 break
+            elif metric == 'path_found':
+                total = metric_properties["path_found"]["max"]
+                nc = safe_sum(stats["colliding"][planner])
+                pf = safe_sum(stats["path_found"][planner])
+                output += '\t{\\hspace{-1.5cm}\\databartwo{%.2f}{%.2f}\\makebox[0pt][c]{\\hspace{1cm}%i / %i}}' \
+                          % (nc / total, pf / total, nc, pf)
             else:
                 mu = safe_mean(stats[metric][planner])
                 if "max" in metric_properties[metric]:
