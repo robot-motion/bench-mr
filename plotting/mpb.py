@@ -413,8 +413,10 @@ class MultipleMPB:
                        show_progress_bar=True)
         if code == 0:
             print("Benchmark %i (%s) finished successfully." % (index, mpb_id))
-        else:
+        elif code is not None:
             print("Benchmark %i (%s) failed. Return code: %i." % (index, mpb_id, code), file=sys.stderr)
+        else:
+            print("Benchmark %i (%s) failed. Unknown return code." % (index, mpb_id), file=sys.stderr)
         return code
 
     def run_parallel(self,
