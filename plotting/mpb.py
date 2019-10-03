@@ -262,8 +262,7 @@ class MPB:
                         pbar.update(1)
                         pbar_prompt()
                 logfile.write(line)
-            if success:
-                code = tsk.poll()
+            code = tsk.poll()
             if code is not None and code != 0:
                 print("Error (%i) occurred for MPB with ID %s using planner %s." % (
                     code, self.id, convert_planner_name(planner)),
@@ -476,8 +475,7 @@ class MultipleMPB:
                 import matplotlib.pyplot as plt
                 from plot_aggregate import plot_aggregate_stats
                 from utils import get_aggregate_stats
-                plt.figure(figsize=(16, 4))
-                plt.subplot(121)
+                f, (a0, a1) = plt.subplots(1, 2, gridspec_kw={'width_ratios': [1, 4]}, figsize=(10, 3))
                 plt.suptitle("%s  %s" % (self.id, str(datetime.datetime.now())))
                 counts = {}
                 known_codes = {
@@ -491,12 +489,11 @@ class MultipleMPB:
                         code_name = known_codes.get(code, "error %d" % code)
                     counts[code_name] = counts.get(code_name, 0) + 1
                 total = sum(counts.values())
-                plt.pie(list(counts.values()), labels=list(counts.keys()),
+                a0.pie(list(counts.values()), labels=list(counts.keys()),
                         autopct=lambda p: '{:.0f}'.format(p * total / 100))
 
-                plt.subplot(122)
                 aggregate = get_aggregate_stats([m.results_filename for m in self.benchmarks])
-                plot_aggregate_stats(plt.gca(),
+                plot_aggregate_stats(a1,
                                      aggregate["total"],
                                      aggregate["found"],
                                      aggregate["collision_free"],
@@ -512,8 +509,12 @@ class MultipleMPB:
                 for i, code in enumerate(results):
                     if code == 0:
                         continue
-                    print("Benchmark %i failed with return code %i. See log file %s."
-                          % (i, code, log_files[i]), file=sys.stderr)
+                    elif code is None:
+                        print("Benchmark %i failed with unknown return code. See log file %s."
+                              % (i, log_files[i]), file=sys.stderr)
+                    else:
+                        print("Benchmark %i failed with return code %i. See log file %s."
+                              % (i, code, log_files[i]), file=sys.stderr)
                 return False
         return True
 
