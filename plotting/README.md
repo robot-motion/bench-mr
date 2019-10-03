@@ -1,6 +1,8 @@
-## Plotting for MPB
+## Python Front-end for MPB
 
-This module contains the code for plotting the results for the Motion Planning Benchmark.
+This module contains the Python front-end for running benchmarks and plotting the results for the Motion Planning Benchmark.
+
+<p align="center"><img src="../docs/mpb_parallel.gif" alt="Parallel execution of benchmark instances"/></p>
 
 ### Requirements
 The following system-wide dependencies need to be set up:
