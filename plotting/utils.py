@@ -21,6 +21,14 @@ def safe_sum(xs):
     return np.sum([x for x in xs if x is not None and not np.isnan(x)])
 
 
+def safe_min(xs):
+    return np.min([x for x in xs if x is not None and not np.isnan(x)])
+
+
+def safe_max(xs):
+    return np.max([x for x in xs if x is not None and not np.isnan(x)])
+
+
 def add_options(options):
     def _add_options(func):
         for option in reversed(options):

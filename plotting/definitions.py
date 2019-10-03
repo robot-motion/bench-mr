@@ -23,6 +23,18 @@ metric_properties = {
     },
     'path_length': {
         'show_std': True
+    },    
+    'mean_clearing_distance': {
+        'show_std': True
+    },    
+    'min_clearing_distance': {
+        'show_std': True
+    },    
+    'max_clearing_distance': {
+        'show_std': True
+    },    
+    'median_clearing_distance': {
+        'show_std': True
     },
     'curvature': {
         'show_std': True,

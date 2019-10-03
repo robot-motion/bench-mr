@@ -8,7 +8,9 @@ def latex_table(results_filename: str,
                 metrics: [str] = ['path_found', 'planning_time', 'path_length', 'curvature', 'mean_clearing_distance',
                                   'cusps'],
                 time_limit: float = 3) -> str:
-    metric_properties["planning_time"]["max"] = time_limit
+    for metric in metrics:
+        metric_properties[metric]["max"] = 1e-8
+        metric_properties[metric]["min"] = 1e8
     parsed_planners = parse_planners(planners)
     if planners != 'all':
         planners = [planner for planner in planners if planner in parsed_planners]
@@ -32,6 +34,12 @@ def latex_table(results_filename: str,
                     else:
                         stats[metric][planner].append(plan["stats"][metric])
                 stats["colliding"][planner].append(1 - int(plan["stats"]["path_collides"]))
+    for metric in metrics:
+        metric_properties[metric]["max"] = safe_max([safe_mean(stats[metric][planner]) for planner in planners])
+        metric_properties[metric]["min"] = safe_min([safe_mean(stats[metric][planner]) for planner in planners])
+        
+    metric_properties["planning_time"]["max"] = time_limit
+    
     output = ''
     if row_label != '':
         output += '\\rowlabel{%s}\n\\\\\n' % row_label
@@ -46,11 +54,12 @@ def latex_table(results_filename: str,
                     output += '\tN / A' + ('&' if j < len(metrics) - 2 else '%') + '\n'
                 break
             elif metric == 'path_found':
-                total = metric_properties["path_found"]["max"]
+                total = len(stats["colliding"][planner])
                 nc = safe_sum(stats["colliding"][planner])
                 pf = safe_sum(stats["path_found"][planner])
                 output += '\t{\\hspace{-1.5cm}\\databartwo{%.2f}{%.2f}\\makebox[0pt][c]{\\hspace{1cm}%i / %i}}' \
-                          % (nc / total, pf / total, nc, pf)
+                          % (nc / total, pf / total, nc, pf)                
+                output += (' &' if i < len(metrics) - 1 else ' %') + '\n'
             else:
                 mu = safe_mean(stats[metric][planner])
                 if "max" in metric_properties[metric]:
@@ -66,6 +75,6 @@ def latex_table(results_filename: str,
                     line += '\t%i' % (safe_sum(stats[metric][planner]))
                 else:
                     line += '\t%.2f' % safe_mean(stats[metric][planner])
-                output += line + ('&' if i < len(metrics) - 1 else '%') + '\n'
+                output += line + (' &' if i < len(metrics) - 1 else ' %') + '\n'
         output += '\\\\\n'
     return output
