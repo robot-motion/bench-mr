@@ -107,18 +107,21 @@ struct PathEvaluation {
         j["path"] = Log::serializeTrajectory(planner.solution(), false);
       } else {
         createEmptyEntry(planner.name(), info);
+        std::cout << "<stat> No solution was found. </stat>";
         return false;
       }
     } catch (std::bad_alloc &ba) {
       // we ran out of memory
       OMPL_ERROR("Error: Planner %s ran out of memory: %s.",
                  planner.name().c_str(), ba.what());
+      std::cout << "<stat> Error </stat>";
       createEmptyEntry(planner.name(), info);
       return false;
     } catch (...) {
       OMPL_ERROR(
           "Error: An unknown exception occurred while running planner %s.",
           planner.name().c_str());
+      std::cout << "<stat> Error </stat>";
       createEmptyEntry(planner.name(), info);
       return false;
     }
