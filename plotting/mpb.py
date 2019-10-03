@@ -485,7 +485,10 @@ class MultipleMPB:
                     0: "success"
                 }
                 for code in results:
-                    code_name = known_codes.get(code, "error %d" % code)
+                    if code is None:
+                        code_name = "unknown error"
+                    else:
+                        code_name = known_codes.get(code, "error %d" % code)
                     counts[code_name] = counts.get(code_name, 0) + 1
                 total = sum(counts.values())
                 plt.pie(list(counts.values()), labels=list(counts.keys()),
