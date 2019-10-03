@@ -5,12 +5,14 @@ from definitions import smoother_names
 
 
 def plot_aggregate(ax, runs, planners: [str], ticks_rotation=90, **kwargs):
+    planners = [convert_planner_name(planner) for planner in planners]
     found = {planner: 0 for planner in planners}
     collision_free = {planner: 0 for planner in planners}
     exact = {planner: 0 for planner in planners}
 
     for run in runs:
         for j, (planner, plan) in enumerate(run["plans"].items()):
+            planner = convert_planner_name(planner)
             if planner not in planners:
                 continue
 
@@ -29,6 +31,7 @@ def plot_smoother_aggregate(ax, runs, planners: [str], smoothers: [str], separat
     if separate_planners:
         bar_names = []
         for planner in planners:
+            planner = convert_planner_name(planner)
             if separate_planners and show_planners:
                 bar_names.append(planner)
             for smoother in smoothers:
@@ -43,6 +46,7 @@ def plot_smoother_aggregate(ax, runs, planners: [str], smoothers: [str], separat
 
     for run in runs:
         for j, (planner, plan) in enumerate(run["plans"].items()):
+            planner = convert_planner_name(planner)
             if planner not in planners:
                 continue
 
@@ -59,7 +63,7 @@ def plot_smoother_aggregate(ax, runs, planners: [str], smoothers: [str], separat
                     if smoothing["name"] not in smoothers:
                         continue
                     if separate_planners:
-                        bar_name = "%s (%s)" % (convert_planner_name(planner), smoother_names[smoother])
+                        bar_name = "%s (%s)" % (planner, smoother_names[smoother])
                     else:
                         bar_name = smoothing["name"]
                     if smoothing["stats"]["path_found"]:
