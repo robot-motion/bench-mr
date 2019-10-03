@@ -5,8 +5,6 @@ from definitions import smoother_names
 
 
 def plot_aggregate(ax, runs, planners: [str], ticks_rotation=90, **kwargs):
-    import matplotlib.pyplot as plt
-
     found = {planner: 0 for planner in planners}
     collision_free = {planner: 0 for planner in planners}
     exact = {planner: 0 for planner in planners}
@@ -23,29 +21,11 @@ def plot_aggregate(ax, runs, planners: [str], ticks_rotation=90, **kwargs):
                 if plan["stats"]["exact_goal_path"]:
                     exact[planner] += 1
 
-    width = 0.25
-    xs = np.arange(len(planners)) + 0.5
-    ys = [len(runs) for _ in planners]
-    ax.bar(xs, ys, width=0.71, linewidth=2, color="lightgray", edgecolor="black", linestyle="-", label="Total runs")
-    ys = [found[planner] for planner in planners]
-    ax.bar(xs, ys, width=0.7, label="Found solutions")
-    ys = [collision_free[planner] for planner in planners]
-    ax.bar(xs-0.15, ys, hatch='/', width=width, label="Collision-free")
-    ys = [exact[planner] for planner in planners]
-    ax.bar(xs+0.15, ys, hatch='\\', width=width, color="yellow", label="Exact solution")
-
-    plt.xticks(xs, planners, rotation=ticks_rotation, fontsize=14)
-    plt.gca().set_xlim([0, len(planners)])
-    plt.title("Aggregate", fontsize=18, pad=15)
-
-    ax.grid()
-    show_legend(**kwargs)
+    plot_aggregate_stats(ax, len(runs), found, collision_free, exact, ticks_rotation, **kwargs)
 
 
 def plot_smoother_aggregate(ax, runs, planners: [str], smoothers: [str], separate_planners=False, show_planners=True,
                             ticks_rotation=90, **kwargs):
-    import matplotlib.pyplot as plt
-
     if separate_planners:
         bar_names = []
         for planner in planners:
@@ -89,20 +69,28 @@ def plot_smoother_aggregate(ax, runs, planners: [str], smoothers: [str], separat
                         if smoothing["stats"]["exact_goal_path"]:
                             exact[bar_name] += 1
 
-    width = 0.25
-    xs = np.arange(len(bar_names)) + 0.5
-    ys = [total_solutions for _ in bar_names]
-    ax.bar(xs, ys, width=0.71, linewidth=2, color="lightgray", edgecolor="black", linestyle="-", label="Total runs")
-    ys = [found[bar_name] for bar_name in bar_names]
-    ax.bar(xs, ys, width=0.7, label="Found solutions")
-    ys = [collision_free[bar_name] for bar_name in bar_names]
-    ax.bar(xs - 0.15, ys, hatch='/', width=width, label="Collision-free")
-    ys = [exact[bar_name] for bar_name in bar_names]
-    ax.bar(xs + 0.15, ys, hatch='\\', width=width, color="yellow", label="Exact solution")
+    plot_aggregate_stats(ax, total_solutions, found, collision_free, exact, ticks_rotation, **kwargs)
 
-    plt.xticks(xs, bar_names, rotation=ticks_rotation, fontsize=14)
-    plt.gca().set_xlim([0, len(bar_names)])
-    plt.title("Aggregate", fontsize=18, pad=15)
+
+def plot_aggregate_stats(ax, total: int, found: {str: int}, collision_free: {str: int}, exact: {str: int},
+                         ticks_rotation=90, show_aggregate_title=True, **kwargs):
+    import matplotlib.pyplot as plt
+    planners = list(found.keys())
+    width = 0.25
+    xs = np.arange(len(planners)) + 0.5
+    ys = [total for _ in planners]
+    ax.bar(xs, ys, width=0.71, linewidth=2, color="lightgray", edgecolor="black", linestyle="-", label="Total runs")
+    ys = [found[planner] for planner in planners]
+    ax.bar(xs, ys, width=0.7, label="Found solutions")
+    ys = [collision_free[planner] for planner in planners]
+    ax.bar(xs-0.15, ys, hatch='/', width=width, label="Collision-free")
+    ys = [exact[planner] for planner in planners]
+    ax.bar(xs+0.15, ys, hatch='\\', width=width, color="yellow", label="Exact solution")
+
+    plt.xticks(xs, planners, rotation=ticks_rotation, fontsize=14)
+    plt.gca().set_xlim([0, len(planners)])
+    if show_aggregate_title:
+        plt.title("Aggregate", fontsize=18, pad=15)
 
     ax.grid()
     show_legend(**kwargs)

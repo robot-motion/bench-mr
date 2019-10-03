@@ -4,6 +4,7 @@ import datetime
 import time
 import itertools
 import os
+import sys
 import psutil
 import resource
 from typing import Optional, Union
@@ -64,7 +65,7 @@ class MPB:
             self[key] = value
         self._update_pss()
         return self.config
-    
+
     def _update_pss(self):
         """
         Update planners, smoothers, steer functions from config.
@@ -121,7 +122,8 @@ class MPB:
                 self["benchmark.planning." + p] = False
         self._planners = list(set(self._planners))
         if len(planners) != len(self._planners):
-            print("Error: Some planner could not be unified. From the given planners", planners, "the following were selected:", self._planners,
+            print("Error: Some planner could not be unified. From the given planners", planners,
+                  "the following were selected:", self._planners,
                   file=sys.stderr)
 
     def set_steer_functions(self, steerings: [str]):
@@ -162,7 +164,7 @@ class MPB:
     @staticmethod
     def get_memory():
         """
-        Retrieves free system memory.
+        Retrieves available system memory.
         """
         # thanks to https://stackoverflow.com/a/41125461
         with open('/proc/meminfo', 'r') as mem:
@@ -192,23 +194,26 @@ class MPB:
         if show_progress_bar:
             pbar = tqdm_notebook(range(total_iterations), desc=self.id, ncols='100%')
         success = True
+        code = 0
         results_filenames = []
         if shuffle_planners:
             # shuffle planners to avoid multiple parallel MPBs run the same heavy-load planners
             # (e.g. CForest takes all available threads, SBPL leaks memory) at the same time
             random.shuffle(self._planners)
         for ip, planner in enumerate(self._planners):
-            run = 1
+            run = 0
+
             def pbar_prompt():
                 if not show_progress_bar:
                     return
                 if runs > 1:
-                    pbar.display('%s (%i / %i) [run %i / %i]' % (convert_planner_name(planner), ip + 1, len(self._planners), run, runs))
+                    pbar.display('%s (%i / %i) [run %i / %i]' % (
+                    convert_planner_name(planner), ip + 1, len(self._planners), run, runs))
                 else:
                     pbar.display('%s (%i / %i)' % (convert_planner_name(planner), ip + 1, len(self._planners)))
-                    
+
             pbar_prompt()
-                
+
             if ip == 0:
                 results_filename = self.results_filename
             else:
@@ -226,15 +231,21 @@ class MPB:
             if kill_after_timeout:
                 # kill process after 2 * max planning time
                 def kill_process():
+                    nonlocal success, code
                     try:
                         proc.kill()
                         print("Killed %s with planner %s after %.2fs exceeded timeout."
                               % (self.id, planner, time.time() - create_time))
+                        success = False
+                        code = -9
                     except psutil.NoSuchProcess:
                         pass
                     except:
                         print('Error occurred while trying to kill %s with planner %s.'
                               % (self.id, planner), file=sys.stderr)
+                        success = False
+                        code = -9
+
                 kill_timer = Timer(self["max_planning_time"] * self["benchmark.runs"] * 2, kill_process)
                 kill_timer.start()
             while True:
@@ -251,7 +262,8 @@ class MPB:
                         pbar.update(1)
                         pbar_prompt()
                 logfile.write(line)
-            code = tsk.poll()
+            if success:
+                code = tsk.poll()
             if code is not None and code != 0:
                 print("Error (%i) occurred for MPB with ID %s using planner %s." % (
                     code, self.id, convert_planner_name(planner)),
@@ -274,7 +286,7 @@ class MPB:
                 os.remove(results_filename)
             except:
                 print("Error: results %s do not exist." % results_filename, file=sys.stderr)
-        return 0 if success else -1
+        return code
 
     def print_info(self):
         if not os.path.exists(self.results_filename):
@@ -308,7 +320,8 @@ class MPB:
         plot_smoother_stats(self.results_filename, **kwargs)
 
     @staticmethod
-    def merge(mpbs, target_filename: str, make_separate_runs: bool = False, silence: bool = False, plan_names: [str] = None):
+    def merge(mpbs, target_filename: str, make_separate_runs: bool = False, silence: bool = False,
+              plan_names: [str] = None):
         """
         Merges results of the given MPB instances into one file.
         """
@@ -361,7 +374,7 @@ class MPB:
                                         target["runs"][run_id]["plans"][planner] = plan
                 except json.decoder.JSONDecodeError:
                     print("Error while decoding JSON file %s." % results_filenames[i], file=sys.stderr)
-                
+
             if 'mpb.MPB' in str(type(m)):
                 plan_index += len(m._planners)
 
@@ -409,7 +422,8 @@ class MultipleMPB:
                      use_subfolder: bool = True,
                      runs: int = 1,
                      processes: int = os.cpu_count(),
-                     limit_memory: bool = True) -> bool:
+                     limit_memory: bool = True,
+                     show_plot: bool = True) -> bool:
         memory_limit = 0
         if limit_memory:
             print("Available memory: %.2f GB, limiting each MPB process to %.1f%% usage (%.2f GB)." %
@@ -455,6 +469,36 @@ class MultipleMPB:
                                    [self.subfolder] * len(self.benchmarks),
                                    [memory_limit] * len(self.benchmarks),
                                    [runs] * len(self.benchmarks)))
+
+            if show_plot:
+                import matplotlib.pyplot as plt
+                from plot_aggregate import plot_aggregate_stats
+                from utils import get_aggregate_stats
+                plt.figure(figsize=(4, 4))
+                plt.subplot(121)
+                plt.suptitle("%s  %s" % (self.id, str(datetime.datetime.now())))
+                counts = {}
+                known_codes = {
+                    -9: "timeout",
+                    0: "success"
+                }
+                for code in results:
+                    code_name = known_codes.get(code, "error %d" % code)
+                    counts[code_name] = counts.get(code_name, 0) + 1
+                total = sum(counts.values())
+                plt.pie(list(counts.values()), labels=list(counts.keys()),
+                        autopct=lambda p: '{:.0f}'.format(p * total / 100))
+
+                plt.subplot(122)
+                aggregate = get_aggregate_stats([m.results_filename for m in self.benchmarks])
+                plot_aggregate_stats(plt.gca(),
+                                     aggregate["total"],
+                                     aggregate["found"],
+                                     aggregate["collision_free"],
+                                     aggregate["exact"],
+                                     show_aggregate_title=False)
+                plt.tight_layout()
+
             if all([r == 0 for r in results]):
                 print("All benchmarks succeeded.")
             else:
@@ -499,7 +543,7 @@ class MultipleMPB:
             m.plot_smoother_stats(**kwargs)
             plt.suptitle(m.id, fontsize=24, y=1.05)
             plt.tight_layout()
-            
+
     def get_all_planners(self) -> [str]:
         planners = []
         for m in self.benchmarks:

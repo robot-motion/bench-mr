@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import click
 import json
-import sys
+import os
 from definitions import steer_functions, steer_function_names, smoother_names, smoothers, planner_names
 import numpy as np
 
@@ -201,3 +201,31 @@ def get_planners(results_filename: str) -> [str]:
                     planners.append(planner)
     planners = sorted(planners, key=convert_planner_name)
     return planners
+
+
+def get_aggregate_stats(results_filenames: [str]) -> dict:
+    found = {}
+    collision_free = {}
+    exact = {}
+    total = 0
+    for filename in results_filenames:
+        if not os.path.exists(filename):
+            continue
+        with open(filename, 'r') as rf:
+            runs = json.load(rf)["runs"]
+            total += len(runs)
+            for run in runs:
+                for j, (planner, plan) in enumerate(run["plans"].items()):
+                    planner = convert_planner_name(planner)
+                    if plan["stats"]["path_found"]:
+                        found[planner] = found.get(planner, 0) + 1
+                        if not plan["stats"]["path_collides"]:
+                            collision_free[planner] = collision_free.get(planner, 0) + 1
+                        if plan["stats"]["exact_goal_path"]:
+                            exact[planner] = exact.get(planner, 0) + 1
+    return {
+        "total": total,
+        "found": found,
+        "collision_free": collision_free,
+        "exact": exact
+    }
