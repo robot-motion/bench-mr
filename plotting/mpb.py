@@ -327,7 +327,8 @@ class MPB:
             if not os.path.exists(results_filenames[i]):
                 if not silence:
                     print("No results file exists for MPB %s. Skipping." % m.id)
-                plan_index += len(m._planners)
+                if 'mpb.MPB' in str(type(m)):
+                    plan_index += len(m._planners)
                 continue
             with open(results_filenames[i]) as res_file:
                 try:
