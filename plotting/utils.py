@@ -211,18 +211,21 @@ def get_aggregate_stats(results_filenames: [str]) -> dict:
     for filename in results_filenames:
         if not os.path.exists(filename):
             continue
-        with open(filename, 'r') as rf:
-            runs = json.load(rf)["runs"]
-            total += len(runs)
-            for run in runs:
-                for j, (planner, plan) in enumerate(run["plans"].items()):
-                    planner = convert_planner_name(planner)
-                    if plan["stats"]["path_found"]:
-                        found[planner] = found.get(planner, 0) + 1
-                        if not plan["stats"]["path_collides"]:
-                            collision_free[planner] = collision_free.get(planner, 0) + 1
-                        if plan["stats"]["exact_goal_path"]:
-                            exact[planner] = exact.get(planner, 0) + 1
+        try:
+            with open(filename, 'r') as rf:
+                runs = json.load(rf)["runs"]
+                total += len(runs)
+                for run in runs:
+                    for j, (planner, plan) in enumerate(run["plans"].items()):
+                        planner = convert_planner_name(planner)
+                        if plan["stats"]["path_found"]:
+                            found[planner] = found.get(planner, 0) + 1
+                            if not plan["stats"]["path_collides"]:
+                                collision_free[planner] = collision_free.get(planner, 0) + 1
+                            if plan["stats"]["exact_goal_path"]:
+                                exact[planner] = exact.get(planner, 0) + 1
+        except:
+            pass
     return {
         "total": total,
         "found": found,

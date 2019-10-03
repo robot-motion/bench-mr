@@ -474,7 +474,7 @@ class MultipleMPB:
                 import matplotlib.pyplot as plt
                 from plot_aggregate import plot_aggregate_stats
                 from utils import get_aggregate_stats
-                plt.figure(figsize=(4, 4))
+                plt.figure(figsize=(16, 4))
                 plt.subplot(121)
                 plt.suptitle("%s  %s" % (self.id, str(datetime.datetime.now())))
                 counts = {}
@@ -498,6 +498,7 @@ class MultipleMPB:
                                      aggregate["exact"],
                                      show_aggregate_title=False)
                 plt.tight_layout()
+                plt.subplots_adjust(0., 0.1, 1, 0.9, 0.3, 0.4)
 
             if all([r == 0 for r in results]):
                 print("All benchmarks succeeded.")
