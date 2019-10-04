@@ -58,7 +58,7 @@ def latex_table(results_filename: str,
                 nc = safe_sum(stats["colliding"][planner])
                 pf = safe_sum(stats["path_found"][planner])
                 output += '\t{\\hspace{-1.5cm}\\databartwo{%.2f}{%.2f}\\makebox[0pt][c]{\\hspace{1cm}%i / %i}}' \
-                          % (nc / total, pf / total, nc, pf)                
+                          % (pf / total, nc / total, nc, pf)                
                 output += (' &' if i < len(metrics) - 1 else ' %') + '\n'
             else:
                 mu = safe_mean(stats[metric][planner])
