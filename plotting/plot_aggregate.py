@@ -84,11 +84,11 @@ def plot_aggregate_stats(ax, total: int, found: {str: int}, collision_free: {str
     xs = np.arange(len(planners)) + 0.5
     ys = [total for _ in planners]
     ax.bar(xs, ys, width=0.71, linewidth=2, color="lightgray", edgecolor="black", linestyle="-", label="Total runs")
-    ys = [found[planner] for planner in planners]
+    ys = [found.get(planner, 0) for planner in planners]
     ax.bar(xs, ys, width=0.7, label="Found solutions")
-    ys = [collision_free[planner] for planner in planners]
+    ys = [collision_free.get(planner, 0) for planner in planners]
     ax.bar(xs-0.15, ys, hatch='/', width=width, label="Collision-free")
-    ys = [exact[planner] for planner in planners]
+    ys = [exact.get(planner, 0) for planner in planners]
     ax.bar(xs+0.15, ys, hatch='\\', width=width, color="yellow", label="Exact solution")
 
     plt.xticks(xs, planners, rotation=ticks_rotation, fontsize=14)

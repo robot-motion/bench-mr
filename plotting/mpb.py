@@ -474,35 +474,38 @@ class MultipleMPB:
                                    [runs] * len(self.benchmarks)))
 
             if show_plot:
-                import matplotlib.pyplot as plt
-                from plot_aggregate import plot_aggregate_stats
-                from utils import get_aggregate_stats
-                f, (a0, a1) = plt.subplots(1, 2, gridspec_kw={'width_ratios': [1, 4]}, figsize=(10, 3))
-                plt.suptitle("%s  %s" % (self.id, str(datetime.datetime.now())))
-                counts = {}
-                known_codes = {
-                    -9: "timeout",
-                    0: "success"
-                }
-                for code in results:
-                    if code is None:
-                        code_name = "unknown error"
-                    else:
-                        code_name = known_codes.get(code, "error %d" % code)
-                    counts[code_name] = counts.get(code_name, 0) + 1
-                total = sum(counts.values())
-                a0.pie(list(counts.values()), labels=list(counts.keys()),
-                        autopct=lambda p: '{:.0f}'.format(p * total / 100))
+                try:
+                    import matplotlib.pyplot as plt
+                    from plot_aggregate import plot_aggregate_stats
+                    from utils import get_aggregate_stats
+                    f, (a0, a1) = plt.subplots(1, 2, gridspec_kw={'width_ratios': [1, 4]}, figsize=(10, 3))
+                    plt.suptitle("%s  %s" % (self.id, str(datetime.datetime.now())))
+                    counts = {}
+                    known_codes = {
+                        -9: "timeout",
+                        0: "success"
+                    }
+                    for code in results:
+                        if code is None:
+                            code_name = "unknown error"
+                        else:
+                            code_name = known_codes.get(code, "error %d" % code)
+                        counts[code_name] = counts.get(code_name, 0) + 1
+                    total = sum(counts.values())
+                    a0.pie(list(counts.values()), labels=list(counts.keys()),
+                            autopct=lambda p: '{:.0f}'.format(p * total / 100))
 
-                aggregate = get_aggregate_stats([m.results_filename for m in self.benchmarks])
-                plot_aggregate_stats(a1,
-                                     aggregate["total"],
-                                     aggregate["found"],
-                                     aggregate["collision_free"],
-                                     aggregate["exact"],
-                                     show_aggregate_title=False)
-                plt.tight_layout()
-                plt.subplots_adjust(0., 0.1, 1, 0.9, 0.3, 0.4)
+                    aggregate = get_aggregate_stats([m.results_filename for m in self.benchmarks])
+                    plot_aggregate_stats(a1,
+                                         aggregate["total"],
+                                         aggregate["found"],
+                                         aggregate["collision_free"],
+                                         aggregate["exact"],
+                                         show_aggregate_title=False)
+                    plt.tight_layout()
+                    plt.subplots_adjust(0., 0.1, 1, 0.9, 0.3, 0.4)
+                except:
+                    print("Error while plotting benchmark progress overview.", file=sys.stderr)
 
             if all([r == 0 for r in results]):
                 print("All benchmarks succeeded.")
