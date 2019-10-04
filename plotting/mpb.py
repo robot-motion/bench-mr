@@ -263,6 +263,8 @@ class MPB:
                         pbar_prompt()
                 logfile.write(line)
             code = tsk.poll()
+            if code is None:
+                code = 0
             if code is not None and code != 0:
                 print("Error (%i) occurred for MPB with ID %s using planner %s." % (
                     code, self.id, convert_planner_name(planner)),
