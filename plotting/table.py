@@ -21,8 +21,11 @@ def latex_table(results_filename: str,
         return 'No planners were selected for %s.' % results_filename
     stats = {metric: {planner: [] for planner in planners} for metric in metrics}
     stats["colliding"] = {planner: [] for planner in planners}
+    total_runs = 1
     with open(results_filename, 'r') as rf:
-        for run in json.load(rf)["runs"]:
+        runs = json.load(rf)["runs"]
+        total_runs = len(runs)
+        for run in runs:
             for planner, plan in run["plans"].items():
                 if planner not in planners:
                     continue
@@ -54,11 +57,10 @@ def latex_table(results_filename: str,
                     output += '\tN / A' + ('&' if j < len(metrics) - 2 else '%') + '\n'
                 break
             elif metric == 'path_found':
-                total = len(stats["colliding"][planner])
                 nc = safe_sum(stats["colliding"][planner])
                 pf = safe_sum(stats["path_found"][planner])
                 output += '\t{\\hspace{-1.5cm}\\databartwo{%.2f}{%.2f}\\makebox[0pt][c]{\\hspace{1cm}%i / %i}}' \
-                          % (pf / total, nc / total, nc, pf)                
+                          % (pf / total_runs, nc / total_runs, nc, pf)                
                 output += (' &' if i < len(metrics) - 1 else ' %') + '\n'
             else:
                 mu = safe_mean(stats[metric][planner])
