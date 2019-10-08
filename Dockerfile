@@ -36,7 +36,8 @@ RUN \
     ffmpeg \
     libhdf5-dev \
     npm \
-    nodejs
+    nodejs \
+    nano
 
 RUN mkdir -p /root/code
 
