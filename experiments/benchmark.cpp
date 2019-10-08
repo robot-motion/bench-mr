@@ -134,19 +134,19 @@ int main(int argc, char **argv) {
     ScenarioLoader scenarioLoader;
     scenarioLoader.load(global::settings.benchmark.moving_ai.scenario);
     const auto n = scenarioLoader.scenarios().size();
-    const std::size_t start_id =
-        (global::settings.benchmark.moving_ai.start + n) % n;
-    const std::size_t end_id =
-        (global::settings.benchmark.moving_ai.end + n) % n;
-    for (std::size_t i = start_id; i < end_id; ++i) {
+    std::size_t start_id = (global::settings.benchmark.moving_ai.start + n) % n;
+    std::size_t end_id = (global::settings.benchmark.moving_ai.end + n) % n;
+    for (int i = global::settings.benchmark.moving_ai.start;
+         i < global::settings.benchmark.moving_ai.end; ++i) {
+      std::size_t id = (i + n) % n;
       std::cout << "##############################################"
                 << std::endl;
-      std::cout << "# Moving AI Scenario " << i << "  (" << (i - start_id + 1)
+      std::cout << "# Moving AI Scenario " << id << "  (" << (i - start_id + 1)
                 << "/" << (end_id - start_id) << ")" << std::endl;
       std::cout << "##############################################"
                 << std::endl;
 
-      auto &scenario = scenarioLoader.scenarios()[i];
+      auto &scenario = scenarioLoader.scenarios()[id];
       delete global::settings.environment;
       global::settings.environment =
           GridMaze::createFromMovingAiScenario(scenario);
@@ -154,7 +154,7 @@ int main(int argc, char **argv) {
 
       auto info =
           nlohmann::json({{"optimalDistance", scenario.optimal_length}});
-      config_steering_and_run(i, start_id, info);
+      config_steering_and_run(id, start_id, info);
       Log::save(global::settings.benchmark.log_file);
     }
   } else {
