@@ -138,11 +138,11 @@ int main(int argc, char **argv) {
         (global::settings.benchmark.moving_ai.start + n) % n;
     const std::size_t end_id =
         (global::settings.benchmark.moving_ai.end + n) % n;
-    for (std::size_t i = start_id; i <= end_id; ++i) {
+    for (std::size_t i = start_id; i < end_id; ++i) {
       std::cout << "##############################################"
                 << std::endl;
       std::cout << "# Moving AI Scenario " << i << "  (" << (i - start_id + 1)
-                << "/" << (end_id - start_id + 1) << ")" << std::endl;
+                << "/" << (end_id - start_id) << ")" << std::endl;
       std::cout << "##############################################"
                 << std::endl;
 
