@@ -190,7 +190,8 @@ class MPB:
         log_filename = os.path.join(subfolder, self.id + ".log")
         logfile = open(log_filename, 'w')
         print("Running MPB with ID %s (log file at %s)..." % (self.id, log_filename))
-        total_iterations = len(self._planners) * len(self._steer_functions) * runs
+        num_planners = len(self._planners)
+        total_iterations = num_planners * len(self._steer_functions) * runs
         if show_progress_bar:
             pbar = tqdm_notebook(range(total_iterations), desc=self.id, ncols='100%')
         success = True
@@ -208,9 +209,9 @@ class MPB:
                     return
                 if runs > 1:
                     pbar.display('%s (%i / %i) [run %i / %i]' % (
-                    convert_planner_name(planner), ip + 1, len(self._planners), run, runs))
+                    convert_planner_name(planner), ip + 1, num_planners, min(run + 1, runs), runs))
                 else:
-                    pbar.display('%s (%i / %i)' % (convert_planner_name(planner), ip + 1, len(self._planners)))
+                    pbar.display('%s (%i / %i)' % (convert_planner_name(planner), ip + 1, num_planners))
 
             pbar_prompt()
 

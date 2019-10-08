@@ -101,23 +101,34 @@ def visualize(json_file: str,
         if not use_existing_subplot:
             plt.figure("MPB %s" % json_file, figsize=(axes_h * fig_width, axes_v * fig_height))
 
+    planners = []
+    for run_id in run_ids:
+        for planner in data["runs"][run_id]["plans"]:
+            if planner in ignore_planners:
+                continue
+            if planner not in planners:
+                planners.append(planner)
+    planners = sorted(planners, key=convert_planner_name)
+
     plot_labels = []
     for i in run_ids:
         run = data["runs"][i]
         if run["plans"] is None:
             print("No plans were found in %s at run #%i." % (json_file, i))
             continue
-        for j, (planner, plan) in enumerate(run["plans"].items()):
+        for j, planner in enumerate(planners):
             if planner.lower() in ignore_planners:
                 continue
-            planner = convert_planner_name(planner)
-            if not show_only_smoother and planner not in plot_labels:
-                plot_labels.append(planner)
+            if planner not in run["plans"]:
+                continue
+            plan = run["plans"][planner]
+            if not show_only_smoother and convert_planner_name(planner) not in plot_labels:
+                plot_labels.append(convert_planner_name(planner))
             if show_smoother and "smoothing" in plan and plan["smoothing"] is not None:
                 for k, (smoother, smoothing) in enumerate(plan["smoothing"].items()):
                     if smoothing["name"] in ignore_smoothers:
                         continue
-                    plot_label = "%s (%s)" % (planner, smoother_names[smoother])
+                    plot_label = "%s (%s)" % (convert_planner_name(planner), smoother_names[smoother])
                     if plot_label not in plot_labels:
                         plot_labels.append(plot_label)
     colors = get_colors(len(plot_labels), **kwargs)
