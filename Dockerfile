@@ -37,7 +37,8 @@ RUN \
     libhdf5-dev \
     npm \
     nodejs \
-    nano
+    nano \
+    htop
 
 RUN mkdir -p /root/code
 
