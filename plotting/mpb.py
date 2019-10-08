@@ -339,17 +339,26 @@ class MPB:
         target = None
         plan_index = 0
         for i, m in enumerate(mpbs):
+            if results_filenames[i] is None:
+                print("No results file exists for MPB %s. Skipping." % str(m))
+                continue
             if not os.path.exists(results_filenames[i]):
                 if not silence:
-                    print("No results file exists for MPB %s. Skipping." % m.id)
+                    print("No results file exists for MPB %s. Skipping." % str(m))
                 if 'mpb.MPB' in str(type(m)):
                     plan_index += len(m._planners)
                 continue
             with open(results_filenames[i]) as res_file:
                 try:
                     res = json.load(res_file)
+                    if res is None or "runs" not in res:
+                        print("Run #%i has empty results file %s. Skipping."
+                              % (run_id, results_filenames[i]), file=sys.stderr)
+                        continue
                     if i == 0 or target is None:
                         target = deepcopy(res)
+                    if target is None:
+                        continue
                     if "runs" not in target:
                         target["runs"] = []
                     else:
