@@ -31,7 +31,8 @@ class MPB:
             raise Exception('Error: Could not find benchmark binary file at %s. ' % bin_path +
                             'Make sure you have built it and set the correct MPB_BINARY_DIR variable in %s.' % __file__)
         self.config = MPB.get_config(config_file)  # type: dict
-        print("Created MPB from config %s." % config_file)
+        if not config_file.endswith("benchmark_template.json"):
+            print("Created MPB from config %s." % config_file)
         self.output_path = output_path  # type: str
         self.id = None  # type: Optional[str]
         self._update_pss()
