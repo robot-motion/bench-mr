@@ -353,8 +353,8 @@ class MPB:
                 try:
                     res = json.load(res_file)
                     if res is None or "runs" not in res:
-                        print("Run #%i has empty results file %s. Skipping."
-                              % (run_id, results_filenames[i]), file=sys.stderr)
+                        print("Benchmark %s has empty results file %s. Skipping."
+                              % (str(m), results_filenames[i]), file=sys.stderr)
                         continue
                     if i == 0 or target is None:
                         target = deepcopy(res)
