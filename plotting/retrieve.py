@@ -23,7 +23,7 @@ def retrieve_planner_stats_by_run(json_file: str, planners: str = 'all', run_id:
                 result[run_id][planner]["planner"] = planner
                 result[run_id][planner]["run_id"] = run_id
                 result[run_id][planner]["intermediary"] = []
-                if len(plan["intermediary_solutions"]) > 0:
+                if plan["intermediary_solutions"] is not None and len(plan["intermediary_solutions"]) > 0:
                     for sol in plan["intermediary_solutions"]:
                         inter = sol["stats"]
                         inter["cost"] = sol["cost"]
