@@ -490,7 +490,8 @@ class MultipleMPB:
                     from plot_aggregate import plot_aggregate_stats
                     from utils import get_aggregate_stats
                     f, (a0, a1) = plt.subplots(1, 2, gridspec_kw={'width_ratios': [1, 4]}, figsize=(10, 3))
-                    plt.suptitle("%s  %s" % (self.id, str(datetime.datetime.now())))
+                    plt.title(self.id, loc="left", fontweight="bold")
+                    plt.title(str(datetime.datetime.now()), loc="right")
                     counts = {}
                     known_codes = {
                         -9: "timeout",
