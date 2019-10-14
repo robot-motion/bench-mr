@@ -161,7 +161,7 @@ struct GlobalSettings : public Group {
   /**
    * Any og::PathGeometric with more nodes will not get interpolated.
    */
-  Property<unsigned int> interpolation_limit{100u, "interpolation_limit", this};
+  Property<unsigned int> interpolation_limit{500u, "interpolation_limit", this};
 
   /**
    * Maximal length a og::PathGeometric can have to be interpolated.
