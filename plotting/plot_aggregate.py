@@ -79,7 +79,7 @@ def plot_smoother_aggregate(ax, runs, planners: [str], smoothers: [str], separat
 def plot_aggregate_stats(ax, total: int, found: {str: int}, collision_free: {str: int}, exact: {str: int},
                          ticks_rotation=90, show_aggregate_title=True, **kwargs):
     import matplotlib.pyplot as plt
-    planners = list(found.keys())
+    planners = sorted(list(found.keys()))
     width = 0.25
     xs = np.arange(len(planners)) + 0.5
     ys = [total for _ in planners]
