@@ -3,6 +3,7 @@ import json
 import click
 import math
 
+import definitions
 from definitions import smoother_names
 from plot_env import plot_env, plot_env_options
 from plot_trajectory import plot_trajectory, plot_nodes, plot_trajectory_options
@@ -253,7 +254,6 @@ def visualize(json_file: str,
 
 def visualize_grid(json_file: str,
                    run_id: str = 'all',
-                   scenario_steer_planner_order=(1, 2, 3),
                    show_smoother=False,
                    show_only_smoother=False,
                    draw_nodes=True,
@@ -291,6 +291,202 @@ def visualize_grid(json_file: str,
     import matplotlib as mpl
     mpl.rcParams['mathtext.fontset'] = 'cm'
     mpl.rcParams['pdf.fonttype'] = 42  # make sure to not use Level-3 fonts
+
+    ignore_planners = parse_planners(ignore_planners)
+    if len(ignore_planners) > 0 and not silence:
+        click.echo('Ignoring the following planner(s): %s' % ', '.join(ignore_planners))
+
+    ignore_smoothers = parse_smoothers(ignore_smoothers)
+    if len(ignore_smoothers) > 0 and not silence:
+        click.echo('Ignoring the following smoother(s): %s' % ', '.join(ignore_smoothers))
+
+    file = open(json_file, "r")
+    data = json.load(file)
+    file.close()
+    run_ids = parse_run_ids(run_id, len(data["runs"]))
+
+    planners = []
+    steer_functions = []
+    for run_id in run_ids:
+        run = data["runs"][run_id]
+        for planner in run["plans"]:
+            if planner in ignore_planners:
+                continue
+            if planner not in planners:
+                planners.append(planner)
+        s = run["settings"]["steer"]["steering_type"]
+        if s not in steer_functions:
+            steer_functions.append(s)
+    planners = sorted(planners, key=convert_planner_name)
+
+    plot_labels = []
+    for i in run_ids:
+        run = data["runs"][i]
+        if run["plans"] is None:
+            print("No plans were found in %s at run #%i." % (json_file, i))
+            continue
+        for j, planner in enumerate(planners):
+            if planner.lower() in ignore_planners:
+                continue
+            if planner not in run["plans"]:
+                continue
+            plan = run["plans"][planner]
+            if not show_only_smoother and convert_planner_name(planner) not in plot_labels:
+                plot_labels.append(convert_planner_name(planner))
+            if show_smoother and "smoothing" in plan and plan["smoothing"] is not None:
+                for k, (smoother, smoothing) in enumerate(plan["smoothing"].items()):
+                    if smoothing["name"] in ignore_smoothers:
+                        continue
+                    plot_label = "%s (%s)" % (convert_planner_name(planner), smoother_names[smoother])
+                    if plot_label not in plot_labels:
+                        plot_labels.append(plot_label)
+    colors = get_colors(len(plot_labels), **kwargs)
+
+    total_plots = len(plot_labels) * len(steer_functions)
+
+    axes_h, axes_v = 1, 1
+    if combine_views:
+        max_plots_per_line = min(max_plots_per_line, len(planners))
+        axes_h = max_plots_per_line
+        axes_v = int(math.ceil(total_plots / max_plots_per_line))
+        if not use_existing_subplot:
+            plt.figure("MPB %s" % json_file, figsize=(axes_h * fig_width, axes_v * fig_height * 0.85))
+
+    plots_drawn = set()
+
+    plot_counter = 1
+    legend_shown = False
+    for i in run_ids:
+        run = data["runs"][i]
+        kwargs['run_id'] = (i if len(data["runs"]) > 1 else -1)
+        env = run["environment"]
+        if "settings" in run:
+            settings = run["settings"]
+            # if not silence:
+            #     print("Using settings from run %i." % i)
+        else:
+            settings = data["settings"]
+        if run["plans"] is None:
+            continue
+        for j, (planner, plan) in enumerate(run["plans"].items()):
+            if planner.lower() in ignore_planners:
+                continue
+
+            s = run["settings"]["steer"]["steering_type"]
+            plot_counter = steer_functions.index(s) * len(plot_labels) + planners.index(planner) + 1
+            if plot_counter in plots_drawn:
+                continue
+            else:
+                plots_drawn.add(plot_counter)
+
+            if combine_views:
+                plt.subplot(axes_v, axes_h, plot_counter)
+            else:
+                plt.figure("Run %i - %s" % (i, json_file), figsize=(fig_width, fig_height * 0.85))
+
+            plot_env(env, set_title=False, **kwargs)
+
+            plt.title(convert_planner_name(planner), loc="left", fontweight="bold")
+            plt.title(definitions.steer_function_names[definitions.steer_functions[s]], loc="right")
+
+            if (plot_counter - 1) % axes_h > 0:
+                # hide left ticks for subplots that are not on the left
+                plt.gca().axes.yaxis.set_ticklabels([])
+            if int((plot_counter - 1) / axes_h) != axes_v - 1:
+                # hide bottom ticks for subplots that are not at the bottom
+                plt.gca().axes.xaxis.set_ticklabels([])
+
+            color_counter = planners.index(planner)
+
+            if not show_only_smoother:
+                if draw_cusps:
+                    circles = []
+                    for cusp in plan["stats"]["cusps"]:
+                        circle = patches.Circle(cusp, cusp_radius, ec="none")
+                        circles.append(circle)
+                    collection = PatchCollection(circles, alpha=0.5, color=colors[color_counter])
+                    plt.gca().add_collection(collection)
+                if draw_collisions and "collisions" in plan["stats"]:
+                    circles = []
+                    for collision in plan["stats"]["collisions"]:
+                        circle = patches.Circle(collision, collision_radius, ec="none")
+                        circles.append(circle)
+                    collection = PatchCollection(circles, alpha=0.5, color=colors[color_counter])
+                    plt.gca().add_collection(collection)
+
+                plot_trajectory(plan["trajectory"], planner, settings, color=colors[color_counter], add_label=False,
+                                **kwargs)
+                if draw_nodes:
+                    plot_nodes(plan["path"], planner, settings, color=colors[color_counter], **kwargs)
+
+            if show_smoother and "smoothing" in plan and plan["smoothing"] is not None:
+                for k, (smoother, smoothing) in enumerate(plan["smoothing"].items()):
+                    if smoothing["name"] in ignore_smoothers:
+                        continue
+                    plot_trajectory(smoothing["trajectory"], "%s (%s)" % (planner, smoothing['name']), settings,
+                                    color=colors[color_counter], add_label=False, **kwargs)
+                    if draw_cusps:
+                        circles = []
+                        for cusp in smoothing["stats"]["cusps"]:
+                            circle = patches.Circle(cusp, cusp_radius, ec="none")
+                            circles.append(circle)
+                        collection = PatchCollection(circles, alpha=0.5, color=colors[color_counter])
+                        plt.gca().add_collection(collection)
+                    if draw_collisions and "collisions" in plan["stats"]:
+                        circles = []
+                        for collision in smoothing["stats"]["collisions"]:
+                            circle = patches.Circle(collision, collision_radius, ec="none")
+                            circles.append(circle)
+                        collection = PatchCollection(circles, alpha=0.5, color=colors[color_counter])
+                        plt.gca().add_collection(collection)
+                    if draw_nodes and "path" in smoothing:
+                        plot_nodes(smoothing["path"], "%s (%s)" % (planner, smoother), settings,
+                                   color=colors[color_counter], **kwargs)
+                    color_counter += 1
+        # print("combine_views:", combine_views, "plot_counter:", plot_counter, "axes_h:", axes_h)
+        if combine_views and (plot_counter - 1 == axes_h or axes_h == 1):
+            for label, color in zip(plot_labels, colors):
+                plt.plot([], [], color=color, label=label)
+            show_legend(**kwargs)
+            legend_shown = True
+
+        plt.gca().autoscale(False)
+        plt.gca().set_aspect('equal', 'box')
+        if custom_min_x is not None and custom_max_y is not None:
+            plt.gca().set_xlim([custom_min_x, custom_max_x])
+            plt.gca().set_ylim([custom_min_y, custom_max_y])
+        elif "min_x" in env and "max_y" in env:
+            plt.gca().set_xlim([env["min_x"], env["max_x"]])
+            plt.gca().set_ylim([env["min_y"], env["max_y"]])
+        elif "width" in env and "height" in env:
+            plt.gca().set_xlim([0, env["width"]])
+            plt.gca().set_ylim([0, env["height"]])
+
+        if not combine_views and plot_counter % axes_h == axes_h - 1:
+            for label, color in zip(plot_labels, colors):
+                plt.plot([], [], color=color, label=label)
+            if not show_legend_once or not legend_shown:
+                show_legend(**kwargs)
+            legend_shown = True
+
+        if not combine_views and save_file is not None:
+            ext = save_file.rindex('.')
+            if len(run_ids) > 1:
+                filename = save_file[:ext] + '_%i' % i + save_file[ext:]
+            else:
+                filename = save_file[:ext] + save_file[ext:]
+            plt.savefig(filename, dpi=dpi, bbox_inches='tight')
+            if not silence:
+                click.echo("Saved %s." % filename)
+
+    if combine_views:
+        plt.subplots_adjust(wspace=0.4 / fig_width, hspace=0.7 / fig_height)
+        if save_file is not None:
+            plt.savefig(save_file, dpi=dpi, bbox_inches='tight')
+            if not silence:
+                click.echo("Saved %s." % save_file)
+    if not headless:
+        plt.show()
 
 
 if __name__ == '__main__':

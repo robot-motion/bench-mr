@@ -174,11 +174,14 @@ def convert_planner_name(planner: str) -> str:
 def show_legend(show_legend=True, show_legend_outside=True, legend_location="best", **_):
     if not show_legend:
         return
-    import matplotlib.pyplot as plt
-    if show_legend_outside:
-        plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-    else:
-        plt.legend(loc=legend_location)
+    try:
+        import matplotlib.pyplot as plt
+        if show_legend_outside:
+            plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+        else:
+            plt.legend(loc=legend_location)
+    except:
+        pass
 
 
 def latexify(text: str) -> str:
