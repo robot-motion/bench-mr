@@ -210,7 +210,7 @@ class MPB:
                     return
                 if runs > 1:
                     pbar.display('%s (%i / %i) [run %i / %i]' % (
-                    convert_planner_name(planner), ip + 1, num_planners, min(run + 1, runs), runs))
+                        convert_planner_name(planner), ip + 1, num_planners, min(run + 1, runs), runs))
                 else:
                     pbar.display('%s (%i / %i)' % (convert_planner_name(planner), ip + 1, num_planners))
 
@@ -413,6 +413,9 @@ class MultipleMPB:
         for m in self.benchmarks:
             m.update(config)
 
+    def merge(self, *args, **kwargs):
+        MPB.merge(self.benchmarks, *args, **kwargs)
+
     @staticmethod
     def run_(arg) -> int:
         config_filename, index, mpb_id, subfolder, memory_limit, runs = arg
@@ -505,7 +508,7 @@ class MultipleMPB:
                         counts[code_name] = counts.get(code_name, 0) + 1
                     total = sum(counts.values())
                     a0.pie(list(counts.values()), labels=list(counts.keys()),
-                            autopct=lambda p: '{:.0f}'.format(p * total / 100))
+                           autopct=lambda p: '{:.0f}'.format(p * total / 100))
 
                     aggregate = get_aggregate_stats([m.results_filename for m in self.benchmarks])
                     plot_aggregate_stats(a1,
@@ -516,8 +519,8 @@ class MultipleMPB:
                                          show_aggregate_title=False)
                     plt.tight_layout()
                     plt.subplots_adjust(0., 0.1, 1, 0.9, 0.3, 0.4)
-                except:
-                    print("Error while plotting benchmark progress overview.", file=sys.stderr)
+                except Exception as e:
+                    print("Error while plotting benchmark progress overview:", e, file=sys.stderr)
 
             if all([r == 0 for r in results]):
                 print("All benchmarks succeeded.")

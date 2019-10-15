@@ -206,7 +206,7 @@ def visualize(json_file: str,
                                    color=colors[color_counter], **kwargs)
                     color_counter += 1
         # print("combine_views:", combine_views, "plot_counter:", plot_counter, "axes_h:", axes_h)
-        if combine_views and (plot_counter-1 == axes_h or axes_h == 1):
+        if combine_views and (plot_counter - 1 == axes_h or axes_h == 1):
             for label, color in zip(plot_labels, colors):
                 plt.plot([], [], color=color, label=label)
             show_legend(**kwargs)
@@ -249,6 +249,48 @@ def visualize(json_file: str,
                 click.echo("Saved %s." % save_file)
     if not headless:
         plt.show()
+
+
+def visualize_grid(json_file: str,
+                   run_id: str = 'all',
+                   scenario_steer_planner_order=(1, 2, 3),
+                   show_smoother=False,
+                   show_only_smoother=False,
+                   draw_nodes=True,
+                   draw_cusps=False,
+                   cusp_radius: float = 1,
+                   draw_collisions=True,
+                   collision_radius: float = 1.2,
+                   max_plots_per_line: int = 5,
+                   headless=False,
+                   combine_views=True,
+                   save_file: str = None,
+                   ignore_planners='',
+                   ignore_smoothers='',
+                   fig_width: float = 6, fig_height: float = 6,
+                   custom_min_x: float = None,
+                   custom_min_y: float = None,
+                   custom_max_x: float = None,
+                   custom_max_y: float = None,
+                   silence=False,
+                   show_legend_once=True,
+                   use_existing_subplot=False,
+                   dpi: int = 200, **kwargs):
+    kwargs.update(locals())
+    if not silence:
+        click.echo("Visualizing %s" % click.format_filename(json_file))
+
+    if headless:
+        import matplotlib
+        matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    from matplotlib import patches
+    from matplotlib.collections import PatchCollection
+
+    import matplotlib as mpl
+    mpl.rcParams['mathtext.fontset'] = 'cm'
+    mpl.rcParams['pdf.fonttype'] = 42  # make sure to not use Level-3 fonts
 
 
 if __name__ == '__main__':

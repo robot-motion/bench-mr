@@ -112,16 +112,14 @@ struct PathEvaluation {
       }
     } catch (std::bad_alloc &ba) {
       // we ran out of memory
-      OMPL_ERROR("Error: Planner %s ran out of memory: %s.",
+      OMPL_ERROR("<stats> Error </stats>\nPlanner %s ran out of memory: %s.",
                  planner.name().c_str(), ba.what());
-      std::cout << "<stats> Error </stats>\n";
       createEmptyEntry(planner.name(), info);
       return false;
     } catch (...) {
       OMPL_ERROR(
-          "Error: An unknown exception occurred while running planner %s.",
+          "<stats> Error </stats>\nAn unknown exception occurred while running planner %s.",
           planner.name().c_str());
-      std::cout << "<stats> Error </stats>\n";
       createEmptyEntry(planner.name(), info);
       return false;
     }
@@ -157,14 +155,14 @@ struct PathEvaluation {
       PlannerConfigurator::configure(*planner);
     } catch (std::bad_alloc &ba) {
       // we ran out of memory
-      OMPL_ERROR("Error: Ran out of memory while creating planner %s: %s.",
+      OMPL_ERROR("<stats> Error </stats>\nRan out of memory while creating planner %s: %s.",
                  AbstractPlanner::LastCreatedPlannerName.c_str(), ba.what());
       createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
       delete planner;
       return false;
     } catch (...) {
       OMPL_ERROR(
-          "Error: An unknown exception occurred while creating planner %s.",
+          "<stats> Error </stats>\nAn unknown exception occurred while creating planner %s.",
           AbstractPlanner::LastCreatedPlannerName.c_str());
       createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
       delete planner;
@@ -183,14 +181,14 @@ struct PathEvaluation {
       PlannerConfigurator::configure(*planner);
     } catch (std::bad_alloc &ba) {
       // we ran out of memory
-      OMPL_ERROR("Error: Ran out of memory while creating planner %s: %s.",
+      OMPL_ERROR("<stats> Error </stats>\nRan out of memory while creating planner %s: %s.",
                  AbstractPlanner::LastCreatedPlannerName.c_str(), ba.what());
       createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
       delete planner;
       return false;
     } catch (...) {
       OMPL_ERROR(
-          "Error: An unknown exception occurred while creating planner %s.",
+          "<stats> Error </stats>\nAn unknown exception occurred while creating planner %s.",
           AbstractPlanner::LastCreatedPlannerName.c_str());
       createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
       delete planner;
