@@ -19,6 +19,7 @@ plot_env_options = [
 @add_options(plot_env_options)
 def plot_env(env, run_id: int = -1, colors=('b', 'r'),
              draw_start_goal=True, draw_start_goal_thetas=False,
+             show_start_goal_labels=True,
              set_title=True, show_distances=False,
              custom_min_x=None, custom_min_y=None,
              custom_max_x=None, custom_max_y=None,
@@ -89,17 +90,16 @@ def plot_env(env, run_id: int = -1, colors=('b', 'r'),
     if draw_start_goal:
         start = env["start"]
         goal = env["goal"]
-        plt.scatter([start[0]], [start[1]], label="Start", color=colors[0])
-        plt.scatter([goal[0]], [goal[1]], label="Goal", color=colors[1])
+        plt.scatter([start[0]], [start[1]], label=("Start" if show_start_goal_labels else None), color=colors[0])
+        plt.scatter([goal[0]], [goal[1]], label=("Goal" if show_start_goal_labels else None), color=colors[1])
         if draw_start_goal_thetas:
             radius = max(env["width"], env["height"]) / 20
             head_width = max(env["width"], env["height"]) / 100
             plt.arrow(start[0], start[1], math.cos(start[2]) * radius, math.sin(start[2]) * radius, width=0.01,
                       head_width=head_width,
-                      label="start", fc=colors[0], color=colors[0], edgecolor=None)
+                      fc=colors[0], color=colors[0], edgecolor=None)
             plt.arrow(goal[0], goal[1], math.cos(goal[2]) * radius, math.sin(goal[2]) * radius, width=0.01,
                       head_width=head_width,
-                      label="start",
                       fc=colors[1], color=colors[1], edgecolor=None)
     if set_title:
         plt.title(title)

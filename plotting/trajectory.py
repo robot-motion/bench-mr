@@ -254,12 +254,14 @@ def visualize(json_file: str,
 
 def visualize_grid(json_file: str,
                    run_id: str = 'all',
+                   suptitle: str = None,
                    show_smoother=False,
                    show_only_smoother=False,
                    draw_nodes=True,
                    draw_cusps=False,
                    cusp_radius: float = 1,
                    draw_collisions=True,
+                   show_stats=True,
                    collision_radius: float = 1.2,
                    max_plots_per_line: int = 5,
                    headless=False,
@@ -267,7 +269,7 @@ def visualize_grid(json_file: str,
                    save_file: str = None,
                    ignore_planners='',
                    ignore_smoothers='',
-                   fig_width: float = 6, fig_height: float = 6,
+                   fig_size: float = 6,
                    custom_min_x: float = None,
                    custom_min_y: float = None,
                    custom_max_x: float = None,
@@ -319,9 +321,15 @@ def visualize_grid(json_file: str,
             steer_functions.append(s)
     planners = sorted(planners, key=convert_planner_name)
 
+    # used to determine width/height ratio
+    env_width, env_height = -1, -1
+
     plot_labels = []
     for i in run_ids:
         run = data["runs"][i]
+        if env_width < 0 or env_height < 0:
+            env_width = run["environment"]["max_x"] - run["environment"]["min_x"]
+            env_height = run["environment"]["max_y"] - run["environment"]["min_y"]
         if run["plans"] is None:
             print("No plans were found in %s at run #%i." % (json_file, i))
             continue
@@ -344,13 +352,25 @@ def visualize_grid(json_file: str,
 
     total_plots = len(plot_labels) * len(steer_functions)
 
+    if env_width > 0 and env_height > 0:
+        if env_width > env_height:
+            fig_width = fig_size
+            fig_height = fig_size * env_height / env_width * 1.1
+        else:
+            fig_width = fig_size * env_width / env_height
+            fig_height = fig_size * 1.1
+    else:
+        fig_width = fig_height = fig_size
+
     axes_h, axes_v = 1, 1
     if combine_views:
         max_plots_per_line = min(max_plots_per_line, len(planners))
         axes_h = max_plots_per_line
         axes_v = int(math.ceil(total_plots / max_plots_per_line))
         if not use_existing_subplot:
-            plt.figure("MPB %s" % json_file, figsize=(axes_h * fig_width, axes_v * fig_height * 0.85))
+            plt.figure("MPB %s" % json_file, figsize=(axes_h * fig_width, axes_v * fig_height))
+            if suptitle is not None:
+                plt.suptitle(suptitle, fontsize=20, fontweight="bold", ha="left", y=0.89, x=0.12)
 
     plots_drawn = set()
 
@@ -382,9 +402,9 @@ def visualize_grid(json_file: str,
             if combine_views:
                 plt.subplot(axes_v, axes_h, plot_counter)
             else:
-                plt.figure("Run %i - %s" % (i, json_file), figsize=(fig_width, fig_height * 0.85))
+                plt.figure("Run %i - %s" % (i, json_file), figsize=(fig_width, fig_height))
 
-            plot_env(env, set_title=False, **kwargs)
+            plot_env(env, set_title=False, show_start_goal_labels=False, **kwargs)
 
             plt.title(convert_planner_name(planner), loc="left", fontweight="bold")
             plt.title(definitions.steer_function_names[definitions.steer_functions[s]], loc="right")
@@ -416,6 +436,21 @@ def visualize_grid(json_file: str,
 
                 plot_trajectory(plan["trajectory"], planner, settings, color=colors[color_counter], add_label=False,
                                 **kwargs)
+                if show_stats and "stats" in plan and plan["stats"] is not None and plan["trajectory"] is not None:
+                    non_empty_legend = False
+                    for metric in ("path_length", "planning_time", "curvature"):
+                        if plan["stats"][metric] is not None:
+                            label = "%s:  %.3f" % (definitions.stat_names[metric], plan["stats"][metric])
+                            plt.plot([], [], label=label, ls='', marker='')
+                            non_empty_legend = True
+                    if plan["stats"]["path_collides"] is not None and plan["stats"]["path_collides"]:
+                        plt.plot([], [], label="--- collides ---", ls='', marker='')
+                        non_empty_legend = True
+                    if plan["stats"]["exact_goal_path"] is not None and not plan["stats"]["exact_goal_path"]:
+                        plt.plot([], [], label="--- goal not reached ---", ls='', marker='')
+                        non_empty_legend = True
+                    if non_empty_legend:
+                        plt.legend(handletextpad=-1.5)
                 if draw_nodes:
                     plot_nodes(plan["path"], planner, settings, color=colors[color_counter], **kwargs)
 

@@ -1,9 +1,9 @@
 stat_names = {
     'curvature': 'Maximum Curvature',
-    'max_clearing_distance': 'Maximum Clearing Distance',
-    'mean_clearing_distance': 'Mean Clearing Distance',
-    'median_clearing_distance': 'Median Clearing Distance',
-    'min_clearing_distance': 'Minimum Clearing Distance',
+    'max_clearing_distance': 'Maximum Clearing',
+    'mean_clearing_distance': 'Mean Clearing',
+    'median_clearing_distance': 'Median Clearing',
+    'min_clearing_distance': 'Minimum Clearing',
     'path_length': 'Path Length',
     'smoothness': 'Smoothness',
     'planning_time': 'Computation Time',
