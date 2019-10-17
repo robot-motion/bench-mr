@@ -308,12 +308,14 @@ class MPB:
         from trajectory import visualize
         visualize(self.results_filename, **kwargs)
 
-    def visualize_trajectory_grid(self, **kwargs):
+    def visualize_trajectory_grid(self, set_suptitle=True, **kwargs):
         if not os.path.exists(self.results_filename):
             print("No results file exists for MPB %s." % self.id)
             return
         from trajectory import visualize_grid
-        visualize_grid(self.results_filename, **kwargs)
+        if set_suptitle:
+            kwargs["suptitle"] = self.id
+        visualize_grid(self.results_filename,  **kwargs)
 
     def plot_planner_stats(self, **kwargs):
         if not os.path.exists(self.results_filename):
@@ -564,9 +566,11 @@ class MultipleMPB:
             plt.title("%s" % m.id)
         plt.tight_layout()
 
-    def visualize_trajectory_grid(self, merge_file_name: str = None, **kwargs):
+    def visualize_trajectory_grid(self, merge_file_name: str = None, set_suptitle=True, **kwargs):
         self.merge(target_filename=merge_file_name)
         from trajectory import visualize_grid
+        if set_suptitle:
+            kwargs["suptitle"] = self.id
         visualize_grid(merge_file_name, **kwargs)
 
     def plot_planner_stats(self, **kwargs):
