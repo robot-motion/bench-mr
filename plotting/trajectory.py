@@ -328,8 +328,8 @@ def visualize_grid(json_file: str,
     for i in run_ids:
         run = data["runs"][i]
         if env_width < 0 or env_height < 0:
-            env_width = run["environment"]["max_x"] - run["environment"]["min_x"]
-            env_height = run["environment"]["max_y"] - run["environment"]["min_y"]
+            env_width = run["environment"]["width"]
+            env_height = run["environment"]["height"]
         if run["plans"] is None:
             print("No plans were found in %s at run #%i." % (json_file, i))
             continue

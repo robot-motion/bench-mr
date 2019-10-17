@@ -5,7 +5,7 @@
 
 class Environment {
  public:
-    Environment();
+  Environment();
   virtual ~Environment() = default;
 
   void setStart(const Point &point);
@@ -29,8 +29,10 @@ class Environment {
   bool checkValidity(const ob::State *state);
 
   inline const ob::RealVectorBounds &bounds() const { return _bounds; }
-  inline double width() const { return _bounds.high.at(0); }
-  inline double height() const { return _bounds.high.at(1); }
+  inline double width() const { return _bounds.high.at(0) - _bounds.low.at(0); }
+  inline double height() const {
+    return _bounds.high.at(1) - _bounds.low.at(1);
+  }
 
   virtual double distance(double x, double y) { return -1; }
 
