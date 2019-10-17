@@ -355,10 +355,10 @@ def visualize_grid(json_file: str,
     if env_width > 0 and env_height > 0:
         if env_width > env_height:
             fig_width = fig_size
-            fig_height = fig_size * env_height / env_width * 1.1
+            fig_height = fig_size * env_height / env_width
         else:
             fig_width = fig_size * env_width / env_height
-            fig_height = fig_size * 1.1
+            fig_height = fig_size
     else:
         fig_width = fig_height = fig_size
 
@@ -368,9 +368,10 @@ def visualize_grid(json_file: str,
         axes_h = max_plots_per_line
         axes_v = int(math.ceil(total_plots / max_plots_per_line))
         if not use_existing_subplot:
-            plt.figure("MPB %s" % json_file, figsize=(axes_h * fig_width, axes_v * fig_height))
+            fig = plt.figure("MPB %s" % json_file, figsize=(axes_h * fig_width, axes_v * fig_height))
             if suptitle is not None:
-                plt.suptitle(suptitle, fontsize=20, fontweight="bold", ha="left", y=0.89, x=0.12)
+                plt.suptitle(suptitle, fontsize=20, fontweight="bold", ha="left", y=1 + 0.1 / fig_height, x=0,
+                             transform=fig.transFigure)
 
     plots_drawn = set()
 
@@ -515,7 +516,7 @@ def visualize_grid(json_file: str,
                 click.echo("Saved %s." % filename)
 
     if combine_views:
-        plt.subplots_adjust(wspace=0.4 / fig_width, hspace=0.7 / fig_height)
+        plt.tight_layout()
         if save_file is not None:
             plt.savefig(save_file, dpi=dpi, bbox_inches='tight')
             if not silence:
