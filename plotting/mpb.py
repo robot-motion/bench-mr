@@ -567,7 +567,9 @@ class MultipleMPB:
         plt.tight_layout()
 
     def visualize_trajectory_grid(self, merge_file_name: str = None, set_suptitle=True, **kwargs):
-        self.merge(target_filename=merge_file_name)
+        if merge_file_name is None:
+            merge_file_name = "%s_total.json" % self.id
+        self.merge(target_filename=merge_file_name, make_separate_runs=True)
         from trajectory import visualize_grid
         if set_suptitle:
             kwargs["suptitle"] = self.id
