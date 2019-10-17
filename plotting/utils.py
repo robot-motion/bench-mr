@@ -227,6 +227,9 @@ def get_aggregate_stats(results_filenames: [str]) -> dict:
                                 collision_free[planner] = collision_free.get(planner, 0) + 1
                             if plan["stats"]["exact_goal_path"]:
                                 exact[planner] = exact.get(planner, 0) + 1
+                        else:
+                            if planner not in found:
+                                found[planner] = 0
         except:
             pass
     return {
