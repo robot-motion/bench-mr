@@ -2,6 +2,7 @@
 import json
 import click
 import math
+import sys
 
 import definitions
 from definitions import smoother_names
@@ -339,16 +340,17 @@ def visualize_grid(json_file: str,
             if planner not in run["plans"]:
                 continue
             plan = run["plans"][planner]
-            if not show_only_smoother and convert_planner_name(planner) not in plot_labels:
+            if not show_only_smoother: # and convert_planner_name(planner) not in plot_labels:
                 plot_labels.append(convert_planner_name(planner))
             if show_smoother and "smoothing" in plan and plan["smoothing"] is not None:
                 for k, (smoother, smoothing) in enumerate(plan["smoothing"].items()):
                     if smoothing["name"] in ignore_smoothers:
                         continue
                     plot_label = "%s (%s)" % (convert_planner_name(planner), smoother_names[smoother])
-                    if plot_label not in plot_labels:
-                        plot_labels.append(plot_label)
-    colors = get_colors(len(plot_labels), **kwargs)
+#                     if plot_label not in plot_labels:
+                    plot_labels.append(plot_label)
+                    plot_counter += 1
+    colors = get_colors(len(planners), **kwargs)
 
     total_plots = len(plot_labels) * len(steer_functions)
 
@@ -367,15 +369,23 @@ def visualize_grid(json_file: str,
         max_plots_per_line = min(max_plots_per_line, len(planners))
         axes_h = max_plots_per_line
         axes_v = int(math.ceil(total_plots / max_plots_per_line))
+        dpi = 200
+        # assume 200 dpi resolution
+        if axes_v * fig_height >= 2**16 / dpi:
+            new_axes_v = int(2**16 / dpi // fig_height)
+            print("Figure height must not be greater than 2^16 pixels, cropping figure from %i vertical axes to %i." \
+                  % (axes_v, new_axes_v), file=sys.stderr)
+            axes_v = new_axes_v
+            total_plots = axes_h * axes_v
         if not use_existing_subplot:
-            fig = plt.figure("MPB %s" % json_file, figsize=(axes_h * fig_width, axes_v * fig_height))
+            fig = plt.figure("MPB %s" % json_file, figsize=(axes_h * fig_width, axes_v * fig_height), dpi=dpi)
             if suptitle is not None:
-                plt.suptitle(suptitle, fontsize=20, fontweight="bold", ha="left", y=1 + 0.1 / fig_height, x=0,
+                plt.suptitle(suptitle, fontsize=20, fontweight="bold", ha="left", y=1 + 1 / (axes_v * fig_height), x=0,
                              transform=fig.transFigure)
 
     plots_drawn = set()
 
-    plot_counter = 1
+    plot_counter = 0
     legend_shown = False
     for i in run_ids:
         run = data["runs"][i]
@@ -389,13 +399,16 @@ def visualize_grid(json_file: str,
             settings = data["settings"]
         if run["plans"] is None:
             continue
-        for j, (planner, plan) in enumerate(run["plans"].items()):
+        for j, planner in enumerate(planners):
             if planner.lower() in ignore_planners:
                 continue
+            if planner not in run["plans"]:
+                continue
+            plan = run["plans"][planner]
 
             s = run["settings"]["steer"]["steering_type"]
-            plot_counter = steer_functions.index(s) * len(plot_labels) + planners.index(planner) + 1
-            if plot_counter in plots_drawn:
+            plot_counter += 1 # steer_functions.index(s) * len(plot_labels) + planners.index(planner) + 1
+            if plot_counter in plots_drawn or plot_counter > total_plots:
                 continue
             else:
                 plots_drawn.add(plot_counter)
@@ -408,7 +421,10 @@ def visualize_grid(json_file: str,
             plot_env(env, set_title=False, show_start_goal_labels=False, **kwargs)
 
             plt.title(convert_planner_name(planner), loc="left", fontweight="bold")
-            plt.title(definitions.steer_function_names[definitions.steer_functions[s]], loc="right")
+            right_title = definitions.steer_function_names[definitions.steer_functions[s]]
+            if len(run_ids) > 1:
+                right_title += " (%i/%i)" % (i + 1, max(run_ids))
+            plt.title(right_title, loc="right")
 
             if (plot_counter - 1) % axes_h > 0:
                 # hide left ticks for subplots that are not on the left
