@@ -423,7 +423,7 @@ def visualize_grid(json_file: str,
             plt.title(convert_planner_name(planner), loc="left", fontweight="bold")
             right_title = definitions.steer_function_names[definitions.steer_functions[s]]
             if len(run_ids) > 1:
-                right_title += " (%i/%i)" % (i + 1, max(run_ids))
+                right_title += " (%i/%i)" % (i + 1, max(run_ids) + 1)
             plt.title(right_title, loc="right")
 
             if (plot_counter - 1) % axes_h > 0:
