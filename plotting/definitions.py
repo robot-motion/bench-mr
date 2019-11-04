@@ -77,8 +77,8 @@ smoother_names = {
 
 smoothers = list(smoother_names.values())
 
-sampling_planners = ['rrt', 'est', 'sbl', 'prm', 'theta_star', 'sst', 'fmt', 'kpiece', 'pdst', 'stride']
-anytime_planners = ['rrt_star', 'rrt_sharp', 'informed_rrt_star', 'sorrt_star', 'prm_star', 'bfmt', 'cforest',
+sampling_planners = ['rrt', 'est', 'sbl', 'prm', 'theta_star', 'sst', 'kpiece', 'pdst', 'stride']
+anytime_planners = ['rrt_star', 'rrt_sharp', 'informed_rrt_star', 'sorrt_star', 'prm_star', 'fmt', 'bfmt', 'cforest',
                     'bit_star', 'spars', 'spars2']
 sbpl_planners = ['sbpl_adstar', 'sbpl_anastar', 'sbpl_arastar', 'sbpl_lazy_ara', 'sbpl_mha']
 all_planners = sampling_planners + anytime_planners + sbpl_planners
