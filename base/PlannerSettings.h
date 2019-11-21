@@ -372,7 +372,7 @@ struct GlobalSettings : public Group {
      * planners that don't have notion of epsilon, 1 means optimal search.
      */
     Property<double> initial_solution_eps{3, "initial_solution_eps", this};
-    Property<double> fordward_velocity{0.2, "fordward_velocity",
+    Property<double> forward_velocity{0.2, "forward_velocity",
                                        this};  // in meters/sec
     Property<double> time_to_turn_45_degs_in_place{
         0.6, "time_to_turn_45_degs_in_place", this};  // in sec

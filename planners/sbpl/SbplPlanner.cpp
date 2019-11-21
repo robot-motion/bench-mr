@@ -42,7 +42,7 @@ SbplPlanner<PlannerT>::SbplPlanner()
         global::settings.sbpl.goal_tolerance_y,
         global::settings.sbpl.goal_tolerance_theta, perimeterptsV,
         global::settings.sbpl.resolution,  // cell size
-        global::settings.sbpl.fordward_velocity,
+        global::settings.sbpl.forward_velocity,
         global::settings.sbpl.time_to_turn_45_degs_in_place,
         20u,  // obstacle threshold
         global::settings.sbpl.motion_primitive_filename.value().c_str());
