@@ -20,7 +20,7 @@ class SbplPlanner : public AbstractPlanner {
       case sbpl::SBPL_ADSTAR:
         return "SBPL_ADstar";
       case sbpl::SBPL_ARASTAR:
-        return "SBPL_ARstar";
+        return "SBPL_ARAstar";
       case sbpl::SBPL_RSTAR:
         return "SBPL_Rstar";
       case sbpl::SBPL_ANASTAR:
