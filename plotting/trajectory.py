@@ -324,6 +324,8 @@ def visualize_grid(json_file: str,
 
     # used to determine width/height ratio
     env_width, env_height = -1, -1
+    
+    valid_smoother_names = []
 
     plot_labels = []
     for i in run_ids:
@@ -346,13 +348,13 @@ def visualize_grid(json_file: str,
                 for k, (smoother, smoothing) in enumerate(plan["smoothing"].items()):
                     if smoothing["name"] in ignore_smoothers:
                         continue
+                    valid_smoother_names.append(smoothing["name"])
                     plot_label = "%s (%s)" % (convert_planner_name(planner), smoother_names[smoother])
 #                     if plot_label not in plot_labels:
                     plot_labels.append(plot_label)
-                    plot_counter += 1
-    colors = get_colors(len(planners), **kwargs)
+    colors = get_colors(len(planners) * (1 + len(valid_smoother_names)), **kwargs)
 
-    total_plots = len(plot_labels) * len(steer_functions)
+    total_plots = len(plot_labels) * len(steer_functions) * (1 + len(valid_smoother_names))
 
     if env_width > 0 and env_height > 0:
         if env_width > env_height:
@@ -477,6 +479,21 @@ def visualize_grid(json_file: str,
                         continue
                     plot_trajectory(smoothing["trajectory"], "%s (%s)" % (planner, smoothing['name']), settings,
                                     color=colors[color_counter], add_label=False, **kwargs)
+                    if show_stats and "stats" in smoothing and smoothing["stats"] is not None and smoothing["trajectory"] is not None:
+                        non_empty_legend = False
+                        for metric in ("path_length", "planning_time", "curvature"):
+                            if smoothing["stats"][metric] is not None:
+                                label = "%s:  %.3f" % (definitions.stat_names[metric], smoothing["stats"][metric])
+                                plt.plot([], [], label=label, ls='', marker='')
+                                non_empty_legend = True
+                        if smoothing["stats"]["path_collides"] is not None and smoothing["stats"]["path_collides"]:
+                            plt.plot([], [], label="--- collides ---", ls='', marker='')
+                            non_empty_legend = True
+                        if smoothing["stats"]["exact_goal_path"] is not None and not smoothing["stats"]["exact_goal_path"]:
+                            plt.plot([], [], label="--- goal not reached ---", ls='', marker='')
+                            non_empty_legend = True
+                        if non_empty_legend:
+                            plt.legend(handletextpad=-1.5)
                     if draw_cusps:
                         circles = []
                         for cusp in smoothing["stats"]["cusps"]:
