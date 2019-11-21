@@ -106,6 +106,7 @@ planner_names = {
     'spars2': 'SPARS2',
     'sbpl_adstar': 'SBPL AD*',
     'sbpl_anastar': 'SBPL ANA*',
+    'sbpl_arastar': 'SBPL ARA*',
     'sbpl_lazy_ara': 'SBPL Lazy ARA*',
     'sbpl_mha': 'SBPL MHA'    
 }
@@ -134,6 +135,7 @@ planner_internal_names = {
     'spars2': 'SPARStwo',
     'sbpl_adstar': 'SBPL_ADstar',
     'sbpl_anastar': 'SBPL_ANAstar',
+    'sbpl_arastar': 'SBPL_ARAstar',
     'sbpl_lazy_ara': 'SBPL_Lazy_ARA',
     'sbpl_mha': 'SBPL_MHA'
 }
