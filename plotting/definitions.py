@@ -83,6 +83,7 @@ anytime_planners = ['rrt_star', 'rrt_sharp', 'informed_rrt_star', 'sorrt_star', 
 sbpl_planners = ['sbpl_adstar', 'sbpl_anastar', 'sbpl_arastar', 'sbpl_lazy_ara', 'sbpl_mha']
 all_planners = sampling_planners + anytime_planners + sbpl_planners
 
+# Mapping internal planner names to their printable counterparts
 planner_names = {
     'rrt': 'RRT',
     'est': 'EST',
@@ -108,7 +109,7 @@ planner_names = {
     'sbpl_anastar': 'SBPL ANA*',
     'sbpl_arastar': 'SBPL ARA*',
     'sbpl_lazy_ara': 'SBPL Lazy ARA*',
-    'sbpl_mha': 'SBPL MHA'    
+    'sbpl_mha': 'SBPL MHA*'    
 }
 
 # Names internally used by MPB/OMPL to appear in the "plans" dictionary of the results files
