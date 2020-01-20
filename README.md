@@ -106,3 +106,9 @@ for providing the [`2D Pathfinding "MovingAI" Datasets`](https://www.movingai.co
 
 ## License
 TODO
+
+## Developers
+* Eric Heiden
+
+## Contributors
+* Luigi Palmieri
