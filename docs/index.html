@@ -14,15 +14,17 @@
 				document.getElementById("plots_area").innerHTML = "";
 				console.log(selected_graph);
 				if(selected_graph != "None"){
-					document.getElementById("plots_area").innerHTML = "<img src='" + selected_graph + ".png" + "' style='width: 100%; height: 110%'>";
+					document.getElementById("plots_area").innerHTML = "<img src='" + selected_graph + ".png" + "' style='width: 90%; height: 95%'>";
 				}
 			}
 
 			function get_result(){
 				document.getElementById("home_message").style.display = "none";
-				var selection = document.getElementById("scenario_select");
-				var selected_graph = selection.options[selection.selectedIndex].text;
-				selected_graph = "violin_plots/" + selected_graph;
+				var scenario_selection = document.getElementById("scenario_select");
+				var steer_selection = document.getElementById("steer_select");
+				var scenario_string = scenario_selection.options[scenario_selection.selectedIndex].text;
+				var steer_string = steer_selection.options[steer_selection.selectedIndex].text;
+				var selected_graph = "img/" + scenario_string + "_" + steer_string + "_stats";
 				show_graph(selected_graph);
 			}
 
@@ -89,29 +91,22 @@
 						<!-- select form -->
 						<form>
 						  	<div class="form-group">
-						    	<label for="exampleFormControlSelect1">Scenarios</label>
+						    	<label for="overview_scenario_select">Scenario</label>
 						    	<select class="form-control" id="scenario_select">
 									<script>
 										var scenario_select = document.getElementById('scenario_select');
 										for(var i=0; i<scenario_list.length; i++){
-											scenario_select.innerHTML += '<option value="' + (i+1) + '">' + scenario_list[i].replace('.json', '') + '</option>';
+											scenario_select.innerHTML += '<option value="' + (i+1) + '">' + scenario_list[i] + '</option>';
 										}
 									</script>
-									<!-- <option value="1">grid_corridor_50_wide</option>
-									<option value="2">grid_corridor_50</option>
-									<option value="3">grid_corridor_100_0.1</option>
-									<option value="4">movingai_berlin_256</option>
-									<option value="5">movingai_denver_256</option>
-									<option value="6">parking1</option>
-									<option value="7">parking2</option>
-									<option value="8">parking3</option>
-									<option value="9">turning_radius2.000000</option>
-									<option value="10">turning_radius3.000000</option>
-									<option value="11">turning_radius4.000000</option>
-									<option value="12">turning_radius5.000000</option>
-									<option value="13">turning_radius6.000000</option>
-									<option value="14">warehouse</option> -->
-						    	</select>
+								</select>
+								<label for="overview_steer_select">Steer Function</label>
+								<select class="form-control" id="steer_select">
+									<option value="1">cc_reeds_shepp</option>
+									<option value="2">dubins</option>
+									<option value="3">posq</option>
+									<option value="4">reeds_shepp</option>
+								</select>
 						  	</div>							
 							<button type="button" onclick="get_result()" class="btn btn-primary" id="submit_button">Get Result</button>				
 						</form>
@@ -128,8 +123,7 @@
 					</div>
 
 					<!-- images -->
-					<div class="col" id="plots_area">
-					</div>
+					<div class="col" id="plots_area"></div>
 				</div>
 			</div>
 		</div>

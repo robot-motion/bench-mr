@@ -8,222 +8,28 @@
 		<link rel="stylesheet" type="text/css" href="home.css">
 		
 		<script>
-			var myData;
-			var planner_count = 0;
-            var filled = false;
             var scenario_list;
-
-			function loadJSON(callback) {   
-				var xmlr = new XMLHttpRequest();
-					xmlr.overrideMimeType("application/json");
-				xmlr.open('GET', 'avg.json', false); // Replace 'avg' with the path to your file
-				xmlr.onreadystatechange = function () {
-					if (xmlr.readyState == 4 && xmlr.status == "200") {
-						// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
-						callback(xmlr.responseText);
-					}
-				};
-				xmlr.send(null);  
-			}
-
-			function getData() {
-				loadJSON(function(response) {
-					planner_count = 0;
-					// Parse JSON string into object
-					myData = JSON.parse(response);
-				});
-			}
-
-			function fillTable(planners_chosen){
-				
-				if(filled){
-					empty_table();
-				}
-
-				document.getElementById("home_message").style.display = "none";
-				document.getElementById("data_table_area").style.display = "block";
-
-				//add head and body
-				var table = document.getElementById("data_table");
-				// var table_head = document.getElementById("data_table_head");
-				// var table_body = document.getElementById("data_table_body");
-				var table_head = document.createElement("thead");
-				var table_body = document.createElement("tbody");
-
-				for(var planner in myData){
-					planner_count++;
-				}
-
-				// add title
-				var title = document.createElement("tr");
-				var att_title = document.createElement("td");
-				att_title.appendChild(document.createTextNode("Attribute"));
-				title.appendChild(att_title);
-
-				for(var planner in myData){
-					if(planners_chosen.includes(planner)){
-						var title_td = document.createElement("td");
-						title_td.appendChild(document.createTextNode(planner));
-						title.appendChild(title_td);
-					}
-				}
-				
-				//add curvature
-				var curv = document.createElement("tr");
-				var att_curv = document.createElement("td")
-				att_curv.appendChild(document.createTextNode("Curvature"));
-				curv.appendChild(att_curv);
-
-				for(var planner in myData){
-					if(planners_chosen.includes(planner)){
-						var curv_data = document.createElement("td");
-						var temp = myData[planner]["curvature"];
-						if(temp == "null"){
-							temp = "N/A";
-						}
-						curv_data.appendChild(document.createTextNode(temp));
-						curv.appendChild(curv_data);
-					}
-				}
-
-				//add path length
-				var pl = document.createElement("tr");
-				var att_pl = document.createElement("td");
-				att_pl.appendChild(document.createTextNode("Path_Length"));
-				pl.appendChild(att_pl);
-
-				for(var planner in myData){
-					if(planners_chosen.includes(planner)){
-						var pl_data = document.createElement("td");
-						var temp = myData[planner]["path_length"];
-						if(temp == "null"){
-							temp = "N/A";
-						}
-						pl_data.appendChild(document.createTextNode(temp));
-						pl.appendChild(pl_data);
-					}
-				}
-
-				//add smoothness
-				var smth = document.createElement("tr");
-				var att_smth = document.createElement("td");
-				att_smth.appendChild(document.createTextNode("Smoothness"));
-				smth.appendChild(att_smth);
-
-				for(var planner in myData){
-					if(planners_chosen.includes(planner)){
-						var smth_data = document.createElement("td");
-						var temp = myData[planner]["smoothness"];
-						if(temp == "null"){
-							temp = "N/A";
-						}
-						smth_data.appendChild(document.createTextNode(temp));
-						smth.appendChild(smth_data);
-					}
-				}
-
-				//add planning time
-				var pt = document.createElement("tr");
-				var att_pt = document.createElement("td");
-				att_pt.appendChild(document.createTextNode("Planning_Time"));
-				pt.appendChild(att_pt);
-
-				for(var planner in myData){
-					if(planners_chosen.includes(planner)){
-						var pt_data = document.createElement("td");
-						var temp = myData[planner]["planning_time"];
-						if(temp == "null"){
-							temp = "N/A";
-						}
-						pt_data.appendChild(document.createTextNode(temp));
-						pt.appendChild(pt_data);
-					}
-				}
-
-				table_head.appendChild(title);
-				table_body.appendChild(curv);
-				table_body.appendChild(pl);
-				table_body.appendChild(smth);
-				table_body.appendChild(pt);
-
-				table.appendChild(table_head);
-				table.appendChild(table_body);
-
-
-				filled = true;
-			}
-
-			function empty_table(){
-				var parent = document.getElementById("data_table");
-				while(parent.hasChildNodes()){
-					parent.removeChild(parent.firstChild);
-				}
-			}
 
 			function show_graph(selected_graph){
 				document.getElementById("plots_area").innerHTML = "";
 				if(selected_graph != "None"){
-					document.getElementById("plots_area").innerHTML = "<img src='" + selected_graph + ".png" + "'>";
+					document.getElementById("plots_area").innerHTML = "<img src='" + selected_graph + ".png" + "' style='width: 90%; height: 95%'>";
 				}
 			}
 
 			function get_result(){
-				var planners_chosen = [];
-				if(document.getElementById("check_0").checked){
-					planners_chosen.push("BFMT");
+				document.getElementById("home_message").style.display = "none";
+				var scenario_selection = document.getElementById("scenario_select");
+				var steer_selection = document.getElementById("steer_select");
+				var radios = document.getElementsByName("binary");
+				var merged_string = "";
+				if (radios[1].checked) {
+					merged_string = "_separated";
 				}
-				if(document.getElementById("check_1").checked){
-					planners_chosen.push("CForest");
-				}
-				if(document.getElementById("check_2").checked){
-					planners_chosen.push("EST");
-				}
-				if(document.getElementById("check_3").checked){
-					planners_chosen.push("FMT");
-				}
-				if(document.getElementById("check_4").checked){
-					planners_chosen.push("InformedRRTstar");
-				}
-				if(document.getElementById("check_5").checked){
-					planners_chosen.push("KPIECE1");
-				}
-				if(document.getElementById("check_6").checked){
-					planners_chosen.push("PRMstar");
-				}
-				if(document.getElementById("check_7").checked){
-					planners_chosen.push("RRT");
-				}
-				if(document.getElementById("check_8").checked){
-					planners_chosen.push("RRT#");
-				}
-				if(document.getElementById("check_9").checked){
-					planners_chosen.push("RRTstar");
-				}
-				if(document.getElementById("check_10").checked){
-					planners_chosen.push("SBL");
-				}
-				if(document.getElementById("check_11").checked){
-					planners_chosen.push("SORRTstar");
-				}
-				if(document.getElementById("check_12").checked){
-					planners_chosen.push("SST");
-				}
-				if(document.getElementById("check_13").checked){
-					planners_chosen.push("STRIDE");
-				}
-				if(document.getElementById("check_14").checked){
-					planners_chosen.push("Theta*");
-				}
-				if(document.getElementById("check_15").checked){
-					planners_chosen.push("kBITstar");
-				}
-
-
-
-				fillTable(planners_chosen);
-
-				var selection = document.getElementById("plots_select");
-				var selected_graph = selection.options[selection.selectedIndex].text;
+				
+				var selected_graph = "img/" + scenario_selection.options[scenario_selection.selectedIndex].text + 
+										"_" + steer_selection.options[steer_selection.selectedIndex].text
+										+ "_smoother_stats" + merged_string;
 				show_graph(selected_graph);
             }
             
@@ -308,21 +114,25 @@
 						<!-- select form -->
 						<form>
 						  	<div class="form-group">
-						    	<label for="exampleFormControlSelect1">Scenarios</label>
+						    	<label for="overview_scenario_select">Scenario</label>
 						    	<select class="form-control" id="scenario_select">
                                         <script>
-                                                var scenario_select = document.getElementById('scenario_select');
-                                                for(var i=0; i<scenario_list.length; i++){
-                                                    scenario_select.innerHTML += '<option value="' + (i+1) + '">' + scenario_list[i].replace('.json', '') + '</option>';
-                                                }
-                                            </script>
+                                            var scenario_select = document.getElementById('scenario_select');
+                                            for(var i=0; i<scenario_list.length; i++){
+                                                scenario_select.innerHTML += '<option value="' + (i+1) + '">' + scenario_list[i] + '</option>';
+                                            }
+                                        </script>
 						    	</select>
-						  	</div>
-                              
-                            <input type="radio" name="binary" value="merged">&nbsp Merged &nbsp</input>
+							</div>
+							<label for="overview_steer_select">Steer Function</label>
+							<select class="form-control" id="steer_select">
+								<option value="1">cc_reeds_shepp</option>
+								<option value="2">dubins</option>
+								<option value="3">posq</option>
+								<option value="4">reeds_shepp</option>
+							</select>
+                            <input type="radio" name="binary" value="merged" checked>&nbsp Merged &nbsp</input>
                             <input type="radio" name="binary" value="seperated">&nbsp Seperated by Planners</input>
-                              
-							
 							<button type="button" onclick="get_result()" class="btn btn-primary" id="submit_button">Get Result</button>				
 						</form>
 					</div>
@@ -336,16 +146,8 @@
 							<p>Please choose from the panel and click on "Get Result".</p>
 						</div>
 					</div>
-
-					<!-- table to display data -->
-					<div class="col" id="data_table_area">
-						<table class="table table-bordered" id="data_table">
-						</table>
-					</div>
-				</div>
-
-				<!-- images -->
-				<div class="row" id="plots_area">
+					<!-- images -->
+					<div class="col" id="plots_area"></div>
 				</div>
 			</div>
 		</div>
