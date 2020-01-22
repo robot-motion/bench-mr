@@ -119,6 +119,10 @@
                                         <script>
                                             var scenario_select = document.getElementById('scenario_select');
                                             for(var i=0; i<scenario_list.length; i++){
+												// skip parking & warehouse
+												if (scenario_list[i].substring(0, 7) == "polygon") {
+													continue;
+												}
                                                 scenario_select.innerHTML += '<option value="' + (i+1) + '">' + scenario_list[i] + '</option>';
                                             }
                                         </script>
