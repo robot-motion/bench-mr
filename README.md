@@ -94,18 +94,14 @@ the statistics. To get started, see the Jupyter notebooks inside the `plotting/`
 where all the provided plotting tools are showcased.
 
 ## Third-party libraries
-This project uses forks from some of the following repositories which are integrated into this project as GIT submodules
+This project uses forks from some of the following repositories which are integrated into this project as git submodules
 
 * [The Open Motion Planning Library (OMPL)](http://ompl.kavrakilab.org/)
 * [Search-Based Planning Library (SBPL)](https://github.com/sbpl/sbpl/)
-* [swatbotics/chomp-multigrid](https://github.com/swatbotics/chomp-multigrid)
 * [hbanzhaf/steering_functions](https://github.com/hbanzhaf/steering_functions)
 
 Besides the above contributions, the authors thank Nathan Sturtevant's Moving AI Lab
 for providing the [`2D Pathfinding "MovingAI" Datasets`](https://www.movingai.com/benchmarks/grids.html).
-
-## License
-TODO
 
 ## Developers
 * Eric Heiden (University of Southern California, Los Angeles, USA)
