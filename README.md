@@ -18,7 +18,7 @@ The following boost libraries (version 1.58+) need to be installed:
 
 The provided CHOMP implementation requires, GLUT and other OpenGL libraries to be present, which can be installed through the `freeglut3-dev` package. PNG via `libpng-dev`, expat via `libexpat1-dev`.
 
-To support visual debugging, Qt5 with the `Charts` and `Svg` modules needs to be installed (optional dependency).
+Optionally, to support visual debugging, Qt5 with the `Charts` and `Svg` modules needs to be installed.
 
 ## Using Docker
 
@@ -108,7 +108,6 @@ for providing the [`2D Pathfinding "MovingAI" Datasets`](https://www.movingai.co
 TODO
 
 ## Developers
-* Eric Heiden
-
-## Contributors
-* Luigi Palmieri
+* Eric Heiden (University of Southern California, Los Angeles, USA)
+* Luigi Palmieri (Robert Bosch GmbH, Corporate Research, Stuttgart, Germany)
+* Ziang Liu (University of Southern California, Los Angeles, USA)
