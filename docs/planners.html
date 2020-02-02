@@ -85,22 +85,22 @@
                     data:tabledata, //assign data to table
                     layout:"fitColumns", //fit columns to width of table (optional)
                     columns:[ //Define Table Columns
-                        {title:"Planner", field:"planner", width:150},
+                        {title:"Planner", field:"planner", align:"center", width:150},
                         {title:"Solutions", field:"solutions", align:"left", sorter:"number", formatter:"progress", formatterParams:{
                             min:0.0,
                             max:max_sol,
-                            color:["cyan"],
+                            color:["#85e085"],
                             legend: function(value) {
                                 return (value + " / " + max_sol);
                             },
                             legendColor:"#000000",
                             legendAlign:"center",
                         }},
-                        {title:"Time [s]", field:"time", sorter:"number",},
-                        {title:"Path Length", field:"path_length", sorter:"number"},
-                        {title:"Curvature", field:"curvature", sorter:"number",},
-                        {title:"Clearance", field:"clearance", sorter:"number",},
-                        {title:"Cusps", field:"cusps", sorter:"number",},
+                        {title:"Time [s]", field:"time", sorter:"number", align:"center",},
+                        {title:"Path Length", field:"path_length", sorter:"number", align:"center",},
+                        {title:"Curvature", field:"curvature", sorter:"number", align:"center",},
+                        {title:"Clearance", field:"clearance", sorter:"number", align:"center",},
+                        {title:"Cusps", field:"cusps", sorter:"number", align:"center",},
                     ],
                     rowClick:function(e, row){ //trigger an alert message when the row is clicked
                         alert("Row " + row.getData().id + " Clicked!!!!");
@@ -173,7 +173,7 @@
                     <div class="col" id="data_table_area">
                         <div id="data_table"></div>
                     </div>
-                    <script>
+                    <!-- <script>
                         //create Tabulator on DOM element with id "new_table"
                         table = new Tabulator("#data_table", {
                             height:610, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
@@ -203,7 +203,7 @@
                         });
                         // table.redraw(true);
                         // document.getElementById("data_table_area").style.display = "block";
-                    </script>
+                    </script> -->
                 </div>
 			</div>
 		</div>
