@@ -19,5 +19,5 @@
 	{"id":1, "planner":"SPARStwo", "solutions":"44", "time":"90.01 ± 0.01 ", "path_length":"410.60 ± 41.50 ", "curvature":"2.07 ± 0.56 ", "clearance":"10.26 ± 2.46 ", "cusps":"490"},
 	{"id":1, "planner":"SST", "solutions":"48", "time":"90.01 ± 0.01 ", "path_length":"506.46 ± 77.41 ", "curvature":"2.03 ± 0.52 ", "clearance":"9.43 ± 1.61 ", "cusps":"1348"},
 	{"id":1, "planner":"Theta*", "solutions":"0", "time":"N / A", "path_length":"N / A", "curvature":"N / A", "clearance":"N / A", "cusps":"N / A"},
-	{"max_sol":51}
+	{"max_sol":51, "max_t":90.33, "max_pl":1077.02,  "max_curv":2.07, "max_clear":14.30, "max_cusps": 1791.00}
 ]

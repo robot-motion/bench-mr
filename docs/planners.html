@@ -19,6 +19,11 @@
             var tabledata = [];
             var table;
 			var max_sol = 0;
+			var max_t = 0;
+			var max_pl = 0;
+			var max_curv = 0;
+			var max_clear = 0;
+			var max_cusps = 0;
             
 			function loadJSON(callback, fPath) {  
                 console.log('In loadJSON: ' + fPath); 
@@ -41,6 +46,12 @@
                     tabledata = JSON.parse(response);
                 }, 'table_json/' + scenarioName + '_table.json');
 				max_sol = tabledata[tabledata.length - 1]['max_sol'];
+				max_t = tabledata[tabledata.length - 1]['max_t'];
+				max_pl = tabledata[tabledata.length - 1]['max_pl'];
+				max_curv = tabledata[tabledata.length - 1]['max_curv'];
+				max_clear = tabledata[tabledata.length - 1]['max_clear'];
+				max_cusps = tabledata[tabledata.length - 1]['max_cusps'];
+
 				tabledata = tabledata.slice(0, tabledata.length-1);
 				console.log('max_sol: ' + max_sol);
 				console.log('json length: ' + tabledata.length);
@@ -96,11 +107,86 @@
                             legendColor:"#000000",
                             legendAlign:"center",
                         }},
-                        {title:"Time [s]", field:"time", sorter:"number", align:"center",},
-                        {title:"Path Length", field:"path_length", sorter:"number", align:"center",},
-                        {title:"Curvature", field:"curvature", sorter:"number", align:"center",},
-                        {title:"Clearance", field:"clearance", sorter:"number", align:"center",},
-                        {title:"Cusps", field:"cusps", sorter:"number", align:"center",},
+                        {title:"Time [s]", field:"time", sorter:"number", align:"left",formatter:"progress", formatterParams:{
+                            min:0.0,
+                            max:max_t,
+                            color:function(value) {
+								if (value[0] >= '0' && value[0] <= '9') {
+									return "#ffbf80";
+								} else {
+									return "transparent";
+								}
+							},
+                            legend: function(value) {
+                                return value;
+                            },
+                            legendColor:"#000000",
+                            legendAlign:"center",
+                        }},
+                        {title:"Path Length", field:"path_length", sorter:"number", align:"left",formatter:"progress", formatterParams:{
+                            min:0.0,
+                            max:max_pl,
+                            color:function(value) {
+								if (value[0] >= '0' && value[0] <= '9') {
+									return "#ffbf80";
+								} else {
+									return "transparent";
+								}
+							},
+                            legend: function(value) {
+                                return value;
+                            },
+                            legendColor:"#000000",
+                            legendAlign:"center",
+                        }},
+                        {title:"Curvature", field:"curvature", sorter:"number", align:"left",formatter:"progress", formatterParams:{
+                            min:0.0,
+                            max:max_curv,
+                            color:function(value) {
+								if (value[0] >= '0' && value[0] <= '9') {
+									return "#ffbf80";
+								} else {
+									return "transparent";
+								}
+							},
+                            legend: function(value) {
+                                return value;
+                            },
+                            legendColor:"#000000",
+                            legendAlign:"center",
+                        }},
+                        {title:"Clearance", field:"clearance", sorter:"number", align:"left",formatter:"progress", formatterParams:{
+                            min:0.0,
+                            max:max_clear,
+                            color:function(value) {
+								if (value[0] >= '0' && value[0] <= '9') {
+									return "#ffbf80";
+								} else {
+									return "transparent";
+								}
+							},
+                            legend: function(value) {
+                                return value;
+                            },
+                            legendColor:"#000000",
+                            legendAlign:"center",
+                        }},
+                        {title:"Cusps", field:"cusps", sorter:"number", align:"left",formatter:"progress", formatterParams:{
+                            min:0.0,
+                            max:max_cusps,
+                            color:function(value) {
+								if (value[0] >= '0' && value[0] <= '9') {
+									return "#ffbf80";
+								} else {
+									return "transparent";
+								}
+							},
+                            legend: function(value) {
+                                return value;
+                            },
+                            legendColor:"#000000",
+                            legendAlign:"center",
+                        }},
                     ],
                     rowClick:function(e, row){ //trigger an alert message when the row is clicked
                         alert("Row " + row.getData().id + " Clicked!!!!");

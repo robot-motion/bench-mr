@@ -52,10 +52,9 @@ def json_table(results_filename: str,
 
     id = 1
     max_sol = 0
+    bar_max = [0, 0, 0, 0, 0]
     for planner in planners:
         output += '\t{\"id\":%d, \"planner\":\"%s\",' % (id, planner)
-        
-         # solutions:\"98.039\", time:\"1.39 \xB1 3.89\", path_length:\"369.51 \xB1 8.72\", curvature:\"1.13 \xB1 0.96\", clearance:\"8.82 \xB1 2.87\", cusps:\"204\"}' \
         for i, metric in enumerate(metrics):
             if metric == 'path_found' and safe_sum(stats[metric][planner]) == 0:
                 # no paths have been found
@@ -64,10 +63,6 @@ def json_table(results_filename: str,
             elif metric == 'path_found':
                 nc = safe_sum(stats["colliding"][planner])
                 pf = safe_sum(stats["path_found"][planner])
-                # nc_d = float(nc)
-                # pf_d = float(pf)
-                # print('nc: %d, pf: %d' % (nc_d, pf_d))
-                # print(nc_d / pf_d)
                 max_sol = max(max_sol, pf)
                 output += ' \"solutions\":\"%i\",' % nc      
             else:
@@ -78,17 +73,22 @@ def json_table(results_filename: str,
                     shown_mu = mu
                 if metric_properties[metric].get("show_std", False):
                     output += ' \"%s\":\"%.2f \xB1 %.2f \"' % (check[i-1], mu, safe_std(stats[metric][planner]))
+                    bar_max[i-1] = max(bar_max[i-1], mu)
                 elif metric_properties[metric].get("percent", False):
                     output += ' \"%s\":\"%i\"' % (check[i-1], (mu * 100))
+                    bar_max[i-1] = max(bar_max[i-1], mu * 100)
                 elif metric_properties[metric].get("sum", False):
-                    output += ' \"%s\":\"%i\"' % (check[i-1], (safe_sum(stats[metric][planner])))
+                    output += ' \"%s\":\"%i\"' % (check[i-1], safe_sum(stats[metric][planner]))
+                    bar_max[i-1] = max(bar_max[i-1], safe_sum(stats[metric][planner]))
                 else:
                     output += ' \"%s\":\"%i\"' % (check[i-1], safe_mean(stats[metric][planner]))
+                    bar_max[i-1] = max(bar_max[i-1], safe_mean(stats[metric][planner]))
                 if i < len(metrics) - 1 :
                     output += ','
         output += '},'
         output += '\n'
-    output += '\t{\"max_sol\":%i}\n' % max_sol
+    output += '\t{\"max_sol\":%i, \"max_t\":%.2f, \"max_pl\":%.2f,  \"max_curv\":%.2f, \"max_clear\":%.2f, \"max_cusps\": %.2f}\n' \
+                % (max_sol, bar_max[0], bar_max[1], bar_max[2], bar_max[3], bar_max[4])
     output += ']'
     return output
 
