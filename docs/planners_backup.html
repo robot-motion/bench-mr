@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>Motion Planning Benchmark</title>
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		<link rel="stylesheet" type="text/css" href="home.css">
+		
+		<script>
+            var myData;
+            var stdData;
+			var planner_count = 0;
+            var filled = false;
+            var scenario_list;
+
+			function loadJSON(callback, fPath) {  
+                console.log('In loadJSON: ' + fPath); 
+				var xmlr = new XMLHttpRequest();
+                    xmlr.overrideMimeType("application/json");
+
+				xmlr.open('GET', fPath, false); // Replace fPath with the path to your file
+				xmlr.onreadystatechange = function () {
+					if (xmlr.readyState == 4 && xmlr.status == "200") {
+						// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+						callback(xmlr.responseText);
+					}
+				};
+				xmlr.send(null);  
+			}
+
+			function getData(scenarioName) {
+
+                console.log('In getData: ' + scenarioName);
+
+				loadJSON(function(response) {
+					planner_count = 0;
+					// Parse JSON string into object
+					myData = JSON.parse(response);
+                }, 'avg_results/avg_result_' + scenarioName + '.json');
+                
+                loadJSON(function(response) {
+                    stdData = JSON.parse(response);
+                }, 'std_results/std_result_' + scenarioName + '.json');
+
+                
+                console.log('Finished loading: ' + myData);
+			}
+
+			function fillTable(planners_chosen){
+				
+				if(filled){
+					empty_table();
+				}
+                console.log(planners_chosen);
+                 console.log(myData);
+				document.getElementById("home_message").style.display = "none";
+				document.getElementById("data_table_area").style.display = "block";
+
+				//add head and body
+				var table = document.getElementById("data_table");
+				// var table_head = document.getElementById("data_table_head");
+				// var table_body = document.getElementById("data_table_body");
+				var table_head = document.createElement("thead");
+				var table_body = document.createElement("tbody");
+
+				for(var planner in myData){
+					planner_count++;
+				}
+
+				// add title
+				var title = document.createElement("tr");
+				var att_title = document.createElement("td");
+				att_title.appendChild(document.createTextNode("Attribute"));
+				title.appendChild(att_title);
+
+				for(var planner in myData){
+					if(planners_chosen.includes(planner)){
+						var title_td = document.createElement("td");
+						title_td.appendChild(document.createTextNode(planner));
+						title.appendChild(title_td);
+					}
+				}
+				
+				//add curvature
+				var curv = document.createElement("tr");
+				var att_curv = document.createElement("td")
+				att_curv.appendChild(document.createTextNode("Curvature"));
+				curv.appendChild(att_curv);
+
+				for(var planner in myData){
+					if(planners_chosen.includes(planner)){
+						var curv_data = document.createElement("td");
+                        var temp = myData[planner]["curvature"];
+                        var std_temp = stdData[planner]["curvature"];
+						if(temp == "null"){
+							temp = "N/A";
+                        }
+                        if(std_temp == "null"){
+                            temp = "N/A";
+                        }
+
+						curv_data.appendChild(document.createTextNode(temp + " " + unescape('%B1') + " " + std_temp));
+						curv.appendChild(curv_data);
+					}
+				}
+
+				//add path length
+				var pl = document.createElement("tr");
+				var att_pl = document.createElement("td");
+				att_pl.appendChild(document.createTextNode("Path_Length"));
+				pl.appendChild(att_pl);
+
+				for(var planner in myData){
+					if(planners_chosen.includes(planner)){
+						var pl_data = document.createElement("td");
+                        var temp = myData[planner]["path_length"];
+                        var std_temp = stdData[planner]["path_length"];
+						if(temp == "null"){
+							temp = "N/A";
+                        }
+                        if(std_temp == "null"){
+                            std_temp = "N/A";
+                        }
+						pl_data.appendChild(document.createTextNode(temp + " " + unescape('%B1') + " " + std_temp));
+						pl.appendChild(pl_data);
+					}
+				}
+
+				//add smoothness
+				var smth = document.createElement("tr");
+				var att_smth = document.createElement("td");
+				att_smth.appendChild(document.createTextNode("Smoothness"));
+				smth.appendChild(att_smth);
+
+				for(var planner in myData){
+					if(planners_chosen.includes(planner)){
+						var smth_data = document.createElement("td");
+                        var temp = myData[planner]["smoothness"];
+                        var std_temp = stdData[planner]["smoothness"];
+						if(temp == "null"){
+							temp = "N/A";
+                        }
+                        if(std_temp == "null"){
+                            std_temp = "N/A";
+                        }
+						smth_data.appendChild(document.createTextNode(temp + " " + unescape('%B1') + " " + std_temp));
+						smth.appendChild(smth_data);
+					}
+				}
+
+				//add planning time
+				var pt = document.createElement("tr");
+				var att_pt = document.createElement("td");
+				att_pt.appendChild(document.createTextNode("Planning_Time"));
+				pt.appendChild(att_pt);
+
+				for(var planner in myData){
+					if(planners_chosen.includes(planner)){
+						var pt_data = document.createElement("td");
+                        var temp = myData[planner]["planning_time"];
+                        var std_temp = stdData[planner]["planning_time"];
+						if(temp == "null"){
+							temp = "N/A";
+                        }
+                        if(std_temp == "null"){
+                            std_temp = "N/A";
+                        }
+						pt_data.appendChild(document.createTextNode(temp + " " + unescape('%B1') + " " + std_temp));
+						pt.appendChild(pt_data);
+					}
+				}
+
+				table_head.appendChild(title);
+				table_body.appendChild(curv);
+				table_body.appendChild(pl);
+				table_body.appendChild(smth);
+				table_body.appendChild(pt);
+
+				table.appendChild(table_head);
+				table.appendChild(table_body);
+
+
+				filled = true;
+			}
+
+			function empty_table(){
+				var parent = document.getElementById("data_table");
+				while(parent.hasChildNodes()){
+					parent.removeChild(parent.firstChild);
+				}
+			}
+
+			function show_graph(selected_graph){
+				document.getElementById("plots_area").innerHTML = "";
+				if(selected_graph != "None"){
+					document.getElementById("plots_area").innerHTML = "<img src='" + selected_graph + ".png" + "'>";
+				}
+			}
+
+			function get_result(){
+                var scenario_selection = document.getElementById("scenario_select");
+				var selected_scenario_text = scenario_selection.options[scenario_selection.selectedIndex].text;
+                getData(selected_scenario_text);
+                
+				var planners_chosen = [];
+				if(document.getElementById("check_0").checked){
+					planners_chosen.push("BFMT");
+				}
+				if(document.getElementById("check_1").checked){
+					planners_chosen.push("CForest");
+				}
+				if(document.getElementById("check_2").checked){
+					planners_chosen.push("EST");
+				}
+				if(document.getElementById("check_3").checked){
+					planners_chosen.push("FMT");
+				}
+				if(document.getElementById("check_4").checked){
+					planners_chosen.push("InformedRRTstar");
+				}
+				if(document.getElementById("check_5").checked){
+					planners_chosen.push("KPIECE1");
+				}
+				if(document.getElementById("check_6").checked){
+					planners_chosen.push("PRMstar");
+				}
+				if(document.getElementById("check_7").checked){
+					planners_chosen.push("RRT");
+				}
+				if(document.getElementById("check_8").checked){
+					planners_chosen.push("RRT#");
+				}
+				if(document.getElementById("check_9").checked){
+					planners_chosen.push("RRTstar");
+				}
+				if(document.getElementById("check_10").checked){
+					planners_chosen.push("SBL");
+				}
+				if(document.getElementById("check_11").checked){
+					planners_chosen.push("SORRTstar");
+				}
+				if(document.getElementById("check_12").checked){
+					planners_chosen.push("SST");
+				}
+				if(document.getElementById("check_13").checked){
+					planners_chosen.push("STRIDE");
+				}
+				if(document.getElementById("check_14").checked){
+					planners_chosen.push("Theta*");
+				}
+				if(document.getElementById("check_15").checked){
+					planners_chosen.push("kBITstar");
+				}
+
+
+
+				fillTable(planners_chosen);
+
+				// var selection = document.getElementById("plots_select");
+				// var selected_graph = selection.options[selection.selectedIndex].text;
+				// show_graph(selected_graph);
+			}
+            
+            function load_list_file(callback) {  
+				var xmlr = new XMLHttpRequest();
+                    xmlr.overrideMimeType("application/json");
+                var fPath = 'scenario_list.json';
+
+				xmlr.open('GET', fPath, false); // Replace fPath with the path to your file
+				xmlr.onreadystatechange = function () {
+					if (xmlr.readyState == 4 && xmlr.status == "200") {
+						// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+						callback(xmlr.responseText);
+					}
+				};
+				xmlr.send(null);  
+			}
+
+			function get_scenario_list() {
+				load_list_file(function(response) {
+					// Parse JSON string into object
+					scenario_list = JSON.parse(response);
+					scenario_list.sort();
+				});
+			}
+            get_scenario_list();
+			console.log(scenario_list);
+			console.log(scenario_list.length);
+		</script>
+	</head>
+    
+	<body onload="getData('grid_corridor_50')">
+		<!-- header -->
+		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		  	<a class="navbar-brand" href="index.html">MPB</a>
+		  	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+		    	<span class="navbar-toggler-icon"></span>
+		  	</button>
+		
+		  	<div class="collapse navbar-collapse" id="navbarSupportedContent">
+		    	<ul class="navbar-nav mr-auto">
+		      		<li class="nav-item">
+		        		<a class="nav-link" href="index.html">Overview</a>
+		      		</li>
+		      		<li class="nav-item active">
+		      			<a class="nav-link" href="planners.html">Planners<span class="sr-only">(current)</span></a>
+					</li>
+					  
+					<li class="nav-item">
+						<a class="nav-link" href="smoothers.html">Smoothers</a>
+					</li>
+		    	</ul>
+		  	</div>
+		</nav>
+		
+		
+		<div id="content">
+			<div class="container-fluid col-xs-3">
+				<div class="row">
+					<div class="col-xs-4" id="select_box">
+						<!-- select form -->
+						<form>
+						  	<div class="form-group">
+						    	<label for="scenario_select">Scenarios</label>
+						    	<select class="form-control" id="scenario_select">
+									<script>
+										var scenario_select = document.getElementById('scenario_select');
+										for(var i=0; i<scenario_list.length; i++){
+											scenario_select.innerHTML += '<option value="' + (i+1) + '">' + scenario_list[i].replace('.json', '') + '</option>';
+										}
+									</script>
+						    	</select>
+						  	</div>
+						  	
+						  	<div class="form-check">
+  								<input class="form-check-input" type="checkbox" value="" id="check_0">
+  								<label class="form-check-label" for="check_0">
+    								BFMT
+  								</label>
+  								
+  								<br />
+  								
+  								<input class="form-check-input" type="checkbox" value="" id="check_1">
+  								<label class="form-check-label" for="check_1">
+    								CForest
+  								</label>
+  								
+  								<br />
+  								
+  								<input class="form-check-input" type="checkbox" value="" id="check_2">
+  								<label class="form-check-label" for="check_2">
+    								EST
+  								</label>
+  								
+  								<br />
+  								
+  								<input class="form-check-input" type="checkbox" value="" id="check_3">
+  								<label class="form-check-label" for="check_3">
+    								FMT
+  								</label>
+  								
+  								<br />
+  								
+  								<input class="form-check-input" type="checkbox" value="" id="check_4">
+  								<label class="form-check-label" for="check_4">
+    								InformedRRTstar
+  								</label>
+  								
+  								<br />
+  								
+  								<input class="form-check-input" type="checkbox" value="" id="check_5">
+  								<label class="form-check-label" for="check_5">
+    								KPIECE1
+								</label>
+
+								<br />
+  								
+  								<input class="form-check-input" type="checkbox" value="" id="check_6">
+  								<label class="form-check-label" for="check_6">
+    								PRMstar
+								</label>
+								
+								<br />
+  								
+  								<input class="form-check-input" type="checkbox" value="" id="check_7">
+  								<label class="form-check-label" for="check_7">
+    								RRT
+								</label>
+								
+								<br />
+  								
+  								<input class="form-check-input" type="checkbox" value="" id="check_8">
+  								<label class="form-check-label" for="check_8">
+    								RRT#
+								</label>
+								
+								<br />
+  								
+  								<input class="form-check-input" type="checkbox" value="" id="check_9">
+  								<label class="form-check-label" for="check_9">
+    								RRTstar
+  								</label>
+								
+								<br />
+  								
+  								<input class="form-check-input" type="checkbox" value="" id="check_10">
+  								<label class="form-check-label" for="check_10">
+    								SBL
+								</label>
+								
+								<br />
+  								
+  								<input class="form-check-input" type="checkbox" value="" id="check_11">
+  								<label class="form-check-label" for="check_11">
+    								SORRTstar
+								</label>
+								
+								<br />
+  								
+  								<input class="form-check-input" type="checkbox" value="" id="check_12">
+  								<label class="form-check-label" for="check_12">
+    								SST
+								</label>
+								
+								<br />
+  								
+  								<input class="form-check-input" type="checkbox" value="" id="check_13">
+  								<label class="form-check-label" for="check_13">
+    								STRIDE
+								</label>
+								
+								<br />
+  								
+  								<input class="form-check-input" type="checkbox" value="" id="check_14">
+  								<label class="form-check-label" for="check_14">
+    								Theta*
+								</label>
+								
+								<br />
+  								
+  								<input class="form-check-input" type="checkbox" value="" id="check_15">
+  								<label class="form-check-label" for="check_15">
+    								kBITstar
+  								</label>
+							</div>
+							
+							<button type="button" onclick="get_result()" class="btn btn-primary" id="submit_button">Get Result</button>				
+						</form>
+					</div>
+					
+					<!-- home page get started tag -->
+					<div class="card" id="home_message">
+						<div class="card-header" style="background-color:  #83888d; color: white; font-size: 20px;">
+							Get Started
+						</div>
+						<div class="card-body" style="font-size: 20px;">
+							<p>Please choose from the panel and click on "Get Result".</p>
+						</div>
+					</div>
+
+					<!-- table to display data -->
+					<div class="col" id="data_table_area">
+						<table class="table table-bordered" id="data_table">
+						</table>
+					</div>
+				</div>
+
+				<!-- images -->
+				<div class="row" id="plots_area">
+				</div>
+			</div>
+		</div>
+		
+		<footer class="fixed-bottom">
+	      	<div class="container" id="text_box">
+	        	<span class="text-muted" style="color: white">University of Southern California</span>
+	      	</div>
+	    </footer>
+    	
+		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	</body>
+</html>

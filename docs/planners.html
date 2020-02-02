@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
-
 	<head>
 		<meta charset="UTF-8">
 		<title>Motion Planning Benchmark</title>
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link href="https://unpkg.com/tabulator-tables@4.5.3/dist/css/tabulator.min.css" rel="stylesheet">
+        <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.5.3/dist/js/tabulator.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="home.css">
 		
 		<script>
@@ -14,6 +15,10 @@
             var filled = false;
             var scenario_list;
 
+            // Tabular table variables
+            var tabledata = [];
+            var table;
+            
 			function loadJSON(callback, fPath) {  
                 console.log('In loadJSON: ' + fPath); 
 				var xmlr = new XMLHttpRequest();
@@ -30,242 +35,17 @@
 			}
 
 			function getData(scenarioName) {
-
                 console.log('In getData: ' + scenarioName);
-
-				loadJSON(function(response) {
-					planner_count = 0;
-					// Parse JSON string into object
-					myData = JSON.parse(response);
-                }, 'avg_results/avg_result_' + scenarioName + '.json');
-                
                 loadJSON(function(response) {
-                    stdData = JSON.parse(response);
-                }, 'std_results/std_result_' + scenarioName + '.json');
-
-                
-                console.log('Finished loading: ' + myData);
+                    tabledata = JSON.parse(response);
+                }, 'table_json/' + scenarioName + '_table.json');
+                console.log('Finished loading: ' + tabledata);
 			}
 
-			function fillTable(planners_chosen){
-				
-				if(filled){
-					empty_table();
-				}
-                console.log(planners_chosen);
-                 console.log(myData);
-				document.getElementById("home_message").style.display = "none";
-				document.getElementById("data_table_area").style.display = "block";
-
-				//add head and body
-				var table = document.getElementById("data_table");
-				// var table_head = document.getElementById("data_table_head");
-				// var table_body = document.getElementById("data_table_body");
-				var table_head = document.createElement("thead");
-				var table_body = document.createElement("tbody");
-
-				for(var planner in myData){
-					planner_count++;
-				}
-
-				// add title
-				var title = document.createElement("tr");
-				var att_title = document.createElement("td");
-				att_title.appendChild(document.createTextNode("Attribute"));
-				title.appendChild(att_title);
-
-				for(var planner in myData){
-					if(planners_chosen.includes(planner)){
-						var title_td = document.createElement("td");
-						title_td.appendChild(document.createTextNode(planner));
-						title.appendChild(title_td);
-					}
-				}
-				
-				//add curvature
-				var curv = document.createElement("tr");
-				var att_curv = document.createElement("td")
-				att_curv.appendChild(document.createTextNode("Curvature"));
-				curv.appendChild(att_curv);
-
-				for(var planner in myData){
-					if(planners_chosen.includes(planner)){
-						var curv_data = document.createElement("td");
-                        var temp = myData[planner]["curvature"];
-                        var std_temp = stdData[planner]["curvature"];
-						if(temp == "null"){
-							temp = "N/A";
-                        }
-                        if(std_temp == "null"){
-                            temp = "N/A";
-                        }
-
-						curv_data.appendChild(document.createTextNode(temp + " " + unescape('%B1') + " " + std_temp));
-						curv.appendChild(curv_data);
-					}
-				}
-
-				//add path length
-				var pl = document.createElement("tr");
-				var att_pl = document.createElement("td");
-				att_pl.appendChild(document.createTextNode("Path_Length"));
-				pl.appendChild(att_pl);
-
-				for(var planner in myData){
-					if(planners_chosen.includes(planner)){
-						var pl_data = document.createElement("td");
-                        var temp = myData[planner]["path_length"];
-                        var std_temp = stdData[planner]["path_length"];
-						if(temp == "null"){
-							temp = "N/A";
-                        }
-                        if(std_temp == "null"){
-                            std_temp = "N/A";
-                        }
-						pl_data.appendChild(document.createTextNode(temp + " " + unescape('%B1') + " " + std_temp));
-						pl.appendChild(pl_data);
-					}
-				}
-
-				//add smoothness
-				var smth = document.createElement("tr");
-				var att_smth = document.createElement("td");
-				att_smth.appendChild(document.createTextNode("Smoothness"));
-				smth.appendChild(att_smth);
-
-				for(var planner in myData){
-					if(planners_chosen.includes(planner)){
-						var smth_data = document.createElement("td");
-                        var temp = myData[planner]["smoothness"];
-                        var std_temp = stdData[planner]["smoothness"];
-						if(temp == "null"){
-							temp = "N/A";
-                        }
-                        if(std_temp == "null"){
-                            std_temp = "N/A";
-                        }
-						smth_data.appendChild(document.createTextNode(temp + " " + unescape('%B1') + " " + std_temp));
-						smth.appendChild(smth_data);
-					}
-				}
-
-				//add planning time
-				var pt = document.createElement("tr");
-				var att_pt = document.createElement("td");
-				att_pt.appendChild(document.createTextNode("Planning_Time"));
-				pt.appendChild(att_pt);
-
-				for(var planner in myData){
-					if(planners_chosen.includes(planner)){
-						var pt_data = document.createElement("td");
-                        var temp = myData[planner]["planning_time"];
-                        var std_temp = stdData[planner]["planning_time"];
-						if(temp == "null"){
-							temp = "N/A";
-                        }
-                        if(std_temp == "null"){
-                            std_temp = "N/A";
-                        }
-						pt_data.appendChild(document.createTextNode(temp + " " + unescape('%B1') + " " + std_temp));
-						pt.appendChild(pt_data);
-					}
-				}
-
-				table_head.appendChild(title);
-				table_body.appendChild(curv);
-				table_body.appendChild(pl);
-				table_body.appendChild(smth);
-				table_body.appendChild(pt);
-
-				table.appendChild(table_head);
-				table.appendChild(table_body);
-
-
-				filled = true;
-			}
-
-			function empty_table(){
-				var parent = document.getElementById("data_table");
-				while(parent.hasChildNodes()){
-					parent.removeChild(parent.firstChild);
-				}
-			}
-
-			function show_graph(selected_graph){
-				document.getElementById("plots_area").innerHTML = "";
-				if(selected_graph != "None"){
-					document.getElementById("plots_area").innerHTML = "<img src='" + selected_graph + ".png" + "'>";
-				}
-			}
-
-			function get_result(){
-                var scenario_selection = document.getElementById("scenario_select");
-				var selected_scenario_text = scenario_selection.options[scenario_selection.selectedIndex].text;
-                getData(selected_scenario_text);
-                
-				var planners_chosen = [];
-				if(document.getElementById("check_0").checked){
-					planners_chosen.push("BFMT");
-				}
-				if(document.getElementById("check_1").checked){
-					planners_chosen.push("CForest");
-				}
-				if(document.getElementById("check_2").checked){
-					planners_chosen.push("EST");
-				}
-				if(document.getElementById("check_3").checked){
-					planners_chosen.push("FMT");
-				}
-				if(document.getElementById("check_4").checked){
-					planners_chosen.push("InformedRRTstar");
-				}
-				if(document.getElementById("check_5").checked){
-					planners_chosen.push("KPIECE1");
-				}
-				if(document.getElementById("check_6").checked){
-					planners_chosen.push("PRMstar");
-				}
-				if(document.getElementById("check_7").checked){
-					planners_chosen.push("RRT");
-				}
-				if(document.getElementById("check_8").checked){
-					planners_chosen.push("RRT#");
-				}
-				if(document.getElementById("check_9").checked){
-					planners_chosen.push("RRTstar");
-				}
-				if(document.getElementById("check_10").checked){
-					planners_chosen.push("SBL");
-				}
-				if(document.getElementById("check_11").checked){
-					planners_chosen.push("SORRTstar");
-				}
-				if(document.getElementById("check_12").checked){
-					planners_chosen.push("SST");
-				}
-				if(document.getElementById("check_13").checked){
-					planners_chosen.push("STRIDE");
-				}
-				if(document.getElementById("check_14").checked){
-					planners_chosen.push("Theta*");
-				}
-				if(document.getElementById("check_15").checked){
-					planners_chosen.push("kBITstar");
-				}
-
-
-
-				fillTable(planners_chosen);
-
-				// var selection = document.getElementById("plots_select");
-				// var selected_graph = selection.options[selection.selectedIndex].text;
-				// show_graph(selected_graph);
-			}
-            
             function load_list_file(callback) {  
 				var xmlr = new XMLHttpRequest();
                     xmlr.overrideMimeType("application/json");
-                var fPath = 'scenario_list.json';
+                var fPath = 'results_list.json';
 
 				xmlr.open('GET', fPath, false); // Replace fPath with the path to your file
 				xmlr.onreadystatechange = function () {
@@ -287,10 +67,23 @@
             get_scenario_list();
 			console.log(scenario_list);
 			console.log(scenario_list.length);
+
+            function get_result() {
+                document.getElementById("home_message").style.display = "none";
+				document.getElementById("data_table_area").style.display = "block";
+                var scenario_selection = document.getElementById("scenario_select");
+				var selected_scenario_text = scenario_selection.options[scenario_selection.selectedIndex].text;
+                getData(selected_scenario_text);
+                document.getElementById("data_table_area").style.display = "block";
+                table.setData(tabledata);
+                table.redraw(true);
+            }
+
 		</script>
 	</head>
     
-	<body onload="getData('grid_corridor_50')">
+	<!-- <body onload="getData('grid_corridor_50')"> -->
+    <body>
 		<!-- header -->
 		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 		  	<a class="navbar-brand" href="index.html">MPB</a>
@@ -306,7 +99,6 @@
 		      		<li class="nav-item active">
 		      			<a class="nav-link" href="planners.html">Planners<span class="sr-only">(current)</span></a>
 					</li>
-					  
 					<li class="nav-item">
 						<a class="nav-link" href="smoothers.html">Smoothers</a>
 					</li>
@@ -332,124 +124,12 @@
 									</script>
 						    	</select>
 						  	</div>
-						  	
-						  	<div class="form-check">
-  								<input class="form-check-input" type="checkbox" value="" id="check_0">
-  								<label class="form-check-label" for="check_0">
-    								BFMT
-  								</label>
-  								
-  								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_1">
-  								<label class="form-check-label" for="check_1">
-    								CForest
-  								</label>
-  								
-  								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_2">
-  								<label class="form-check-label" for="check_2">
-    								EST
-  								</label>
-  								
-  								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_3">
-  								<label class="form-check-label" for="check_3">
-    								FMT
-  								</label>
-  								
-  								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_4">
-  								<label class="form-check-label" for="check_4">
-    								InformedRRTstar
-  								</label>
-  								
-  								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_5">
-  								<label class="form-check-label" for="check_5">
-    								KPIECE1
-								</label>
-
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_6">
-  								<label class="form-check-label" for="check_6">
-    								PRMstar
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_7">
-  								<label class="form-check-label" for="check_7">
-    								RRT
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_8">
-  								<label class="form-check-label" for="check_8">
-    								RRT#
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_9">
-  								<label class="form-check-label" for="check_9">
-    								RRTstar
-  								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_10">
-  								<label class="form-check-label" for="check_10">
-    								SBL
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_11">
-  								<label class="form-check-label" for="check_11">
-    								SORRTstar
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_12">
-  								<label class="form-check-label" for="check_12">
-    								SST
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_13">
-  								<label class="form-check-label" for="check_13">
-    								STRIDE
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_14">
-  								<label class="form-check-label" for="check_14">
-    								Theta*
-								</label>
-								
-								<br />
-  								
-  								<input class="form-check-input" type="checkbox" value="" id="check_15">
-  								<label class="form-check-label" for="check_15">
-    								kBITstar
-  								</label>
-							</div>
 							
 							<button type="button" onclick="get_result()" class="btn btn-primary" id="submit_button">Get Result</button>				
 						</form>
-					</div>
-					
-					<!-- home page get started tag -->
+                    </div>
+                    
+                    <!-- home page get started tag -->
 					<div class="card" id="home_message">
 						<div class="card-header" style="background-color:  #83888d; color: white; font-size: 20px;">
 							Get Started
@@ -460,15 +140,41 @@
 					</div>
 
 					<!-- table to display data -->
-					<div class="col" id="data_table_area">
-						<table class="table table-bordered" id="data_table">
-						</table>
-					</div>
-				</div>
-
-				<!-- images -->
-				<div class="row" id="plots_area">
-				</div>
+                    <div class="col" id="data_table_area">
+                        <div id="data_table"></div>
+                    </div>
+                    <script>
+                        //create Tabulator on DOM element with id "new_table"
+                        table = new Tabulator("#data_table", {
+                            height:610, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
+                            data:tabledata, //assign data to table
+                            layout:"fitColumns", //fit columns to width of table (optional)
+                            columns:[ //Define Table Columns
+                                {title:"Planner", field:"planner", width:150},
+                                {title:"Solutions", field:"solutions", align:"left", formatter:"progress", formatterParams:{
+                                    min:0.0,
+                                    max:1.0,
+                                    color:["cyan"],
+                                    legend: function(value) {
+                                        return ((Math.round(parseFloat(value) * 51)).toString() + " / 51");
+                                    },
+                                    legendColor:"#000000",
+                                    legendAlign:"center",
+                                }},
+                                {title:"Time [s]", field:"time"},
+                                {title:"Path Length", field:"path_length"},
+                                {title:"Curvature", field:"curvature"},
+                                {title:"Clearance", field:"clearance"},
+                                {title:"Cusps", field:"cusps"},
+                            ],
+                            rowClick:function(e, row){ //trigger an alert message when the row is clicked
+                                alert("Row " + row.getData().id + " Clicked!!!!");
+                            },
+                        });
+                        // table.redraw(true);
+                        // document.getElementById("data_table_area").style.display = "block";
+                    </script>
+                </div>
 			</div>
 		</div>
 		
