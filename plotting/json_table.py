@@ -51,6 +51,7 @@ def json_table(results_filename: str,
     check = ['time', 'path_length', 'curvature', 'clearance', 'cusps']
 
     id = 1
+    max_sol = 0
     for planner in planners:
         output += '\t{\"id\":%d, \"planner\":\"%s\",' % (id, planner)
         
@@ -67,7 +68,8 @@ def json_table(results_filename: str,
                 # pf_d = float(pf)
                 # print('nc: %d, pf: %d' % (nc_d, pf_d))
                 # print(nc_d / pf_d)
-                output += ' \"solutions\":\"%.4f\",' % (nc / pf)           
+                max_sol = max(max_sol, pf)
+                output += ' \"solutions\":\"%i\",' % nc      
             else:
                 mu = safe_mean(stats[metric][planner])
                 if "max" in metric_properties[metric]:
@@ -84,11 +86,9 @@ def json_table(results_filename: str,
                     output += ' \"%s\":\"%i\"' % (check[i-1], safe_mean(stats[metric][planner]))
                 if i < len(metrics) - 1 :
                     output += ','
-        output += '}'
-        if id < len(planners) :
-            output += ','
+        output += '},'
         output += '\n'
-        id = id + 1
+    output += '\t{\"max_sol\":%i}\n' % max_sol
     output += ']'
     return output
 

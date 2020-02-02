@@ -18,6 +18,7 @@
             // Tabular table variables
             var tabledata = [];
             var table;
+			var max_sol = 0;
             
 			function loadJSON(callback, fPath) {  
                 console.log('In loadJSON: ' + fPath); 
@@ -39,6 +40,10 @@
                 loadJSON(function(response) {
                     tabledata = JSON.parse(response);
                 }, 'table_json/' + scenarioName + '_table.json');
+				max_sol = tabledata[tabledata.length - 1]['max_sol'];
+				tabledata = tabledata.slice(0, tabledata.length-1);
+				console.log('max_sol: ' + max_sol);
+				console.log('json length: ' + tabledata.length);
                 console.log('Finished loading: ' + tabledata);
 			}
 
@@ -75,7 +80,32 @@
 				var selected_scenario_text = scenario_selection.options[scenario_selection.selectedIndex].text;
                 getData(selected_scenario_text);
                 document.getElementById("data_table_area").style.display = "block";
-                table.setData(tabledata);
+				table = new Tabulator("#data_table", {
+                    height:610, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
+                    data:tabledata, //assign data to table
+                    layout:"fitColumns", //fit columns to width of table (optional)
+                    columns:[ //Define Table Columns
+                        {title:"Planner", field:"planner", width:150},
+                        {title:"Solutions", field:"solutions", align:"left", sorter:"number", formatter:"progress", formatterParams:{
+                            min:0.0,
+                            max:max_sol,
+                            color:["cyan"],
+                            legend: function(value) {
+                                return (value + " / " + max_sol);
+                            },
+                            legendColor:"#000000",
+                            legendAlign:"center",
+                        }},
+                        {title:"Time [s]", field:"time", sorter:"number",},
+                        {title:"Path Length", field:"path_length", sorter:"number"},
+                        {title:"Curvature", field:"curvature", sorter:"number",},
+                        {title:"Clearance", field:"clearance", sorter:"number",},
+                        {title:"Cusps", field:"cusps", sorter:"number",},
+                    ],
+                    rowClick:function(e, row){ //trigger an alert message when the row is clicked
+                        alert("Row " + row.getData().id + " Clicked!!!!");
+                    },
+                });
                 table.redraw(true);
             }
 
@@ -151,21 +181,21 @@
                             layout:"fitColumns", //fit columns to width of table (optional)
                             columns:[ //Define Table Columns
                                 {title:"Planner", field:"planner", width:150},
-                                {title:"Solutions", field:"solutions", align:"left", formatter:"progress", formatterParams:{
+                                {title:"Solutions", field:"solutions", align:"left", sorter:"number", formatter:"progress", formatterParams:{
                                     min:0.0,
-                                    max:1.0,
+                                    max:max_sol,
                                     color:["cyan"],
                                     legend: function(value) {
-                                        return ((Math.round(parseFloat(value) * 51)).toString() + " / 51");
+                                        return (value + " / " + max_sol);
                                     },
                                     legendColor:"#000000",
                                     legendAlign:"center",
                                 }},
-                                {title:"Time [s]", field:"time"},
-                                {title:"Path Length", field:"path_length"},
-                                {title:"Curvature", field:"curvature"},
-                                {title:"Clearance", field:"clearance"},
-                                {title:"Cusps", field:"cusps"},
+                                {title:"Time [s]", field:"time", sorter:"number",},
+                                {title:"Path Length", field:"path_length", sorter:"number",},
+                                {title:"Curvature", field:"curvature", sorter:"number",},
+                                {title:"Clearance", field:"clearance", sorter:"number",},
+                                {title:"Cusps", field:"cusps", sorter:"number",},
                             ],
                             rowClick:function(e, row){ //trigger an alert message when the row is clicked
                                 alert("Row " + row.getData().id + " Clicked!!!!");
