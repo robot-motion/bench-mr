@@ -16,6 +16,12 @@
 #include <ompl/geometric/PathSimplifier.h>
 #include <ompl/geometric/SimpleSetup.h>
 
+#include <ompl/control/planners/est/EST.h>
+#include <ompl/control/planners/kpiece/KPIECE1.h>
+#include <ompl/control/planners/pdst/PDST.h>
+#include <ompl/control/planners/rrt/RRT.h>
+#include <ompl/control/planners/sst/SST.h>
+
 #include <ompl/geometric/planners/bitstar/BITstar.h>
 #include <ompl/geometric/planners/cforest/CForest.h>
 #include <ompl/geometric/planners/est/EST.h>
@@ -42,6 +48,7 @@
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
+namespace oc = ompl::control;
 
 template <class PLANNER>
 class OMPLPlanner : public AbstractPlanner {
@@ -118,6 +125,7 @@ class OMPLPlanner : public AbstractPlanner {
   og::PathGeometric _solution{global::settings.ompl.space_info};
 };
 
+// geometry space
 typedef OMPLPlanner<og::RRT> RRTPlanner;
 typedef OMPLPlanner<og::SST> SSTPlanner;
 typedef OMPLPlanner<og::RRTstar> RRTstarPlanner;
@@ -137,3 +145,9 @@ typedef OMPLPlanner<og::STRIDE> STRIDEPlanner;
 typedef OMPLPlanner<og::SPARS> SPARSPlanner;
 typedef OMPLPlanner<og::SPARStwo> SPARS2Planner;
 typedef OMPLPlanner<og::PDST> PDSTPlanner;
+// control space
+typedef OMPLPlanner<oc::KPIECE1> FPKPIECEPlanner;
+typedef OMPLPlanner<oc::EST> FPESTPlanner;
+typedef OMPLPlanner<og::SST> FPSSTPlanner;
+typedef OMPLPlanner<oc::RRT> FPRRTPlanner;
+typedef OMPLPlanner<oc::PDST> FPPDSTPlanner;
