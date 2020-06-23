@@ -15,6 +15,33 @@
 #endif
 
 PlannerSettings::GlobalSettings global::settings;
+void PlannerSettings::GlobalSettings::ForwardPropagationSettings::initializeForwardPropagation()
+    const {
+  // Construct the robot state space in which we're planning.
+
+
+  global::settings.ompl.state_space->as<ob::SE2StateSpace>()->setBounds(
+      global::settings.environment->bounds());
+  //  global::settings.ompl.state_space->setup();
+
+  global::settings.ompl.space_info =
+      std::make_shared<ompl::base::SpaceInformation>(
+          global::settings.ompl.state_space);
+  global::settings.ompl.objective = ompl::base::OptimizationObjectivePtr(
+      new OptimizationObjective(global::settings.ompl.space_info));
+  global::settings.ompl.objective->setCostThreshold(
+      ob::Cost(global::settings.ompl.cost_threshold));
+
+#ifdef DEBUG
+  std::cout << "global::settings.ompl.state_space->hasDefaultProjection() ? "
+            << std::boolalpha
+            << global::settings.ompl.state_space->hasDefaultProjection()
+            << std::endl;
+#endif
+
+
+}
+
 
 void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
     const {

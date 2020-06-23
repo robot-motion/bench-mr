@@ -358,6 +358,37 @@ struct GlobalSettings : public Group {
     } posq{"posq", this};
   } steer{"steer", this};
 
+
+struct ForwardPropagationSettings : public Group {
+    using Group::Group;
+
+     /**
+     * Initializes OMPL state space for forward propagation, space information and optimization
+     * objective for the given model function global::settings.
+     */
+    void initializeForwardPropagation() const;
+
+    Property<double> car_turning_radius{4, "car_turning_radius", this};
+
+    /**
+     * Distance between states sampled using the forward propagation for collision
+     * detection, rendering and evaluation.
+     */
+    Property<double> sampling_resolution{0.005, "sampling_resolution", this};
+
+    /**
+    * Length of the wheel axis.
+    */
+    Property<double> axis_length{0.54, "axis_length", this};
+
+    /**
+    * Integration time step.
+    */
+    Property<double> dt{0.1, "dt", this};
+
+  } forwardpropagation{"forwardpropagation", this};
+
+
   struct SbplSettings : public Group {
     using Group::Group;
 
