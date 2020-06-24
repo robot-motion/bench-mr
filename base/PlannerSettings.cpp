@@ -4,44 +4,48 @@
 #include <ompl/base/spaces/DubinsStateSpace.h>
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
 #include <ompl/base/spaces/SE2StateSpace.h>
+#include <ompl/control/ODESolver.h>
+
 #include <utils/OptimizationObjective.h>
 #include <steering_functions/include/ompl_state_spaces/CurvatureStateSpace.hpp>
 #include "GridMaze.h"
 #include "PolygonMaze.h"
 #include "steer_functions/POSQ/POSQStateSpace.h"
 
+#include "fp_models/kinematic_car/kinematic_car.hpp"
+
 #ifdef G1_AVAILABLE
 #include "steer_functions/G1Clothoid/ClothoidSteering.hpp"
 #endif
 
 PlannerSettings::GlobalSettings global::settings;
-void PlannerSettings::GlobalSettings::ForwardPropagationSettings::initializeForwardPropagation()
-    const {
+void PlannerSettings::GlobalSettings::ForwardPropagationSettings::
+    initializeForwardPropagation() const {
   // Construct the robot state space in which we're planning.
+  if (forward_propagation_type ==
+      ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR) {
+    // defining configuration space
+    auto cspace(std::make_shared<ob::SE2StateSpace>());
+    cspace->setBounds(global::settings.environment->bounds());
+    // And adding the control space
+    global::settings.ompl.state_space = cspace;
+    global::settings.ompl.control_space =
+        oc::ControlSpacePtr(new oc::RealVectorControlSpace(cspace, 2));
 
+    global::settings.ompl.control_space_info =
+        std::make_shared<ompl::control::SpaceInformation>(
+            global::settings.ompl.state_space,
+            global::settings.ompl.control_space);
 
-  global::settings.ompl.state_space->as<ob::SE2StateSpace>()->setBounds(
-      global::settings.environment->bounds());
-  //  global::settings.ompl.state_space->setup();
+    auto odeSolver(std::make_shared<oc::ODEBasicSolver<>>(
+        global::settings.ompl.control_space_info,
+        &KinematicCar::kinematicCarODE));
 
-  global::settings.ompl.space_info =
-      std::make_shared<ompl::base::SpaceInformation>(
-          global::settings.ompl.state_space);
-  global::settings.ompl.objective = ompl::base::OptimizationObjectivePtr(
-      new OptimizationObjective(global::settings.ompl.space_info));
-  global::settings.ompl.objective->setCostThreshold(
-      ob::Cost(global::settings.ompl.cost_threshold));
-
-#ifdef DEBUG
-  std::cout << "global::settings.ompl.state_space->hasDefaultProjection() ? "
-            << std::boolalpha
-            << global::settings.ompl.state_space->hasDefaultProjection()
-            << std::endl;
-#endif
-
-
+    global::settings.ompl.control_space_info->setStatePropagator(
+        oc::ODESolver::getStatePropagator(
+            odeSolver, &KinematicCar::kinematicCarPostIntegration));
+  }
 }
-
 
 void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
     const {

@@ -3,7 +3,9 @@
 #include <chomp/Chomp.h>
 #include <params.hpp>
 
+#include <ompl/control/ODESolver.h>
 #include "Environment.h"
+#include "fp_models/ForwardPropagation.h"
 #include "steer_functions/Steering.h"
 
 using namespace params;
@@ -283,7 +285,9 @@ struct GlobalSettings : public Group {
     using Group::Group;
 
     ompl::base::StateSpacePtr state_space{nullptr};
+    ompl::control::ControlSpacePtr control_space{nullptr};
     ompl::base::SpaceInformationPtr space_info{nullptr};
+    ompl::control::SpaceInformationPtr control_space_info{nullptr};
     ompl::base::OptimizationObjectivePtr objective{nullptr};
 
     Property<double> state_equality_tolerance{1e-4, "state_equality_tolerance",
@@ -358,36 +362,39 @@ struct GlobalSettings : public Group {
     } posq{"posq", this};
   } steer{"steer", this};
 
-
-struct ForwardPropagationSettings : public Group {
+  struct ForwardPropagationSettings : public Group {
     using Group::Group;
 
-     /**
-     * Initializes OMPL state space for forward propagation, space information and optimization
-     * objective for the given model function global::settings.
+    /**
+     * Initializes OMPL state space for forward propagation, space information
+     * and optimization objective for the given model function global::settings.
      */
     void initializeForwardPropagation() const;
+
+    Property<ForwardPropagation::ForwardPropagationType>
+        forward_propagation_type{
+            ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR,
+            "forward_propagation_type", this};
 
     Property<double> car_turning_radius{4, "car_turning_radius", this};
 
     /**
-     * Distance between states sampled using the forward propagation for collision
-     * detection, rendering and evaluation.
+     * Distance between states sampled using the forward propagation for
+     * collision detection, rendering and evaluation.
      */
     Property<double> sampling_resolution{0.005, "sampling_resolution", this};
 
     /**
-    * Length of the wheel axis.
-    */
+     * Length of the wheel axis.
+     */
     Property<double> axis_length{0.54, "axis_length", this};
 
     /**
-    * Integration time step.
-    */
+     * Integration time step.
+     */
     Property<double> dt{0.1, "dt", this};
 
   } forwardpropagation{"forwardpropagation", this};
-
 
   struct SbplSettings : public Group {
     using Group::Group;
@@ -404,7 +411,7 @@ struct ForwardPropagationSettings : public Group {
      */
     Property<double> initial_solution_eps{3, "initial_solution_eps", this};
     Property<double> forward_velocity{0.2, "forward_velocity",
-                                       this};  // in meters/sec
+                                      this};  // in meters/sec
     Property<double> time_to_turn_45_degs_in_place{
         0.6, "time_to_turn_45_degs_in_place", this};  // in sec
 
