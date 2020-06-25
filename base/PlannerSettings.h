@@ -275,6 +275,11 @@ struct GlobalSettings : public Group {
       Property<bool> spars{true, "spars", this};
       Property<bool> spars2{true, "spars2", this};
       Property<bool> pdst{true, "pdst", this};
+      Property<bool> fpkpiece{true, "fpkpiece", this};
+      Property<bool> fpest{true, "fpest", this};
+      Property<bool> fpsst{true, "fpsst", this};
+      Property<bool> fprrt{true, "fprrt", this};
+      Property<bool> fppdst{true, "fppdst", this};
     } planning{"planning", this};
   } benchmark{"benchmark", this};
 
