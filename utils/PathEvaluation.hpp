@@ -4,14 +4,14 @@
 #include <metrics/CurvatureMetric.h>
 #include <metrics/PathLengthMetric.h>
 #include <smoothers/chomp/CHOMP.h>
+
 #include <smoothers/ompl/OmplSmoother.hpp>
 
 #include "base/PathStatistics.hpp"
 #include "base/PlannerConfigurator.hpp"
 #include "planners/AbstractPlanner.h"
-#include "utils/Log.h"
-
 #include "smoothers/grips/GRIPS.h"
+#include "utils/Log.h"
 
 struct PathEvaluation {
  private:
@@ -55,6 +55,7 @@ struct PathEvaluation {
                        const ompl::geometric::PathGeometric &path,
                        const AbstractPlanner *planner) {
     stats.planning_time = planner->planningTime();
+    stats.collision_time = global::settings.environment->elapsedCollisionTime();
     stats.planner = planner->name();
     if (path.getStateCount() < 2) {
       stats.path_found = false;
@@ -101,6 +102,7 @@ struct PathEvaluation {
     auto &j = info["plans"][planner.name()];
     OMPL_INFORM(("Running " + planner.name() + "...").c_str());
     bool success;
+    global::settings.environment->resetCollisionTimer();
     try {
       if (planner.run()) {
         success = PathEvaluation::evaluate(stats, planner.solution(), &planner);
@@ -118,7 +120,8 @@ struct PathEvaluation {
       return false;
     } catch (...) {
       OMPL_ERROR(
-          "<stats> Error </stats>\nAn unknown exception occurred while running planner %s.",
+          "<stats> Error </stats>\nAn unknown exception occurred while running "
+          "planner %s.",
           planner.name().c_str());
       createEmptyEntry(planner.name(), info);
       return false;
@@ -137,6 +140,8 @@ struct PathEvaluation {
       PathStatistics is_stats;
       evaluate(is_stats, is.solution, &planner);
       nlohmann::json s{{"time", is.time},
+                       {"collision_time",
+                        global::settings.environment->elapsedCollisionTime()},
                        {"cost", is.cost},
                        {"trajectory", Log::serializeTrajectory(is.solution)},
                        {"path", Log::serializeTrajectory(is.solution, false)},
@@ -155,14 +160,17 @@ struct PathEvaluation {
       PlannerConfigurator::configure(*planner);
     } catch (std::bad_alloc &ba) {
       // we ran out of memory
-      OMPL_ERROR("<stats> Error </stats>\nRan out of memory while creating planner %s: %s.",
-                 AbstractPlanner::LastCreatedPlannerName.c_str(), ba.what());
+      OMPL_ERROR(
+          "<stats> Error </stats>\nRan out of memory while creating planner "
+          "%s: %s.",
+          AbstractPlanner::LastCreatedPlannerName.c_str(), ba.what());
       createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
       delete planner;
       return false;
     } catch (...) {
       OMPL_ERROR(
-          "<stats> Error </stats>\nAn unknown exception occurred while creating planner %s.",
+          "<stats> Error </stats>\nAn unknown exception occurred while "
+          "creating planner %s.",
           AbstractPlanner::LastCreatedPlannerName.c_str());
       createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
       delete planner;
@@ -181,14 +189,17 @@ struct PathEvaluation {
       PlannerConfigurator::configure(*planner);
     } catch (std::bad_alloc &ba) {
       // we ran out of memory
-      OMPL_ERROR("<stats> Error </stats>\nRan out of memory while creating planner %s: %s.",
-                 AbstractPlanner::LastCreatedPlannerName.c_str(), ba.what());
+      OMPL_ERROR(
+          "<stats> Error </stats>\nRan out of memory while creating planner "
+          "%s: %s.",
+          AbstractPlanner::LastCreatedPlannerName.c_str(), ba.what());
       createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
       delete planner;
       return false;
     } catch (...) {
       OMPL_ERROR(
-          "<stats> Error </stats>\nAn unknown exception occurred while creating planner %s.",
+          "<stats> Error </stats>\nAn unknown exception occurred while "
+          "creating planner %s.",
           AbstractPlanner::LastCreatedPlannerName.c_str());
       createEmptyEntry(AbstractPlanner::LastCreatedPlannerName, info);
       delete planner;
@@ -200,6 +211,7 @@ struct PathEvaluation {
       return false;
     }
     auto &j = info["plans"][planner->name()]["smoothing"];
+    global::settings.environment->resetCollisionTimer();
 
     if (global::settings.benchmark.smoothing.grips) {
       const double cached_min_node_dist =
@@ -216,6 +228,8 @@ struct PathEvaluation {
       PathStatistics grips_stats;
       evaluate(grips_stats, grips, planner);
       j["grips"] = {{"time", GRIPS::smoothingTime},
+                    {"collision_time",
+                     global::settings.environment->elapsedCollisionTime()},
                     {"name", "GRIPS"},
                     {"inserted_nodes", GRIPS::insertedNodes},
                     {"pruning_rounds", GRIPS::pruningRounds},
@@ -227,12 +241,15 @@ struct PathEvaluation {
       global::settings.smoothing.grips.min_node_distance = cached_min_node_dist;
     }
     if (global::settings.benchmark.smoothing.chomp) {
+      global::settings.environment->resetCollisionTimer();
       // CHOMP
       CHOMP chomp;
       chomp.run(planner->solution());
       PathStatistics chomp_stats;
       evaluate(chomp_stats, chomp.solution(), planner);
       j["chomp"] = {{"time", chomp.planningTime()},
+                    {"collision_time",
+                     global::settings.environment->elapsedCollisionTime()},
                     {"name", "CHOMP"},
                     {"cost", chomp.solution().length()},
                     {"path", Log::serializeTrajectory(chomp.solution(), false)},
@@ -243,12 +260,15 @@ struct PathEvaluation {
     // OMPL Smoothers
     OmplSmoother smoother(planner->simpleSetup(), planner->solution());
     if (global::settings.benchmark.smoothing.ompl_shortcut) {
+      global::settings.environment->resetCollisionTimer();
       // Shortcut
       PathStatistics stats;
       TimedResult tr = smoother.shortcutPath();
       evaluate(stats, tr.trajectory, planner);
       j["ompl_shortcut"] = {
           {"time", tr.elapsed()},
+          {"collision_time",
+           global::settings.environment->elapsedCollisionTime()},
           {"name", "Shortcut"},
           {"cost", tr.trajectory.length()},
           {"path", Log::serializeTrajectory(tr.trajectory, false)},
@@ -256,12 +276,15 @@ struct PathEvaluation {
           {"stats", nlohmann::json(stats)["stats"]}};
     }
     if (global::settings.benchmark.smoothing.ompl_bspline) {
+      global::settings.environment->resetCollisionTimer();
       // B-Spline
       PathStatistics stats;
       TimedResult tr = smoother.smoothBSpline();
       evaluate(stats, tr.trajectory, planner);
       j["ompl_bspline"] = {
           {"time", tr.elapsed()},
+          {"collision_time",
+           global::settings.environment->elapsedCollisionTime()},
           {"name", "B-Spline"},
           {"cost", tr.trajectory.length()},
           {"path", Log::serializeTrajectory(tr.trajectory, false)},
@@ -269,12 +292,15 @@ struct PathEvaluation {
           {"stats", nlohmann::json(stats)["stats"]}};
     }
     if (global::settings.benchmark.smoothing.ompl_simplify_max) {
+      global::settings.environment->resetCollisionTimer();
       // Simplify Max
       PathStatistics stats;
       TimedResult tr = smoother.simplifyMax();
       evaluate(stats, tr.trajectory, planner);
       j["ompl_simplify_max"] = {
           {"time", tr.elapsed()},
+          {"collision_time",
+           global::settings.environment->elapsedCollisionTime()},
           {"name", "SimplifyMax"},
           {"cost", tr.trajectory.length()},
           {"path", Log::serializeTrajectory(tr.trajectory, false)},
@@ -307,6 +333,7 @@ struct PathEvaluation {
                    std::to_string(time) + "s...")
                       .c_str());
       global::settings.max_planning_time = time;
+      global::settings.environment->resetCollisionTimer();
       if (planner.run()) {
         success = PathEvaluation::evaluate(stats, planner.solution(), &planner);
         j["path"] = Log::serializeTrajectory(planner.solution(), false);
@@ -321,6 +348,8 @@ struct PathEvaluation {
       // add intermediary solutions
       nlohmann::json s{
           {"time", planner.planningTime()},
+          {"collision_time",
+           global::settings.environment->elapsedCollisionTime()},
           {"max_time", time},
           {"cost", stats.path_length},
           {"trajectory", Log::serializeTrajectory(planner.solution())},

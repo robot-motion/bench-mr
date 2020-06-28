@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chomp/Chomp.h>
+
 #include <params.hpp>
 
 #include "Environment.h"
@@ -277,12 +278,44 @@ struct GlobalSettings : public Group {
   } benchmark{"benchmark", this};
 
   /**
+   * Instrumented state space allows to measure time spent on computing the
+   * steer function.
+   */
+  template <typename StateSpace>
+  struct InstrumentedStateSpace : public StateSpace {
+    void resetTimer() { timer_.reset(); }
+    double elapsedTime() const { return timer_.elapsed(); }
+
+    using StateSpace::StateSpace;
+
+    double distance(const State *state1, const State *state2) const  {
+      OMPL_WARN("Computing InstrumentedStateSpace::distance");
+      timer_.resume();
+      double d = StateSpace::distance(state1, state2);
+      timer_.stop();
+      return d;
+    }
+
+    void interpolate(const State *from, const State *to, double t,
+                     State *state) const  {
+                       OMPL_WARN("Computing InstrumentedStateSpace::interpolate");
+      timer_.resume();
+      interpolate(from, to, t, state);
+      timer_.stop();
+    }
+
+   private:
+    mutable Stopwatch timer_;
+  };
+
+  /**
    * Settings related to OMPL.
    */
   struct OmplSettings : public Group {
     using Group::Group;
 
-    ompl::base::StateSpacePtr state_space{nullptr};
+    // ompl::base::StateSpacePtr state_space{nullptr};
+    ob::StateSpacePtr state_space{nullptr};
     ompl::base::SpaceInformationPtr space_info{nullptr};
     ompl::base::OptimizationObjectivePtr objective{nullptr};
 
@@ -373,7 +406,7 @@ struct GlobalSettings : public Group {
      */
     Property<double> initial_solution_eps{3, "initial_solution_eps", this};
     Property<double> forward_velocity{0.2, "forward_velocity",
-                                       this};  // in meters/sec
+                                      this};  // in meters/sec
     Property<double> time_to_turn_45_degs_in_place{
         0.6, "time_to_turn_45_degs_in_place", this};  // in sec
 

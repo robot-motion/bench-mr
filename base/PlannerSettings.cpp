@@ -21,15 +21,15 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
   // Construct the robot state space in which we're planning.
   if (steering_type == Steering::STEER_TYPE_REEDS_SHEPP)
     global::settings.ompl.state_space =
-        ob::StateSpacePtr(new ob::ReedsSheppStateSpace(car_turning_radius));
+        ob::StateSpacePtr(new InstrumentedStateSpace<ob::ReedsSheppStateSpace>(car_turning_radius));
   else if (steering_type == Steering::STEER_TYPE_POSQ)
     global::settings.ompl.state_space = ob::StateSpacePtr(new POSQStateSpace());
   else if (steering_type == Steering::STEER_TYPE_DUBINS)
     global::settings.ompl.state_space =
-        ob::StateSpacePtr(new ob::DubinsStateSpace(car_turning_radius));
+        ob::StateSpacePtr(new InstrumentedStateSpace<ob::DubinsStateSpace>(car_turning_radius));
   else if (steering_type == Steering::STEER_TYPE_LINEAR)
     global::settings.ompl.state_space =
-        ob::StateSpacePtr(new ob::SE2StateSpace);
+        ob::StateSpacePtr(new InstrumentedStateSpace<ob::SE2StateSpace>);
   else if (steering_type == Steering::STEER_TYPE_CC_DUBINS)
     global::settings.ompl.state_space =
         ob::StateSpacePtr(new hc_cc_spaces::CCDubinsStateSpace(

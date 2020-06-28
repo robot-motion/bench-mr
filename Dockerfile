@@ -79,6 +79,10 @@ RUN rm -rf build && cmake -H. -Bbuild
 # Build mpb
 RUN cd build && make
 
+# Run benchmark executable to generate benchmark_template.json
+WORKDIR /root/code/mpb/bin
+RUN benchmark
+
 # Install Python requirements for plotting
 WORKDIR /root/code/mpb/plotting
 RUN pip3 install -r requirements.txt

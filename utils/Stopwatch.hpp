@@ -18,6 +18,14 @@ class Stopwatch {
   }
 
   /**
+   * Stops the timer and sets elapsed time to zero.
+   */
+  void reset() {
+    elapsed_ = 0.;
+    running_ = false;
+  }
+
+  /**
    * Stops the timer.
    * @return Elapsed time in seconds.
    */
