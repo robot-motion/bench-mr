@@ -11,6 +11,7 @@ RUN \
     g++ \
     build-essential \
     wget \
+    curl \
     unzip \
     git \
     git-lfs \
@@ -35,48 +36,25 @@ RUN \
     python3-pip \
     ffmpeg \
     libhdf5-dev \
-    npm \
-    nodejs \
     nano \
     htop
 
+# Set up Node.js 10.x repo
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
+RUN \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    nodejs
+
 RUN mkdir -p /root/code
-
-RUN python3 -m pip install \
-    'ipywidgets==7.4.0' \
-    'pandas==0.24.0' \
-    'numpy==1.16.0' \
-    'numexpr==2.6.0' \
-    'matplotlib==3.0.0' \
-    'scipy==1.2.0' \
-    'seaborn==0.9.0' \
-    'scikit-learn==0.20.0' \
-    'scikit-image==0.14.0' \
-    'sympy==1.3.0' \
-    'cython==0.29.0' \
-    'patsy==0.5.0' \
-    'statsmodels==0.9.0' \
-    'cloudpickle==0.8.0' \
-    'dill==0.2.0' \
-    'dask==1.1.0' \
-    'numba==0.42.0' \
-    'bokeh==1.0.0' \
-    'sqlalchemy==1.3.0' \
-    'h5py==2.9.0' \
-    'vincent==0.4.0' \
-    'beautifulsoup4==4.7.0' \
-    'protobuf==3.7.0' \
-    'xlrd' \
-    'jupyterlab' \
-    'click' \
-    'bitarray==0.8.3' \
-    'tqdm'
-
-# Install ipywidgets for Jupyter Lab
-RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager
 
 # Copy mpb folder
 COPY . /root/code/mpb
+WORKDIR /root/code/mpb
+
+RUN pip3 install -r plotting/requirements.txt
+
+# Install ipywidgets for Jupyter Lab
+RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager
 
 # Build and install libccd 1.4
 WORKDIR /root/code
