@@ -278,46 +278,15 @@ struct GlobalSettings : public Group {
   } benchmark{"benchmark", this};
 
   /**
-   * Instrumented state space allows to measure time spent on computing the
-   * steer function.
-   */
-  template <typename StateSpace>
-  struct InstrumentedStateSpace : public StateSpace {
-    void resetTimer() { timer_.reset(); }
-    double elapsedTime() const { return timer_.elapsed(); }
-
-    using StateSpace::StateSpace;
-
-    double distance(const State *state1, const State *state2) const  {
-      OMPL_WARN("Computing InstrumentedStateSpace::distance");
-      timer_.resume();
-      double d = StateSpace::distance(state1, state2);
-      timer_.stop();
-      return d;
-    }
-
-    void interpolate(const State *from, const State *to, double t,
-                     State *state) const  {
-                       OMPL_WARN("Computing InstrumentedStateSpace::interpolate");
-      timer_.resume();
-      interpolate(from, to, t, state);
-      timer_.stop();
-    }
-
-   private:
-    mutable Stopwatch timer_;
-  };
-
-  /**
    * Settings related to OMPL.
    */
   struct OmplSettings : public Group {
     using Group::Group;
 
-    // ompl::base::StateSpacePtr state_space{nullptr};
-    ob::StateSpacePtr state_space{nullptr};
+    ompl::base::StateSpacePtr state_space{nullptr};
     ompl::base::SpaceInformationPtr space_info{nullptr};
     ompl::base::OptimizationObjectivePtr objective{nullptr};
+    Stopwatch state_space_timer;
 
     Property<double> state_equality_tolerance{1e-4, "state_equality_tolerance",
                                               this};
