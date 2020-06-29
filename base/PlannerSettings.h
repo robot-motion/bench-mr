@@ -200,6 +200,12 @@ struct GlobalSettings : public Group {
         "steer_functions",
         this};
 
+    Property<std::vector<ForwardPropagation::ForwardPropagationType>>
+        forward_propagations{
+            {ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR},
+            "forward_propagations",
+            this};
+
     /**
      * Time intervals used for the anytime planner benchmark.
      */

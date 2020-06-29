@@ -54,7 +54,18 @@ template <class PLANNER>
 class OMPLPlanner : public AbstractPlanner {
  public:
   OMPLPlanner() : AbstractPlanner("OMPL") {
-    _omplPlanner = ob::PlannerPtr(new PLANNER(ss->getSpaceInformation()));
+    ob::SpaceInformationPtr si_ptr;
+    if (!global::settings.benchmark.forward_propagations.value().empty()) {
+      si_ptr = (ss_c->getSpaceInformation());
+    } else {
+      si_ptr = (ss->getSpaceInformation());
+    }
+    // TODO, THIS IS EXPLAINING THE CURRENT ISSUE.
+    // The ompl library separates the control with the geometric namespace,
+    // thuse having different function signatures We may need to create an other
+    // class of planner in this case, called OMPLControlPlanner that extends
+    // AbstractPlanner
+    _omplPlanner = ob::PlannerPtr(new PLANNER(si_ptr));
     AbstractPlanner::LastCreatedPlannerName = name();
   }
 

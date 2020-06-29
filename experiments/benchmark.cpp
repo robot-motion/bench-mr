@@ -41,6 +41,8 @@ void evaluatePlanners(nlohmann::json &info) {
     PathEvaluation::evaluateSmoothers<RRTstarPlanner>(info);
   if (global::settings.benchmark.planning.sbl)
     PathEvaluation::evaluateSmoothers<SBLPlanner>(info);
+  if (global::settings.benchmark.planning.fprrt)
+    PathEvaluation::evaluate<FPRRTPlanner>(info);
 
   if (global::settings.env.type.value() == "grid") {
     if (global::settings.benchmark.planning.sbpl_arastar)
@@ -89,6 +91,15 @@ void config_steering_and_run(std::size_t run_id, std::size_t start_id,
   if (run_id == start_id) {
     if (global::settings.benchmark.log_file.value().empty())
       global::settings.benchmark.log_file = Log::filename() + ".json";
+  }
+  if (!global::settings.benchmark.forward_propagations.value().empty()) {
+    for (const auto forward_propagation_type :
+         global::settings.benchmark.forward_propagations.value()) {
+      global::settings.forwardpropagation.forward_propagation_type =
+          forward_propagation_type;
+      global::settings.forwardpropagation.initializeForwardPropagation();
+      run(info);
+    }
   }
   if (global::settings.benchmark.steer_functions.value().empty()) {
     global::settings.steer.initializeSteering();
