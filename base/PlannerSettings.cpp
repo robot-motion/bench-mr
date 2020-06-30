@@ -5,14 +5,13 @@
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
 #include <ompl/base/spaces/SE2StateSpace.h>
 #include <ompl/control/ODESolver.h>
+#include <ompl/control/spaces/RealVectorControlSpace.h>
 
 #include <utils/OptimizationObjective.h>
 #include <steering_functions/include/ompl_state_spaces/CurvatureStateSpace.hpp>
 #include "GridMaze.h"
 #include "PolygonMaze.h"
 #include "steer_functions/POSQ/POSQStateSpace.h"
-
-#include "fp_models/kinematic_car/kinematic_car.hpp"
 
 #ifdef G1_AVAILABLE
 #include "steer_functions/G1Clothoid/ClothoidSteering.hpp"
@@ -22,28 +21,22 @@ PlannerSettings::GlobalSettings global::settings;
 void PlannerSettings::GlobalSettings::ForwardPropagationSettings::
     initializeForwardPropagation() const {
   // Construct the robot state space in which we're planning.
-  if (forward_propagation_type ==
+  if (global::settings.forwardpropagation.forward_propagation_type ==
       ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR) {
+    std::cout << "Initializing state space for forward propagation"
+              << std::endl;
     // defining configuration space
     auto cspace(std::make_shared<ob::SE2StateSpace>());
     cspace->setBounds(global::settings.environment->bounds());
     // And adding the control space
     global::settings.ompl.state_space = cspace;
-    global::settings.ompl.control_space =
-        oc::ControlSpacePtr(new oc::RealVectorControlSpace(cspace, 2));
+    global::settings.ompl.control_space = ompl::control::ControlSpacePtr(
+        new ompl::control::RealVectorControlSpace(cspace, 2));
 
     global::settings.ompl.control_space_info =
         std::make_shared<ompl::control::SpaceInformation>(
             global::settings.ompl.state_space,
             global::settings.ompl.control_space);
-
-    auto odeSolver(std::make_shared<oc::ODEBasicSolver<>>(
-        global::settings.ompl.control_space_info,
-        &KinematicCar::kinematicCarODE));
-
-    global::settings.ompl.control_space_info->setStatePropagator(
-        oc::ODESolver::getStatePropagator(
-            odeSolver, &KinematicCar::kinematicCarPostIntegration));
   }
 }
 

@@ -96,7 +96,7 @@ void config_steering_and_run(std::size_t run_id, std::size_t start_id,
     if (global::settings.benchmark.log_file.value().empty())
       global::settings.benchmark.log_file = Log::filename() + ".json";
   }
-  if (!global::settings.benchmark.forward_propagations.value().empty()) {
+  if (global::settings.benchmark.control_planners_on) {
     for (const auto forward_propagation_type :
          global::settings.benchmark.forward_propagations.value()) {
       global::settings.forwardpropagation.forward_propagation_type =
@@ -104,8 +104,7 @@ void config_steering_and_run(std::size_t run_id, std::size_t start_id,
       global::settings.forwardpropagation.initializeForwardPropagation();
       run(info);
     }
-  }
-  if (global::settings.benchmark.steer_functions.value().empty()) {
+  } else if (global::settings.benchmark.steer_functions.value().empty()) {
     global::settings.steer.initializeSteering();
     std::cout << "Steering .. " << std::endl;
     run(info);
@@ -186,7 +185,7 @@ int main(int argc, char **argv) {
       global::settings.env.grid.seed = i + 1;
       global::settings.env.createEnvironment();
 
-      global::settings.steer.initializeSteering();
+      // global::settings.steer.initializeSteering();
 
       nlohmann::json info;
       config_steering_and_run(i, 0u, info);

@@ -5,6 +5,7 @@
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
 #include <ompl/base/spaces/SE2StateSpace.h>
 #include <ompl/control/Control.h>
+#include <ompl/control/PathControl.h>
 #include <ompl/control/SimpleSetup.h>
 #include <ompl/geometric/PathGeometric.h>
 #include <ompl/geometric/SimpleSetup.h>
@@ -51,6 +52,17 @@ class AbstractPlanner {
   };
 
   std::vector<IntermediarySolution> intermediarySolutions;
+
+  struct IntermediaryControlSolution {
+    double time{std::numeric_limits<double>::quiet_NaN()};
+    double cost{std::numeric_limits<double>::quiet_NaN()};
+    oc::PathControl solution;
+    IntermediaryControlSolution(double time, double cost,
+                                const oc::PathControl &solution)
+        : time(time), cost(cost), solution(solution) {}
+  };
+
+  std::vector<IntermediaryControlSolution> intermediaryControlSolutions;
 
   /**
    * Returns the solution of the planner, which is a sparse PathGeometric.

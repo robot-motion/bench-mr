@@ -1,3 +1,6 @@
+#ifndef _FORWARD_PROPAGATION_
+#define _FORWARD_PROPAGATION_
+
 #pragma once
 #include <string>
 
@@ -14,3 +17,4 @@ inline std::string to_string(ForwardPropagation::ForwardPropagationType t) {
 }
 
 }  // namespace ForwardPropagation
+#endif /* _FORWARD_PROPAGATION_ */

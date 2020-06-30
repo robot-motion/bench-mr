@@ -1,3 +1,6 @@
+#ifndef _KINEMATIC_CAR_
+#define _KINEMATIC_CAR_
+
 #include <ompl/base/spaces/SE2StateSpace.h>
 #include <ompl/control/ODESolver.h>
 #include <ompl/control/SpaceInformation.h>
@@ -35,3 +38,4 @@ void kinematicCarPostIntegration(const ob::State* /*state*/,
 }
 
 }  // namespace KinematicCar
+#endif /* _KINEMATIC_CAR_ */

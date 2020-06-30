@@ -74,26 +74,32 @@ AbstractPlanner::AbstractPlanner(const std::string &name) {
     }
   }
 
-  auto &si = global::settings.ompl.space_info;
+  if (!control_based_) {
+    auto &si = global::settings.ompl.space_info;
 
-  if (global::settings.steer.steering_type == Steering::STEER_TYPE_POSQ) {
-    ob::MotionValidatorPtr motionValidator(new POSQMotionValidator(si));
-    si->setMotionValidator(motionValidator);
-  }
+    if (global::settings.steer.steering_type == Steering::STEER_TYPE_POSQ) {
+      ob::MotionValidatorPtr motionValidator(new POSQMotionValidator(si));
+      si->setMotionValidator(motionValidator);
+    }
 #ifdef G1_AVAILABLE
-  else if (global::settings.steer.steering_type ==
-           Steering::STEER_TYPE_CLOTHOID) {
-    ob::MotionValidatorPtr motionValidator(
-        new G1ClothoidStateSpaceValidator(si));
-    si->setMotionValidator(motionValidator);
-    si->setStateValidityCheckingResolution(0.03);
-    // lower granularity necessary to avoid too densely spaced nodes
-    // which causes problems in Clothoid steering
-  }
+    else if (global::settings.steer.steering_type ==
+             Steering::STEER_TYPE_CLOTHOID) {
+      ob::MotionValidatorPtr motionValidator(
+          new G1ClothoidStateSpaceValidator(si));
+      si->setMotionValidator(motionValidator);
+      si->setStateValidityCheckingResolution(0.03);
+      // lower granularity necessary to avoid too densely spaced nodes
+      // which causes problems in Clothoid steering
+    }
 #endif
 
-  si->setStateValidityCheckingResolution(
-      global::settings.steer.sampling_resolution);
+    si->setStateValidityCheckingResolution(
+        global::settings.steer.sampling_resolution);
+  } else {
+    auto &si = global::settings.ompl.control_space_info;
+    si->setStateValidityCheckingResolution(
+        global::settings.steer.sampling_resolution);
+  }
 
   const auto start = global::settings.environment->startScopedState();
   const auto goal = global::settings.environment->goalScopedState();
@@ -103,7 +109,7 @@ AbstractPlanner::AbstractPlanner(const std::string &name) {
     ss_c->setOptimizationObjective(global::settings.ompl.objective);
     ss_c->setStartAndGoalStates(start, goal,
                                 global::settings.exact_goal_radius);
-    ss_c->setup();
+
   } else {
     ss->setOptimizationObjective(global::settings.ompl.objective);
     ss->setStartAndGoalStates(start, goal, global::settings.exact_goal_radius);
