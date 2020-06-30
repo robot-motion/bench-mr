@@ -80,7 +80,7 @@ class AbstractPlanner {
   og::SimpleSetup *simpleSetup() const { return ss; }
 
   ob::StateValidityCheckerPtr getCurrStateValidityCheckerPtr() const {
-    if (!global::settings.benchmark.forward_propagations.value().empty()) {
+    if (control_based_) {
       return ss_c->getStateValidityChecker();
     } else {
       return ss->getStateValidityChecker();
@@ -90,7 +90,7 @@ class AbstractPlanner {
  protected:
   og::SimpleSetup *ss{nullptr};
   oc::SimpleSetup *ss_c{nullptr};
-
+  bool control_based_{false};
   explicit AbstractPlanner(const std::string &name);
 
  public:

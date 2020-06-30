@@ -200,6 +200,7 @@ struct GlobalSettings : public Group {
         "steer_functions",
         this};
 
+    Property<bool> control_planners_on{false, "control_planners_on", this};
     Property<std::vector<ForwardPropagation::ForwardPropagationType>>
         forward_propagations{
             {ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR},

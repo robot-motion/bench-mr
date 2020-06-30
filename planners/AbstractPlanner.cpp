@@ -4,11 +4,15 @@ std::string AbstractPlanner::LastCreatedPlannerName = "";
 
 AbstractPlanner::AbstractPlanner(const std::string &name) {
   LastCreatedPlannerName = name;
+
+  std::cout << "Delete ss " << std::endl;
   if (ss) {
     ss->clear();
     ss->clearStartStates();
   }
   delete ss;
+
+  std::cout << "Delete ss_c " << std::endl;
 
   if (ss_c) {
     ss_c->clear();
@@ -16,7 +20,11 @@ AbstractPlanner::AbstractPlanner(const std::string &name) {
   }
   delete ss_c;
 
-  if (!global::settings.benchmark.forward_propagations.value().empty()) {
+  control_based_ = global::settings.benchmark.control_planners_on;
+
+  if (control_based_) {
+    std::cout << "Creating FP " << std::endl;
+
     ss_c = new oc::SimpleSetup(global::settings.ompl.control_space);
 
     if (global::settings.env.collision.collision_model == robot::ROBOT_POINT) {
@@ -40,6 +48,8 @@ AbstractPlanner::AbstractPlanner(const std::string &name) {
       });
     }
   } else {
+    std::cout << "Creating Steer " << std::endl;
+
     ss = new og::SimpleSetup(global::settings.ompl.state_space);
 
     if (global::settings.env.collision.collision_model == robot::ROBOT_POINT) {
@@ -89,7 +99,7 @@ AbstractPlanner::AbstractPlanner(const std::string &name) {
   const auto goal = global::settings.environment->goalScopedState();
   std::cout << "Start: " << std::endl << start << std::endl;
   std::cout << "Goal: " << std::endl << goal << std::endl;
-  if (!global::settings.benchmark.forward_propagations.value().empty()) {
+  if (control_based_) {
     ss_c->setOptimizationObjective(global::settings.ompl.objective);
     ss_c->setStartAndGoalStates(start, goal,
                                 global::settings.exact_goal_radius);
