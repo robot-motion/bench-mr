@@ -5,14 +5,11 @@ std::string AbstractPlanner::LastCreatedPlannerName = "";
 AbstractPlanner::AbstractPlanner(const std::string &name) {
   LastCreatedPlannerName = name;
 
-  std::cout << "Delete ss " << std::endl;
   if (ss) {
     ss->clear();
     ss->clearStartStates();
   }
   delete ss;
-
-  std::cout << "Delete ss_c " << std::endl;
 
   if (ss_c) {
     ss_c->clear();
@@ -23,8 +20,6 @@ AbstractPlanner::AbstractPlanner(const std::string &name) {
   control_based_ = global::settings.benchmark.control_planners_on;
 
   if (control_based_) {
-    std::cout << "Creating FP " << std::endl;
-
     ss_c = new oc::SimpleSetup(global::settings.ompl.control_space);
 
     if (global::settings.env.collision.collision_model == robot::ROBOT_POINT) {
@@ -103,18 +98,36 @@ AbstractPlanner::AbstractPlanner(const std::string &name) {
 
   const auto start = global::settings.environment->startScopedState();
   const auto goal = global::settings.environment->goalScopedState();
-  std::cout << "Start: " << std::endl << start << std::endl;
-  std::cout << "Goal: " << std::endl << goal << std::endl;
+
   if (control_based_) {
     ss_c->setOptimizationObjective(global::settings.ompl.objective);
-    ss_c->setStartAndGoalStates(start, goal,
-                                global::settings.exact_goal_radius);
+
+    // KinematicCar is SO3
+    if (global::settings.forwardpropagation.forward_propagation_type ==
+        ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR) {
+      ss_c->setStartAndGoalStates(start, goal,
+                                  global::settings.exact_goal_radius);
+    }
+
+    // KinematicSingleTrack is SO3 + R^2
+    if (global::settings.forwardpropagation.forward_propagation_type ==
+        ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_SINGLE_TRACK) {
+      start->as<ompl::base::RealVectorStateSpace::StateType>(1)->values[0] = 0;
+      start->as<ompl::base::RealVectorStateSpace::StateType>(1)->values[1] = 0;
+      goal->as<ompl::base::RealVectorStateSpace::StateType>(1)->values[0] = 0.0;
+      goal->as<ompl::base::RealVectorStateSpace::StateType>(1)->values[1] = 0.0;
+      ss_c->setStartAndGoalStates(start, goal,
+                                  global::settings.exact_goal_radius);
+    }
 
   } else {
     ss->setOptimizationObjective(global::settings.ompl.objective);
     ss->setStartAndGoalStates(start, goal, global::settings.exact_goal_radius);
     ss->setup();
   }
+
+  std::cout << "Start: " << std::endl << start << std::endl;
+  std::cout << "Goal: " << std::endl << goal << std::endl;
 }
 
 AbstractPlanner::~AbstractPlanner() {

@@ -14,7 +14,7 @@
             ],
             "control_planners_on": true,
             "forward_propagations": [
-                0
+                1
             ],
             "log_file": "",
             "moving_ai": {

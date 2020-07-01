@@ -23,13 +23,45 @@ void PlannerSettings::GlobalSettings::ForwardPropagationSettings::
   // Construct the robot state space in which we're planning.
   if (global::settings.forwardpropagation.forward_propagation_type ==
       ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR) {
-    std::cout << "Initializing state space for forward propagation"
+    std::cout << "Initializing state space for forward propagation KC"
               << std::endl;
     // defining configuration space
     auto cspace(std::make_shared<ob::SE2StateSpace>());
     cspace->setBounds(global::settings.environment->bounds());
     // And adding the control space
     global::settings.ompl.state_space = cspace;
+    global::settings.ompl.control_space = ompl::control::ControlSpacePtr(
+        new ompl::control::RealVectorControlSpace(cspace, 2));
+
+    global::settings.ompl.control_space_info =
+        std::make_shared<ompl::control::SpaceInformation>(
+            global::settings.ompl.state_space,
+            global::settings.ompl.control_space);
+  }
+
+  if (global::settings.forwardpropagation.forward_propagation_type ==
+      ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_SINGLE_TRACK) {
+    std::cout << "Initializing state space for forward propagation KST"
+              << std::endl;
+    // defining configuration space
+    auto cspace(std::make_shared<ompl::base::CompoundStateSpace>());
+    cspace->addSubspace(std::make_shared<ompl::base::SE2StateSpace>(), 1.);
+    cspace->addSubspace(std::make_shared<ompl::base::RealVectorStateSpace>(2),
+                        1.0);
+
+    cspace->getSubspace(0)->as<ompl::base::SE2StateSpace>()->setBounds(
+        global::settings.environment->bounds());
+
+    ompl::base::RealVectorBounds bounds(2);
+    bounds.low[0] = -1.;
+    bounds.high[0] = 1.;
+    bounds.low[1] = -M_PI * 30. / 180.;
+    bounds.high[1] = M_PI * 30. / 180.;
+    cspace->getSubspace(1)->as<ompl::base::RealVectorStateSpace>()->setBounds(
+        bounds);
+
+    global::settings.ompl.state_space = cspace;
+    // defining control space
     global::settings.ompl.control_space = ompl::control::ControlSpacePtr(
         new ompl::control::RealVectorControlSpace(cspace, 2));
 

@@ -116,6 +116,11 @@ struct PathEvaluation {
                  planner.name().c_str(), ba.what());
       createEmptyEntry(planner.name(), info);
       return false;
+    } catch (ompl::Exception &ex) {
+      OMPL_ERROR("Unable to evaluate new planner %s.\n%s",
+                 planner.name().c_str(), ex.what());
+      createEmptyEntry(planner.name(), info);
+      return false;
     } catch (...) {
       OMPL_ERROR(
           "<stats> Error </stats>\nAn unknown exception occurred while running "
