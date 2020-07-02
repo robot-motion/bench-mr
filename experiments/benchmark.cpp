@@ -106,13 +106,11 @@ void config_steering_and_run(std::size_t run_id, std::size_t start_id,
     }
   } else if (global::settings.benchmark.steer_functions.value().empty()) {
     global::settings.steer.initializeSteering();
-    std::cout << "Steering .. " << std::endl;
     run(info);
   } else {
     for (const auto steer_type :
          global::settings.benchmark.steer_functions.value()) {
       global::settings.steer.steering_type = steer_type;
-      std::cout << "Steering .. " << std::endl;
 
       global::settings.steer.initializeSteering();
       run(info);

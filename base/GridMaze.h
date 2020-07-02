@@ -2,8 +2,8 @@
 
 #include <ctime>
 #include <iostream>
-#include <vector>
 #include <nlohmann/json.hpp>
+#include <vector>
 
 #include <utils/ScenarioLoader.h>
 
@@ -35,7 +35,7 @@ class GridMaze : public Environment {
 
   inline bool occupied(unsigned int index) const { return _grid[index]; }
   inline bool occupied(double x, double y) {
-    //    std::cout << "occupied ?   " << x << "\t" << y << std::endl;
+    // std::cout << "occupied ?   " << x << "\t" << y << std::endl;⅞
     if (x < 0 || y < 0 || x > width() || y > height()) return true;
     //    if (!fastCollisionCheck) {
     //#if QT_SUPPORT

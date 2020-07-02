@@ -51,9 +51,9 @@ class PolygonMaze : public Environment {
     for (const auto &poly : _obstacles) {
       if (collision2d::intersect(collision2d::Point<double>{x, y},
                                  (collision2d::Polygon<double>)poly)) {
-#ifdef DEBUG
+        // #ifdef DEBUG
         OMPL_DEBUG("[%.2f %.2f] collides with polygon %d.", x, y, i);
-#endif
+        // #endif
         return true;
       }
       ++i;

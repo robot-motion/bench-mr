@@ -52,6 +52,7 @@ class OMPLControlPlanner : public AbstractPlanner {
 
     Stopwatch watch;
     auto problem = _omplPlanner->getProblemDefinition();
+
     problem->setIntermediateSolutionCallback(
         [&](const ob::Planner *planner,
             const std::vector<const ob::State *> &states, const ob::Cost cost) {
@@ -74,7 +75,7 @@ class OMPLControlPlanner : public AbstractPlanner {
     if (solved) {
       // Output the length of the path found
       _solution = oc::PathControl(global::settings.ompl.control_space_info);
-      _solution.append(global::settings.environment->startState());
+      // _solution.append(global::settings.environment->startState());
       const auto &f = ss_c->getSolutionPath();
       for (std::size_t i = 0; i < f.getStateCount(); ++i) {
         _solution.append(f.getState(i));

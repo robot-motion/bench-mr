@@ -23,11 +23,26 @@ AbstractPlanner::AbstractPlanner(const std::string &name) {
     ss_c = new oc::SimpleSetup(global::settings.ompl.control_space);
 
     if (global::settings.env.collision.collision_model == robot::ROBOT_POINT) {
-      ss_c->setStateValidityChecker([&](const ob::State *state) -> bool {
-        const auto *s = state->as<ob::SE2StateSpace::StateType>();
-        const double x = s->getX(), y = s->getY();
-        return !global::settings.environment->collides(x, y);
-      });
+      if (global::settings.forwardpropagation.forward_propagation_type ==
+          ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR) {
+        ss_c->setStateValidityChecker([&](const ob::State *state) -> bool {
+          const auto *s = state->as<ob::SE2StateSpace::StateType>();
+          const double x = s->getX(), y = s->getY();
+          return !global::settings.environment->collides(x, y);
+        });
+      }
+
+      if (global::settings.forwardpropagation.forward_propagation_type ==
+          ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_SINGLE_TRACK) {
+        ss_c->setStateValidityChecker([&](const ob::State *state) -> bool {
+          const auto *compState =
+              state->as<ob::CompoundStateSpace::StateType>();
+          const auto *se2state = compState->as<ob::SE2StateSpace::StateType>(0);
+          const double x = se2state->getX(), y = se2state->getY();
+          return !global::settings.environment->collides(x, y);
+        });
+      }
+
     } else {
       if (global::settings.env.collision.robot_shape.value().points.size() <
           3) {
@@ -36,15 +51,29 @@ AbstractPlanner::AbstractPlanner(const std::string &name) {
             "collision detection.");
         return;
       }
-      ss_c->setStateValidityChecker([&](const ob::State *state) -> bool {
-        return !global::settings.environment->collides(
-            global::settings.env.collision.robot_shape.value().transformed(
-                state));
-      });
+
+      if (global::settings.forwardpropagation.forward_propagation_type ==
+          ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR) {
+        ss_c->setStateValidityChecker([&](const ob::State *state) -> bool {
+          return !global::settings.environment->collides(
+              global::settings.env.collision.robot_shape.value().transformed(
+                  state));
+        });
+      }
+
+      if (global::settings.forwardpropagation.forward_propagation_type ==
+          ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_SINGLE_TRACK) {
+        ss_c->setStateValidityChecker([&](const ob::State *state) -> bool {
+          const auto *compState =
+              state->as<ob::CompoundStateSpace::StateType>();
+          const auto *se2state = compState->as<ob::SE2StateSpace::StateType>(0);
+          return !global::settings.environment->collides(
+              global::settings.env.collision.robot_shape.value().transformed(
+                  se2state));
+        });
+      }
     }
   } else {
-    std::cout << "Creating Steer " << std::endl;
-
     ss = new og::SimpleSetup(global::settings.ompl.state_space);
 
     if (global::settings.env.collision.collision_model == robot::ROBOT_POINT) {
@@ -100,6 +129,7 @@ AbstractPlanner::AbstractPlanner(const std::string &name) {
   const auto goal = global::settings.environment->goalScopedState();
 
   if (control_based_) {
+    ss_c->getSpaceInformation()->setMinMaxControlDuration(1, 1);
     ss_c->setOptimizationObjective(global::settings.ompl.objective);
 
     // KinematicCar is SO3

@@ -74,6 +74,7 @@ class AbstractPlanner {
 
  public:
   bool isValid(const ob::State *state) const {
+    std::cout << "Checking if the state is valid .. " << std::endl;
     return getCurrStateValidityCheckerPtr()->isValid(state);
   }
   bool isValid(og::PathGeometric &path) const {
