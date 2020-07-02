@@ -14,6 +14,7 @@
             ],
             "control_planners_on": true,
             "forward_propagations": [
+                0,
                 1
             ],
             "log_file": "",
@@ -53,7 +54,8 @@
                 "fprrt": true,
                 "fpest": true,
                 "fpsst": true,
-                "fppdst": true
+                "fppdst": true,
+                "fpkpiece": true
             },
             "runs": 10,
             "smoothing": {
@@ -116,7 +118,7 @@
         "interpolation_limit": 500,
         "log_env_distances": false,
         "max_path_length": 10000.0,
-        "max_planning_time": 15.0,
+        "max_planning_time": 1.0,
         "ompl": {
             "cost_threshold": 100.0,
             "rrt_star": {

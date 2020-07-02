@@ -84,3 +84,26 @@ std::vector<std::array<double, 3>> Log::serializeTrajectory(
   }
   return r;
 }
+
+std::vector<std::array<double, 3>> Log::serializeTrajectory(
+    const ompl::control::PathControl &t, bool interpolate) {
+  ompl::control::PathControl traj = t;
+  if (interpolate) traj = PlannerUtils::interpolated(t);
+  std::vector<std::array<double, 3>> r;
+  for (auto i = 0u; i < traj.getStateCount(); ++i) {
+    if (global::settings.forwardpropagation.forward_propagation_type ==
+        ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR) {
+      const auto *s = traj.getState(i)->as<State>();
+      r.push_back({s->getX(), s->getY(), s->getYaw()});
+    }
+
+    if (global::settings.forwardpropagation.forward_propagation_type ==
+        ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_SINGLE_TRACK) {
+      const auto *s = traj.getState(i)->as<ob::CompoundStateSpace::StateType>();
+      const auto *se2state = s->as<ob::SE2StateSpace::StateType>(0);
+
+      r.push_back({se2state->getX(), se2state->getY(), se2state->getYaw()});
+    }
+    return r;
+  }
+}

@@ -43,9 +43,18 @@ void evaluatePlanners(nlohmann::json &info) {
     PathEvaluation::evaluateSmoothers<RRTstarPlanner>(info);
   if (global::settings.benchmark.planning.sbl)
     PathEvaluation::evaluateSmoothers<SBLPlanner>(info);
+
   if (global::settings.benchmark.control_planners_on) {
     if (global::settings.benchmark.planning.fprrt)
       PathEvaluation::evaluate<FPRRTPlanner>(info);
+    if (global::settings.benchmark.planning.fpest)
+      PathEvaluation::evaluate<FPESTPlanner>(info);
+    if (global::settings.benchmark.planning.fpsst)
+      PathEvaluation::evaluate<FPSSTPlanner>(info);
+    if (global::settings.benchmark.planning.fppdst)
+      PathEvaluation::evaluate<FPPDSTPlanner>(info);
+    if (global::settings.benchmark.planning.fpkpiece)
+      PathEvaluation::evaluate<FPKPIECEPlanner>(info);
   }
 
   if (global::settings.env.type.value() == "grid") {
