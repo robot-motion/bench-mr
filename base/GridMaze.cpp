@@ -1,14 +1,14 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <fstream>
-#include <iostream>
+#include "GridMaze.h"
 
 #include <ompl/util/Console.h>
 #include <planners/thetastar/ThetaStar.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <collision2d/sat.hpp>
+#include <fstream>
+#include <iostream>
 
-#include "GridMaze.h"
 #include "PlannerSettings.h"
 #include "utils/PlannerUtils.hpp"
 
@@ -350,6 +350,7 @@ void GridMaze::publish(ros::NodeHandle &nodeHandle) const {
 bool GridMaze::collides(double x, double y) { return occupied(x, y); }
 
 bool GridMaze::collides(const Polygon &polygon) {
+  _collision_timer.resume();
   typedef std::vector<Eigen::Matrix<double, 2, 1>> PG;
   const auto poly = (PG)polygon;
 
@@ -379,10 +380,14 @@ bool GridMaze::collides(const Polygon &polygon) {
                             {(x + 1) * _voxelSize, y * _voxelSize},
                             {(x + 1) * _voxelSize, (y + 1) * _voxelSize},
                             {x * _voxelSize, (y + 1) * _voxelSize}});
-        if (collision2d::intersect(poly, (PG)cell)) return true;
+        if (collision2d::intersect(poly, (PG)cell)) {
+          _collision_timer.stop();
+          return true;
+        }
       }
     }
   }
+  _collision_timer.stop();
   return false;
 }
 

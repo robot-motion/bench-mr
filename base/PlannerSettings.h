@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chomp/Chomp.h>
+
 #include <params.hpp>
 
 #include <ompl/control/ODESolver.h>
@@ -301,6 +302,7 @@ struct GlobalSettings : public Group {
     ompl::base::SpaceInformationPtr space_info{nullptr};
     ompl::control::SpaceInformationPtr control_space_info{nullptr};
     ompl::base::OptimizationObjectivePtr objective{nullptr};
+    Stopwatch state_space_timer;
 
     Property<double> state_equality_tolerance{1e-4, "state_equality_tolerance",
                                               this};

@@ -1,32 +1,41 @@
 #include "Environment.h"
+
 #include <planners/thetastar/ThetaStar.h>
+
 #include "utils/PlannerUtils.hpp"
 
 bool Environment::collides(const ompl::geometric::PathGeometric &trajectory) {
+  _collision_timer.resume();
   for (auto &p : Point::fromPath(PlannerUtils::interpolated(trajectory))) {
     if (collides(p.x, p.y)) {
 #if defined(DEBUG) && defined(QT_SUPPORT)
       QtVisualizer::drawNode(p.x, p.y, QColor(255, 255, 0, 150), .5);
 #endif
+      _collision_timer.stop();
       return true;
     }
   }
+  _collision_timer.stop();
   return false;
 }
 
 bool Environment::checkValidity(const ob::State *state) {
+  _collision_timer.resume();
   if (global::settings.env.collision.collision_model == robot::ROBOT_POINT) {
     const auto *s = state->as<ob::SE2StateSpace::StateType>();
     const double x = s->getX(), y = s->getY();
-    return !collides(x, y);
+    bool valid = !collides(x, y);
+    _collision_timer.stop();
+    return valid;
   } else {
     bool valid = !global::settings.environment->collides(
         global::settings.env.collision.robot_shape.value().transformed(state));
-    if (!valid) {
-      const auto *s = state->as<ob::SE2StateSpace::StateType>();
-//      OMPL_DEBUG("State [%.2f %.2f %.2f] is invalid.", s->getX(), s->getY(),
-//                 s->getYaw());
-    }
+    _collision_timer.stop();
+    // if (!valid) {
+    //   const auto *s = state->as<ob::SE2StateSpace::StateType>();
+    //   OMPL_DEBUG("State [%.2f %.2f %.2f] is invalid.", s->getX(), s->getY(),
+    //              s->getYaw());
+    // }
     return valid;
   }
 }

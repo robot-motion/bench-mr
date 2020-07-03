@@ -1,11 +1,11 @@
 #pragma once
 
+#include <utils/ScenarioLoader.h>
+
 #include <ctime>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <vector>
-
-#include <utils/ScenarioLoader.h>
 
 #include "Environment.h"
 #include "PlannerSettings.h"
@@ -35,8 +35,12 @@ class GridMaze : public Environment {
 
   inline bool occupied(unsigned int index) const { return _grid[index]; }
   inline bool occupied(double x, double y) {
-    // std::cout << "occupied ?   " << x << "\t" << y << std::endl;⅞
-    if (x < 0 || y < 0 || x > width() || y > height()) return true;
+    _collision_timer.resume();
+    //    std::cout << "occupied ?   " << x << "\t" << y << std::endl;
+    if (x < 0 || y < 0 || x > width() || y > height()) {
+      _collision_timer.stop();
+      return true;
+    }
     //    if (!fastCollisionCheck) {
     //#if QT_SUPPORT
     //      //            bool o = bilinearDistance(x, y) <= 0.05;
@@ -45,10 +49,14 @@ class GridMaze : public Environment {
     //#endif
     //      return _grid[coord2key(x, y)] || bilinearDistance(x, y) <= 0.1;
     //    }
-    return _grid[coord2key(x, y)] || _grid[coord2key(x + .15, y)] ||
-           _grid[coord2key(x, y + .15)] || _grid[coord2key(x + .15, y + .15)] ||
-           _grid[coord2key(x - .15, y)] || _grid[coord2key(x, y - .15)] ||
-           _grid[coord2key(x - .15, y - .15)];
+    bool c = _grid[coord2key(x, y)] || _grid[coord2key(x + .15, y)] ||
+             _grid[coord2key(x, y + .15)] ||
+             _grid[coord2key(x + .15, y + .15)] ||
+             _grid[coord2key(x - .15, y)] || _grid[coord2key(x, y - .15)] ||
+             _grid[coord2key(x - .15, y - .15)];
+
+    _collision_timer.stop();
+    return c;
   }
 
   inline bool occupiedCell(unsigned int xi, unsigned int yi) const {
@@ -176,6 +184,8 @@ class GridMaze : public Environment {
   }
 
  protected:
+  using Environment::_collision_timer;
+
   GridMaze(unsigned int seed, unsigned int width, unsigned int height,
            double voxelSize = 1.);
 

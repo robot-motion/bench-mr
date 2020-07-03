@@ -2,6 +2,7 @@
 
 #include <ompl/base/ScopedState.h>
 #include "Primitives.h"
+#include "utils/Stopwatch.hpp"
 
 class Environment {
  public:
@@ -92,6 +93,9 @@ class Environment {
    */
   virtual double unit() const { return 1; }
 
+  void resetCollisionTimer() { _collision_timer.reset(); }
+  double elapsedCollisionTime() const { return _collision_timer.elapsed(); }
+
  protected:
   Point _start;
   Point _goal;
@@ -100,4 +104,6 @@ class Environment {
   bool _thetas_defined{false};
 
   ob::RealVectorBounds _bounds{2};
+
+  Stopwatch _collision_timer;
 };

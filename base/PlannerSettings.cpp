@@ -8,7 +8,9 @@
 #include <ompl/control/spaces/RealVectorControlSpace.h>
 
 #include <utils/OptimizationObjective.h>
+
 #include <steering_functions/include/ompl_state_spaces/CurvatureStateSpace.hpp>
+
 #include "GridMaze.h"
 #include "PolygonMaze.h"
 #include "steer_functions/POSQ/POSQStateSpace.h"
@@ -72,36 +74,61 @@ void PlannerSettings::GlobalSettings::ForwardPropagationSettings::
   }
 }
 
+/**
+ * Instrumented state space allows to measure time spent on computing the
+ * steer function.
+ */
+template <typename StateSpaceT>
+struct InstrumentedStateSpace : public StateSpaceT {
+  using StateSpaceT::StateSpaceT;
+
+  double distance(const ob::State *state1,
+                  const ob::State *state2) const override {
+    global::settings.ompl.state_space_timer.resume();
+    double d = StateSpaceT::distance(state1, state2);
+    global::settings.ompl.state_space_timer.stop();
+    return d;
+  }
+
+  void interpolate(const ob::State *from, const ob::State *to, double t,
+                   ob::State *state) const override {
+    global::settings.ompl.state_space_timer.resume();
+    StateSpaceT::interpolate(from, to, t, state);
+    global::settings.ompl.state_space_timer.stop();
+  }
+};
+
 void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
     const {
   // Construct the robot state space in which we're planning.
   if (steering_type == Steering::STEER_TYPE_REEDS_SHEPP)
     global::settings.ompl.state_space =
-        ob::StateSpacePtr(new ob::ReedsSheppStateSpace(car_turning_radius));
+        ob::StateSpacePtr(new InstrumentedStateSpace<ob::ReedsSheppStateSpace>(
+            car_turning_radius));
   else if (steering_type == Steering::STEER_TYPE_POSQ)
     global::settings.ompl.state_space = ob::StateSpacePtr(new POSQStateSpace());
   else if (steering_type == Steering::STEER_TYPE_DUBINS)
-    global::settings.ompl.state_space =
-        ob::StateSpacePtr(new ob::DubinsStateSpace(car_turning_radius));
+    global::settings.ompl.state_space = ob::StateSpacePtr(
+        new InstrumentedStateSpace<ob::DubinsStateSpace>(car_turning_radius));
   else if (steering_type == Steering::STEER_TYPE_LINEAR)
     global::settings.ompl.state_space =
-        ob::StateSpacePtr(new ob::SE2StateSpace);
+        ob::StateSpacePtr(new InstrumentedStateSpace<ob::SE2StateSpace>);
   else if (steering_type == Steering::STEER_TYPE_CC_DUBINS)
-    global::settings.ompl.state_space =
-        ob::StateSpacePtr(new hc_cc_spaces::CCDubinsStateSpace(
+    global::settings.ompl.state_space = ob::StateSpacePtr(
+        new InstrumentedStateSpace<hc_cc_spaces::CCDubinsStateSpace>(
             hc_cc.kappa, hc_cc.sigma, sampling_resolution));
   else if (steering_type == Steering::STEER_TYPE_CC_REEDS_SHEPP)
-    global::settings.ompl.state_space =
-        ob::StateSpacePtr(new hc_cc_spaces::CCReedsSheppStateSpace(
+    global::settings.ompl.state_space = ob::StateSpacePtr(
+        new InstrumentedStateSpace<hc_cc_spaces::CCReedsSheppStateSpace>(
             hc_cc.kappa, hc_cc.sigma, sampling_resolution));
   else if (steering_type == Steering::STEER_TYPE_HC_REEDS_SHEPP)
-    global::settings.ompl.state_space =
-        ob::StateSpacePtr(new hc_cc_spaces::HCReedsSheppStateSpace(
+    global::settings.ompl.state_space = ob::StateSpacePtr(
+        new InstrumentedStateSpace<hc_cc_spaces::HCReedsSheppStateSpace>(
             hc_cc.kappa, hc_cc.sigma, sampling_resolution));
 #ifdef G1_AVAILABLE
   else if (steering_type == Steering::STEER_TYPE_CLOTHOID)
     global::settings.ompl.state_space =
-        ob::StateSpacePtr(new G1ClothoidStateSpace());
+        ob::StateSpacePtr(new InstrumentedStateSpace<G1ClothoidStateSpace>());
 #else
   else if (steering_type == Steering::STEER_TYPE_CLOTHOID) {
     OMPL_ERROR("G1 Clothoid steering is not available in this release!");
@@ -140,7 +167,9 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
 }
 
 void PlannerSettings::GlobalSettings::EnvironmentSettings::createEnvironment() {
-  delete global::settings.environment;
+  if (global::settings.environment) {
+    delete global::settings.environment;
+  }
   if (type.value() == "grid") {
     if (grid.generator.value() == "corridor") {
       global::settings.environment = GridMaze::createRandomCorridor(

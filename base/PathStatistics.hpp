@@ -3,11 +3,10 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <params.hpp>
 #include <string>
 #include <utility>
 #include <vector>
-
-#include <params.hpp>
 
 #include "Primitives.h"
 
@@ -16,6 +15,10 @@ using namespace params;
 struct PathStatistics : public Group {
   Property<double> planning_time{std::numeric_limits<double>::quiet_NaN(),
                                  "planning_time", this};
+  Property<double> collision_time{std::numeric_limits<double>::quiet_NaN(),
+                                  "collision_time", this};
+  Property<double> steering_time{std::numeric_limits<double>::quiet_NaN(),
+                                 "steering_time", this};
   Property<bool> path_found{false, "path_found", this};
   Property<bool> path_collides{true, "path_collides", this};
   Property<bool> exact_goal_path{true, "exact_goal_path", this};
