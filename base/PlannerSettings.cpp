@@ -71,6 +71,12 @@ void PlannerSettings::GlobalSettings::ForwardPropagationSettings::
         std::make_shared<ompl::control::SpaceInformation>(
             global::settings.ompl.state_space,
             global::settings.ompl.control_space);
+
+    global::settings.ompl.state_space->as<ompl::base::StateSpace>()
+        ->registerDefaultProjection(
+            std::make_shared<
+                ForwardPropagation::KinematicSingleTrackProjectionEvaluator>(
+                global::settings.ompl.state_space.get()));
   }
 }
 
