@@ -36,9 +36,8 @@ struct PathEvaluation {
    * every second state.
    */
   static void computeCusps(PathStatistics &stats,
-                           const ompl::geometric::PathGeometric &p) {
+                           const std::vector<Point> path) {
     std::vector<Point> &cusps = stats.cusps.value();
-    const auto path = Point::fromPath(p);
     for (std::size_t i = 1; i < path.size() - 1; ++i) {
       const double yaw_prev =
           std::fmod(PlannerUtils::slope(path[i - 1], path[i]), 2. * M_PI);
@@ -49,6 +48,53 @@ struct PathEvaluation {
           global::settings.cusp_angle_threshold)
         cusps.emplace_back(path[i]);
     }
+  }
+
+  static bool evaluate(PathStatistics &stats,
+                       const ompl::control::PathControl &path,
+                       const AbstractPlanner *planner) {
+    stats.planning_time = planner->planningTime();
+    stats.collision_time = global::settings.environment->elapsedCollisionTime();
+    stats.steering_time = global::settings.ompl.state_space_timer.elapsed();
+    stats.planner = planner->name();
+    if (path.getStateCount() < 2) {
+      stats.path_found = false;
+      stats.exact_goal_path = false;
+    } else {
+      stats.path_found = true;
+      auto solution = path;
+
+      // assume if SBPL has found a solution, it does not collide and is exact
+      if (planner->name().rfind("SBPL", 0) == 0) {
+        // do not interpolate the path returned by SBPL (it uses its own steer
+        // function)
+        stats.path_collides = false;
+        stats.exact_goal_path = true;
+      } else {
+        solution = PlannerUtils::interpolated(path);
+        stats.path_collides = !planner->isValid(solution, stats.collisions);
+        stats.exact_goal_path =
+            Point(solution.getStates().back())
+                .distance(global::settings.environment->goal()) <=
+            global::settings.exact_goal_radius;
+      }
+      stats.path_length = PathLengthMetric::evaluate(solution);
+      stats.curvature = CurvatureMetric::evaluate(solution);
+      // This is not implemented in OMPL for ompl::control
+      // stats.smoothness = solution.smoothness();
+
+      if (global::settings.evaluate_clearing &&
+          global::settings.environment->distance(0., 0.) >= 0.) {
+        const auto clearings = ClearingMetric::clearingDistances(solution);
+        stats.mean_clearing_distance = stat::mean(clearings);
+        stats.median_clearing_distance = stat::median(clearings);
+        stats.min_clearing_distance = stat::min(clearings);
+        stats.max_clearing_distance = stat::max(clearings);
+      }
+      const auto p = Point::fromPath(solution);
+      computeCusps(stats, p);
+    }
+    return stats.path_found;
   }
 
   static bool evaluate(PathStatistics &stats,
@@ -92,7 +138,8 @@ struct PathEvaluation {
         stats.max_clearing_distance = stat::max(clearings);
       }
 
-      computeCusps(stats, path);
+      const auto p = Point::fromPath(solution);
+      computeCusps(stats, p);
     }
     return stats.path_found;
   }

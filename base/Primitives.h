@@ -2,6 +2,7 @@
 
 #include <ompl/base/State.h>
 #include <ompl/base/spaces/SE2StateSpace.h>
+#include <ompl/control/PathControl.h>
 #include <ompl/geometric/PathGeometric.h>
 
 #include <nlohmann/json.hpp>
@@ -53,6 +54,9 @@ struct Point {
   }
 
   static std::vector<Point> fromPath(const ompl::geometric::PathGeometric &p,
+                                     bool interpolate = true);
+
+  static std::vector<Point> fromPath(const ompl::control::PathControl &p,
                                      bool interpolate = true);
 
   static Point centroid(const std::vector<Point> &points) {

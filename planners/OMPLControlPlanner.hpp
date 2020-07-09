@@ -75,6 +75,8 @@ class OMPLControlPlanner : public AbstractPlanner {
     if (solved) {
       // Output the length of the path found
       _solution = oc::PathControl(global::settings.ompl.control_space_info);
+
+      ss_c->getSolutionPath().asGeometric().printAsMatrix(std::cout);
       // _solution.append(global::settings.environment->startState());
       const auto &f = ss_c->getSolutionPath();
       for (std::size_t i = 0; i < f.getStateCount(); ++i) {

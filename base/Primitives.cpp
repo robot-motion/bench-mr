@@ -29,3 +29,12 @@ std::vector<Point> Point::fromPath(const ompl::geometric::PathGeometric &p,
   for (const auto *state : path.getStates()) result.emplace_back(Point(state));
   return result;
 }
+
+std::vector<Point> Point::fromPath(const ompl::control::PathControl &p,
+                                   bool interpolate) {
+  ompl::control::PathControl path(p);
+  if (interpolate) path = PlannerUtils::interpolated(path);
+  std::vector<Point> result;
+  for (const auto *state : path.getStates()) result.emplace_back(Point(state));
+  return result;
+}

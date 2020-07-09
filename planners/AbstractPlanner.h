@@ -90,6 +90,14 @@ class AbstractPlanner {
     return collisions.empty();
   }
 
+  bool isValid(ompl::control::PathControl &path,
+               std::vector<Point> &collisions) const {
+    collisions.clear();
+    for (const auto *state : path.getStates())
+      if (!getCurrStateValidityCheckerPtr()->isValid(state))
+        collisions.emplace_back(state);
+    return collisions.empty();
+  }
   og::SimpleSetup *simpleSetup() const { return ss; }
 
   ob::StateValidityCheckerPtr getCurrStateValidityCheckerPtr() const {
