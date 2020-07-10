@@ -32,8 +32,18 @@ void PlannerSettings::GlobalSettings::ForwardPropagationSettings::
     cspace->setBounds(global::settings.environment->bounds());
     // And adding the control space
     global::settings.ompl.state_space = cspace;
-    global::settings.ompl.control_space = ompl::control::ControlSpacePtr(
-        new ompl::control::RealVectorControlSpace(cspace, 2));
+
+    // set the bounds for the control space
+    ompl::base::RealVectorBounds bounds(2);
+    bounds.setLow(-1.5);
+    bounds.setHigh(1.5);
+
+    // create a control space
+    auto controlspace(
+        std::make_shared<ompl::control::RealVectorControlSpace>(cspace, 2));
+    controlspace->setBounds(bounds);
+
+    global::settings.ompl.control_space = controlspace;
 
     global::settings.ompl.control_space_info =
         std::make_shared<ompl::control::SpaceInformation>(

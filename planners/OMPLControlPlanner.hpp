@@ -120,19 +120,22 @@ class OMPLControlPlanner : public AbstractPlanner {
         ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_SINGLE_TRACK) {
       std::cout << "Setting kinematicSingleTrackODE" << std::endl;
 
-      // auto odeSolver(std::make_shared<oc::ODEBasicSolver<>>(
-      //     ss_c->getSpaceInformation(),
-      //     &kinematicSingleTrack::kinematicSingleTrackODE));
-      const auto si = ss_c->getSpaceInformation().get();
-      ss_c->setStatePropagator([si](const ob::State *state,
-                                    const oc::Control *control,
-                                    const double duration, ob::State *result) {
-        kinematicSingleTrack::propagate(si, state, control, duration, result);
-      });
+      auto odeSolver(std::make_shared<oc::ODEBasicSolver<>>(
+          ss_c->getSpaceInformation(),
+          &kinematicSingleTrack::kinematicSingleTrackODE));
 
-      // ss_c->setStatePropagator(oc::ODESolver::getStatePropagator(
-      //     odeSolver,
-      //     &kinematicSingleTrack::kinematicSingleTrackPostIntegration));
+      ss_c->setStatePropagator(oc::ODESolver::getStatePropagator(
+          odeSolver,
+          &kinematicSingleTrack::kinematicSingleTrackPostIntegration));
+
+      // const auto si = ss_c->getSpaceInformation().get();
+      // ss_c->setStatePropagator([si](const ob::State *state,
+      //                               const oc::Control *control,
+      //                               const double duration, ob::State *result)
+      //                               {
+      //   kinematicSingleTrack::propagate(si, state, control, duration,
+      //   result);
+      // });
     }
   }
 

@@ -35,13 +35,11 @@ void kinematicSingleTrackPostIntegration(const ob::State* state,
                                          const oc::Control* /*control*/,
                                          const double /*duration*/,
                                          ob::State* result) {
-  // si->getStateSpace()->copyState(result, state);
-  // // Normalize orientation between 0 and 2*pi
-  // ob::SO2StateSpace SO2;
-  // ompl::base::State* compState =
-  // state->as<ob::CompoundStateSpace::StateType>(); ompl::base::State* se2state
-  // = compState->as<ob::SE2StateSpace::StateType>(0);
-  // SO2.enforceBounds(se2state->as<ob::SO2StateSpace::StateType>(1));
+  // Normalize orientation between 0 and 2*pi
+  ob::SO2StateSpace SO2;
+  auto* compState = result->as<ob::CompoundStateSpace::StateType>();
+  auto* se2state = compState->as<ob::SE2StateSpace::StateType>(0);
+  SO2.enforceBounds(se2state->as<ob::SO2StateSpace::StateType>(1));
 }
 
 void propagate(const oc::SpaceInformation* si, const ob::State* state,
@@ -49,6 +47,8 @@ void propagate(const oc::SpaceInformation* si, const ob::State* state,
                ob::State* result) {
   static double timeStep = .1;
   int nsteps = ceil(duration / timeStep);
+  double car_length = 0.30;
+
   double dt = duration / nsteps;
   const double* u =
       control->as<oc::RealVectorControlSpace::ControlType>()->values;
@@ -64,7 +64,8 @@ void propagate(const oc::SpaceInformation* si, const ob::State* state,
   for (int i = 0; i < nsteps; i++) {
     se2.setX(se2.getX() + dt * realPart.values[0] * cos(se2.getYaw()));
     se2.setY(se2.getY() + dt * realPart.values[0] * sin(se2.getYaw()));
-    se2.setYaw(se2.getYaw() + dt * u[0]);
+    se2.setYaw(se2.getYaw() + dt * realPart.values[0] *
+                                  tan(dt * realPart.values[1]) / car_length);
     realPart.values[0] = realPart.values[0] + dt * u[0];
     realPart.values[1] = realPart.values[1] + dt * u[1];
 
