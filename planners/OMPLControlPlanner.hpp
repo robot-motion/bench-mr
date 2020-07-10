@@ -31,6 +31,8 @@
 #include "utils/PlannerUtils.hpp"
 #include "utils/Stopwatch.hpp"
 
+#include "ompl/util/Console.h"
+
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
 namespace oc = ompl::control;
@@ -45,11 +47,15 @@ class OMPLControlPlanner : public AbstractPlanner {
 
   ob::PlannerStatus run() override {
     intermediaryControlSolutions.clear();
+    ompl::msg::setLogLevel(ompl::msg::LOG_DEV1);
 
     ss_c->setPlanner(_omplPlanner);
     this->setStatePropagator();
+    ss_c->getSpaceInformation()->setPropagationStepSize(.1);
+    ss_c->getSpaceInformation()->setMinMaxControlDuration(2, 10);
     ss_c->setup();
 
+    ss_c->getSpaceInformation()->printProperties(std::cout);
     Stopwatch watch;
     auto problem = _omplPlanner->getProblemDefinition();
 
@@ -114,13 +120,19 @@ class OMPLControlPlanner : public AbstractPlanner {
         ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_SINGLE_TRACK) {
       std::cout << "Setting kinematicSingleTrackODE" << std::endl;
 
-      auto odeSolver(std::make_shared<oc::ODEBasicSolver<>>(
-          ss_c->getSpaceInformation(),
-          &kinematicSingleTrack::kinematicSingleTrackODE));
+      // auto odeSolver(std::make_shared<oc::ODEBasicSolver<>>(
+      //     ss_c->getSpaceInformation(),
+      //     &kinematicSingleTrack::kinematicSingleTrackODE));
+      const auto si = ss_c->getSpaceInformation().get();
+      ss_c->setStatePropagator([si](const ob::State *state,
+                                    const oc::Control *control,
+                                    const double duration, ob::State *result) {
+        kinematicSingleTrack::propagate(si, state, control, duration, result);
+      });
 
-      ss_c->setStatePropagator(oc::ODESolver::getStatePropagator(
-          odeSolver,
-          &kinematicSingleTrack::kinematicSingleTrackPostIntegration));
+      // ss_c->setStatePropagator(oc::ODESolver::getStatePropagator(
+      //     odeSolver,
+      //     &kinematicSingleTrack::kinematicSingleTrackPostIntegration));
     }
   }
 

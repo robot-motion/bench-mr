@@ -17,8 +17,7 @@ void kinematicSingleTrackODE(const oc::ODESolver::StateType& q,
                              oc::ODESolver::StateType& qdot) {
   double* u = control->as<oc::RealVectorControlSpace::ControlType>()->values;
   double heading = q[2];
-  double car_length = 0.5;
-
+  double car_length = 0.30;
   qdot.resize(q.size(), 0);
   // q = [x, y, heading, v_long, steering_angle]
   // u = [long_acc, d_steering_angle ]
@@ -32,14 +31,48 @@ void kinematicSingleTrackODE(const oc::ODESolver::StateType& q,
 
 // as in
 // https://gitlab.lrz.de/tum-cps/commonroad-vehicle-models/blob/master/vehicleModels_commonRoad.pdf
-void kinematicSingleTrackPostIntegration(const ob::State* /*state*/,
+void kinematicSingleTrackPostIntegration(const ob::State* state,
                                          const oc::Control* /*control*/,
                                          const double /*duration*/,
                                          ob::State* result) {
-  // Normalize orientation between 0 and 2*pi
+  // si->getStateSpace()->copyState(result, state);
+  // // Normalize orientation between 0 and 2*pi
+  // ob::SO2StateSpace SO2;
+  // ompl::base::State* compState =
+  // state->as<ob::CompoundStateSpace::StateType>(); ompl::base::State* se2state
+  // = compState->as<ob::SE2StateSpace::StateType>(0);
+  // SO2.enforceBounds(se2state->as<ob::SO2StateSpace::StateType>(1));
+}
+
+void propagate(const oc::SpaceInformation* si, const ob::State* state,
+               const oc::Control* control, const double duration,
+               ob::State* result) {
+  static double timeStep = .1;
+  int nsteps = ceil(duration / timeStep);
+  double dt = duration / nsteps;
+  const double* u =
+      control->as<oc::RealVectorControlSpace::ControlType>()->values;
+
+  ob::CompoundStateSpace::StateType& s =
+      *result->as<ob::CompoundStateSpace::StateType>();
+  ob::SE2StateSpace::StateType& se2 = *s.as<ob::SE2StateSpace::StateType>(0);
+  ob::RealVectorStateSpace::StateType& realPart =
+      *s.as<ob::RealVectorStateSpace::StateType>(1);
+
+  si->getStateSpace()->copyState(result, state);
+
+  for (int i = 0; i < nsteps; i++) {
+    se2.setX(se2.getX() + dt * realPart.values[0] * cos(se2.getYaw()));
+    se2.setY(se2.getY() + dt * realPart.values[0] * sin(se2.getYaw()));
+    se2.setYaw(se2.getYaw() + dt * u[0]);
+    realPart.values[0] = realPart.values[0] + dt * u[0];
+    realPart.values[1] = realPart.values[1] + dt * u[1];
+
+    if (!si->satisfiesBounds(result)) return;
+  }
+
   ob::SO2StateSpace SO2;
-  SO2.enforceBounds(result->as<ob::SE2StateSpace::StateType>()
-                        ->as<ob::SO2StateSpace::StateType>(1));
+  SO2.enforceBounds(se2.as<ob::SO2StateSpace::StateType>(1));
 }
 
 }  // namespace kinematicSingleTrack

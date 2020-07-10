@@ -55,8 +55,11 @@ class PlannerUtils {
    * Point-based (!) collision check of the path.
    */
   static bool collides(const std::vector<Point> &path) {
+    std::cout << "Starting.. " << std::endl;
+
     for (const auto &point : path) {
       if (global::settings.environment->collides(point)) {
+        std::cout << "check.. " << std::endl;
         //         || global::settings.environment->bilinearDistance(path[i].x,
         //         path[i].y) < 1.5) {
         return true;

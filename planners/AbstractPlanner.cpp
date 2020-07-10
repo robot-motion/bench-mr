@@ -67,6 +67,10 @@ AbstractPlanner::AbstractPlanner(const std::string &name) {
           const auto *compState =
               state->as<ob::CompoundStateSpace::StateType>();
           const auto *se2state = compState->as<ob::SE2StateSpace::StateType>(0);
+          // std::cout << "Check " << se2state->getX() << " " <<
+          // se2state->getY()
+          //           << std::endl;
+
           return !global::settings.environment->collides(
               global::settings.env.collision.robot_shape.value().transformed(
                   se2state));
