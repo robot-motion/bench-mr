@@ -52,3 +52,6 @@ plotting/*.pdf
 
 # Ignore Mac DS_Store files
 .DS_Store
+
+# Build folder
+build
