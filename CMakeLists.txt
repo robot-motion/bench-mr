@@ -42,6 +42,9 @@ find_package(Qt5 COMPONENTS Core Widgets Charts Svg)
 include_directories( ${CMAKE_BINARY_DIR} )
 set(CMAKE_AUTOMOC ON)
 
+find_package(ompl 1.5 REQUIRED)
+include_directories(${OMPL_INCLUDE_DIR})
+
 find_package(Boost 1.58 REQUIRED COMPONENTS serialization filesystem system program_options)
 include_directories(${Boost_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS})
