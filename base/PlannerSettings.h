@@ -484,7 +484,13 @@ struct GlobalSettings : public Group {
     Property<int> number_edges{10, "number_edges", this};
   } thetaStar{"theta_star", this};
 
-  GlobalSettings() : Group("settings") { ompl::RNG::setSeed(ompl.seed); }
+
+  GlobalSettings() : Group("settings") {}
+
+  void load(const nlohmann::json &j) {
+    Group::load(j);
+    ompl::RNG::setSeed(ompl.seed);
+  }
 };
 }  // namespace PlannerSettings
 
