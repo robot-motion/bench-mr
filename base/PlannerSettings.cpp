@@ -4,6 +4,8 @@
 #include <ompl/base/spaces/DubinsStateSpace.h>
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
 #include <ompl/base/spaces/SE2StateSpace.h>
+#include <ompl/base/samplers/DeterministicStateSampler.h>
+#include <ompl/base/samplers/deterministic/HaltonSequence.h>
 #include <utils/OptimizationObjective.h>
 
 #include <steering_functions/include/ompl_state_spaces/CurvatureStateSpace.hpp>
@@ -17,6 +19,20 @@
 #endif
 
 PlannerSettings::GlobalSettings global::settings;
+
+ob::StateSamplerPtr allocateHaltonStateSamplerSE2(const ob::StateSpace *space, unsigned int dim,
+                                                          std::vector<unsigned int> bases = {})
+{
+  std::cout << "allocateSampler" << " " << space->getDimension() << std::endl;
+  // specify which deterministic sequence to use, here: HaltonSequence
+  // optionally we can specify the bases used for generation (otherwise first dim prime numbers are used)
+  if (bases.size() != 0)
+    return std::make_shared<ob::SE2DeterministicStateSampler>(
+      space, std::make_shared<ob::HaltonSequence>(bases.size(), bases));
+  else
+    return std::make_shared<ob::SE2DeterministicStateSampler>(
+      space, std::make_shared<ob::HaltonSequence>(dim));
+}
 
 /**
  * Instrumented state space allows to measure time spent on computing the
@@ -89,12 +105,19 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
 
   global::settings.ompl.state_space->as<ob::SE2StateSpace>()->setBounds(
       global::settings.environment->bounds());
-  //  global::settings.ompl.state_space->setup();
+
+
+  if (global::settings.ompl.sampler.value() == std::string("halton")) {
+    global::settings.ompl.state_space->as<ob::SE2StateSpace>()->setStateSamplerAllocator(
+      [] (const ob::StateSpace *space) -> ob::StateSamplerPtr { 
+        return allocateHaltonStateSamplerSE2(space, 3 ); 
+      });
+  }
 
   global::settings.ompl.space_info =
-      std::make_shared<ompl::base::SpaceInformation>(
+      std::make_shared<ob::SpaceInformation>(
           global::settings.ompl.state_space);
-  global::settings.ompl.objective = ompl::base::OptimizationObjectivePtr(
+  global::settings.ompl.objective = ob::OptimizationObjectivePtr(
       new OptimizationObjective(global::settings.ompl.space_info));
   global::settings.ompl.objective->setCostThreshold(
       ob::Cost(global::settings.ompl.cost_threshold));

@@ -294,6 +294,13 @@ struct GlobalSettings : public Group {
 
     Property<unsigned int> seed{1, "seed", this};
 
+    /**
+     * The sampler used by OMPL. 
+     * 
+     * Currently supported: "iid", "halton"
+     */
+    Property<std::string> sampler{"iid", "sampler", this};
+
     struct RRTstarSettings : public Group {
       using Group::Group;
 

@@ -84,7 +84,7 @@ void Environment::estimateStartGoalOrientations() {
   global::settings.steer.steering_type = Steering::STEER_TYPE_LINEAR;
   global::settings.estimate_theta = false;
   global::settings.env.collision.collision_model = robot::ROBOT_POINT;
-  global::settings.steer.initializeSteering();
+  global::settings.steer.initializeSteering(); // TODO: why is this called twice?
   auto *thetaStar = new ThetaStar;
   if (thetaStar->run()) {
     std::vector<Point> path = thetaStar->solutionPath();
