@@ -74,19 +74,10 @@ void PlannerSettings::GlobalSettings::ForwardPropagationSettings::
         std::make_shared<ompl::control::RealVectorControlSpace>(cspace, 2));
     controlspace->setBounds(bounds);
 
-    // ompl::base::RealVectorBounds bounds(2);
-    // bounds.low[0] = -5.;
-    // bounds.high[0] = 5.;
-    // bounds.low[1] = -M_PI * 30. / 180.;
-    // bounds.high[1] = M_PI * 30. / 180.;
     cspace->getSubspace(1)->as<ompl::base::RealVectorStateSpace>()->setBounds(
         bounds);
 
     global::settings.ompl.state_space = cspace;
-    // defining control space
-    // global::settings.ompl.control_space = ompl::control::ControlSpacePtr(
-    //     new ompl::control::RealVectorControlSpace(cspace, 2));
-
     global::settings.ompl.control_space = controlspace;
     global::settings.ompl.control_space_info =
         std::make_shared<ompl::control::SpaceInformation>(

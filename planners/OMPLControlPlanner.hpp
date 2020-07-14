@@ -80,22 +80,14 @@ class OMPLControlPlanner : public AbstractPlanner {
 
     if (solved) {
       // Output the length of the path found
-      _solution = oc::PathControl(global::settings.ompl.control_space_info);
+      _solution = ss_c->getSolutionPath(); 
+      //ss_c->getSolutionPath().asGeometric().printAsMatrix(std::cout);
+      //_solution.append(global::settings.environment->startState());
+      //const auto &f = ss_c->getSolutionPath();
+      //for (std::size_t i = 0; i < f.getStateCount(); ++i) {
+        //_solution.append(f.getState(i));
+      //}
 
-      ss_c->getSolutionPath().asGeometric().printAsMatrix(std::cout);
-      // _solution.append(global::settings.environment->startState());
-      const auto &f = ss_c->getSolutionPath();
-      for (std::size_t i = 0; i < f.getStateCount(); ++i) {
-        _solution.append(f.getState(i));
-      }
-
-      // In ompl::control there is no notion of cost
-      // OMPL_INFORM(
-      //     "%s found a solution of length %f with an optimization objective "
-      //     "value of %f",
-      //     _omplPlanner->getName().c_str(), _solution.length(),
-      //     _solution.cost(
-      //         ss_c->getProblemDefinition()->getOptimizationObjective()));
     } else
       OMPL_WARN("No solution found.");
     return solved;
@@ -143,7 +135,7 @@ class OMPLControlPlanner : public AbstractPlanner {
 
   og::PathGeometric solution() const override {
     // og::PathGeometric path(_solution);
-    return _solution.asGeometric();
+    return og::PathGeometric(_solution.asGeometric());
   }
 
   bool hasReachedGoalExactly() const override {
