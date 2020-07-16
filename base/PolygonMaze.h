@@ -1,10 +1,10 @@
 #pragma once
 
+#include <collision2d/sat.hpp>
+
 #include "Environment.h"
 #include "PlannerSettings.h"
 #include "utils/SvgPolygonLoader.hpp"
-
-#include <collision2d/sat.hpp>
 
 /**
  * Implements a maze consisting of convex shapes as obstacles.
@@ -46,7 +46,7 @@ class PolygonMaze : public Environment {
     return maze;
   }
 
-  bool collides(double x, double y) override {
+  bool collides(double x, double y) const override {
     int i = 0;
     for (const auto &poly : _obstacles) {
       if (collision2d::intersect(collision2d::Point<double>{x, y},
@@ -60,7 +60,7 @@ class PolygonMaze : public Environment {
     }
     return false;
   }
-  bool collides(const Polygon &polygon) override {
+  bool collides(const Polygon &polygon) const override {
     for (const auto &poly : _obstacles) {
       if (collision2d::intersect((collision2d::Polygon<double>)polygon,
                                  (collision2d::Polygon<double>)poly)) {
@@ -74,7 +74,29 @@ class PolygonMaze : public Environment {
     return false;
   }
 
-  void to_json(nlohmann::json &j) override {
+  double distance(double x, double y) const override {
+    double dist = std::numeric_limits<double>::infinity();
+    for (const auto &poly : _obstacles) {
+      bool intersects = collision2d::intersect(
+          collision2d::Point<double>{x, y}, (collision2d::Polygon<double>)poly);
+      for (std::size_t i = 0; i < poly.points.size(); ++i) {
+        const auto &p1 = poly.points[i];
+        const auto &p2 = poly.points[(i + 1) % poly.points.size()];
+        double x21 = p2.x - p1.x;
+        double y21 = p2.y - p1.y;
+        double d = std::abs(y21 * x - x21 * y + p2.x * p1.y - p2.y * p1.x);
+        d /= std::sqrt(y21 * y21 + x21 * x21);
+        if (intersects) {
+          // we assume there can only be 1 intersecting polygon for the point
+          return -d;
+        }
+        dist = std::min(dist, d);
+      }
+    }
+    return dist;
+  }
+
+  void to_json(nlohmann::json &j) const override {
     j["type"] = "polygon";
     j["obstacles"] = obstacles();
     j["start"] = {start().x, start().y, startTheta()};

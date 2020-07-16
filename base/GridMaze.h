@@ -34,7 +34,7 @@ class GridMaze : public Environment {
   double voxelSize() const { return _voxelSize; }
 
   inline bool occupied(unsigned int index) const { return _grid[index]; }
-  inline bool occupied(double x, double y) {
+  inline bool occupied(double x, double y) const {
     _collision_timer.resume();
     //    std::cout << "occupied ?   " << x << "\t" << y << std::endl;
     if (x < 0 || y < 0 || x > width() || y > height()) {
@@ -67,7 +67,7 @@ class GridMaze : public Environment {
    * Computes distances field if necessary, and returns the distance
    * to the nearest obstacle.
    */
-  inline double distance(double x, double y) override {
+  inline double distance(double x, double y) const override {
     if (_distances == nullptr) computeDistances();
     return _distances[coord2key(x, y)];
   }
@@ -76,7 +76,7 @@ class GridMaze : public Environment {
    * Computes distances field if necessary, and returns the distance
    * to the nearest obstacle.
    */
-  inline double distance(unsigned int index) {
+  inline double distance(unsigned int index) const {
     if (_distances == nullptr) computeDistances();
     return _distances[index];
   }
@@ -85,10 +85,15 @@ class GridMaze : public Environment {
    * Computes distances field if necessary, and returns the distance
    * to the nearest obstacle.
    */
-  inline double distance(unsigned int xi, unsigned int yi) {
+  inline double distance(unsigned int xi, unsigned int yi) const {
     if (_distances == nullptr) computeDistances();
     return _distances[yi * _voxels_x + xi];
   }
+
+  /**
+   * Bilinear filtering of distance.
+   */
+  double bilinearDistance(double x, double y) const override;
 
   friend std::ostream &operator<<(std::ostream &stream, const GridMaze &m) {
     for (unsigned int y = 0; y < m._voxels_y; ++y) {
@@ -116,14 +121,14 @@ class GridMaze : public Environment {
 
   void mapData(unsigned char *data, double resolution = 1.);
   std::string mapString() const;
-  std::vector<double> mapDistances();
+  std::vector<double> mapDistances() const;
 
   std::vector<Rectangle> obstacles() const;
   std::vector<Rectangle> obstacles(double x1, double y1, double x2,
                                    double y2) const;
 
-  bool collides(double x, double y) override;
-  bool collides(const Polygon &polygon) override;
+  bool collides(double x, double y) const override;
+  bool collides(const Polygon &polygon) const override;
 
   static GridMaze *createRandom(unsigned int width = DefaultWidth,
                                 unsigned int height = DefaultHeight,
@@ -165,9 +170,9 @@ class GridMaze : public Environment {
    * to compute the distance field, i.e. distance to the nearest
    * obstacle for every voxel.
    */
-  void computeDistances();
+  void computeDistances() const;  // distances are `mutable`
 
-  void to_json(nlohmann::json &j) override {
+  void to_json(nlohmann::json &j) const override {
     j["type"] = "grid";
     j["generator"] = generatorType();
     j["width"] = voxels_x();
@@ -214,7 +219,7 @@ class GridMaze : public Environment {
   unsigned int _voxels_x{0};
   unsigned int _voxels_y{0};
 
-  double *_distances{nullptr};
+  mutable double *_distances{nullptr};
   double _voxelSize{1.0};
   bool _empty{true};
   unsigned int _seed{0};

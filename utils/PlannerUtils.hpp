@@ -236,25 +236,6 @@ class PlannerUtils {
     }
   }
 
-  static void gradientDescent(std::vector<Point> &path, unsigned int rounds,
-                              double eta, double discount = 1.) {
-    double dx, dy;
-    for (int round = 0; round < rounds; ++round) {
-      // gradient descent along distance field, excluding start/end nodes
-      for (int i = 1; i < path.size() - 1; ++i) {
-        // compute gradient
-        global::settings.environment->distanceGradient(path[i].x, path[i].y, dx,
-                                                       dy, 1.);
-        double distance = global::settings.environment->bilinearDistance(
-            path[i].x, path[i].y);
-        distance = std::max(.1, distance);
-        path[i].x -= eta * dx / distance;
-        path[i].y += eta * dy / distance;
-      }
-      eta *= discount;
-    }
-  }
-
   static std::vector<Point> linearInterpolate(const Point &a, const Point &b,
                                               double dt = 0.1) {
     std::vector<Point> points;

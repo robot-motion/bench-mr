@@ -347,9 +347,9 @@ void GridMaze::publish(ros::NodeHandle &nodeHandle) const {
 }
 #endif
 
-bool GridMaze::collides(double x, double y) { return occupied(x, y); }
+bool GridMaze::collides(double x, double y) const { return occupied(x, y); }
 
-bool GridMaze::collides(const Polygon &polygon) {
+bool GridMaze::collides(const Polygon &polygon) const {
   _collision_timer.resume();
   typedef std::vector<Eigen::Matrix<double, 2, 1>> PG;
   const auto poly = (PG)polygon;
@@ -414,7 +414,7 @@ std::vector<Rectangle> GridMaze::obstacles(double x1, double y1, double x2,
   return obs;
 }
 
-void GridMaze::computeDistances() {
+void GridMaze::computeDistances() const {
   OMPL_INFORM(("Computing distances via " +
                distance_computation::to_string(distanceComputationMethod()))
                   .c_str());
@@ -557,6 +557,30 @@ void GridMaze::computeDistances() {
   }
 }
 
+double GridMaze::bilinearDistance(double x, double y) const {
+  const double cellSize = 1;
+  const double xi =
+      std::floor(std::max(std::min(width(), x), 0.) / cellSize) * cellSize;
+  const double yi =
+      std::floor(std::max(std::min(height(), y), 0.) / cellSize) * cellSize;
+  const double xp =
+      std::floor(std::max(std::min(width(), x + cellSize), 0.) / cellSize) *
+      cellSize;
+  const double yp =
+      std::floor(std::max(std::min(height(), y + cellSize), 0.) / cellSize) *
+      cellSize;
+  const double u_ratio = x - xi;
+  const double v_ratio = y - yi;
+  const double u_opposite = cellSize - u_ratio;
+  const double v_opposite = cellSize - v_ratio;
+  const double tl = distance(xi, yi), tr = distance(xp, yi);
+  const double bl = distance(xi, yp), br = distance(xp, yp);
+  return (tl * u_opposite / cellSize + tr * u_ratio / cellSize) * v_opposite /
+             cellSize +
+         (bl * u_opposite / cellSize + br * u_ratio / cellSize) * v_ratio /
+             cellSize;
+}
+
 GridMaze *GridMaze::createSimple() {
   auto *environment = new GridMaze(0, DefaultWidth, DefaultHeight);
   environment->fill(Rectangle(18, 18, 34, 34), true);
@@ -654,7 +678,7 @@ std::string GridMaze::mapString() const {
   return data;
 }
 
-std::vector<double> GridMaze::mapDistances() {
+std::vector<double> GridMaze::mapDistances() const {
   vector<double> distances(cells());
   for (unsigned int y = 0; y < _voxels_y; ++y) {
     for (unsigned int x = 0; x < _voxels_x; ++x)

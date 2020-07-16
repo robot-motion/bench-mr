@@ -4,7 +4,8 @@
 
 #include "utils/PlannerUtils.hpp"
 
-bool Environment::collides(const ompl::geometric::PathGeometric &trajectory) {
+bool Environment::collides(
+    const ompl::geometric::PathGeometric &trajectory) const {
   _collision_timer.resume();
   for (auto &p : Point::fromPath(PlannerUtils::interpolated(trajectory))) {
     if (collides(p.x, p.y)) {
@@ -40,37 +41,12 @@ bool Environment::checkValidity(const ob::State *state) {
   }
 }
 
-double Environment::bilinearDistance(double x, double y, double cellSize) {
-  const double xi =
-      std::floor(std::max(std::min(width(), x), 0.) / cellSize) * cellSize;
-  const double yi =
-      std::floor(std::max(std::min(height(), y), 0.) / cellSize) * cellSize;
-  const double xp =
-      std::floor(std::max(std::min(width(), x + cellSize), 0.) / cellSize) *
-      cellSize;
-  const double yp =
-      std::floor(std::max(std::min(height(), y + cellSize), 0.) / cellSize) *
-      cellSize;
-  const double u_ratio = x - xi;
-  const double v_ratio = y - yi;
-  const double u_opposite = cellSize - u_ratio;
-  const double v_opposite = cellSize - v_ratio;
-  const double tl = distance(xi, yi), tr = distance(xp, yi);
-  const double bl = distance(xi, yp), br = distance(xp, yp);
-  return (tl * u_opposite / cellSize + tr * u_ratio / cellSize) * v_opposite /
-             cellSize +
-         (bl * u_opposite / cellSize + br * u_ratio / cellSize) * v_ratio /
-             cellSize;
-}
-
 bool Environment::distanceGradient(double x, double y, double &dx, double &dy,
-                                   double p, double cellSize) {
+                                   double p) const {
   if (x < 0 || y < 0 || x > width() || y > height()) return false;
   // compute distances left, right, top, bottom
-  const double dl = bilinearDistance(x - p, y, cellSize),
-               dr = bilinearDistance(x + p, y, cellSize);
-  const double db = bilinearDistance(x, y - p, cellSize),
-               dt = bilinearDistance(x, y + p, cellSize);
+  const double dl = bilinearDistance(x - p, y), dr = bilinearDistance(x + p, y);
+  const double db = bilinearDistance(x, y - p), dt = bilinearDistance(x, y + p);
   dx = (dr - dl) / (p * 2.);
   dy = (dt - db) / (p * 2.);
   return true;

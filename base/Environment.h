@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ompl/base/ScopedState.h>
+
 #include "Primitives.h"
 #include "utils/Stopwatch.hpp"
 
@@ -15,11 +16,11 @@ class Environment {
   void setGoal(const Point &point);
   const Point &goal() const { return _goal; }
 
-  virtual bool collides(double x, double y) { return true; }
-  virtual bool collides(const Polygon &polygon) { return true; }
-  bool collides(const Point &p) { return collides(p.x, p.y); }
-  bool collides(const ompl::geometric::PathGeometric &trajectory);
-  bool collides(const ob::State *state) {
+  virtual bool collides(double x, double y) const = 0;
+  virtual bool collides(const Polygon &polygon) const = 0;
+  bool collides(const Point &p) const { return collides(p.x, p.y); }
+  bool collides(const ompl::geometric::PathGeometric &trajectory) const;
+  bool collides(const ob::State *state) const {
     const auto *s = state->as<State>();
     return collides(s->getX(), s->getY());
   }
@@ -27,7 +28,7 @@ class Environment {
   /**
    * Used by planners to determine if the state is valid or not.
    */
-  bool checkValidity(const ob::State *state);
+  virtual bool checkValidity(const ob::State *state);
 
   inline const ob::RealVectorBounds &bounds() const { return _bounds; }
   inline double width() const { return _bounds.high.at(0) - _bounds.low.at(0); }
@@ -35,14 +36,19 @@ class Environment {
     return _bounds.high.at(1) - _bounds.low.at(1);
   }
 
-  virtual double distance(double x, double y) { return -1; }
+  virtual double distance(double x, double y) const { return -1; }
 
   /**
-   * Bilinear filtering of distance.
+   * Bilinear filtering of distance (only relevant for grid-based environment).
    */
-  double bilinearDistance(double x, double y, double cellSize = 1);
-  double bilinearDistance(const Point &point, double cellSize = 1) {
-    return bilinearDistance(point.x, point.y, cellSize);
+  virtual double bilinearDistance(double x, double y) const {
+    return distance(x, y);
+  }
+  /**
+   * Bilinear filtering of distance (only relevant for grid-based environment).
+   */
+  double bilinearDistance(const Point &point) const {
+    return bilinearDistance(point.x, point.y);
   }
 
   /**
@@ -54,8 +60,8 @@ class Environment {
    * @param p Sampling precision.
    * @return True, if x and y are within grid boundaries.
    */
-  bool distanceGradient(double x, double y, double &dx, double &dy,
-                        double p = 0.1, double cellSize = 1);
+  virtual bool distanceGradient(double x, double y, double &dx, double &dy,
+                                double p = 0.1) const;
 
   virtual std::string name() const { return "Base map"; }
 
@@ -79,7 +85,7 @@ class Environment {
   double startTheta() const { return _start_theta; }
   double goalTheta() const { return _goal_theta; }
 
-  virtual void to_json(nlohmann::json &j) {
+  virtual void to_json(nlohmann::json &j) const {
     j["type"] = "base";
     j["width"] = width();
     j["height"] = height();
@@ -105,5 +111,5 @@ class Environment {
 
   ob::RealVectorBounds _bounds{2};
 
-  Stopwatch _collision_timer;
+  mutable Stopwatch _collision_timer;
 };
