@@ -18,6 +18,8 @@
 #include "steer_functions/G1Clothoid/ClothoidSteering.hpp"
 #endif
 
+#define DEBUG
+
 PlannerSettings::GlobalSettings global::settings;
 
 ob::StateSamplerPtr allocateHaltonStateSamplerSE2(const ob::StateSpace *space, unsigned int dim,
@@ -108,10 +110,16 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
 
 
   if (global::settings.ompl.sampler.value() == std::string("halton")) {
-    global::settings.ompl.state_space->as<ob::SE2StateSpace>()->setStateSamplerAllocator(
-      [] (const ob::StateSpace *space) -> ob::StateSamplerPtr { 
-        return allocateHaltonStateSamplerSE2(space, 3 ); 
-      });
+    std::shared_ptr<ob::SE2StateSpace> se2_state_space = std::dynamic_pointer_cast<ob::SE2StateSpace>(global::settings.ompl.state_space);
+    if (se2_state_space) {
+      global::settings.ompl.state_space->as<ob::SE2StateSpace>()->setStateSamplerAllocator(
+        [] (const ob::StateSpace *space) -> ob::StateSamplerPtr { 
+          return allocateHaltonStateSamplerSE2(space, 3 ); 
+        });
+    }
+    else {
+      OMPL_ERROR("Selected sampler not supported for selected steering function. Using random sampling instead.");
+    }
   }
 
   global::settings.ompl.space_info =
