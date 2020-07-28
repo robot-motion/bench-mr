@@ -57,7 +57,7 @@ class OMPLControlPlanner : public AbstractPlanner {
 
     ss_c->getSpaceInformation()->printProperties(std::cout);
     Stopwatch watch;
-    auto problem = _omplPlanner->getProblemDefinition();
+    auto problem = ss_c->getProblemDefinition();
 
     problem->setIntermediateSolutionCallback(
         [&](const ob::Planner *planner,
@@ -74,20 +74,25 @@ class OMPLControlPlanner : public AbstractPlanner {
         });
 
     watch.start();
-    auto solved = ss_c->solve(global::settings.max_planning_time);
+
+    const ob::PlannerTerminationCondition &ptc_approx =
+        approxSolnPlannerTerminationCondition(problem);
+
+    // auto solved =
+    //     ss_c->solve(ptc_approx);  This is actually an ever ending loop. The
+    //     ptc is never true. The control-based planners do not add approximate
+    //     solutions
+
+    auto solved = ss_c->solve();  // This stops the planner after 1.0 sec
+
+    // auto solved = ss_c->solve(global::settings.max_planning_time);
+
     OMPL_INFORM("OMPL %s planning status: %s", _omplPlanner->getName().c_str(),
                 solved.asString().c_str());
 
     if (solved) {
       // Output the length of the path found
-      _solution = ss_c->getSolutionPath(); 
-      //ss_c->getSolutionPath().asGeometric().printAsMatrix(std::cout);
-      //_solution.append(global::settings.environment->startState());
-      //const auto &f = ss_c->getSolutionPath();
-      //for (std::size_t i = 0; i < f.getStateCount(); ++i) {
-        //_solution.append(f.getState(i));
-      //}
-
+      _solution = ss_c->getSolutionPath();
     } else
       OMPL_WARN("No solution found.");
     return solved;
@@ -119,15 +124,6 @@ class OMPLControlPlanner : public AbstractPlanner {
       ss_c->setStatePropagator(oc::ODESolver::getStatePropagator(
           odeSolver,
           &kinematicSingleTrack::kinematicSingleTrackPostIntegration));
-
-      // const auto si = ss_c->getSpaceInformation().get();
-      // ss_c->setStatePropagator([si](const ob::State *state,
-      //                               const oc::Control *control,
-      //                               const double duration, ob::State *result)
-      //                               {
-      //   kinematicSingleTrack::propagate(si, state, control, duration,
-      //   result);
-      // });
     }
   }
 
@@ -147,6 +143,12 @@ class OMPLControlPlanner : public AbstractPlanner {
   }
 
   ob::Planner *omplPlanner() override { return _omplPlanner.get(); }
+
+  ob::PlannerTerminationCondition approxSolnPlannerTerminationCondition(
+      const ompl::base::ProblemDefinitionPtr &pdef) {
+    return ob::PlannerTerminationCondition(
+        [pdef] { return pdef->hasApproximateSolution(); });
+  }
 
  private:
   ob::PlannerPtr _omplPlanner;
