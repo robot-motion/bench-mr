@@ -4,6 +4,7 @@
 #include <ompl/base/spaces/DubinsStateSpace.h>
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
 #include <ompl/base/spaces/SE2StateSpace.h>
+#include <ompl/base/spaces/SO2StateSpace.h>
 #include <ompl/base/samplers/DeterministicStateSampler.h>
 #include <ompl/base/samplers/deterministic/HaltonSequence.h>
 #include <utils/OptimizationObjective.h>
@@ -22,18 +23,21 @@
 
 PlannerSettings::GlobalSettings global::settings;
 
-ob::StateSamplerPtr allocateHaltonStateSamplerSE2(const ob::StateSpace *space, unsigned int dim,
-                                                          std::vector<unsigned int> bases = {})
+
+template<typename DeterministicStateSamplerT>
+ob::StateSamplerPtr allocateHaltonStateSampler(
+  const ob::StateSpace *space,
+  std::vector<unsigned int> bases = {})
 {
-  std::cout << "allocateSampler" << " " << space->getDimension() << std::endl;
   // specify which deterministic sequence to use, here: HaltonSequence
-  // optionally we can specify the bases used for generation (otherwise first dim prime numbers are used)
+  // optionally we can specify the bases used for generation 
+  // (otherwise first dim prime numbers are used)
   if (bases.size() != 0)
-    return std::make_shared<ob::SE2DeterministicStateSampler>(
+    return std::make_shared<DeterministicStateSamplerT>(
       space, std::make_shared<ob::HaltonSequence>(bases.size(), bases));
   else
-    return std::make_shared<ob::SE2DeterministicStateSampler>(
-      space, std::make_shared<ob::HaltonSequence>(dim));
+    return std::make_shared<DeterministicStateSamplerT>(
+      space, std::make_shared<ob::HaltonSequence>(space->getDimension()));
 }
 
 /**
@@ -59,6 +63,54 @@ struct InstrumentedStateSpace : public StateSpaceT {
     global::settings.ompl.state_space_timer.stop();
   }
 };
+
+void PlannerSettings::GlobalSettings::OmplSettings::initializeSampler() const {
+  const auto& space_ptr = global::settings.ompl.state_space;
+  const auto& steering_type = global::settings.steer.steering_type;
+  if (global::settings.ompl.sampler.value() == std::string("halton")) {
+    if (steering_type == Steering::STEER_TYPE_REEDS_SHEPP || 
+        steering_type == Steering::STEER_TYPE_POSQ || 
+        steering_type == Steering::STEER_TYPE_DUBINS || 
+        steering_type == Steering::STEER_TYPE_LINEAR) {
+      // all of these are derived from SE2StateSpace
+      const auto& se2_space_ptr = space_ptr->as<ob::SE2StateSpace>();
+      se2_space_ptr->setStateSamplerAllocator(
+        [] (const ob::StateSpace *space) -> ob::StateSamplerPtr { 
+          return allocateHaltonStateSampler<ob::SE2DeterministicStateSampler>(space); 
+        });
+    }
+    else if (steering_type == Steering::STEER_TYPE_CC_DUBINS || 
+             steering_type == Steering::STEER_TYPE_CC_REEDS_SHEPP || 
+             steering_type == Steering::STEER_TYPE_HC_REEDS_SHEPP) {
+      // all of these are instances of CurvatureStateSpace (template class) 
+      // which is derived from CompoundStateSpace
+      const auto& compound_space_ptr = space_ptr->as<ob::CompoundStateSpace>();
+
+      // set StateSamplerAllocator for subspaces 
+      // (the default CompoundStateSampler will use these automatically)
+      compound_space_ptr->as<ob::RealVectorStateSpace>(
+        0)->setStateSamplerAllocator(
+        [] (const ob::StateSpace *space) -> ob::StateSamplerPtr { 
+          return allocateHaltonStateSampler<ob::RealVectorDeterministicStateSampler>(space, {2, 3}); 
+        });
+      compound_space_ptr->as<ob::SO2StateSpace>(
+        1)->setStateSamplerAllocator(
+        [] (const ob::StateSpace *space) -> ob::StateSamplerPtr { 
+          return allocateHaltonStateSampler<ob::SO2DeterministicStateSampler>(space, {5}); 
+        });
+      compound_space_ptr->as<ob::RealVectorStateSpace>(
+        2)->setStateSamplerAllocator(
+        [] (const ob::StateSpace *space) -> ob::StateSamplerPtr { 
+          return allocateHaltonStateSampler<ob::RealVectorDeterministicStateSampler>(space, {7}); 
+        });
+      // TODO: deterministic sampler for discrete space? (is it even used?)
+    }
+    else {
+      OMPL_ERROR("Selected sampler not supported for selected steering function."
+                 " Using default sampler instead (i.i.d.).");
+    }
+  }
+}
 
 void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
     const {
@@ -108,19 +160,7 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
   global::settings.ompl.state_space->as<ob::SE2StateSpace>()->setBounds(
       global::settings.environment->bounds());
 
-
-  if (global::settings.ompl.sampler.value() == std::string("halton")) {
-    std::shared_ptr<ob::SE2StateSpace> se2_state_space = std::dynamic_pointer_cast<ob::SE2StateSpace>(global::settings.ompl.state_space);
-    if (se2_state_space) {
-      global::settings.ompl.state_space->as<ob::SE2StateSpace>()->setStateSamplerAllocator(
-        [] (const ob::StateSpace *space) -> ob::StateSamplerPtr { 
-          return allocateHaltonStateSamplerSE2(space, 3 ); 
-        });
-    }
-    else {
-      OMPL_ERROR("Selected sampler not supported for selected steering function. Using random sampling instead.");
-    }
-  }
+  global::settings.ompl.initializeSampler();
 
   global::settings.ompl.space_info =
       std::make_shared<ob::SpaceInformation>(

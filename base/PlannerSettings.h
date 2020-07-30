@@ -314,6 +314,13 @@ struct GlobalSettings : public Group {
        */
       Property<double> max_distance{0., "max_distance", this};
     } rrt_star{"rrt_star", this};
+
+
+    /**
+     * Sets the OMPL sampler based on the state space (steering function) and 
+     * selected sampler.
+     */
+    void initializeSampler() const;
   } ompl{"ompl", this};
 
   struct SteerSettings : public Group {
