@@ -142,6 +142,15 @@ class GridMaze : public Environment {
 
   static GridMaze *createFromMovingAiScenario(Scenario &scenario);
 
+  /**
+   * Creates a map from a grayscale image where tones below the occupancy
+   * threshold are considered obstacles. Optional resizing is applied if the
+   * provided width and height are nonzero.
+   */
+  static GridMaze *createFromImage(const std::string &filename,
+                                   double occupancy_threshold = 0.5,
+                                   int width = 0, int height = 0);
+
 #if XML_SUPPORT
   static GridMaze *loadFromXml(std::string filename);
 #endif

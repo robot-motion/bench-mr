@@ -5,6 +5,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include <third_party/stb/stb_image.h>
+#include <third_party/stb/stb_image_resize.h>
+
 #include <collision2d/sat.hpp>
 #include <fstream>
 #include <iostream>
@@ -18,7 +23,7 @@
 #endif
 
 #if XML_SUPPORT
-#include <pugixml/pugixml.hpp>apt
+#include <pugixml/pugixml.hpp>
 #endif
 
 #if ROS_SUPPORT
@@ -592,6 +597,53 @@ GridMaze *GridMaze::createFromMovingAiScenario(Scenario &scenario) {
   std::cout << "Loaded scenario " << scenario << std::endl;
   //  std::cout << *environment << std::endl;
 
+  return environment;
+}
+
+GridMaze *GridMaze::createFromImage(const std::string &filename,
+                                    double occupancy_threshold, int width,
+                                    int height) {
+  int actual_width, actual_height, n;
+  unsigned char *data =
+      stbi_load(filename.c_str(), &actual_width, &actual_height, &n, 1);
+  if (!data) {
+    fprintf(stderr, "Error: failed to load image %s: %s\n", filename.c_str(),
+            stbi_failure_reason());
+    return nullptr;
+  }
+  printf("Loaded grid map from image %s (%ix%i, %i channel(s)).\n",
+         filename.c_str(), actual_width, actual_height, n);
+
+  if (width != 0 && height != 0 &&
+      (actual_width != width || actual_height != height)) {
+    unsigned char *resized_data = nullptr;
+    stbir_resize_uint8(data, actual_width, actual_height, 0, resized_data,
+                       width, height, 0, 1);
+    if (!data) {
+      fprintf(stderr,
+              "Warning: failed to resize image %s from %ix%i to %ix%i: %s\n",
+              filename.c_str(), actual_width, actual_height, width, height,
+              stbi_failure_reason());
+    } else {
+      printf("Resized image %s from %ix%i to %ix%i.\n", filename.c_str(),
+             actual_width, actual_height, width, height);
+      stbi_image_free(data);
+      data = resized_data;
+    }
+  } else {
+    width = actual_width;
+    height = actual_height;
+  }
+
+  auto *environment = new GridMaze(0, width, height);
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      double pixel = data[y * width + x] / 255.;
+      environment->_grid[y * width + x] = pixel <= occupancy_threshold;
+    }
+  }
+
+  stbi_image_free(data);
   return environment;
 }
 
