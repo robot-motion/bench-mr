@@ -402,7 +402,7 @@ struct GlobalSettings : public Group {
     /**
      * Length of the wheel axis.
      */
-    Property<double> axis_length{0.54, "axis_length", this};
+    Property<double> car_length{1.1, "car_length", this};
 
     /**
      * Integration time step.

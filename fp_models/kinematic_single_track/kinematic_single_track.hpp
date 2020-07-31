@@ -17,13 +17,13 @@ void kinematicSingleTrackODE(const oc::ODESolver::StateType& q,
                              oc::ODESolver::StateType& qdot) {
   double* u = control->as<oc::RealVectorControlSpace::ControlType>()->values;
   double heading = q[2];
-  double car_length = 0.30;  // TODO externalize parameters
   qdot.resize(q.size(), 0);
   // q = [x, y, heading, v_long, steering_angle]
   // u = [long_acc, d_steering_angle ]
   qdot[0] = q[3] * cos(heading);
   qdot[1] = q[3] * sin(heading);
-  qdot[2] = q[3] * (1 / car_length) * tan(q[4]);
+  qdot[2] =
+      q[3] * (1 / global::settings.forwardpropagation.car_length) * tan(q[4]);
 
   qdot[3] = u[0];
   qdot[4] = u[1];
@@ -45,9 +45,8 @@ void kinematicSingleTrackPostIntegration(const ob::State* state,
 void propagate(const oc::SpaceInformation* si, const ob::State* state,
                const oc::Control* control, const double duration,
                ob::State* result) {
-  static double timeStep = .1;
+  static double timeStep = global::settings.forwardpropagation.dt;
   int nsteps = ceil(duration / timeStep);
-  double car_length = 0.30;
 
   double dt = duration / nsteps;
   const double* u =
@@ -65,7 +64,8 @@ void propagate(const oc::SpaceInformation* si, const ob::State* state,
     se2.setX(se2.getX() + dt * realPart.values[0] * cos(se2.getYaw()));
     se2.setY(se2.getY() + dt * realPart.values[0] * sin(se2.getYaw()));
     se2.setYaw(se2.getYaw() +
-               dt * realPart.values[0] * tan(realPart.values[1]) / car_length);
+               dt * realPart.values[0] * tan(realPart.values[1]) /
+                   global::settings.forwardpropagation.car_length);
     realPart.values[0] = realPart.values[0] + dt * u[0];
     realPart.values[1] = realPart.values[1] + dt * u[1];
 

@@ -17,13 +17,12 @@ void kinematicCarODE(const oc::ODESolver::StateType& q,
                      oc::ODESolver::StateType& qdot) {
   double* u = control->as<oc::RealVectorControlSpace::ControlType>()->values;
   double heading = q[2];
-  double car_length = 0.5;
   qdot.resize(q.size(), 0);
 
   // Dynamics
   qdot[0] = u[0] * cos(heading);
   qdot[1] = u[0] * sin(heading);
-  qdot[2] = u[0] * tan(u[1]) / car_length;
+  qdot[2] = u[0] * tan(u[1]) / global::settings.forwardpropagation.car_length;
 }
 
 // as in
@@ -40,7 +39,7 @@ void kinematicCarPostIntegration(const ob::State* /*state*/,
 void propagate(const oc::SpaceInformation* si, const ob::State* state,
                const oc::Control* control, const double duration,
                ob::State* result) {
-  static double timeStep = .1;
+  static double timeStep = global::settings.forwardpropagation.dt;
   int nsteps = ceil(duration / timeStep);
   double dt = duration / nsteps;
   const double* u =
@@ -50,12 +49,13 @@ void propagate(const oc::SpaceInformation* si, const ob::State* state,
       *result->as<ob::SE2StateSpace::StateType>();
 
   si->getStateSpace()->copyState(result, state);
-  double car_length = 0.5;
 
   for (int i = 0; i < nsteps; i++) {
     se2.setX(se2.getX() + dt * u[0] * cos(se2.getYaw()));
     se2.setY(se2.getY() + dt * u[0] * sin(se2.getYaw()));
-    se2.setYaw(se2.getYaw() + dt * u[0] * tan(dt * u[1]) / car_length);
+    se2.setYaw(se2.getYaw() +
+               dt * u[0] * tan(dt * u[1]) /
+                   global::settings.forwardpropagation.car_length);
 
     if (!si->satisfiesBounds(result)) return;
   }
