@@ -17,7 +17,7 @@ void kinematicSingleTrackODE(const oc::ODESolver::StateType& q,
                              oc::ODESolver::StateType& qdot) {
   double* u = control->as<oc::RealVectorControlSpace::ControlType>()->values;
   double heading = q[2];
-  double car_length = 0.30;
+  double car_length = 0.30;  // TODO externalize parameters
   qdot.resize(q.size(), 0);
   // q = [x, y, heading, v_long, steering_angle]
   // u = [long_acc, d_steering_angle ]
@@ -64,8 +64,8 @@ void propagate(const oc::SpaceInformation* si, const ob::State* state,
   for (int i = 0; i < nsteps; i++) {
     se2.setX(se2.getX() + dt * realPart.values[0] * cos(se2.getYaw()));
     se2.setY(se2.getY() + dt * realPart.values[0] * sin(se2.getYaw()));
-    se2.setYaw(se2.getYaw() + dt * realPart.values[0] *
-                                  tan(dt * realPart.values[1]) / car_length);
+    se2.setYaw(se2.getYaw() +
+               dt * realPart.values[0] * tan(realPart.values[1]) / car_length);
     realPart.values[0] = realPart.values[0] + dt * u[0];
     realPart.values[1] = realPart.values[1] + dt * u[1];
 
