@@ -200,7 +200,7 @@ def print_run_info(data, run_id: int, run_ids: [int]):
     if "settings" in run:
         steering = steer_function_names[steer_functions[
             run["settings"]["steer"]["steering_type"]]]
-        robot_model = robot_models_names[robot_models[data["settings"]
+        robot_model = robot_models_names[robot_models[run["settings"]
                                                       ["forwardpropagation"]["forward_propagation_type"]]]
 
     if(controlbased):
