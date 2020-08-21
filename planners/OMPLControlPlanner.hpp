@@ -131,7 +131,8 @@ class OMPLControlPlanner : public AbstractPlanner {
 
   og::PathGeometric solution() const override {
     // og::PathGeometric path(_solution);
-    return og::PathGeometric(_solution.asGeometric());
+    std::cout << "Returning solution << " << std::endl;
+    return og::PathGeometric(ss_c->getSolutionPath().asGeometric());
   }
 
   bool hasReachedGoalExactly() const override {
