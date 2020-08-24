@@ -81,11 +81,7 @@ RUN cd build && make
 
 # Run benchmark executable to generate benchmark_template.json
 WORKDIR /root/code/mpb/bin
-RUN benchmark
-
-# Install Python requirements for plotting
-WORKDIR /root/code/mpb/plotting
-RUN pip3 install -r requirements.txt
+RUN ./benchmark; exit 0
 
 # Set up git lfs
 RUN git lfs install
