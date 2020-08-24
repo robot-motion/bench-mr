@@ -295,11 +295,20 @@ struct GlobalSettings : public Group {
     Property<unsigned int> seed{1, "seed", this};
 
     /**
-     * The sampler used by OMPL. 
-     * 
+     * The sampler used by OMPL.
+     *
      * Currently supported: "iid", "halton"
      */
     Property<std::string> sampler{"iid", "sampler", this};
+
+    /**
+     * The optimization objective used by OMPL.
+     *
+     * Currently supported: "min_pathlength", "max_minclearance",
+     * "max_smoothness"
+     */
+    Property<std::string> optimization_objective{
+        "pathlength", "optimization_objective", this};
 
     struct RRTstarSettings : public Group {
       using Group::Group;
@@ -315,9 +324,8 @@ struct GlobalSettings : public Group {
       Property<double> max_distance{0., "max_distance", this};
     } rrt_star{"rrt_star", this};
 
-
     /**
-     * Sets the OMPL sampler based on the state space (steering function) and 
+     * Sets the OMPL sampler based on the state space (steering function) and
      * selected sampler.
      */
     void initializeSampler() const;
@@ -497,7 +505,6 @@ struct GlobalSettings : public Group {
      */
     Property<int> number_edges{10, "number_edges", this};
   } thetaStar{"theta_star", this};
-
 
   GlobalSettings() : Group("settings") {}
 
