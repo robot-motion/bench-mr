@@ -83,9 +83,7 @@ class OMPLControlPlanner : public AbstractPlanner {
     //     ptc is never true. The control-based planners do not add approximate
     //     solutions
 
-    auto solved = ss_c->solve();  // This stops the planner after 1.0 sec
-
-    // auto solved = ss_c->solve(global::settings.max_planning_time);
+    auto solved = ss_c->solve(global::settings.max_planning_time);  // This stops the planner after max_planning_time sec
 
     OMPL_INFORM("OMPL %s planning status: %s", _omplPlanner->getName().c_str(),
                 solved.asString().c_str());
