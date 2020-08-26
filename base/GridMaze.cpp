@@ -613,20 +613,23 @@ GridMaze *GridMaze::createFromImage(const std::string &filename,
   }
   printf("Loaded grid map from image %s (%ix%i, %i channel(s)).\n",
          filename.c_str(), actual_width, actual_height, n);
+  fflush(stdout);
 
-  if (width != 0 && height != 0 &&
+  if (width > 0 && height > 0 &&
       (actual_width != width || actual_height != height)) {
-    unsigned char *resized_data = nullptr;
-    stbir_resize_uint8(data, actual_width, actual_height, 0, resized_data,
+    unsigned char *resized_data = new unsigned char[width * height];
+    int result = stbir_resize_uint8(data, actual_width, actual_height, 0, resized_data,
                        width, height, 0, 1);
-    if (!data) {
+    if (!result || !resized_data) {
       fprintf(stderr,
               "Warning: failed to resize image %s from %ix%i to %ix%i: %s\n",
               filename.c_str(), actual_width, actual_height, width, height,
               stbi_failure_reason());
+      fflush(stderr);
     } else {
       printf("Resized image %s from %ix%i to %ix%i.\n", filename.c_str(),
              actual_width, actual_height, width, height);
+      fflush(stdout);
       stbi_image_free(data);
       data = resized_data;
     }
@@ -636,6 +639,7 @@ GridMaze *GridMaze::createFromImage(const std::string &filename,
   }
 
   auto *environment = new GridMaze(0, width, height);
+  environment->_type = "image: " + filename;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       double pixel = data[y * width + x] / 255.;
