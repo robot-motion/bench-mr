@@ -6,7 +6,6 @@
 #include <ompl/base/spaces/SE2StateSpace.h>
 #include <ompl/control/ODESolver.h>
 #include <ompl/control/spaces/RealVectorControlSpace.h>
-
 #include <utils/OptimizationObjective.h>
 
 #include <steering_functions/include/ompl_state_spaces/CurvatureStateSpace.hpp>
@@ -19,78 +18,7 @@
 #include "steer_functions/G1Clothoid/ClothoidSteering.hpp"
 #endif
 
-PlannerSettings::GlobalSettings global::settings;
-void PlannerSettings::GlobalSettings::ForwardPropagationSettings::
-    initializeForwardPropagation() const {
-  // Construct the robot state space in which we're planning.
-  if (global::settings.forwardpropagation.forward_propagation_type ==
-      ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR) {
-    std::cout << "Initializing state space for forward propagation KC"
-              << std::endl;
-    // defining configuration space
-    auto cspace(std::make_shared<ob::SE2StateSpace>());
-    cspace->setBounds(global::settings.environment->bounds());
-    // And adding the control space
-    global::settings.ompl.state_space = cspace;
-
-    // set the bounds for the control space
-    ompl::base::RealVectorBounds bounds(2);
-    bounds.setLow(-1.5);
-    bounds.setHigh(1.5);
-
-    // create a control space
-    auto controlspace(
-        std::make_shared<ompl::control::RealVectorControlSpace>(cspace, 2));
-    controlspace->setBounds(bounds);
-
-    global::settings.ompl.control_space = controlspace;
-
-    global::settings.ompl.control_space_info =
-        std::make_shared<ompl::control::SpaceInformation>(
-            global::settings.ompl.state_space,
-            global::settings.ompl.control_space);
-  }
-
-  if (global::settings.forwardpropagation.forward_propagation_type ==
-      ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_SINGLE_TRACK) {
-    std::cout << "Initializing state space for forward propagation KST"
-              << std::endl;
-    // defining configuration space
-    auto cspace(std::make_shared<ompl::base::CompoundStateSpace>());
-    cspace->addSubspace(std::make_shared<ompl::base::SE2StateSpace>(), 1.);
-    cspace->addSubspace(std::make_shared<ompl::base::RealVectorStateSpace>(2),
-                        1.0);
-
-    cspace->getSubspace(0)->as<ompl::base::SE2StateSpace>()->setBounds(
-        global::settings.environment->bounds());
-
-    // set the bounds for the control space
-    ompl::base::RealVectorBounds bounds(2);
-    bounds.setLow(-1.5);
-    bounds.setHigh(1.5);
-
-    // create a control space
-    auto controlspace(
-        std::make_shared<ompl::control::RealVectorControlSpace>(cspace, 2));
-    controlspace->setBounds(bounds);
-
-    cspace->getSubspace(1)->as<ompl::base::RealVectorStateSpace>()->setBounds(
-        bounds);
-
-    global::settings.ompl.state_space = cspace;
-    global::settings.ompl.control_space = controlspace;
-    global::settings.ompl.control_space_info =
-        std::make_shared<ompl::control::SpaceInformation>(
-            global::settings.ompl.state_space,
-            global::settings.ompl.control_space);
-
-    global::settings.ompl.state_space->as<ompl::base::StateSpace>()
-        ->registerDefaultProjection(
-            std::make_shared<
-                ForwardPropagation::KinematicSingleTrackProjectionEvaluator>(
-                global::settings.ompl.state_space.get()));
-  }
-}
+namespace oc = ompl::control;
 
 /**
  * Instrumented state space allows to measure time spent on computing the
@@ -116,6 +44,76 @@ struct InstrumentedStateSpace : public StateSpaceT {
   }
 };
 
+PlannerSettings::GlobalSettings global::settings;
+void PlannerSettings::GlobalSettings::ForwardPropagationSettings::
+    initializeForwardPropagation() const {
+  // Construct the robot state space in which we're planning.
+  if (global::settings.forwardpropagation.forward_propagation_type ==
+      ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR) {
+    std::cout << "Initializing state space for forward propagation KC"
+              << std::endl;
+    // defining state space
+    auto *state_space = new InstrumentedStateSpace<ob::SE2StateSpace>;
+    state_space->setBounds(global::settings.environment->bounds());
+    ob::StateSpacePtr state_space_ptr(state_space);
+    // And adding the control space
+    global::settings.ompl.state_space = state_space_ptr;
+
+    // set the bounds for the control space
+    ob::RealVectorBounds bounds(2);
+    bounds.setLow(-1.5);
+    bounds.setHigh(1.5);
+
+    auto *control_space = new oc::RealVectorControlSpace(state_space_ptr, 2);
+    control_space->setBounds(bounds);
+    global::settings.ompl.control_space = oc::ControlSpacePtr(control_space);
+
+    global::settings.ompl.control_space_info =
+        std::make_shared<oc::SpaceInformation>(
+            global::settings.ompl.state_space,
+            global::settings.ompl.control_space);
+  } else if (global::settings.forwardpropagation.forward_propagation_type ==
+             ForwardPropagation::
+                 FORWARD_PROPAGATION_TYPE_KINEMATIC_SINGLE_TRACK) {
+    std::cout << "Initializing state space for forward propagation KST"
+              << std::endl;
+    // defining configuration space
+    auto *state_space = new InstrumentedStateSpace<ob::CompoundStateSpace>;
+    state_space->addSubspace(std::make_shared<ob::SE2StateSpace>(), 1.);
+    state_space->addSubspace(std::make_shared<ob::RealVectorStateSpace>(2),
+                             1.0);
+
+    state_space->getSubspace(0)->as<ob::SE2StateSpace>()->setBounds(
+        global::settings.environment->bounds());
+    ob::StateSpacePtr state_space_ptr(state_space);
+
+    // set the bounds for the control space
+    ob::RealVectorBounds bounds(2);
+    bounds.setLow(-1.5);
+    bounds.setHigh(1.5);
+
+    // create a control space
+    auto *control_space = new oc::RealVectorControlSpace(state_space_ptr, 2);
+    control_space->setBounds(bounds);
+
+    state_space->getSubspace(1)->as<ob::RealVectorStateSpace>()->setBounds(
+        bounds);
+
+    global::settings.ompl.state_space = state_space_ptr;
+    global::settings.ompl.control_space = oc::ControlSpacePtr(control_space);
+    global::settings.ompl.control_space_info =
+        std::make_shared<oc::SpaceInformation>(
+            global::settings.ompl.state_space,
+            global::settings.ompl.control_space);
+
+    global::settings.ompl.state_space->as<ob::StateSpace>()
+        ->registerDefaultProjection(
+            std::make_shared<
+                ForwardPropagation::KinematicSingleTrackProjectionEvaluator>(
+                global::settings.ompl.state_space.get()));
+  }
+}
+
 void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
     const {
   // Construct the robot state space in which we're planning.
@@ -124,7 +122,8 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
         ob::StateSpacePtr(new InstrumentedStateSpace<ob::ReedsSheppStateSpace>(
             car_turning_radius));
   else if (steering_type == Steering::STEER_TYPE_POSQ)
-    global::settings.ompl.state_space = ob::StateSpacePtr(new POSQStateSpace());
+    global::settings.ompl.state_space =
+        ob::StateSpacePtr(new InstrumentedStateSpace<POSQStateSpace>());
   else if (steering_type == Steering::STEER_TYPE_DUBINS)
     global::settings.ompl.state_space = ob::StateSpacePtr(
         new InstrumentedStateSpace<ob::DubinsStateSpace>(car_turning_radius));
@@ -166,9 +165,8 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
   //  global::settings.ompl.state_space->setup();
 
   global::settings.ompl.space_info =
-      std::make_shared<ompl::base::SpaceInformation>(
-          global::settings.ompl.state_space);
-  global::settings.ompl.objective = ompl::base::OptimizationObjectivePtr(
+      std::make_shared<ob::SpaceInformation>(global::settings.ompl.state_space);
+  global::settings.ompl.objective = ob::OptimizationObjectivePtr(
       new OptimizationObjective(global::settings.ompl.space_info));
   global::settings.ompl.objective->setCostThreshold(
       ob::Cost(global::settings.ompl.cost_threshold));
