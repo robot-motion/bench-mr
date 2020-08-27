@@ -66,7 +66,8 @@ struct GlobalSettings : public Group {
     struct GridSettings : public Group {
       using Group::Group;
       /**
-       * Generator for grid environments ("corridor", "random", "moving_ai").
+       * Generator for grid environments ("corridor", "random", "moving_ai",
+       * "image").
        */
       Property<std::string> generator{"corridor", "generator", this};
       Property<unsigned int> width{50, "width", this};
@@ -83,6 +84,15 @@ struct GlobalSettings : public Group {
         using Group::Group;
         Property<double> obstacle_ratio{0.1, "obstacle_ratio", this};
       } random{"random", this};
+
+      struct ImageSettings : public Group {
+        using Group::Group;
+        Property<std::string> source{"image_mazes/intel-lab.png", "source",
+                                     this};
+        Property<double> occupancy_threshold{0.5, "occupancy_threshold", this};
+        Property<int> desired_width{0, "desired_width", this};
+        Property<int> desired_height{0, "desired_height", this};
+      } image{"image", this};
     } grid{"grid", this};
 
     struct PolygonSettings : public Group {

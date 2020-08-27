@@ -149,12 +149,13 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
     OMPL_ERROR(
         "Select a steering type other than STEER_TYPE_CLOTHOID in the "
         "global::settings.");
+    exit(1);
   }
 #endif
   else {
     OMPL_ERROR(
         "Unknown steer function has been defined. The state space is invalid.");
-    return;
+    exit(1);
   }
 
   global::settings.ompl.state_space->as<ob::SE2StateSpace>()->setBounds(
@@ -193,14 +194,25 @@ void PlannerSettings::GlobalSettings::EnvironmentSettings::createEnvironment() {
     } else if (grid.generator.value() == "random") {
       global::settings.environment = GridMaze::createRandom(
           grid.width, grid.height, grid.random.obstacle_ratio, grid.seed);
+    } else if (grid.generator.value() == "image") {
+      global::settings.environment = GridMaze::createFromImage(
+          grid.image.source, grid.image.occupancy_threshold,
+          grid.image.desired_width, grid.image.desired_height);
+      if (!global::settings.environment) {
+        exit(1);
+      }
+      global::settings.env.grid.width = global::settings.environment->width();
+      global::settings.env.grid.height = global::settings.environment->height();
     } else {
       OMPL_ERROR("Unknown grid environment generator \"%s\".",
                  grid.generator.value().c_str());
+      exit(1);
     }
   } else if (type.value() == "polygon") {
     global::settings.environment = PolygonMaze::loadFromSvg(polygon.source);
   } else {
     OMPL_ERROR("Unknown environment type \"%s\".", type.value().c_str());
+    exit(1);
   }
   collision.initializeCollisionModel();
 }

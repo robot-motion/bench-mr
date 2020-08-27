@@ -52,7 +52,8 @@ def plot_planner_stats(json_file: str,
                        fig_width: float = 6,
                        fig_height: float = 6,
                        metrics='path_length, curvature, planning_time, mean_clearing_distance, cusps, aggregate',
-                       dpi: int = 200, **kwargs):
+                       dpi: int = 200,
+                       scatter_mark_size=40, **kwargs):
     kwargs.update(locals())
     if not silence:
         click.echo("Visualizing %s..." % click.format_filename(json_file))
@@ -70,7 +71,8 @@ def plot_planner_stats(json_file: str,
 
     ignore_planners = parse_planners(ignore_planners)
     if len(ignore_planners) > 0 and not silence:
-        click.echo('Ignoring the following planner(s): %s' % ', '.join(ignore_planners))
+        click.echo('Ignoring the following planner(s): %s' %
+                   ', '.join(ignore_planners))
 
     file = open(json_file, "r")
     data = json.load(file)
@@ -81,7 +83,8 @@ def plot_planner_stats(json_file: str,
         max_plots_per_line = min(max_plots_per_line, len(stat_keys))
         axes_h = max_plots_per_line
         axes_v = int(math.ceil(len(stat_keys) / max_plots_per_line))
-        plt.figure("MPB Stats %s" % json_file, figsize=(axes_h * fig_width, axes_v * fig_height))
+        plt.figure("MPB Stats %s" % json_file, figsize=(
+            axes_h * fig_width, axes_v * fig_height))
 
     # obtain number of planners
     planners = []
@@ -104,11 +107,13 @@ def plot_planner_stats(json_file: str,
         if combine_views:
             ax = plt.subplot(axes_v, axes_h, si + 1)
         else:
-            plt.figure("Run %i - %s (%s)" % (run_id, json_file, stat_names[stat_key]), figsize=(fig_width, fig_height))
+            plt.figure("Run %i - %s (%s)" % (run_id, json_file,
+                                             stat_names[stat_key]), figsize=(fig_width, fig_height))
             ax = plt.gca()
 
         if stat_key == "aggregate":
-            plot_aggregate(ax, [data["runs"][i] for i in run_ids], planners=planners, show_legend=True, **kwargs)
+            plot_aggregate(ax, [data["runs"][i] for i in run_ids],
+                           planners=planners, show_legend=True, **kwargs)
         else:
             stats = {}
             for run_id in run_ids:
@@ -136,35 +141,46 @@ def plot_planner_stats(json_file: str,
                     if not np.isnan(stat):
                         stats[planner].append(stat)
                     if not plot_violins:
-                        plt.scatter([planners.index(planner) + 0.85 - 0.5 * run_id / len(data["runs"])],
+                        if len(data["runs"]) > 1:
+                            offset = 0.25 + 0.5 * run_id / \
+                                (len(data["runs"])-1)
+                        else:
+                            offset = 0.5
+                        plt.scatter([planners.index(planner) + offset],
                                     [stat],
-                                    color=violin_colors[planners.index(planner) % kwargs['num_colors']],
-                                    s=4)
+                                    color=violin_colors[planners.index(
+                                        planner) % kwargs['num_colors']],
+                                    s=scatter_mark_size)
             kwargs['run_id'] = run_id
             plt.grid()
             plt.gca().set_axisbelow(True)
 
             if plot_violins:
                 ticks = np.arange(len(valid_planners)) + 0.5
-                violins = [ensure_valid_violin(stats[planner]) for planner in valid_planners]
+                violins = [ensure_valid_violin(
+                    stats[planner]) for planner in valid_planners]
                 try:
                     vs = plt.violinplot(violins, ticks, points=50, widths=0.8,
                                         showmeans=True, showextrema=False, showmedians=True)
                     for i, body in enumerate(vs["bodies"]):
-                        body.set_facecolor(violin_colors[i % kwargs['num_colors']])
+                        body.set_facecolor(
+                            violin_colors[i % kwargs['num_colors']])
                         body.set_edgecolor((0, 0, 0, 0))
                     for partname in ('cmeans', 'cmedians'):
                         vs[partname].set_edgecolor("black")
                     vs['cmeans'].set_edgecolor('green')
 
                     if not combine_views or si % axes_h == axes_h - 1:
-                        plt.plot([np.nan], [np.nan], color="green", label="Mean")
-                        plt.plot([np.nan], [np.nan], color="black", label="Median")
+                        plt.plot([np.nan], [np.nan],
+                                 color="green", label="Mean")
+                        plt.plot([np.nan], [np.nan],
+                                 color="black", label="Median")
                         show_legend(**kwargs)
                 except:
                     pass
 
-        plt.xticks(ticks, [convert_planner_name(p) for p in valid_planners], rotation=ticks_rotation, fontsize=14)
+        plt.xticks(ticks, [convert_planner_name(p)
+                           for p in valid_planners], rotation=ticks_rotation, fontsize=14)
         plt.gca().set_xlim([0, len(valid_planners)])
         plt.title(stat_names[stat_key], fontsize=18, pad=15)
 
@@ -199,7 +215,8 @@ def plot_smoother_stats(json_file: str,
                         fig_width: float = 8,
                         fig_height: float = 6,
                         metrics='path_length, curvature, planning_time, mean_clearing_distance, cusps, aggregate',
-                        dpi: int = 200, **kwargs):
+                        dpi: int = 200,
+                        scatter_mark_size=40, **kwargs):
     kwargs.update(locals())
     if not silence:
         click.echo("Visualizing %s..." % click.format_filename(json_file))
@@ -217,11 +234,13 @@ def plot_smoother_stats(json_file: str,
 
     ignore_planners = parse_planners(ignore_planners)
     if len(ignore_planners) > 0 and not silence:
-        click.echo('Ignoring the following planner(s): %s' % ', '.join(ignore_planners))
+        click.echo('Ignoring the following planner(s): %s' %
+                   ', '.join(ignore_planners))
 
     ignore_smoothers = parse_smoothers(ignore_smoothers)
     if len(ignore_smoothers) > 0 and not silence:
-        click.echo('Ignoring the following smoother(s): %s' % ', '.join(ignore_smoothers))
+        click.echo('Ignoring the following smoother(s): %s' %
+                   ', '.join(ignore_smoothers))
 
     data = json.load(open(json_file, "r"))
     run_ids = parse_run_ids(run_id, len(data["runs"]))
@@ -230,7 +249,8 @@ def plot_smoother_stats(json_file: str,
         max_plots_per_line = min(max_plots_per_line, len(stat_keys))
         axes_h = max_plots_per_line
         axes_v = int(math.ceil(len(stat_keys) / max_plots_per_line))
-        plt.figure("MPB Stats %s" % json_file, figsize=(axes_h * fig_width, axes_v * fig_height))
+        plt.figure("MPB Stats %s" % json_file, figsize=(
+            axes_h * fig_width, axes_v * fig_height))
 
     # obtain number of planners
     planners = []
@@ -256,7 +276,8 @@ def plot_smoother_stats(json_file: str,
                 if len(planners) == 1:
                     bar_names.append(smoother)
                 else:
-                    bar_names.append("%s (%s)" % (convert_planner_name(planner), smoother))
+                    bar_names.append("%s (%s)" %
+                                     (convert_planner_name(planner), smoother))
     else:
         bar_names = smoothers
         for smoother in smoothers:
@@ -275,7 +296,8 @@ def plot_smoother_stats(json_file: str,
         if combine_views:
             ax = plt.subplot(axes_v, axes_h, si + 1)
         else:
-            plt.figure("Run %i - %s (%s)" % (run_id, json_file, stat_names[stat_key]), figsize=(fig_width, fig_height))
+            plt.figure("Run %i - %s (%s)" % (run_id, json_file,
+                                             stat_names[stat_key]), figsize=(fig_width, fig_height))
             ax = plt.gca()
 
         if stat_key == "aggregate":
@@ -306,11 +328,17 @@ def plot_smoother_stats(json_file: str,
                             stat = np.nan
                         if not np.isnan(stat):
                             stats[planner].append(stat)
+                        if len(data["runs"]) > 1:
+                            offset = 0.25 + 0.5 * run_id / \
+                                (len(data["runs"])-1)
+                        else:
+                            offset = 0.5
                         if not plot_violins:
-                            plt.scatter([bar_names.index(planner) + 0.85 - 0.5 * run_id / len(data["runs"])],
+                            plt.scatter([bar_names.index(planner) + offset],
                                         [stat],
-                                        color=violin_colors[bar_names.index(planner) % kwargs['num_colors']],
-                                        s=4)
+                                        color=violin_colors[bar_names.index(
+                                            planner) % kwargs['num_colors']],
+                                        s=scatter_mark_size)
                     if "smoothing" in plan:
                         if not plan["smoothing"]:
                             continue
@@ -318,7 +346,8 @@ def plot_smoother_stats(json_file: str,
                             if smoother in ignore_smoothers:
                                 continue
                             if separate_planners and len(planners) > 1:
-                                bar_name = "%s (%s)" % (convert_planner_name(planner), smoother_names[smoother])
+                                bar_name = "%s (%s)" % (convert_planner_name(
+                                    planner), smoother_names[smoother])
                             else:
                                 bar_name = smoother_names[smoother]
 
@@ -342,8 +371,9 @@ def plot_smoother_stats(json_file: str,
                             if not plot_violins:
                                 plt.scatter([bar_names.index(bar_name) + 0.85 - 0.5 * run_id / len(data["runs"])],
                                             [stat],
-                                            color=violin_colors[bar_names.index(bar_name) % kwargs['num_colors']],
-                                            s=4)
+                                            color=violin_colors[bar_names.index(
+                                                bar_name) % kwargs['num_colors']],
+                                            s=scatter_mark_size)
             kwargs['run_id'] = run_id
             plt.grid()
             plt.gca().set_axisbelow(True)
@@ -352,20 +382,24 @@ def plot_smoother_stats(json_file: str,
             ticks = np.arange(len(bar_names)) + 0.5
 
             if plot_violins:
-                violins = [ensure_valid_violin(stats[bar_name]) for bar_name in bar_names]
+                violins = [ensure_valid_violin(
+                    stats[bar_name]) for bar_name in bar_names]
                 try:
                     vs = plt.violinplot(violins, ticks, points=50, widths=0.8,
                                         showmeans=True, showextrema=False, showmedians=True)
                     for i, body in enumerate(vs["bodies"]):
-                        body.set_facecolor(violin_colors[i % kwargs['num_colors']])
+                        body.set_facecolor(
+                            violin_colors[i % kwargs['num_colors']])
                         body.set_edgecolor((0, 0, 0, 0))
                     for partname in ('cmeans', 'cmedians'):
                         vs[partname].set_edgecolor("black")
                     vs['cmeans'].set_edgecolor('green')
 
                     if not combine_views or si % axes_h == axes_h - 1:
-                        plt.plot([np.nan], [np.nan], color="green", label="Mean")
-                        plt.plot([np.nan], [np.nan], color="black", label="Median")
+                        plt.plot([np.nan], [np.nan],
+                                 color="green", label="Mean")
+                        plt.plot([np.nan], [np.nan],
+                                 color="black", label="Median")
                         show_legend(**kwargs)
                 except:
                     pass
