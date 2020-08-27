@@ -643,7 +643,8 @@ GridMaze *GridMaze::createFromImage(const std::string &filename,
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       double pixel = data[y * width + x] / 255.;
-      environment->_grid[y * width + x] = pixel <= occupancy_threshold;
+      // flip image vertically
+      environment->_grid[(height - y - 1) * width + x] = pixel <= occupancy_threshold;
     }
   }
 

@@ -65,13 +65,13 @@ def plot_env(env, run_id: int = -1, colors=('b', 'r'),
             if "distances" not in env:
                 click.echo('Environment contains no distance information.', err=True)
             else:
-                map_data = np.array(env["distances"]).reshape((h, w))
+                map_data = np.array(env["distances"]).reshape((w, h))
                 click.echo(map_data)
                 click.echo("Maximum distance:", map_data.max())
-                plt.imshow(np.flip(map_data, axis=0), cmap='jet', vmin=0, vmax=map_data.max(), extent=[0, w, h, 0])
-        map_data = np.array(list(bitarray(env["map"]))).reshape((h, w))
+                plt.imshow(np.flip(map_data, axis=0), cmap='jet', vmin=0, vmax=map_data.max(), extent=[0, w, 0, h])
+        map_data = np.array(list(bitarray(env["map"]))).reshape((w, h))
         map_data = 1. - np.flip(map_data, axis=0)
-        plt.imshow(map_data, cmap='gray', vmin=-1, vmax=1, extent=[0, w, h, 0], alpha=0.5)
+        plt.imshow(map_data, cmap='gray', vmin=-1, vmax=1, extent=[0, w, 0, h], alpha=0.5)
         ax.set_xlim([0, w])
         ax.set_ylim([0, h])
 
