@@ -351,7 +351,6 @@ bool GridMaze::collides(double x, double y) { return occupied(x, y); }
 
 bool GridMaze::collides(const Polygon &polygon) {
   _collision_timer.resume();
-  std::cout << "Collision checking " << std::endl;
   typedef std::vector<Eigen::Matrix<double, 2, 1>> PG;
   const auto poly = (PG)polygon;
 

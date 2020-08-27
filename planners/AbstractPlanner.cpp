@@ -66,14 +66,12 @@ AbstractPlanner::AbstractPlanner(const std::string &name) {
         ss_c->setStateValidityChecker([&](const ob::State *state) -> bool {
           const auto *compState =
               state->as<ob::CompoundStateSpace::StateType>();
-          const auto *se2state = compState->as<ob::SE2StateSpace::StateType>(0);
-          // std::cout << "Check " << se2state->getX() << " " <<
-          // se2state->getY()
-          //           << std::endl;
-
-          return !global::settings.environment->collides(
+          const ob::State *se2state =
+              compState->as<ob::SE2StateSpace::StateType>(0);
+          bool coll = global::settings.environment->collides(
               global::settings.env.collision.robot_shape.value().transformed(
                   se2state));
+          return !coll;
         });
       }
     }

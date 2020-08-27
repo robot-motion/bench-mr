@@ -76,11 +76,28 @@ std::vector<std::array<double, 2>> Log::serializePath(
 std::vector<std::array<double, 3>> Log::serializeTrajectory(
     const ompl::geometric::PathGeometric &t, bool interpolate) {
   ompl::geometric::PathGeometric traj = t;
+
   if (interpolate) traj = PlannerUtils::interpolated(t);
   std::vector<std::array<double, 3>> r;
+
+  double x, y, yaw;
+
   for (auto i = 0u; i < traj.getStateCount(); ++i) {
-    const auto *s = traj.getState(i)->as<State>();
-    r.push_back({s->getX(), s->getY(), s->getYaw()});
+    if (global::settings.forwardpropagation.forward_propagation_type ==
+        ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_SINGLE_TRACK) {
+      const auto *compState =
+          traj.getState(i)->as<ob::CompoundStateSpace::StateType>();
+      const auto *se2state = compState->as<ob::SE2StateSpace::StateType>(0);
+      x = se2state->getX();
+      y = se2state->getY();
+      yaw = se2state->getYaw();
+    } else {
+      const auto *s = traj.getState(i)->as<State>();
+      x = s->getX();
+      y = s->getY();
+      yaw = s->getYaw();
+    }
+    r.push_back({x, y, yaw});
   }
   return r;
 }
@@ -101,7 +118,6 @@ std::vector<std::array<double, 3>> Log::serializeTrajectory(
         ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_SINGLE_TRACK) {
       const auto *s = traj.getState(i)->as<ob::CompoundStateSpace::StateType>();
       const auto *se2state = s->as<ob::SE2StateSpace::StateType>(0);
-
       r.push_back({se2state->getX(), se2state->getY(), se2state->getYaw()});
     }
     return r;
