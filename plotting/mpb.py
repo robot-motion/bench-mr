@@ -390,8 +390,8 @@ class MPB:
                 raise TypeError(
                     "MPB.merge requires list of MPB instances or filenames.")
 
-        target = None
         plan_index = 0
+        target = None
         for i, m in enumerate(mpbs):
             if results_filenames[i] is None:
                 print("No results file exists for MPB %s. Skipping." % str(m))
@@ -411,32 +411,35 @@ class MPB:
                         continue
                     if i == 0 or target is None:
                         target = deepcopy(res)
+                        target["runs"] = []
                     if target is None:
                         continue
-                    if "runs" not in target:
-                        target["runs"] = []
-                    else:
-                        # TODO check settings, environments are the same for each run before merging
-                        for run_id, run in enumerate(res["runs"]):
-                            if make_separate_runs:
-                                target["runs"].append(run)
-                                continue
-                            if run_id >= len(target["runs"]):
-                                if not silence:
-                                    print("Run #%i does not exist in %s but in %s. Skipping."
-                                          % (run_id, results_filenames[i - 1], results_filenames[i]), file=sys.stderr)
-                            else:
-                                for pi, (planner, plan) in enumerate(run["plans"].items()):
-                                    if plan_names:
-                                        target["runs"][run_id]["plans"][plan_names[plan_index + pi]] = plan
-                                        continue
-                                    if planner in target["runs"][run_id]["plans"]:
-                                        if not silence:
-                                            print("Planner %s already exists in %s and in %s. Skipping."
-                                                  % (planner, results_filenames[i - 1], results_filenames[i]),
-                                                  file=sys.stderr)
-                                    else:
-                                        target["runs"][run_id]["plans"][planner] = plan
+
+                    # TODO check settings, environments are the same for each run before merging
+                    for run_id, run in enumerate(res["runs"]):
+                        if make_separate_runs:
+                            target["runs"].append(run)
+                            continue
+                        if i == 0:
+                            target["runs"].append(deepcopy(run))
+                            target["runs"][run_id]["plans"] = {}
+                            
+                        if run_id >= len(target["runs"]) and i != 0:
+                            if not silence:
+                                print("Run #%i does not exist in %s but in %s. Skipping."
+                                        % (run_id, results_filenames[i - 1], results_filenames[i]), file=sys.stderr)
+                        else:
+                            for pi, (planner, plan) in enumerate(run["plans"].items()):
+                                if plan_names:
+                                    target["runs"][run_id]["plans"][plan_names[plan_index + pi]] = plan
+                                    continue
+                                if planner in target["runs"][run_id]["plans"]:
+                                    if not silence:
+                                        print("Planner %s already exists in %s and in %s. Skipping."
+                                                % (planner, results_filenames[i - 1], results_filenames[i]),
+                                                file=sys.stderr)
+                                else:
+                                    target["runs"][run_id]["plans"][planner] = plan
                 except json.decoder.JSONDecodeError:
                     print("Error while decoding JSON file %s." %
                           results_filenames[i], file=sys.stderr)
