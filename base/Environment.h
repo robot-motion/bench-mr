@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ompl/base/ScopedState.h>
+
 #include "Primitives.h"
 #include "utils/Stopwatch.hpp"
 

@@ -1,16 +1,12 @@
 #include "base/PlannerSettings.h"
-#include "base/GridMaze.h"
-
+#include "base/environments/GridMaze.h"
 #include "metrics/PathLengthMetric.h"
-
 #include "planners/OMPLPlanner.hpp"
 #include "planners/sbpl/SbplPlanner.h"
 #include "planners/thetastar/ThetaStar.h"
-
-#include "utils/ScenarioLoader.h"
-#include "utils/PathEvaluation.hpp"
-
 #include "smoothers/grips/GRIPS.h"
+#include "utils/PathEvaluation.hpp"
+#include "utils/ScenarioLoader.h"
 
 namespace og = ompl::geometric;
 

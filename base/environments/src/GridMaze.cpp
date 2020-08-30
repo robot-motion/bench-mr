@@ -1,4 +1,4 @@
-#include "GridMaze.h"
+#include "base/environments/GridMaze.h"
 
 #include <ompl/util/Console.h>
 #include <planners/thetastar/ThetaStar.h>
@@ -9,7 +9,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "PlannerSettings.h"
+#include "base/PlannerSettings.h"
 #include "utils/PlannerUtils.hpp"
 
 #ifdef QT_SUPPORT

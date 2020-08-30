@@ -7,8 +7,8 @@
 #include <nlohmann/json.hpp>
 #include <vector>
 
-#include "Environment.h"
-#include "PlannerSettings.h"
+#include "base/Environment.h"
+#include "base/PlannerSettings.h"
 
 #define ROS_SUPPORT 0
 #define XML_SUPPORT 0

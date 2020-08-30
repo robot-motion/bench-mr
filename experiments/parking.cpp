@@ -1,8 +1,6 @@
 #include "base/PlannerSettings.h"
-#include "base/PolygonMaze.h"
-
+#include "base/environments/PolygonMaze.h"
 #include "planners/OMPLPlanner.hpp"
-
 #include "utils/PathEvaluation.hpp"
 #include "utils/ScenarioLoader.h"
 

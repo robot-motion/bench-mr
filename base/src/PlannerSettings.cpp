@@ -1,5 +1,6 @@
-#include "PlannerSettings.h"
+#include "base/PlannerSettings.h"
 
+#include <ompl/base/objectives/MaximizeMinClearanceObjective.h>
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
 #include <ompl/base/samplers/DeterministicStateSampler.h>
 #include <ompl/base/samplers/deterministic/HaltonSequence.h>
@@ -11,8 +12,8 @@
 
 #include <steering_functions/include/ompl_state_spaces/CurvatureStateSpace.hpp>
 
-#include "GridMaze.h"
-#include "PolygonMaze.h"
+#include "base/environments/GridMaze.h"
+#include "base/environments/PolygonMaze.h"
 #include "steer_functions/POSQ/POSQStateSpace.h"
 
 #ifdef G1_AVAILABLE
@@ -165,12 +166,14 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
       std::make_shared<ob::SpaceInformation>(global::settings.ompl.state_space);
   auto opt_obj_str = global::settings.ompl.optimization_objective.value();
   if (opt_obj_str == std::string("min_pathlength")) {
-    global::settings.ompl.objective = ob::OptimizationObjectivePtr(
-        new OptimizationObjective(global::settings.ompl.space_info));
-    global::settings.ompl.objective->setCostThreshold(
-        ob::Cost(global::settings.ompl.cost_threshold));
+    global::settings.ompl.objective = std::make_shared<OptimizationObjective>(
+        global::settings.ompl.space_info);
+    global::settings.ompl.objective->setCostThreshold(ob::Cost(
+        global::settings.ompl.cost_threshold));  // is this used by any planner?
   } else if (opt_obj_str == std::string("max_minclearance")) {
-    OMPL_ERROR("MaxMinClearance optimization is not implemented yet.");
+    global::settings.ompl.objective =
+        std::make_shared<ob::MaximizeMinClearanceObjective>(
+            global::settings.ompl.space_info);
   } else if (opt_obj_str == std::string("max_smoothness")) {
     OMPL_ERROR("MaxSmoothness optimization is not implemented yet.");
   }

@@ -67,7 +67,7 @@ endif (USE_G1)
 
 include_directories(${PROJECT_SOURCE_DIR})
 
-file(GLOB Base base/*)
+file(GLOB_RECURSE Base base/*)
 file(GLOB Utils utils/*)
 file(GLOB_RECURSE Steer steer_functions/*)
 file(GLOB Metrics metrics/*)

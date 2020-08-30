@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Environment.h"
-#include "PlannerSettings.h"
-#include "utils/SvgPolygonLoader.hpp"
-
 #include <collision2d/sat.hpp>
+
+#include "base/Environment.h"
+#include "base/PlannerSettings.h"
+#include "utils/SvgPolygonLoader.hpp"
 
 /**
  * Implements a maze consisting of convex shapes as obstacles.

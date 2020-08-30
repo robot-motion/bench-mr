@@ -4,7 +4,7 @@
 
 #include <params.hpp>
 
-#include "Environment.h"
+#include "base/Environment.h"
 #include "steer_functions/Steering.h"
 
 using namespace params;
@@ -308,7 +308,7 @@ struct GlobalSettings : public Group {
      * "max_smoothness"
      */
     Property<std::string> optimization_objective{
-        "pathlength", "optimization_objective", this};
+        "min_pathlength", "optimization_objective", this};
 
     struct RRTstarSettings : public Group {
       using Group::Group;
