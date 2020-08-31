@@ -190,9 +190,6 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
 }
 
 void PlannerSettings::GlobalSettings::EnvironmentSettings::createEnvironment() {
-  if (global::settings.environment) {
-    delete global::settings.environment;
-  }
   if (type.value() == "grid") {
     if (grid.generator.value() == "corridor") {
       global::settings.environment = GridMaze::createRandomCorridor(

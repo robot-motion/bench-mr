@@ -135,7 +135,6 @@ int main(int argc, char **argv) {
                 << std::endl;
 
       auto &scenario = scenarioLoader.scenarios()[i];
-      delete global::settings.environment;
       global::settings.environment =
           GridMaze::createFromMovingAiScenario(scenario);
       global::settings.env.collision.initializeCollisionModel();

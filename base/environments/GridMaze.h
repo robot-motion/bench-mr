@@ -21,11 +21,13 @@ class GridMaze : public Environment {
  public:
   GridMaze() = default;
   GridMaze(const GridMaze &environment);
+  GridMaze(unsigned int seed, unsigned int width, unsigned int height,
+           double voxelSize = 1.);
 
   ~GridMaze();
 
-  static const unsigned int DefaultWidth = 50;
-  static const unsigned int DefaultHeight = 50;
+  static inline const unsigned int DefaultWidth = 50;
+  static inline const unsigned int DefaultHeight = 50;
 
   unsigned int seed() const { return _seed; }
 
@@ -125,22 +127,22 @@ class GridMaze : public Environment {
   bool collides(double x, double y) override;
   bool collides(const Polygon &polygon) override;
 
-  static GridMaze *createRandom(unsigned int width = DefaultWidth,
-                                unsigned int height = DefaultHeight,
-                                double obsRatio = 0.3,
-                                unsigned int seed = (unsigned int)time(nullptr),
-                                int borderSize = 1);
-  static GridMaze *createRandomCorridor(
+  static std::shared_ptr<GridMaze> createRandom(
+      unsigned int width = DefaultWidth, unsigned int height = DefaultHeight,
+      double obsRatio = 0.3, unsigned int seed = (unsigned int)time(nullptr),
+      int borderSize = 1);
+  static std::shared_ptr<GridMaze> createRandomCorridor(
       unsigned int width = DefaultWidth, unsigned int height = DefaultHeight,
       double radius = 2, int branches = 30,
       unsigned int seed = (unsigned int)time(nullptr), int borderSize = 1);
-  static GridMaze *createFromObstacles(const std::vector<Rectangle> &obstacles,
-                                       unsigned int width = DefaultWidth,
-                                       unsigned int height = DefaultHeight,
-                                       int borderSize = 1);
-  static GridMaze *createSimple();
+  static std::shared_ptr<GridMaze> createFromObstacles(
+      const std::vector<Rectangle> &obstacles,
+      unsigned int width = DefaultWidth, unsigned int height = DefaultHeight,
+      int borderSize = 1);
+  static std::shared_ptr<GridMaze> createSimple();
 
-  static GridMaze *createFromMovingAiScenario(Scenario &scenario);
+  static std::shared_ptr<GridMaze> createFromMovingAiScenario(
+      Scenario &scenario);
 
 #if XML_SUPPORT
   static GridMaze *loadFromXml(std::string filename);
@@ -185,9 +187,6 @@ class GridMaze : public Environment {
 
  protected:
   using Environment::_collision_timer;
-
-  GridMaze(unsigned int seed, unsigned int width, unsigned int height,
-           double voxelSize = 1.);
 
   inline unsigned int coord2key(double x, double y) const {
     return (unsigned int)std::max(

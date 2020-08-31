@@ -11,7 +11,6 @@ int main(int argc, char **argv) {
   Log::instantiateRun();
 
   for (unsigned int i = 0; i < 1; ++i) {
-    delete global::settings.environment;
     global::settings.environment =
         GridMaze::createRandomCorridor(150, 150, 4, 130, i + 1);
 

@@ -43,7 +43,6 @@ int main(int argc, char **argv) {
     std::cout << "##############################################" << std::endl;
 
     // create environment
-    delete global::settings.environment;
     global::settings.environment =
         GridMaze::createFromMovingAiScenario(scenario);
     global::settings.steer.initializeSteering();

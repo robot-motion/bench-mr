@@ -2,6 +2,7 @@
 
 #include <chomp/Chomp.h>
 
+#include <memory>
 #include <params.hpp>
 
 #include "base/Environment.h"
@@ -49,7 +50,7 @@ struct StateSettings : public Group {
  */
 struct GlobalSettings : public Group {
   using Group::Group;
-  Environment *environment{nullptr};
+  std::shared_ptr<Environment> environment;
 
   struct EnvironmentSettings : public Group {
     using Group::Group;

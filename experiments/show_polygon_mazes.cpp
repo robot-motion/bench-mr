@@ -13,9 +13,8 @@ int main(int argc, char **argv) {
   std::vector<std::string> mazes{"parking1.svg", "parking2.svg", "parking3.svg",
                                  "warehouse.svg"};
   for (const auto &maze_filename : mazes) {
-    auto *maze = PolygonMaze::loadFromSvg("polygon_mazes/" + maze_filename);
+    auto maze = PolygonMaze::loadFromSvg("polygon_mazes/" + maze_filename);
     maze->to_json(info[maze_filename]);
-    delete maze;
   }
 
   Log::instantiateRun();

@@ -14,7 +14,6 @@ int main(int argc, char **argv) {
   int successes = 0;
   int total = 1;
   for (int i = 0; i < total; ++i) {
-    delete global::settings.environment;
     //    global::settings.environment =
     //        GridMaze::createRandomCorridor(50, 50, 6, 30, i + 1);
     //    std::string maze_filename = "polygon_mazes/parking1.svg";
@@ -24,7 +23,7 @@ int main(int argc, char **argv) {
     double scaling = 1.;
     global::settings.env.polygon.scaling =
         scaling / 22.;  // XXX important divide by 22 !!!
-    auto *maze = PolygonMaze::loadFromSvg(maze_filename);
+    auto maze = PolygonMaze::loadFromSvg(maze_filename);
 
     //    maze->setStart({0.0 * scaling, -2.27 * scaling});
     //    maze->setGoal({7.72 * scaling, -7.72 * scaling});
