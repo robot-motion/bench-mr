@@ -166,16 +166,20 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
       std::make_shared<ob::SpaceInformation>(global::settings.ompl.state_space);
   auto opt_obj_str = global::settings.ompl.optimization_objective.value();
   if (opt_obj_str == std::string("min_pathlength")) {
-    global::settings.ompl.objective = std::make_shared<OptimizationObjective>(
-        global::settings.ompl.space_info);
-    global::settings.ompl.objective->setCostThreshold(ob::Cost(
-        global::settings.ompl.cost_threshold));  // is this used by any planner?
+    global::settings.ompl.objective =
+        std::make_shared<CustomPathLengthOptimizationObjective>(
+            global::settings.ompl.space_info);
+    global::settings.ompl.objective->setCostThreshold(
+        ob::Cost(global::settings.ompl.cost_threshold));
   } else if (opt_obj_str == std::string("max_minclearance")) {
     global::settings.ompl.objective =
         std::make_shared<ob::MaximizeMinClearanceObjective>(
             global::settings.ompl.space_info);
-  } else if (opt_obj_str == std::string("max_smoothness")) {
-    OMPL_ERROR("MaxSmoothness optimization is not implemented yet.");
+  } else if (opt_obj_str == std::string("min_smoothness")) {
+    // note, OMPL's smoothness is better when smaller
+    global::settings.ompl.objective =
+        std::make_shared<SmoothnessOptimizationObjective>(
+            global::settings.ompl.space_info);
   }
 
 #ifdef DEBUG

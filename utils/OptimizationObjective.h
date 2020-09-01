@@ -78,9 +78,10 @@ class CustomPathLengthDirectInfSampler : public ob::InformedSampler {
   ompl::RNG rng_;
 };
 
-class OptimizationObjective : public ob::PathLengthOptimizationObjective {
+class CustomPathLengthOptimizationObjective
+    : public ob::PathLengthOptimizationObjective {
  public:
-  OptimizationObjective(ob::SpaceInformationPtr &space_info)
+  CustomPathLengthOptimizationObjective(ob::SpaceInformationPtr &space_info)
       : ob::PathLengthOptimizationObjective(space_info) {}
   ob::InformedSamplerPtr allocInformedStateSampler(
       const ob::ProblemDefinitionPtr &probDefn,
@@ -91,4 +92,22 @@ class OptimizationObjective : public ob::PathLengthOptimizationObjective {
     return ob::InformedSamplerPtr(
         new CustomPathLengthDirectInfSampler(probDefn, maxNumberCalls));
   }
+};
+
+/** \brief An optimization objective for minimizing OMPL's smoothness.
+ *
+ * Note, that this is only supported for geometric motion planning. Since OMPL
+ * does not implement smoothness for PathControl.
+ */
+class SmoothnessOptimizationObjective : public ob::OptimizationObjective {
+ public:
+  SmoothnessOptimizationObjective(ob::SpaceInformationPtr &space_info)
+      : ob::OptimizationObjective(space_info) {}
+
+  /** \brief Returns identity cost. */
+  ob::Cost stateCost(const ob::State *s) const override;
+
+  /** \brief Motion cost for this objective is defined as
+      the smoothness between the path between \p s1 and \p s2 . */
+  ob::Cost motionCost(const ob::State *s1, const ob::State *s2) const override;
 };
