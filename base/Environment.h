@@ -69,6 +69,10 @@ class Environment {
   double bilinearDistance(const Point &point, double cellSize = 1) {
     return bilinearDistance(point.x, point.y, cellSize);
   }
+  double bilinearDistance(const ob::State *state, double cellSize = 1) {
+    const auto *s = state->as<State>();
+    return bilinearDistance(s->getX(), s->getY());
+  }
 
   /**
    * Computes negative gradient of distance field at position x, y.

@@ -8,5 +8,5 @@ bool EnvironmentStateValidityChecker::isValid(const ob::State *state) const {
 
 double EnvironmentStateValidityChecker::clearance(
     const ob::State *state) const {
-  return env_->distance(state);
+  return env_->bilinearDistance(state);
 }
