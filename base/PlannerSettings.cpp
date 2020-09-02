@@ -30,17 +30,17 @@ struct InstrumentedStateSpace : public StateSpaceT {
 
   double distance(const ob::State *state1,
                   const ob::State *state2) const override {
-    global::settings.ompl.state_space_timer.resume();
+    global::settings.ompl.steering_timer.resume();
     double d = StateSpaceT::distance(state1, state2);
-    global::settings.ompl.state_space_timer.stop();
+    global::settings.ompl.steering_timer.stop();
     return d;
   }
 
   void interpolate(const ob::State *from, const ob::State *to, double t,
                    ob::State *state) const override {
-    global::settings.ompl.state_space_timer.resume();
+    global::settings.ompl.steering_timer.resume();
     StateSpaceT::interpolate(from, to, t, state);
-    global::settings.ompl.state_space_timer.stop();
+    global::settings.ompl.steering_timer.stop();
   }
 };
 

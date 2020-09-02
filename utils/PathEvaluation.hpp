@@ -55,7 +55,7 @@ struct PathEvaluation {
                        const AbstractPlanner *planner) {
     stats.planning_time = planner->planningTime();
     stats.collision_time = global::settings.environment->elapsedCollisionTime();
-    stats.steering_time = global::settings.ompl.state_space_timer.elapsed();
+    stats.steering_time = global::settings.ompl.steering_timer.elapsed();
     stats.planner = planner->name();
     if (path.getStateCount() < 2) {
       stats.path_found = false;
@@ -102,7 +102,7 @@ struct PathEvaluation {
                        const AbstractPlanner *planner) {
     stats.planning_time = planner->planningTime();
     stats.collision_time = global::settings.environment->elapsedCollisionTime();
-    stats.steering_time = global::settings.ompl.state_space_timer.elapsed();
+    stats.steering_time = global::settings.ompl.steering_timer.elapsed();
     stats.planner = planner->name();
     if (path.getStateCount() < 2) {
       stats.path_found = false;
@@ -151,7 +151,7 @@ struct PathEvaluation {
     OMPL_INFORM(("Running " + planner.name() + "...").c_str());
     bool success;
     global::settings.environment->resetCollisionTimer();
-    global::settings.ompl.state_space_timer.reset();
+    global::settings.ompl.steering_timer.reset();
     try {
       if (planner.run()) {
         success = PathEvaluation::evaluate(stats, planner.solution(), &planner);
@@ -272,7 +272,7 @@ struct PathEvaluation {
     }
     auto &j = info["plans"][planner->name()]["smoothing"];
     global::settings.environment->resetCollisionTimer();
-    global::settings.ompl.state_space_timer.reset();
+    global::settings.ompl.steering_timer.reset();
 
     if (global::settings.benchmark.smoothing.grips) {
       const double cached_min_node_dist =
@@ -292,7 +292,7 @@ struct PathEvaluation {
           {"time", GRIPS::smoothingTime},
           {"collision_time",
            global::settings.environment->elapsedCollisionTime()},
-          {"steering_time", global::settings.ompl.state_space_timer.elapsed()},
+          {"steering_time", global::settings.ompl.steering_timer.elapsed()},
           {"name", "GRIPS"},
           {"inserted_nodes", GRIPS::insertedNodes},
           {"pruning_rounds", GRIPS::pruningRounds},
@@ -305,7 +305,7 @@ struct PathEvaluation {
     }
     if (global::settings.benchmark.smoothing.chomp) {
       global::settings.environment->resetCollisionTimer();
-      global::settings.ompl.state_space_timer.reset();
+      global::settings.ompl.steering_timer.reset();
       // CHOMP
       CHOMP chomp;
       chomp.run(planner->solution());
@@ -315,7 +315,7 @@ struct PathEvaluation {
           {"time", chomp.planningTime()},
           {"collision_time",
            global::settings.environment->elapsedCollisionTime()},
-          {"steering_time", global::settings.ompl.state_space_timer.elapsed()},
+          {"steering_time", global::settings.ompl.steering_timer.elapsed()},
           {"name", "CHOMP"},
           {"cost", chomp.solution().length()},
           {"path", Log::serializeTrajectory(chomp.solution(), false)},
@@ -327,7 +327,7 @@ struct PathEvaluation {
     OmplSmoother smoother(planner->simpleSetup(), planner->solution());
     if (global::settings.benchmark.smoothing.ompl_shortcut) {
       global::settings.environment->resetCollisionTimer();
-      global::settings.ompl.state_space_timer.reset();
+      global::settings.ompl.steering_timer.reset();
       // Shortcut
       PathStatistics stats;
       TimedResult tr = smoother.shortcutPath();
@@ -336,7 +336,7 @@ struct PathEvaluation {
           {"time", tr.elapsed()},
           {"collision_time",
            global::settings.environment->elapsedCollisionTime()},
-          {"steering_time", global::settings.ompl.state_space_timer.elapsed()},
+          {"steering_time", global::settings.ompl.steering_timer.elapsed()},
           {"name", "Shortcut"},
           {"cost", tr.trajectory.length()},
           {"path", Log::serializeTrajectory(tr.trajectory, false)},
@@ -345,7 +345,7 @@ struct PathEvaluation {
     }
     if (global::settings.benchmark.smoothing.ompl_bspline) {
       global::settings.environment->resetCollisionTimer();
-      global::settings.ompl.state_space_timer.reset();
+      global::settings.ompl.steering_timer.reset();
       // B-Spline
       PathStatistics stats;
       TimedResult tr = smoother.smoothBSpline();
@@ -354,7 +354,7 @@ struct PathEvaluation {
           {"time", tr.elapsed()},
           {"collision_time",
            global::settings.environment->elapsedCollisionTime()},
-          {"steering_time", global::settings.ompl.state_space_timer.elapsed()},
+          {"steering_time", global::settings.ompl.steering_timer.elapsed()},
           {"name", "B-Spline"},
           {"cost", tr.trajectory.length()},
           {"path", Log::serializeTrajectory(tr.trajectory, false)},
@@ -363,7 +363,7 @@ struct PathEvaluation {
     }
     if (global::settings.benchmark.smoothing.ompl_simplify_max) {
       global::settings.environment->resetCollisionTimer();
-      global::settings.ompl.state_space_timer.reset();
+      global::settings.ompl.steering_timer.reset();
       // Simplify Max
       PathStatistics stats;
       TimedResult tr = smoother.simplifyMax();
@@ -372,7 +372,7 @@ struct PathEvaluation {
           {"time", tr.elapsed()},
           {"collision_time",
            global::settings.environment->elapsedCollisionTime()},
-          {"steering_time", global::settings.ompl.state_space_timer.elapsed()},
+          {"steering_time", global::settings.ompl.steering_timer.elapsed()},
           {"name", "SimplifyMax"},
           {"cost", tr.trajectory.length()},
           {"path", Log::serializeTrajectory(tr.trajectory, false)},

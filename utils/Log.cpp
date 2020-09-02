@@ -120,6 +120,6 @@ std::vector<std::array<double, 3>> Log::serializeTrajectory(
       const auto *se2state = s->as<ob::SE2StateSpace::StateType>(0);
       r.push_back({se2state->getX(), se2state->getY(), se2state->getYaw()});
     }
-    return r;
   }
+  return r;
 }
