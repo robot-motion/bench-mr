@@ -15,6 +15,7 @@ namespace kinematicSingleTrack {
 void kinematicSingleTrackODE(const oc::ODESolver::StateType& q,
                              const oc::Control* control,
                              oc::ODESolver::StateType& qdot) {
+  global::settings.ompl.steering_timer.resume();
   double* u = control->as<oc::RealVectorControlSpace::ControlType>()->values;
   double heading = q[2];
   qdot.resize(q.size(), 0);
@@ -27,6 +28,7 @@ void kinematicSingleTrackODE(const oc::ODESolver::StateType& q,
 
   qdot[3] = u[0];
   qdot[4] = u[1];
+  global::settings.ompl.steering_timer.stop();
 }
 
 // as in
@@ -45,6 +47,7 @@ void kinematicSingleTrackPostIntegration(const ob::State* state,
 void propagate(const oc::SpaceInformation* si, const ob::State* state,
                const oc::Control* control, const double duration,
                ob::State* result) {
+  global::settings.ompl.steering_timer.resume();
   static double timeStep = global::settings.forwardpropagation.dt;
   int nsteps = ceil(duration / timeStep);
 
@@ -69,11 +72,15 @@ void propagate(const oc::SpaceInformation* si, const ob::State* state,
     realPart.values[0] = realPart.values[0] + dt * u[0];
     realPart.values[1] = realPart.values[1] + dt * u[1];
 
-    if (!si->satisfiesBounds(result)) return;
+    if (!si->satisfiesBounds(result)) {
+      global::settings.ompl.steering_timer.stop();
+      return;
+    }
   }
 
   ob::SO2StateSpace SO2;
   SO2.enforceBounds(se2.as<ob::SO2StateSpace::StateType>(1));
+  global::settings.ompl.steering_timer.stop();
 }
 
 }  // namespace kinematicSingleTrack

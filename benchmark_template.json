@@ -12,6 +12,10 @@
         25.0,
         30.0
       ],
+      "control_planners_on": true,
+      "forward_propagations": [
+        0
+      ],
       "log_file": "",
       "moving_ai": {
         "active": false,
@@ -26,6 +30,11 @@
         "cforest": true,
         "est": true,
         "fmt": false,
+        "fpest": true,
+        "fpkpiece": true,
+        "fppdst": true,
+        "fprrt": true,
+        "fpsst": true,
         "informed_rrt_star": true,
         "kpiece": true,
         "pdst": true,
@@ -59,7 +68,7 @@
         7
       ]
     },
-    "cusp_angle_threshold": 1.0471975511966,
+    "cusp_angle_threshold": 1.0471975511965976,
     "distance_computation_method": 0,
     "env": {
       "collision": {
@@ -86,7 +95,7 @@
         "width": 50
       },
       "polygon": {
-        "scaling": 0.0454545454545455,
+        "scaling": 0.045454545454545456,
         "source": "polygon_mazes/parking1.svg"
       },
       "start": {
@@ -101,7 +110,7 @@
     "exact_goal_radius": 0.01,
     "fast_odf_threshold": 10000,
     "forwardpropagation": {
-      "axis_length": 0.54,
+      "car_length": 1.1,
       "car_turning_radius": 4.0,
       "dt": 0.1,
       "forward_propagation_type": 0,
@@ -122,7 +131,7 @@
     },
     "sbpl": {
       "forward_velocity": 0.2,
-      "goal_tolerance_theta": 6.28318530717959,
+      "goal_tolerance_theta": 6.283185307179586,
       "goal_tolerance_x": 1.0,
       "goal_tolerance_y": 1.0,
       "initial_solution_eps": 3.0,

@@ -303,7 +303,10 @@ struct GlobalSettings : public Group {
     ompl::base::SpaceInformationPtr space_info{nullptr};
     ompl::control::SpaceInformationPtr control_space_info{nullptr};
     ompl::base::OptimizationObjectivePtr objective{nullptr};
-    Stopwatch state_space_timer;
+
+    // stopwatch to measure time for state space interpolation (steering function) and
+    // propagating the control dynamics for forward-propagating planners
+    Stopwatch steering_timer;
 
     Property<double> state_equality_tolerance{1e-4, "state_equality_tolerance",
                                               this};
