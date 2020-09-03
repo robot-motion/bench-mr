@@ -110,7 +110,8 @@ def visualize(json_file: str,
                 continue
             if planner not in planners:
                 planners.append(planner)
-    planners = sorted(planners, key=convert_planner_name)
+    # This sorting seems to break the association between planner and labels
+    # planners = sorted(planners, key=convert_planner_name)
 
     plot_labels = []
     for i in run_ids:
@@ -133,7 +134,7 @@ def visualize(json_file: str,
                     plot_label = "%s (%s)" % (convert_planner_name(planner), smoother_names[smoother])
                     if plot_label not in plot_labels:
                         plot_labels.append(plot_label)
-    colors = get_colors(len(plot_labels), **kwargs)
+    colors = get_colors(len(plot_labels))
 
     plot_counter = 1
     legend_shown = False
