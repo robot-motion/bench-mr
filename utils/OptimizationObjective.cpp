@@ -1,8 +1,11 @@
 #include "OptimizationObjective.h"
 
 #include <ompl/base/goals/GoalSampleableRegion.h>
+#include <ompl/base/spaces/SE2StateSpace.h>
 #include <ompl/geometric/PathGeometric.h>
 #include <ompl/util/ProlateHyperspheroid.h>
+
+#include <cmath>
 
 namespace og = ompl::geometric;
 
@@ -624,4 +627,63 @@ ob::Cost SmoothnessOptimizationObjective::motionCost(
   // two states
   segment.interpolate();
   return ob::Cost(segment.smoothness());
+}
+
+ob::Cost CurvatureOptimizationObjective::stateCost(const ob::State *s) const {
+  return identityCost();
+}
+
+ob::Cost CurvatureOptimizationObjective::motionCost(const ob::State *s1,
+                                                    const ob::State *s2) const {
+  auto segment = og::PathGeometric(si_, s1, s2);
+  segment.interpolate();
+  double curvature_sum = 0;
+  const auto &states = segment.getStates();
+  for (int i = 1; i < states.size() - 1; ++i) {
+    auto state_0 = states[i - 1]->as<ob::SE2StateSpace::StateType>();
+    auto state_1 = states[i]->as<ob::SE2StateSpace::StateType>();
+    auto state_2 = states[i + 1]->as<ob::SE2StateSpace::StateType>();
+    double x_0 = state_0->getX(), y_0 = state_0->getY();
+    double x_1 = state_1->getX(), y_1 = state_1->getY();
+    double x_2 = state_2->getX(), y_2 = state_2->getY();
+
+    double length = std::sqrt(std::pow(x_0 - x_1, 2) + std::pow(y_0 - y_1, 2)) +
+                    std::sqrt(std::pow(x_1 - x_2, 2) + std::pow(y_1 - y_2, 2));
+
+    // if two points in a row repeat, we skip curvature computation
+    if (x_0 == x_1 && y_0 == y_1 || x_1 == x_2 && y_1 == y_2) continue;
+
+    // Infinite curvature in case the path goes a step backwards
+    if (x_0 == x_2 && y_0 == y_2) {
+      curvature_sum += max_curvature_ * length;
+      continue;
+    }
+
+    // 0 curvature in case the path just goes forward
+    if (x_2 * (-y_0 + y_1) + x_1 * (y_0 - y_2) + x_0 * (-y_1 + y_2) < 1e-5) {
+      continue;
+    }
+
+    // Compute center of circle that goes through the 3 points
+    double cx =
+        (std::pow(x_2, 2) * (-y_0 + y_1) + std::pow(x_1, 2) * (y_0 - y_2) -
+         (std::pow(x_0, 2) + (y_0 - y_1) * (y_0 - y_2)) * (y_1 - y_2)) /
+        (2 * (x_2 * (-y_0 + y_1) + x_1 * (y_0 - y_2) + x_0 * (-y_1 + y_2)));
+    double cy =
+        (-(std::pow(x_1, 2) * x_2) + std::pow(x_0, 2) * (-x_1 + x_2) +
+         x_2 * (std::pow(y_0, 2) - std::pow(y_1, 2)) +
+         x_0 * (std::pow(x_1, 2) - std::pow(x_2, 2) + std::pow(y_1, 2) -
+                std::pow(y_2, 2)) +
+         x_1 * (std::pow(x_2, 2) - std::pow(y_0, 2) + std::pow(y_2, 2))) /
+        (2 * (x_2 * (y_0 - y_1) + x_0 * (y_1 - y_2) + x_1 * (-y_0 + y_2)));
+
+    // Curvature = 1/Radius
+    double radius = std::sqrt(std::pow(x_0 - cx, 2) + std::pow(y_0 - cy, 2));
+
+    double ki = std::min(1. / radius, max_curvature_);
+
+    curvature_sum += 1. / radius * length;
+  }
+
+  return ob::Cost(curvature_sum + 1e-5);
 }

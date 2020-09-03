@@ -306,7 +306,7 @@ struct GlobalSettings : public Group {
      * The optimization objective used by OMPL.
      *
      * Currently supported: "min_pathlength", "max_minclearance",
-     * "max_smoothness"
+     * "max_smoothness", "min_curvature"
      */
     Property<std::string> optimization_objective{
         "min_pathlength", "optimization_objective", this};

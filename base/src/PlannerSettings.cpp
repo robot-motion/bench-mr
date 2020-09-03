@@ -180,6 +180,12 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
     global::settings.ompl.objective =
         std::make_shared<SmoothnessOptimizationObjective>(
             global::settings.ompl.space_info);
+  } else if (opt_obj_str == std::string("min_curvature")) {
+    // note, OMPL's smoothness is better when smaller
+    global::settings.ompl.objective =
+        std::make_shared<CurvatureOptimizationObjective>(
+            global::settings.ompl.space_info,
+            1. / global::settings.steer.car_turning_radius);
   }
 
 #ifdef DEBUG
