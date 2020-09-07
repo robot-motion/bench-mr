@@ -88,6 +88,12 @@
         },
         "generator": "corridor",
         "height": 50,
+        "image": {
+          "desired_height": 0,
+          "desired_width": 0,
+          "occupancy_threshold": 0.5,
+          "source": "image_mazes/intel-lab.png"
+        },
         "random": {
           "obstacle_ratio": 0.1
         },
@@ -126,6 +132,7 @@
         "goal_bias": 0.05,
         "max_distance": 0.0
       },
+      "sampler": "iid",
       "seed": 1,
       "state_equality_tolerance": 0.0001
     },

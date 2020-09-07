@@ -18,7 +18,7 @@
 #include <ompl/control/planners/rrt/RRT.h>
 #include <ompl/control/planners/sst/SST.h>
 
-#include <ompl/geometric/planners/bitstar/BITstar.h>
+#include <ompl/geometric/planners/informedtrees/BITstar.h>
 #include <ompl/geometric/planners/cforest/CForest.h>
 #include <ompl/geometric/planners/est/EST.h>
 #include <ompl/geometric/planners/fmt/BFMT.h>
