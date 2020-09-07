@@ -117,6 +117,34 @@ class MPB:
         self["env.grid.corridor.branches"] = branches
         self["env.grid.corridor.radius"] = radius
 
+    def set_image_grid_env(self,
+                           filename: str,
+                           desired_width: int = 0,
+                           desired_height: int = 0,
+                           occupancy_threshold: float = 0.5):
+        self["env.type"] = "grid"
+        self["env.grid.generator"] = "image"
+        self["env.grid.image.source"] = filename
+        self["env.grid.image.desired_width"] = desired_width
+        self["env.grid.image.desired_height"] = desired_height
+        self["env.grid.image.occupancy_threshold"] = occupancy_threshold
+
+    def set_start(self,
+                  x: float,
+                  y: float,
+                  theta: float):
+        self["env.start.x"] = x
+        self["env.start.y"] = y
+        self["env.start.theta"] = theta
+
+    def set_goal(self,
+                 x: float,
+                 y: float,
+                 theta: float):
+        self["env.goal.x"] = x
+        self["env.goal.y"] = y
+        self["env.goal.theta"] = theta
+
     def set_planners(self, planners: [str]):
         planners = list(
             set(itertools.chain.from_iterable(map(parse_planners, planners))))
@@ -209,7 +237,8 @@ class MPB:
             runs = self["benchmark.runs"]
         ts = time.time()
         if not id:
-            id = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H-%M-%S')
+            id = datetime.datetime.fromtimestamp(
+                ts).strftime('%Y-%m-%d_%H-%M-%S')
         self.set_id(id)
         self.set_subfolder(subfolder)
         log_filename = os.path.join(subfolder, self.id + ".log")
@@ -403,8 +432,8 @@ class MPB:
                 raise TypeError(
                     "MPB.merge requires list of MPB instances or filenames.")
 
-        target = None
         plan_index = 0
+        target = None
         for i, m in enumerate(mpbs):
             if results_filenames[i] is None:
                 print("No results file exists for MPB %s. Skipping." % str(m))
@@ -424,32 +453,35 @@ class MPB:
                         continue
                     if i == 0 or target is None:
                         target = deepcopy(res)
+                        target["runs"] = []
                     if target is None:
                         continue
-                    if "runs" not in target:
-                        target["runs"] = []
-                    else:
-                        # TODO check settings, environments are the same for each run before merging
-                        for run_id, run in enumerate(res["runs"]):
-                            if make_separate_runs:
-                                target["runs"].append(run)
-                                continue
-                            if run_id >= len(target["runs"]):
-                                if not silence:
-                                    print("Run #%i does not exist in %s but in %s. Skipping."
-                                          % (run_id, results_filenames[i - 1], results_filenames[i]), file=sys.stderr)
-                            else:
-                                for pi, (planner, plan) in enumerate(run["plans"].items()):
-                                    if plan_names:
-                                        target["runs"][run_id]["plans"][plan_names[plan_index + pi]] = plan
-                                        continue
-                                    if planner in target["runs"][run_id]["plans"]:
-                                        if not silence:
-                                            print("Planner %s already exists in %s and in %s. Skipping."
-                                                  % (planner, results_filenames[i - 1], results_filenames[i]),
-                                                  file=sys.stderr)
-                                    else:
-                                        target["runs"][run_id]["plans"][planner] = plan
+
+                    # TODO check settings, environments are the same for each run before merging
+                    for run_id, run in enumerate(res["runs"]):
+                        if make_separate_runs:
+                            target["runs"].append(run)
+                            continue
+                        if i == 0:
+                            target["runs"].append(deepcopy(run))
+                            target["runs"][run_id]["plans"] = {}
+                            
+                        if run_id >= len(target["runs"]) and i != 0:
+                            if not silence:
+                                print("Run #%i does not exist in %s but in %s. Skipping."
+                                        % (run_id, results_filenames[i - 1], results_filenames[i]), file=sys.stderr)
+                        else:
+                            for pi, (planner, plan) in enumerate(run["plans"].items()):
+                                if plan_names:
+                                    target["runs"][run_id]["plans"][plan_names[plan_index + pi]] = plan
+                                    continue
+                                if planner in target["runs"][run_id]["plans"]:
+                                    if not silence:
+                                        print("Planner %s already exists in %s and in %s. Skipping."
+                                                % (planner, results_filenames[i - 1], results_filenames[i]),
+                                                file=sys.stderr)
+                                else:
+                                    target["runs"][run_id]["plans"][planner] = plan
                 except json.decoder.JSONDecodeError:
                     print("Error while decoding JSON file %s." %
                           results_filenames[i], file=sys.stderr)

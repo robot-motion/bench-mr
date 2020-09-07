@@ -189,8 +189,8 @@ int main(int argc, char **argv) {
                 << global::settings.benchmark.runs.value() << std::endl;
       std::cout << "##############################################"
                 << std::endl;
-      global::settings.env.grid.seed = i + 1;
       global::settings.env.createEnvironment();
+      global::settings.env.grid.seed += 1;
 
       // global::settings.steer.initializeSteering();
 

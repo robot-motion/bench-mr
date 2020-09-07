@@ -6,6 +6,9 @@
 #include <ompl/base/spaces/SE2StateSpace.h>
 #include <ompl/control/ODESolver.h>
 #include <ompl/control/spaces/RealVectorControlSpace.h>
+#include <ompl/base/spaces/SO2StateSpace.h>
+#include <ompl/base/samplers/DeterministicStateSampler.h>
+#include <ompl/base/samplers/deterministic/HaltonSequence.h>
 #include <utils/OptimizationObjective.h>
 
 #include <steering_functions/include/ompl_state_spaces/CurvatureStateSpace.hpp>
@@ -19,6 +22,26 @@
 #endif
 
 namespace oc = ompl::control;
+#define DEBUG
+
+PlannerSettings::GlobalSettings global::settings;
+
+
+template<typename DeterministicStateSamplerT>
+ob::StateSamplerPtr allocateHaltonStateSampler(
+  const ob::StateSpace *space,
+  std::vector<unsigned int> bases = {})
+{
+  // specify which deterministic sequence to use, here: HaltonSequence
+  // optionally we can specify the bases used for generation 
+  // (otherwise first dim prime numbers are used)
+  if (bases.size() != 0)
+    return std::make_shared<DeterministicStateSamplerT>(
+      space, std::make_shared<ob::HaltonSequence>(bases.size(), bases));
+  else
+    return std::make_shared<DeterministicStateSamplerT>(
+      space, std::make_shared<ob::HaltonSequence>(space->getDimension()));
+}
 
 /**
  * Instrumented state space allows to measure time spent on computing the
@@ -44,7 +67,6 @@ struct InstrumentedStateSpace : public StateSpaceT {
   }
 };
 
-PlannerSettings::GlobalSettings global::settings;
 void PlannerSettings::GlobalSettings::ForwardPropagationSettings::
     initializeForwardPropagation() const {
   // Construct the robot state space in which we're planning.
@@ -111,6 +133,56 @@ void PlannerSettings::GlobalSettings::ForwardPropagationSettings::
             std::make_shared<
                 ForwardPropagation::KinematicSingleTrackProjectionEvaluator>(
                 global::settings.ompl.state_space.get()));
+
+    }
+  }
+
+  
+void PlannerSettings::GlobalSettings::OmplSettings::initializeSampler() const {
+  const auto& space_ptr = global::settings.ompl.state_space;
+  const auto& steering_type = global::settings.steer.steering_type;
+  if (global::settings.ompl.sampler.value() == std::string("halton")) {
+    if (steering_type == Steering::STEER_TYPE_REEDS_SHEPP || 
+        steering_type == Steering::STEER_TYPE_POSQ || 
+        steering_type == Steering::STEER_TYPE_DUBINS || 
+        steering_type == Steering::STEER_TYPE_LINEAR) {
+      // all of these are derived from SE2StateSpace
+      const auto& se2_space_ptr = space_ptr->as<ob::SE2StateSpace>();
+      se2_space_ptr->setStateSamplerAllocator(
+        [] (const ob::StateSpace *space) -> ob::StateSamplerPtr { 
+          return allocateHaltonStateSampler<ob::SE2DeterministicStateSampler>(space); 
+        });
+    }
+    else if (steering_type == Steering::STEER_TYPE_CC_DUBINS || 
+             steering_type == Steering::STEER_TYPE_CC_REEDS_SHEPP || 
+             steering_type == Steering::STEER_TYPE_HC_REEDS_SHEPP) {
+      // all of these are instances of CurvatureStateSpace (template class) 
+      // which is derived from CompoundStateSpace
+      const auto& compound_space_ptr = space_ptr->as<ob::CompoundStateSpace>();
+
+      // set StateSamplerAllocator for subspaces 
+      // (the default CompoundStateSampler will use these automatically)
+      compound_space_ptr->as<ob::RealVectorStateSpace>(
+        0)->setStateSamplerAllocator(
+        [] (const ob::StateSpace *space) -> ob::StateSamplerPtr { 
+          return allocateHaltonStateSampler<ob::RealVectorDeterministicStateSampler>(space, {2, 3}); 
+        });
+      compound_space_ptr->as<ob::SO2StateSpace>(
+        1)->setStateSamplerAllocator(
+        [] (const ob::StateSpace *space) -> ob::StateSamplerPtr { 
+          return allocateHaltonStateSampler<ob::SO2DeterministicStateSampler>(space, {5}); 
+        });
+      compound_space_ptr->as<ob::RealVectorStateSpace>(
+        2)->setStateSamplerAllocator(
+        [] (const ob::StateSpace *space) -> ob::StateSamplerPtr { 
+          return allocateHaltonStateSampler<ob::RealVectorDeterministicStateSampler>(space, {7}); 
+        });
+      // TODO: deterministic sampler for discrete space? (is it even used?)
+    }
+    else {
+      OMPL_ERROR("Selected sampler not supported for selected steering function."
+                 " Using default sampler instead (i.i.d.).");
+    }
   }
 }
 
@@ -152,20 +224,23 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
     OMPL_ERROR(
         "Select a steering type other than STEER_TYPE_CLOTHOID in the "
         "global::settings.");
+    exit(1);
   }
 #endif
   else {
     OMPL_ERROR(
         "Unknown steer function has been defined. The state space is invalid.");
-    return;
+    exit(1);
   }
 
   global::settings.ompl.state_space->as<ob::SE2StateSpace>()->setBounds(
       global::settings.environment->bounds());
-  //  global::settings.ompl.state_space->setup();
+
+  global::settings.ompl.initializeSampler();
 
   global::settings.ompl.space_info =
-      std::make_shared<ob::SpaceInformation>(global::settings.ompl.state_space);
+      std::make_shared<ob::SpaceInformation>(
+          global::settings.ompl.state_space);
   global::settings.ompl.objective = ob::OptimizationObjectivePtr(
       new OptimizationObjective(global::settings.ompl.space_info));
   global::settings.ompl.objective->setCostThreshold(
@@ -194,14 +269,25 @@ void PlannerSettings::GlobalSettings::EnvironmentSettings::createEnvironment() {
     } else if (grid.generator.value() == "random") {
       global::settings.environment = GridMaze::createRandom(
           grid.width, grid.height, grid.random.obstacle_ratio, grid.seed);
+    } else if (grid.generator.value() == "image") {
+      global::settings.environment = GridMaze::createFromImage(
+          grid.image.source, grid.image.occupancy_threshold,
+          grid.image.desired_width, grid.image.desired_height);
+      if (!global::settings.environment) {
+        exit(1);
+      }
+      global::settings.env.grid.width = global::settings.environment->width();
+      global::settings.env.grid.height = global::settings.environment->height();
     } else {
       OMPL_ERROR("Unknown grid environment generator \"%s\".",
                  grid.generator.value().c_str());
+      exit(1);
     }
   } else if (type.value() == "polygon") {
     global::settings.environment = PolygonMaze::loadFromSvg(polygon.source);
   } else {
     OMPL_ERROR("Unknown environment type \"%s\".", type.value().c_str());
+    exit(1);
   }
   collision.initializeCollisionModel();
 }

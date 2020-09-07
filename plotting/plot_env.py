@@ -42,7 +42,10 @@ def plot_env(env, run_id: int = -1, colors=('b', 'r'),
         h = env["height"]
         ax = plt.gca()
 
-        if w * h > 100 * 100:
+        if w * h > 200 * 200:
+            major_ticks = np.arange(0, max(w+1, h+1), 50)
+            minor_ticks = np.arange(0, max(w+1, h+1), 10)
+        elif w * h > 100 * 100:
             major_ticks = np.arange(0, max(w+1, h+1), 25)
             minor_ticks = np.arange(0, max(w+1, h+1), 5)
         else:

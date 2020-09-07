@@ -69,7 +69,8 @@ struct GlobalSettings : public Group {
     struct GridSettings : public Group {
       using Group::Group;
       /**
-       * Generator for grid environments ("corridor", "random", "moving_ai").
+       * Generator for grid environments ("corridor", "random", "moving_ai",
+       * "image").
        */
       Property<std::string> generator{"corridor", "generator", this};
       Property<unsigned int> width{50, "width", this};
@@ -86,6 +87,15 @@ struct GlobalSettings : public Group {
         using Group::Group;
         Property<double> obstacle_ratio{0.1, "obstacle_ratio", this};
       } random{"random", this};
+
+      struct ImageSettings : public Group {
+        using Group::Group;
+        Property<std::string> source{"image_mazes/intel-lab.png", "source",
+                                     this};
+        Property<double> occupancy_threshold{0.5, "occupancy_threshold", this};
+        Property<int> desired_width{0, "desired_width", this};
+        Property<int> desired_height{0, "desired_height", this};
+      } image{"image", this};
     } grid{"grid", this};
 
     struct PolygonSettings : public Group {
@@ -314,6 +324,13 @@ struct GlobalSettings : public Group {
 
     Property<unsigned int> seed{1, "seed", this};
 
+    /**
+     * The sampler used by OMPL. 
+     * 
+     * Currently supported: "iid", "halton"
+     */
+    Property<std::string> sampler{"iid", "sampler", this};
+
     struct RRTstarSettings : public Group {
       using Group::Group;
 
@@ -327,6 +344,13 @@ struct GlobalSettings : public Group {
        */
       Property<double> max_distance{0., "max_distance", this};
     } rrt_star{"rrt_star", this};
+
+
+    /**
+     * Sets the OMPL sampler based on the state space (steering function) and 
+     * selected sampler.
+     */
+    void initializeSampler() const;
   } ompl{"ompl", this};
 
   struct SteerSettings : public Group {
@@ -538,7 +562,13 @@ struct GlobalSettings : public Group {
     Property<int> number_edges{10, "number_edges", this};
   } thetaStar{"theta_star", this};
 
-  GlobalSettings() : Group("settings") { ompl::RNG::setSeed(ompl.seed); }
+
+  GlobalSettings() : Group("settings") {}
+
+  void load(const nlohmann::json &j) {
+    Group::load(j);
+    ompl::RNG::setSeed(ompl.seed);
+  }
 };
 }  // namespace PlannerSettings
 
