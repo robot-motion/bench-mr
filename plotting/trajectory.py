@@ -103,6 +103,7 @@ def visualize(json_file: str,
         if not use_existing_subplot:
             plt.figure("MPB %s" % json_file, figsize=(axes_h * fig_width, axes_v * fig_height))
 
+    # gather all available planner names
     planners = []
     for run_id in run_ids:
         for planner in data["runs"][run_id]["plans"]:
@@ -110,36 +111,40 @@ def visualize(json_file: str,
                 continue
             if planner not in planners:
                 planners.append(planner)
-    # This sorting seems to break the association between planner and labels
-    # planners = sorted(planners, key=convert_planner_name)
+                
+    planners = sorted(planners, key=convert_planner_name)
 
     plot_labels = []
+    color_ids = {}
     for i in run_ids:
         run = data["runs"][i]
         if run["plans"] is None:
             print("No plans were found in %s at run #%i." % (json_file, i))
             continue
-        for j, planner in enumerate(planners):
+        for planner in planners:
             if planner.lower() in ignore_planners:
                 continue
             if planner not in run["plans"]:
                 continue
             plan = run["plans"][planner]
             if not show_only_smoother and convert_planner_name(planner) not in plot_labels:
+                color_ids[planner] = len(plot_labels)
                 plot_labels.append(convert_planner_name(planner))
             if show_smoother and "smoothing" in plan and plan["smoothing"] is not None:
-                for k, (smoother, smoothing) in enumerate(plan["smoothing"].items()):
+                for smoother, smoothing in enumerate(plan["smoothing"].items()):
                     if smoothing["name"] in ignore_smoothers:
                         continue
                     plot_label = "%s (%s)" % (convert_planner_name(planner), smoother_names[smoother])
                     if plot_label not in plot_labels:
+                        color_ids[planner + " " + smoother] = len(plot_labels)
                         plot_labels.append(plot_label)
-    colors = get_colors(len(plot_labels))
+    if "num_colors" not in kwargs:
+        kwargs["num_colors"] = len(plot_labels)
+    colors = get_colors(**kwargs)
 
     plot_counter = 1
     legend_shown = False
     for i in run_ids:
-        color_counter = 0
         run = data["runs"][i]
         if not use_existing_subplot:
             if combine_views:
@@ -158,56 +163,56 @@ def visualize(json_file: str,
             settings = data["settings"]
         if run["plans"] is None:
             continue
-        for j, (planner, plan) in enumerate(run["plans"].items()):
+        for planner, plan in run["plans"].items():
             if planner.lower() in ignore_planners:
                 continue
 
             if not show_only_smoother:
+                color_id = color_ids[planner]
                 if draw_cusps:
                     circles = []
                     for cusp in plan["stats"]["cusps"]:
                         circle = patches.Circle(cusp, cusp_radius, ec="none")
                         circles.append(circle)
-                    collection = PatchCollection(circles, alpha=0.5, color=colors[color_counter])
+                    collection = PatchCollection(circles, alpha=0.5, color=colors[color_id])
                     plt.gca().add_collection(collection)
                 if draw_collisions and "collisions" in plan["stats"]:
                     circles = []
                     for collision in plan["stats"]["collisions"]:
                         circle = patches.Circle(collision, collision_radius, ec="none")
                         circles.append(circle)
-                    collection = PatchCollection(circles, alpha=0.5, color=colors[color_counter])
+                    collection = PatchCollection(circles, alpha=0.5, color=colors[color_id])
                     plt.gca().add_collection(collection)
 
-                plot_trajectory(plan["trajectory"], planner, settings, color=colors[color_counter], add_label=False,
+                plot_trajectory(plan["trajectory"], planner, settings, color=colors[color_id], add_label=False,
                                 **kwargs)
                 if draw_nodes:
-                    plot_nodes(plan["path"], planner, settings, color=colors[color_counter], **kwargs)
-                color_counter += 1
+                    plot_nodes(plan["path"], planner, settings, color=colors[color_id], **kwargs)
 
             if show_smoother and "smoothing" in plan and plan["smoothing"] is not None:
-                for k, (smoother, smoothing) in enumerate(plan["smoothing"].items()):
+                for smoother, smoothing in plan["smoothing"].items():
                     if smoothing["name"] in ignore_smoothers:
                         continue
+                    color_id = color_ids[planner + " " + smoother]
                     plot_trajectory(smoothing["trajectory"], "%s (%s)" % (planner, smoothing['name']), settings,
-                                    color=colors[color_counter], add_label=False, **kwargs)
+                                    color=colors[color_id], add_label=False, **kwargs)
                     if draw_cusps:
                         circles = []
                         for cusp in smoothing["stats"]["cusps"]:
                             circle = patches.Circle(cusp, cusp_radius, ec="none")
                             circles.append(circle)
-                        collection = PatchCollection(circles, alpha=0.5, color=colors[color_counter])
+                        collection = PatchCollection(circles, alpha=0.5, color=colors[color_id])
                         plt.gca().add_collection(collection)
                     if draw_collisions and "collisions" in plan["stats"]:
                         circles = []
                         for collision in smoothing["stats"]["collisions"]:
                             circle = patches.Circle(collision, collision_radius, ec="none")
                             circles.append(circle)
-                        collection = PatchCollection(circles, alpha=0.5, color=colors[color_counter])
+                        collection = PatchCollection(circles, alpha=0.5, color=colors[color_id])
                         plt.gca().add_collection(collection)
                     if draw_nodes and "path" in smoothing:
                         plot_nodes(smoothing["path"], "%s (%s)" % (planner, smoother), settings,
-                                   color=colors[color_counter], **kwargs)
-                    color_counter += 1
+                                   color=colors[color_id], **kwargs)
         # print("combine_views:", combine_views, "plot_counter:", plot_counter, "axes_h:", axes_h)
         if combine_views and (plot_counter - 1 == axes_h or axes_h == 1):
             for label, color in zip(plot_labels, colors):
