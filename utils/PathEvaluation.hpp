@@ -1,7 +1,8 @@
 #pragma once
 
 #include <metrics/ClearingMetric.h>
-#include <metrics/CurvatureMetric.h>
+#include <metrics/MaxCurvatureMetric.h>
+#include <metrics/NormalizedCurvatureMetric.h>
 #include <metrics/PathLengthMetric.h>
 #include <smoothers/chomp/CHOMP.h>
 
@@ -80,7 +81,9 @@ struct PathEvaluation {
             global::settings.exact_goal_radius;
       }
       stats.path_length = PathLengthMetric::evaluate(solution);
-      stats.curvature = CurvatureMetric::evaluate(solution);
+      stats.max_curvature = MaxCurvatureMetric::evaluate(solution);
+      stats.normalized_curvature =
+          NormalizedCurvatureMetric::evaluate(solution);
       stats.smoothness = solution.smoothness();
 
       if (global::settings.evaluate_clearing &&

@@ -639,7 +639,7 @@ ob::Cost CurvatureOptimizationObjective::motionCost(const ob::State *s1,
   segment.interpolate();
   double curvature_sum = 0;
   const auto &states = segment.getStates();
-  for (int i = 1; i < states.size() - 1; ++i) {
+  for (int i = 1; i < states.size() - 1; i += 2) {
     auto state_0 = states[i - 1]->as<ob::SE2StateSpace::StateType>();
     auto state_1 = states[i]->as<ob::SE2StateSpace::StateType>();
     auto state_2 = states[i + 1]->as<ob::SE2StateSpace::StateType>();
@@ -647,8 +647,9 @@ ob::Cost CurvatureOptimizationObjective::motionCost(const ob::State *s1,
     double x_1 = state_1->getX(), y_1 = state_1->getY();
     double x_2 = state_2->getX(), y_2 = state_2->getY();
 
-    double length = std::sqrt(std::pow(x_0 - x_1, 2) + std::pow(y_0 - y_1, 2)) +
-                    std::sqrt(std::pow(x_1 - x_2, 2) + std::pow(y_1 - y_2, 2));
+    double length =
+        (std::sqrt(std::pow(x_0 - x_1, 2) + std::pow(y_0 - y_1, 2)) +
+         std::sqrt(std::pow(x_1 - x_2, 2) + std::pow(y_1 - y_2, 2)));
 
     // if two points in a row repeat, we skip curvature computation
     if (x_0 == x_1 && y_0 == y_1 || x_1 == x_2 && y_1 == y_2) continue;
@@ -660,7 +661,7 @@ ob::Cost CurvatureOptimizationObjective::motionCost(const ob::State *s1,
     }
 
     // 0 curvature in case the path just goes forward
-    if (x_2 * (-y_0 + y_1) + x_1 * (y_0 - y_2) + x_0 * (-y_1 + y_2) < 1e-5) {
+    if (x_2 * (-y_0 + y_1) + x_1 * (y_0 - y_2) + x_0 * (-y_1 + y_2) == 0) {
       continue;
     }
 
@@ -682,8 +683,7 @@ ob::Cost CurvatureOptimizationObjective::motionCost(const ob::State *s1,
 
     double ki = std::min(1. / radius, max_curvature_);
 
-    curvature_sum += 1. / radius * length;
+    curvature_sum += ki * length;
   }
-
-  return ob::Cost(curvature_sum + 1e-5);
+  return ob::Cost(curvature_sum);
 }

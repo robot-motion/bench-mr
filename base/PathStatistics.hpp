@@ -24,8 +24,10 @@ struct PathStatistics : public Group {
   Property<bool> exact_goal_path{true, "exact_goal_path", this};
   Property<double> path_length{std::numeric_limits<double>::quiet_NaN(),
                                "path_length", this};
-  Property<double> curvature{std::numeric_limits<double>::quiet_NaN(),
-                             "curvature", this};
+  Property<double> max_curvature{std::numeric_limits<double>::quiet_NaN(),
+                                 "max_curvature", this};
+  Property<double> normalized_curvature{
+      std::numeric_limits<double>::quiet_NaN(), "normalized_curvature", this};
   Property<double> smoothness{std::numeric_limits<double>::quiet_NaN(),
                               "smoothness", this};
   Property<double> mean_clearing_distance{

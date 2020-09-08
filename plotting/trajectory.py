@@ -458,7 +458,7 @@ def visualize_grid(json_file: str,
                                 **kwargs)
                 if show_stats and "stats" in plan and plan["stats"] is not None and plan["trajectory"] is not None:
                     non_empty_legend = False
-                    for metric in ("path_length", "planning_time", "curvature"):
+                    for metric in ("path_length", "planning_time", "max_curvature"):
                         if plan["stats"][metric] is not None:
                             label = "%s:  %.3f" % (definitions.stat_names[metric], plan["stats"][metric])
                             plt.plot([], [], label=label, ls='', marker='')
@@ -482,7 +482,7 @@ def visualize_grid(json_file: str,
                                     color=colors[color_counter], add_label=False, **kwargs)
                     if show_stats and "stats" in smoothing and smoothing["stats"] is not None and smoothing["trajectory"] is not None:
                         non_empty_legend = False
-                        for metric in ("path_length", "planning_time", "curvature"):
+                        for metric in ("path_length", "planning_time", "max_curvature"):
                             if smoothing["stats"][metric] is not None:
                                 label = "%s:  %.3f" % (definitions.stat_names[metric], smoothing["stats"][metric])
                                 plt.plot([], [], label=label, ls='', marker='')

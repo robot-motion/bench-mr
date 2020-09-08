@@ -6,7 +6,7 @@ import sys
 def latex_table(results_filename: str,
                 planners='all',
                 row_label: str = '',
-                metrics: [str] = ['path_found', 'planning_time', 'path_length', 'curvature', 'mean_clearing_distance',
+                metrics: [str] = ['path_found', 'planning_time', 'path_length', 'max_curvature', 'mean_clearing_distance',
                                   'cusps'],
                 time_limit: float = 3) -> str:
     for metric in metrics:

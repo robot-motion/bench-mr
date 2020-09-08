@@ -1,5 +1,6 @@
 stat_names = {
-    'curvature': 'Maximum Curvature',
+    'max_curvature': 'Maximum Curvature',
+    'normalized_curvature': 'Normalized Curvature',
     'max_clearing_distance': 'Maximum Clearing',
     'mean_clearing_distance': 'Mean Clearing',
     'median_clearing_distance': 'Median Clearing',
@@ -36,7 +37,11 @@ metric_properties = {
     'median_clearing_distance': {
         'show_std': True
     },
-    'curvature': {
+    'max_curvature': {
+        'show_std': True,
+        'minimize': True
+    },
+    'normalized_curvature': {
         'show_std': True,
         'minimize': True
     },

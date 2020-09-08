@@ -3,19 +3,18 @@
 #include <cmath>
 #include <vector>
 
-#include "TrajectoryMetric.h"
 #include "../base/PlannerSettings.h"
+#include "TrajectoryMetric.h"
 
 #if QT_SUPPORT
 #include "gui/QtVisualizer.h"
 #endif
 
-class CurvatureMetric : public TMetric<CurvatureMetric> {
+class MaxCurvatureMetric : public TMetric<MaxCurvatureMetric> {
  public:
   /**
    * Computes the maximum curvature of the given trajectory.
    * @param trajectory The trajectory to evaluate.
-   * @param planner The planner holding the steering function.
    * @return Maximum curvature.
    */
   static double evaluateMetric(const ompl::geometric::PathGeometric &trajectory,
@@ -106,6 +105,7 @@ class CurvatureMetric : public TMetric<CurvatureMetric> {
     return maxK;
   }
 
+  // TODO: can this be deleted? doesn't seem to be used anywhere?
   static double evaluateMetric(std::vector<double> traj_x,
                                std::vector<double> traj_y) {
     double x1, x2, x3, y1, y2, y3, v1x, v2x, v1y, v2y, v1, v2, k_i;

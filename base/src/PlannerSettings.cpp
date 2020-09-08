@@ -184,8 +184,7 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
     // note, OMPL's smoothness is better when smaller
     global::settings.ompl.objective =
         std::make_shared<CurvatureOptimizationObjective>(
-            global::settings.ompl.space_info,
-            1. / global::settings.steer.car_turning_radius);
+            global::settings.ompl.space_info);
   }
 
 #ifdef DEBUG
