@@ -61,7 +61,6 @@ class PolygonMaze : public Environment {
     return false;
   }
   bool collides(const Polygon &polygon) override {
-    std::cout << "Checking .. " << std::endl;
     for (const auto &poly : _obstacles) {
       if (collision2d::intersect((collision2d::Polygon<double>)polygon,
                                  (collision2d::Polygon<double>)poly)) {
