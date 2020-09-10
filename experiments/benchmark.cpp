@@ -4,7 +4,9 @@
 #include "base/GridMaze.h"
 #include "base/PlannerSettings.h"
 
+#include "planners/OMPLControlPlanner.hpp"
 #include "planners/OMPLPlanner.hpp"
+
 #include "planners/sbpl/SbplPlanner.h"
 #include "planners/thetastar/ThetaStar.h"
 
@@ -41,6 +43,19 @@ void evaluatePlanners(nlohmann::json &info) {
     PathEvaluation::evaluateSmoothers<RRTstarPlanner>(info);
   if (global::settings.benchmark.planning.sbl)
     PathEvaluation::evaluateSmoothers<SBLPlanner>(info);
+
+  if (global::settings.benchmark.control_planners_on) {
+    if (global::settings.benchmark.planning.fprrt)
+      PathEvaluation::evaluate<FPRRTPlanner>(info);
+    if (global::settings.benchmark.planning.fpest)
+      PathEvaluation::evaluate<FPESTPlanner>(info);
+    if (global::settings.benchmark.planning.fpsst)
+      PathEvaluation::evaluate<FPSSTPlanner>(info);
+    if (global::settings.benchmark.planning.fppdst)
+      PathEvaluation::evaluate<FPPDSTPlanner>(info);
+    if (global::settings.benchmark.planning.fpkpiece)
+      PathEvaluation::evaluate<FPKPIECEPlanner>(info);
+  }
 
   if (global::settings.env.type.value() == "grid") {
     if (global::settings.benchmark.planning.sbpl_arastar)
@@ -90,13 +105,22 @@ void config_steering_and_run(std::size_t run_id, std::size_t start_id,
     if (global::settings.benchmark.log_file.value().empty())
       global::settings.benchmark.log_file = Log::filename() + ".json";
   }
-  if (global::settings.benchmark.steer_functions.value().empty()) {
+  if (global::settings.benchmark.control_planners_on) {
+    for (const auto forward_propagation_type :
+         global::settings.benchmark.forward_propagations.value()) {
+      global::settings.forwardpropagation.forward_propagation_type =
+          forward_propagation_type;
+      global::settings.forwardpropagation.initializeForwardPropagation();
+      run(info);
+    }
+  } else if (global::settings.benchmark.steer_functions.value().empty()) {
     global::settings.steer.initializeSteering();
     run(info);
   } else {
     for (const auto steer_type :
          global::settings.benchmark.steer_functions.value()) {
       global::settings.steer.steering_type = steer_type;
+
       global::settings.steer.initializeSteering();
       run(info);
     }
@@ -168,7 +192,7 @@ int main(int argc, char **argv) {
       global::settings.env.createEnvironment();
       global::settings.env.grid.seed += 1;
 
-      global::settings.steer.initializeSteering();
+      // global::settings.steer.initializeSteering();
 
       nlohmann::json info;
       config_steering_and_run(i, 0u, info);

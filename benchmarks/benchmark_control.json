@@ -1,0 +1,193 @@
+{
+    "settings": {
+        "auto_choose_distance_computation_method": true,
+        "benchmark": {
+            "anytime_intervals": [
+                1.0,
+                3.0,
+                5.0,
+                10.0,
+                15.0,
+                20.0,
+                25.0,
+                30.0
+            ],
+            "control_planners_on": true,
+            "forward_propagations": [
+                0,
+                1
+            ],
+            "log_file": "",
+            "moving_ai": {
+                "active": false,
+                "create_border": true,
+                "end": -1,
+                "scenario": "Berlin_0_256.map.scen",
+                "start": -10
+            },
+            "planning": {
+                "bfmt": false,
+                "bit_star": false,
+                "cforest": false,
+                "est": false,
+                "fmt": false,
+                "informed_rrt_star": false,
+                "kpiece": false,
+                "pdst": false,
+                "prm": false,
+                "prm_star": false,
+                "rrt": false,
+                "rrt_sharp": false,
+                "rrt_star": false,
+                "sbl": false,
+                "sbpl_adstar": false,
+                "sbpl_anastar": false,
+                "sbpl_arastar": false,
+                "sbpl_lazy_ara": false,
+                "sbpl_mha": false,
+                "sorrt_star": false,
+                "spars": false,
+                "spars2": false,
+                "sst": false,
+                "stride": false,
+                "theta_star": false,
+                "fprrt": true,
+                "fpest": true,
+                "fpsst": true,
+                "fppdst": true,
+                "fpkpiece": true
+            },
+            "runs": 10,
+            "smoothing": {
+                "chomp": false,
+                "grips": false,
+                "ompl_bspline": false,
+                "ompl_shortcut": false,
+                "ompl_simplify_max": false
+            },
+            "steer_functions": []
+        },
+        "cusp_angle_threshold": 1.0471975511966,
+        "distance_computation_method": 0,
+        "env": {
+            "collision": {
+                "collision_model": 1,
+                "robot_shape": [],
+                "robot_shape_source": "polygon_mazes/car.svg"
+            },
+            "goal": {
+                "theta": 0.0,
+                "x": 0.0,
+                "y": 0.0
+            },
+            "grid": {
+                "corridor": {
+                    "branches": 50,
+                    "radius": 5.0
+                },
+                "generator": "corridor",
+                "height": 50,
+                "random": {
+                    "obstacle_ratio": 0.1
+                },
+                "seed": 1,
+                "width": 50
+            },
+            "polygon": {
+                "scaling": 0.0454545454545455,
+                "source": "polygon_mazes/parking1.svg"
+            },
+            "start": {
+                "theta": 0.0,
+                "x": 0.0,
+                "y": 0.0
+            },
+            "type": "grid"
+        },
+        "estimate_theta": false,
+        "evaluate_clearing": true,
+        "exact_goal_radius": 0.01,
+        "fast_odf_threshold": 10000,
+        "forwardpropagation": {
+            "axis_length": 0.54,
+            "car_turning_radius": 4.0,
+            "dt": 0.1,
+            "forward_propagation_type": 0,
+            "sampling_resolution": 0.005
+        },
+        "interpolation_limit": 500,
+        "log_env_distances": false,
+        "max_path_length": 10000.0,
+        "max_planning_time": 1.0,
+        "ompl": {
+            "cost_threshold": 100.0,
+            "rrt_star": {
+                "goal_bias": 0.05,
+                "max_distance": 0.0
+            },
+            "seed": 1,
+            "state_equality_tolerance": 0.0001
+        },
+        "sbpl": {
+            "forward_velocity": 0.2,
+            "goal_tolerance_theta": 6.28318530717959,
+            "goal_tolerance_x": 1.0,
+            "goal_tolerance_y": 1.0,
+            "initial_solution_eps": 3.0,
+            "motion_primitive_filename": "./sbpl_mprim/unicycle_0.25.mprim",
+            "num_theta_dirs": 16,
+            "resolution": 0.25,
+            "scaling": 6.0,
+            "search_until_first_solution": false,
+            "time_to_turn_45_degs_in_place": 0.6
+        },
+        "smoothing": {
+            "chomp": {
+                "alpha": 0.05,
+                "epsilon": 4.0,
+                "error_tolerance": 1e-06,
+                "gamma": 0.8,
+                "max_iterations": 1500,
+                "nodes": 100,
+                "objective_type": 0
+            },
+            "grips": {
+                "eta": 0.9,
+                "eta_discount": 0.8,
+                "gradient_descent_rounds": 5,
+                "max_pruning_rounds": 100,
+                "min_node_distance": 3.0
+            },
+            "ompl": {
+                "bspline_epsilon": 0.005,
+                "bspline_max_steps": 5,
+                "shortcut_max_empty_steps": 0,
+                "shortcut_max_steps": 0,
+                "shortcut_range_ratio": 0.33,
+                "shortcut_snap_to_vertex": 0.005
+            }
+        },
+        "steer": {
+            "car_turning_radius": 4.0,
+            "hc_cc": {
+                "kappa": 0.2,
+                "sigma": 0.2
+            },
+            "posq": {
+                "alpha": 3.0,
+                "axis_length": 0.54,
+                "dt": 0.1,
+                "phi": -1.0,
+                "rho": 1.0,
+                "rho_end_condition": 0.005,
+                "v": 1.0,
+                "v_max": 1.0
+            },
+            "sampling_resolution": 0.005,
+            "steering_type": 0
+        },
+        "theta_star": {
+            "number_edges": 10
+        }
+    }
+}

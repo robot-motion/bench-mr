@@ -2,6 +2,7 @@
 
 #include <ompl/base/State.h>
 #include <ompl/base/spaces/SE2StateSpace.h>
+#include <ompl/control/PathControl.h>
 #include <ompl/geometric/PathGeometric.h>
 
 #include <nlohmann/json.hpp>
@@ -48,11 +49,17 @@ struct Point {
       OMPL_WARN("Cannot create point from NULL state.");
       return;
     }
-    x = state->as<State>()->getX();
-    y = state->as<State>()->getY();
+
+    {
+      x = state->as<State>()->getX();
+      y = state->as<State>()->getY();
+    }
   }
 
   static std::vector<Point> fromPath(const ompl::geometric::PathGeometric &p,
+                                     bool interpolate = true);
+
+  static std::vector<Point> fromPath(const ompl::control::PathControl &p,
                                      bool interpolate = true);
 
   static Point centroid(const std::vector<Point> &points) {
@@ -243,8 +250,13 @@ struct Polygon {
 
   Polygon transformed(const ompl::base::State *state) const {
     Polygon p(*this);
+    // std::cout << state->as<State>()->getYaw() << " "
+    //           << state->as<State>()->getX() << " " <<
+    //           state->as<State>()->getY()
+    //           << std::endl;
     p.rotate(state->as<State>()->getYaw());
     p.translate({state->as<State>()->getX(), state->as<State>()->getY()});
+    // std::cout << p << std::endl;
     return p;
   }
 

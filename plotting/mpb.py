@@ -77,6 +77,8 @@ class MPB:
                            used in self["benchmark.smoothing"].items() if used]  # type: [str]
         self._steer_functions = [steer_functions[index]
                                  for index in self["benchmark.steer_functions"]]  # type: [str]
+        self._robot_models = [robot_models[index]
+                              for index in self["benchmark.forward_propagations"]]
 
     @staticmethod
     def get_config(config_file: str = os.path.join(MPB_BINARY_DIR, 'benchmark_template.json')) -> dict:
@@ -163,10 +165,25 @@ class MPB:
         self._steer_functions = list(
             set(itertools.chain.from_iterable(map(parse_steer_functions, steerings))))
         self["benchmark.steer_functions"] = self._steer_functions
+        self["benchmark.control_planners_on"] = False
         if len(steerings) != len(self._steer_functions):
             print("Error: Some steer function could not be unified. Selected steer functions:",
                   [steer_functions[index] for index in self._steer_functions],
                   file=sys.stderr)
+
+    def set_robot_models_functions(self, robot_models: [str]):
+        self._robot_models = list(
+            set(itertools.chain.from_iterable(map(parse_robot_models, robot_models))))
+        self["benchmark.forward_propagations"] = self._robot_models
+        self["benchmark.control_planners_on"] = True
+        if len(robot_models) != len(self._robot_models):
+            print("Error: Some robot models could not be unified. Selected robot models:",
+                  [robot_models[index] for index in self._robot_models],
+                  file=sys.stderr)
+
+    def set_exact_goal_radius(self, radius: float = 0.1):
+        print(radius)
+        self["exact_goal_radius"] = radius
 
     def set_smoothers(self, smoothers: [str]):
         self._smoothers = []
@@ -373,6 +390,31 @@ class MPB:
             return
         from plot_stats import plot_smoother_stats
         plot_smoother_stats(self.results_filename, **kwargs)
+
+
+    def plot_planner_timings(self, **kwargs):
+        import matplotlib.pyplot as plt
+        import json
+        import numpy as np
+        data = json.load(open(self.results_filename, "r"))
+        for run_id in range(len(data["runs"])):
+            plt.figure("Run %i" % run_id)
+            planners, total_times, steering_times, collision_times = [], [], [], []
+            for planner, plan in data["runs"][0]["plans"].items():
+                planners.append(planner)
+                total_times.append(plan["stats"]["planning_time"])
+                steering_times.append(plan["stats"]["steering_time"])
+                collision_times.append(plan["stats"]["collision_time"])
+
+            xs = np.arange(len(planners)) + 0.5
+            plt.title("Run %i" % run_id)
+            plt.bar(xs, total_times, width=0.75, edgecolor="black", linewidth=2, linestyle="-", label="Total time")
+            plt.bar(xs, np.array(collision_times) + np.array(steering_times), width=0.7, label="Steering")
+            plt.bar(xs, collision_times, width=0.7, label="Collision")
+            plt.legend()
+            plt.xticks(xs, [convert_planner_name(p) for p in planners], rotation=0, fontsize=14)
+            plt.gca().set_xlim([0, len(planners)])
+            plt.show()
 
     @staticmethod
     def merge(mpbs, target_filename: str, make_separate_runs: bool = False, silence: bool = False,
@@ -636,7 +678,7 @@ class MultipleMPB:
 
     def plot_planner_stats(self, **kwargs):
         import matplotlib.pyplot as plt
-        for i, m in enumerate(self.benchmarks):
+        for m in self.benchmarks:
             m.plot_planner_stats(**kwargs)
             plt.suptitle(m.id, fontsize=24, y=1.05)
             plt.tight_layout()
