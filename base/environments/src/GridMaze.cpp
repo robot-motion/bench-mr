@@ -1,4 +1,4 @@
-#include "GridMaze.h"
+#include "base/environments/GridMaze.h"
 
 #include <ompl/util/Console.h>
 #include <planners/thetastar/ThetaStar.h>
@@ -14,7 +14,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "PlannerSettings.h"
+#include "base/PlannerSettings.h"
 #include "utils/PlannerUtils.hpp"
 
 #ifdef QT_SUPPORT
@@ -95,13 +95,12 @@ void GridMaze::fillBorder(bool value, int size) {
   fill(Rectangle(width() - size, 0, width(), height()), value);
 }
 
-GridMaze *GridMaze::createRandomCorridor(unsigned int width,
-                                         unsigned int height, double radius,
-                                         int branches, unsigned int seed,
-                                         int borderSize) {
+std::shared_ptr<GridMaze> GridMaze::createRandomCorridor(
+    unsigned int width, unsigned int height, double radius, int branches,
+    unsigned int seed, int borderSize) {
   OMPL_INFORM("Generating environment with seed %i", seed);
   srand(seed);
-  auto *environment = new GridMaze(seed, width, height);
+  auto environment = std::make_shared<GridMaze>(seed, width, height);
   environment->_type = "corridor";
 
   for (unsigned int i = 0; i < environment->cells(); ++i)
@@ -181,12 +180,14 @@ GridMaze *GridMaze::createRandomCorridor(unsigned int width,
   return environment;
 }
 
-GridMaze *GridMaze::createRandom(unsigned int width, unsigned int height,
-                                 double obsRatio, unsigned int seed,
-                                 int borderSize) {
+std::shared_ptr<GridMaze> GridMaze::createRandom(unsigned int width,
+                                                 unsigned int height,
+                                                 double obsRatio,
+                                                 unsigned int seed,
+                                                 int borderSize) {
   OMPL_INFORM("Generating environment with seed %i", seed);
   srand(seed);
-  auto *environment = new GridMaze(seed, width, height);
+  auto environment = std::make_shared<GridMaze>(seed, width, height);
   environment->_type = "random";
   // make borders occupied
   environment->fillBorder(true, borderSize);
@@ -213,10 +214,10 @@ GridMaze *GridMaze::createRandom(unsigned int width, unsigned int height,
   return environment;
 }
 
-GridMaze *GridMaze::createFromObstacles(const std::vector<Rectangle> &obstacles,
-                                        unsigned int width, unsigned int height,
-                                        int borderSize) {
-  auto *environment = new GridMaze(0, width, height);
+shared_ptr<GridMaze> GridMaze::createFromObstacles(
+    const std::vector<Rectangle> &obstacles, unsigned int width,
+    unsigned int height, int borderSize) {
+  auto environment = std::make_shared<GridMaze>(0, width, height);
   for (auto &obs : obstacles) environment->fill(obs, true);
   environment->fillBorder(true, borderSize);
   environment->_type = "obstacles - " + std::to_string(obstacles.size());
@@ -224,7 +225,7 @@ GridMaze *GridMaze::createFromObstacles(const std::vector<Rectangle> &obstacles,
 }
 
 #if XML_SUPPORT
-GridMaze *GridMaze::loadFromXml(std::string filename) {
+shared_ptr<GridMaze> GridMaze::loadFromXml(std::string filename) {
   pugi::xml_document doc;
   doc.load_file(filename.c_str());
 
@@ -562,8 +563,8 @@ void GridMaze::computeDistances() {
   }
 }
 
-GridMaze *GridMaze::createSimple() {
-  auto *environment = new GridMaze(0, DefaultWidth, DefaultHeight);
+shared_ptr<GridMaze> GridMaze::createSimple() {
+  auto environment = std::make_shared<GridMaze>(0, DefaultWidth, DefaultHeight);
   environment->fill(Rectangle(18, 18, 34, 34), true);
   environment->setStart(Point(18, 45));
   environment->setGoal(Point(45, 18));
@@ -572,8 +573,10 @@ GridMaze *GridMaze::createSimple() {
 }
 
 // Moving Ai File test Constructor
-GridMaze *GridMaze::createFromMovingAiScenario(Scenario &scenario) {
-  auto *environment = new GridMaze(0, scenario.map_width, scenario.map_height);
+std::shared_ptr<GridMaze> GridMaze::createFromMovingAiScenario(
+    Scenario &scenario) {
+  auto environment =
+      std::make_shared<GridMaze>(0, scenario.map_width, scenario.map_height);
   // set start and goal points
   environment->setStart(Point(scenario.start_x, scenario.start_y));
   environment->setGoal(Point(scenario.goal_x, scenario.goal_y));
@@ -600,7 +603,7 @@ GridMaze *GridMaze::createFromMovingAiScenario(Scenario &scenario) {
   return environment;
 }
 
-GridMaze *GridMaze::createFromImage(const std::string &filename,
+std::shared_ptr<GridMaze> GridMaze::createFromImage(const std::string &filename,
                                     double occupancy_threshold, int width,
                                     int height) {
   int actual_width, actual_height, n;
@@ -638,7 +641,7 @@ GridMaze *GridMaze::createFromImage(const std::string &filename,
     height = actual_height;
   }
 
-  auto *environment = new GridMaze(0, width, height);
+  auto environment = std::make_shared<GridMaze>(0, width, height);
   environment->_type = "image: " + filename;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {

@@ -1,15 +1,13 @@
 #pragma once
 #include <chrono>
 #include <fstream>
-
 #include <params.hpp>
 
 #include "base/PlannerSettings.h"
-#include "utils/PlannerUtils.hpp"
 #include "base/TimedResult.hpp"
-
-#include "metrics/CurvatureMetric.h"
+#include "metrics/MaxCurvatureMetric.h"
 #include "metrics/PathLengthMetric.h"
+#include "utils/PlannerUtils.hpp"
 
 using namespace params;
 class GRIPS {

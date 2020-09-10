@@ -1,20 +1,21 @@
-#include "PlannerSettings.h"
+#include "base/PlannerSettings.h"
 
+#include <ompl/base/objectives/MaximizeMinClearanceObjective.h>
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
+#include <ompl/base/samplers/DeterministicStateSampler.h>
+#include <ompl/base/samplers/deterministic/HaltonSequence.h>
 #include <ompl/base/spaces/DubinsStateSpace.h>
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
 #include <ompl/base/spaces/SE2StateSpace.h>
 #include <ompl/control/ODESolver.h>
 #include <ompl/control/spaces/RealVectorControlSpace.h>
 #include <ompl/base/spaces/SO2StateSpace.h>
-#include <ompl/base/samplers/DeterministicStateSampler.h>
-#include <ompl/base/samplers/deterministic/HaltonSequence.h>
 #include <utils/OptimizationObjective.h>
 
 #include <steering_functions/include/ompl_state_spaces/CurvatureStateSpace.hpp>
 
-#include "GridMaze.h"
-#include "PolygonMaze.h"
+#include "base/environments/GridMaze.h"
+#include "base/environments/PolygonMaze.h"
 #include "steer_functions/POSQ/POSQStateSpace.h"
 
 #ifdef G1_AVAILABLE
@@ -26,21 +27,18 @@ namespace oc = ompl::control;
 
 PlannerSettings::GlobalSettings global::settings;
 
-
-template<typename DeterministicStateSamplerT>
+template <typename DeterministicStateSamplerT>
 ob::StateSamplerPtr allocateHaltonStateSampler(
-  const ob::StateSpace *space,
-  std::vector<unsigned int> bases = {})
-{
+    const ob::StateSpace *space, std::vector<unsigned int> bases = {}) {
   // specify which deterministic sequence to use, here: HaltonSequence
-  // optionally we can specify the bases used for generation 
+  // optionally we can specify the bases used for generation
   // (otherwise first dim prime numbers are used)
   if (bases.size() != 0)
     return std::make_shared<DeterministicStateSamplerT>(
-      space, std::make_shared<ob::HaltonSequence>(bases.size(), bases));
+        space, std::make_shared<ob::HaltonSequence>(bases.size(), bases));
   else
     return std::make_shared<DeterministicStateSamplerT>(
-      space, std::make_shared<ob::HaltonSequence>(space->getDimension()));
+        space, std::make_shared<ob::HaltonSequence>(space->getDimension()));
 }
 
 /**
@@ -139,49 +137,51 @@ void PlannerSettings::GlobalSettings::ForwardPropagationSettings::
 
   
 void PlannerSettings::GlobalSettings::OmplSettings::initializeSampler() const {
-  const auto& space_ptr = global::settings.ompl.state_space;
-  const auto& steering_type = global::settings.steer.steering_type;
+  const auto &space_ptr = global::settings.ompl.state_space;
+  const auto &steering_type = global::settings.steer.steering_type;
   if (global::settings.ompl.sampler.value() == std::string("halton")) {
-    if (steering_type == Steering::STEER_TYPE_REEDS_SHEPP || 
-        steering_type == Steering::STEER_TYPE_POSQ || 
-        steering_type == Steering::STEER_TYPE_DUBINS || 
+    if (steering_type == Steering::STEER_TYPE_REEDS_SHEPP ||
+        steering_type == Steering::STEER_TYPE_POSQ ||
+        steering_type == Steering::STEER_TYPE_DUBINS ||
         steering_type == Steering::STEER_TYPE_LINEAR) {
       // all of these are derived from SE2StateSpace
-      const auto& se2_space_ptr = space_ptr->as<ob::SE2StateSpace>();
+      const auto &se2_space_ptr = space_ptr->as<ob::SE2StateSpace>();
       se2_space_ptr->setStateSamplerAllocator(
-        [] (const ob::StateSpace *space) -> ob::StateSamplerPtr { 
-          return allocateHaltonStateSampler<ob::SE2DeterministicStateSampler>(space); 
-        });
-    }
-    else if (steering_type == Steering::STEER_TYPE_CC_DUBINS || 
-             steering_type == Steering::STEER_TYPE_CC_REEDS_SHEPP || 
-             steering_type == Steering::STEER_TYPE_HC_REEDS_SHEPP) {
-      // all of these are instances of CurvatureStateSpace (template class) 
+          [](const ob::StateSpace *space) -> ob::StateSamplerPtr {
+            return allocateHaltonStateSampler<ob::SE2DeterministicStateSampler>(
+                space);
+          });
+    } else if (steering_type == Steering::STEER_TYPE_CC_DUBINS ||
+               steering_type == Steering::STEER_TYPE_CC_REEDS_SHEPP ||
+               steering_type == Steering::STEER_TYPE_HC_REEDS_SHEPP) {
+      // all of these are instances of CurvatureStateSpace (template class)
       // which is derived from CompoundStateSpace
-      const auto& compound_space_ptr = space_ptr->as<ob::CompoundStateSpace>();
+      const auto &compound_space_ptr = space_ptr->as<ob::CompoundStateSpace>();
 
-      // set StateSamplerAllocator for subspaces 
+      // set StateSamplerAllocator for subspaces
       // (the default CompoundStateSampler will use these automatically)
-      compound_space_ptr->as<ob::RealVectorStateSpace>(
-        0)->setStateSamplerAllocator(
-        [] (const ob::StateSpace *space) -> ob::StateSamplerPtr { 
-          return allocateHaltonStateSampler<ob::RealVectorDeterministicStateSampler>(space, {2, 3}); 
-        });
-      compound_space_ptr->as<ob::SO2StateSpace>(
-        1)->setStateSamplerAllocator(
-        [] (const ob::StateSpace *space) -> ob::StateSamplerPtr { 
-          return allocateHaltonStateSampler<ob::SO2DeterministicStateSampler>(space, {5}); 
-        });
-      compound_space_ptr->as<ob::RealVectorStateSpace>(
-        2)->setStateSamplerAllocator(
-        [] (const ob::StateSpace *space) -> ob::StateSamplerPtr { 
-          return allocateHaltonStateSampler<ob::RealVectorDeterministicStateSampler>(space, {7}); 
-        });
+      compound_space_ptr->as<ob::RealVectorStateSpace>(0)
+          ->setStateSamplerAllocator(
+              [](const ob::StateSpace *space) -> ob::StateSamplerPtr {
+                return allocateHaltonStateSampler<
+                    ob::RealVectorDeterministicStateSampler>(space, {2, 3});
+              });
+      compound_space_ptr->as<ob::SO2StateSpace>(1)->setStateSamplerAllocator(
+          [](const ob::StateSpace *space) -> ob::StateSamplerPtr {
+            return allocateHaltonStateSampler<ob::SO2DeterministicStateSampler>(
+                space, {5});
+          });
+      compound_space_ptr->as<ob::RealVectorStateSpace>(2)
+          ->setStateSamplerAllocator(
+              [](const ob::StateSpace *space) -> ob::StateSamplerPtr {
+                return allocateHaltonStateSampler<
+                    ob::RealVectorDeterministicStateSampler>(space, {7});
+              });
       // TODO: deterministic sampler for discrete space? (is it even used?)
-    }
-    else {
-      OMPL_ERROR("Selected sampler not supported for selected steering function."
-                 " Using default sampler instead (i.i.d.).");
+    } else {
+      OMPL_ERROR(
+          "Selected sampler not supported for selected steering function."
+          " Using default sampler instead (i.i.d.).");
     }
   }
 }
@@ -239,12 +239,29 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
   global::settings.ompl.initializeSampler();
 
   global::settings.ompl.space_info =
-      std::make_shared<ob::SpaceInformation>(
-          global::settings.ompl.state_space);
-  global::settings.ompl.objective = ob::OptimizationObjectivePtr(
-      new OptimizationObjective(global::settings.ompl.space_info));
-  global::settings.ompl.objective->setCostThreshold(
-      ob::Cost(global::settings.ompl.cost_threshold));
+      std::make_shared<ob::SpaceInformation>(global::settings.ompl.state_space);
+  auto opt_obj_str = global::settings.ompl.optimization_objective.value();
+  if (opt_obj_str == std::string("min_pathlength")) {
+    global::settings.ompl.objective =
+        std::make_shared<CustomPathLengthOptimizationObjective>(
+            global::settings.ompl.space_info);
+    global::settings.ompl.objective->setCostThreshold(
+        ob::Cost(global::settings.ompl.cost_threshold));
+  } else if (opt_obj_str == std::string("max_minclearance")) {
+    global::settings.ompl.objective =
+        std::make_shared<ob::MaximizeMinClearanceObjective>(
+            global::settings.ompl.space_info);
+  } else if (opt_obj_str == std::string("min_smoothness")) {
+    // note, OMPL's smoothness is better when smaller
+    global::settings.ompl.objective =
+        std::make_shared<SmoothnessOptimizationObjective>(
+            global::settings.ompl.space_info);
+  } else if (opt_obj_str == std::string("min_curvature")) {
+    // note, OMPL's smoothness is better when smaller
+    global::settings.ompl.objective =
+        std::make_shared<CurvatureOptimizationObjective>(
+            global::settings.ompl.space_info);
+  }
 
 #ifdef DEBUG
   std::cout << "global::settings.ompl.state_space->hasDefaultProjection() ? "
@@ -258,9 +275,6 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
 }
 
 void PlannerSettings::GlobalSettings::EnvironmentSettings::createEnvironment() {
-  if (global::settings.environment) {
-    delete global::settings.environment;
-  }
   if (type.value() == "grid") {
     if (grid.generator.value() == "corridor") {
       global::settings.environment = GridMaze::createRandomCorridor(

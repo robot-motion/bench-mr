@@ -1,7 +1,8 @@
 #pragma once
 
 #include <ompl/base/ScopedState.h>
-#include "Primitives.h"
+
+#include "base/Primitives.h"
 #include "utils/Stopwatch.hpp"
 
 class Environment {
@@ -35,7 +36,31 @@ class Environment {
     return _bounds.high.at(1) - _bounds.low.at(1);
   }
 
+  /**
+   * Compute distance from xy-coordinate to the closest obstacle if possible.
+   *
+   * This currently assumes a point robot and does not support a check for
+   * arbitrary polygons.
+   *
+   * @param x X-coordinate of the point to check.
+   * @param y Y-Coordinate of the point to check.
+   * @return The distance to the closest obstacle.
+   */
   virtual double distance(double x, double y) { return -1; }
+
+  /**
+   * Compute distance of a state to the closest obstacle if possible.
+   *
+   * This currently assumes a point robot and does not support a check for
+   * arbitrary polygons. (will only use x and y component of state)
+   *
+   * @param state The state to check.
+   * @return The distance to the closest obstacle.
+   */
+  double distance(const ob::State *state) {
+    const auto *s = state->as<State>();
+    return distance(s->getX(), s->getY());
+  }
 
   /**
    * Bilinear filtering of distance.
@@ -43,6 +68,10 @@ class Environment {
   double bilinearDistance(double x, double y, double cellSize = 1);
   double bilinearDistance(const Point &point, double cellSize = 1) {
     return bilinearDistance(point.x, point.y, cellSize);
+  }
+  double bilinearDistance(const ob::State *state, double cellSize = 1) {
+    const auto *s = state->as<State>();
+    return bilinearDistance(s->getX(), s->getY());
   }
 
   /**

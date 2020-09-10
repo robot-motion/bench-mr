@@ -1,7 +1,13 @@
 #include "OptimizationObjective.h"
-#include <ompl/base/goals/GoalSampleableRegion.h>
 
+#include <ompl/base/goals/GoalSampleableRegion.h>
+#include <ompl/base/spaces/SE2StateSpace.h>
+#include <ompl/geometric/PathGeometric.h>
 #include <ompl/util/ProlateHyperspheroid.h>
+
+#include <cmath>
+
+namespace og = ompl::geometric;
 
 CustomPathLengthDirectInfSampler::CustomPathLengthDirectInfSampler(
     const ob::ProblemDefinitionPtr &probDefn, unsigned int maxNumberCalls)
@@ -46,73 +52,74 @@ CustomPathLengthDirectInfSampler::CustomPathLengthDirectInfSampler(
   // Check that the provided statespace is compatible and extract the necessary
   // indices. The statespace must either be R^n or SE(2) or SE(3). If it is
   // UNKNOWN, warn and treat it as R^n
-//  if (!InformedSampler::space_->isCompound()) {
-//    if (InformedSampler::space_->getType() == ob::STATE_SPACE_REAL_VECTOR) {
-//      // R^n, this is easy
-//      informedIdx_ = 0u;
-//      uninformedIdx_ = 0u;
-//    } else if (InformedSampler::space_->getType() == ob::STATE_SPACE_UNKNOWN) {
-//      // Unknown, this is annoying. I hope the user knows what they're doing
-//      OMPL_WARN(
-//          "CustomPathLengthDirectInfSampler: Treating the StateSpace of type "
-//          "\"ob::STATE_SPACE_UNKNOWN\" as type "
-//          "\"ob::STATE_SPACE_REAL_VECTOR\".");
-      informedIdx_ = 0u;
-      uninformedIdx_ = 0u;
-//    } else {
-//      throw ompl::Exception(
-//          "CustomPathLengthDirectInfSampler only supports Unknown, RealVector, "
-//          "SE2, "
-//          "and SE3 StateSpaces.");
-//    }
-//  } else if (InformedSampler::space_->isCompound()) {
-//    // Check that it is SE2 or SE3
-//    if (InformedSampler::space_->getType() == ob::STATE_SPACE_SE2 ||
-//        InformedSampler::space_->getType() == ob::STATE_SPACE_SE3) {
-//      // Variable:
-//      // An ease of use upcasted pointer to the space as a compound space
-//      const ob::CompoundStateSpace *compoundSpace =
-//          InformedSampler::space_->as<ob::CompoundStateSpace>();
-//
-//      // Sanity check
-//      //      if (compoundSpace->getSubspaceCount() != 2u) {
-//      //        // Pout
-//      //        throw ompl::Exception(
-//      //            "The provided compound StateSpace is SE(2) or SE(3) but does
-//      //            not " "have exactly " "2 subspaces.");
-//      //      }
-//
-//      // Iterate over the state spaces, finding the real vector and SO
-//      // components.
-//      // XXX we fixed the number of subspaces to consider to 2 here
-//      for (unsigned int idx = 0u; idx < 2u; ++idx) {
-//        OMPL_DEBUG("Subspace %i is of type %i.", idx,
-//                   compoundSpace->getSubspace(idx)->getType());
-//        // Check if the space is real-vectored, SO2 or SO3
-//        if (compoundSpace->getSubspace(idx)->getType() ==
-//            ob::STATE_SPACE_REAL_VECTOR) {
-//          informedIdx_ = idx;
-//        } else if (compoundSpace->getSubspace(idx)->getType() ==
-//                   ob::STATE_SPACE_SO2) {
-//          uninformedIdx_ = idx;
-//        } else if (compoundSpace->getSubspace(idx)->getType() ==
-//                   ob::STATE_SPACE_SO3) {
-//          uninformedIdx_ = idx;
-//        } else {
-//          // Pout
-//          throw ompl::Exception(
-//              "The provided compound StateSpace is SE(2) or SE(3) but contains "
-//              "a "
-//              "subspace that is not R^2, R^3, SO(2), or SO(3).");
-//        }
-//      }
-//    } else {
-//      throw ompl::Exception(
-//          "CustomPathLengthDirectInfSampler only supports RealVector, SE2 and "
-//          "SE3 "
-//          "statespaces.");
-//    }
-//  }
+  //  if (!InformedSampler::space_->isCompound()) {
+  //    if (InformedSampler::space_->getType() == ob::STATE_SPACE_REAL_VECTOR) {
+  //      // R^n, this is easy
+  //      informedIdx_ = 0u;
+  //      uninformedIdx_ = 0u;
+  //    } else if (InformedSampler::space_->getType() ==
+  //    ob::STATE_SPACE_UNKNOWN) {
+  //      // Unknown, this is annoying. I hope the user knows what they're doing
+  //      OMPL_WARN(
+  //          "CustomPathLengthDirectInfSampler: Treating the StateSpace of type
+  //          "
+  //          "\"ob::STATE_SPACE_UNKNOWN\" as type "
+  //          "\"ob::STATE_SPACE_REAL_VECTOR\".");
+  informedIdx_ = 0u;
+  uninformedIdx_ = 0u;
+  //    } else {
+  //      throw ompl::Exception(
+  //          "CustomPathLengthDirectInfSampler only supports Unknown,
+  //          RealVector, " "SE2, " "and SE3 StateSpaces.");
+  //    }
+  //  } else if (InformedSampler::space_->isCompound()) {
+  //    // Check that it is SE2 or SE3
+  //    if (InformedSampler::space_->getType() == ob::STATE_SPACE_SE2 ||
+  //        InformedSampler::space_->getType() == ob::STATE_SPACE_SE3) {
+  //      // Variable:
+  //      // An ease of use upcasted pointer to the space as a compound space
+  //      const ob::CompoundStateSpace *compoundSpace =
+  //          InformedSampler::space_->as<ob::CompoundStateSpace>();
+  //
+  //      // Sanity check
+  //      //      if (compoundSpace->getSubspaceCount() != 2u) {
+  //      //        // Pout
+  //      //        throw ompl::Exception(
+  //      //            "The provided compound StateSpace is SE(2) or SE(3) but
+  //      does
+  //      //            not " "have exactly " "2 subspaces.");
+  //      //      }
+  //
+  //      // Iterate over the state spaces, finding the real vector and SO
+  //      // components.
+  //      // XXX we fixed the number of subspaces to consider to 2 here
+  //      for (unsigned int idx = 0u; idx < 2u; ++idx) {
+  //        OMPL_DEBUG("Subspace %i is of type %i.", idx,
+  //                   compoundSpace->getSubspace(idx)->getType());
+  //        // Check if the space is real-vectored, SO2 or SO3
+  //        if (compoundSpace->getSubspace(idx)->getType() ==
+  //            ob::STATE_SPACE_REAL_VECTOR) {
+  //          informedIdx_ = idx;
+  //        } else if (compoundSpace->getSubspace(idx)->getType() ==
+  //                   ob::STATE_SPACE_SO2) {
+  //          uninformedIdx_ = idx;
+  //        } else if (compoundSpace->getSubspace(idx)->getType() ==
+  //                   ob::STATE_SPACE_SO3) {
+  //          uninformedIdx_ = idx;
+  //        } else {
+  //          // Pout
+  //          throw ompl::Exception(
+  //              "The provided compound StateSpace is SE(2) or SE(3) but
+  //              contains " "a " "subspace that is not R^2, R^3, SO(2), or
+  //              SO(3).");
+  //        }
+  //      }
+  //    } else {
+  //      throw ompl::Exception(
+  //          "CustomPathLengthDirectInfSampler only supports RealVector, SE2
+  //          and " "SE3 " "statespaces.");
+  //    }
+  //  }
 
   // Create a sampler for the whole space that we can use if we have no
   // information
@@ -607,4 +614,76 @@ unsigned int CustomPathLengthDirectInfSampler::numberOfPhsInclusions(
   }
 
   return numInclusions;
+}
+
+ob::Cost SmoothnessOptimizationObjective::stateCost(const ob::State *s) const {
+  return identityCost();
+}
+
+ob::Cost SmoothnessOptimizationObjective::motionCost(
+    const ob::State *s1, const ob::State *s2) const {
+  auto segment = og::PathGeometric(si_, s1, s2);
+  // need to interpolate as smoothness is not defined for paths made up of only
+  // two states
+  segment.interpolate();
+  return ob::Cost(segment.smoothness());
+}
+
+ob::Cost CurvatureOptimizationObjective::stateCost(const ob::State *s) const {
+  return identityCost();
+}
+
+ob::Cost CurvatureOptimizationObjective::motionCost(const ob::State *s1,
+                                                    const ob::State *s2) const {
+  auto segment = og::PathGeometric(si_, s1, s2);
+  segment.interpolate();
+  double curvature_sum = 0;
+  const auto &states = segment.getStates();
+  for (int i = 1; i < states.size() - 1; i += 2) {
+    auto state_0 = states[i - 1]->as<ob::SE2StateSpace::StateType>();
+    auto state_1 = states[i]->as<ob::SE2StateSpace::StateType>();
+    auto state_2 = states[i + 1]->as<ob::SE2StateSpace::StateType>();
+    double x_0 = state_0->getX(), y_0 = state_0->getY();
+    double x_1 = state_1->getX(), y_1 = state_1->getY();
+    double x_2 = state_2->getX(), y_2 = state_2->getY();
+
+    double length =
+        (std::sqrt(std::pow(x_0 - x_1, 2) + std::pow(y_0 - y_1, 2)) +
+         std::sqrt(std::pow(x_1 - x_2, 2) + std::pow(y_1 - y_2, 2)));
+
+    // if two points in a row repeat, we skip curvature computation
+    if (x_0 == x_1 && y_0 == y_1 || x_1 == x_2 && y_1 == y_2) continue;
+
+    // Infinite curvature in case the path goes a step backwards
+    if (x_0 == x_2 && y_0 == y_2) {
+      curvature_sum += max_curvature_ * length;
+      continue;
+    }
+
+    // 0 curvature in case the path just goes forward
+    if (x_2 * (-y_0 + y_1) + x_1 * (y_0 - y_2) + x_0 * (-y_1 + y_2) == 0) {
+      continue;
+    }
+
+    // Compute center of circle that goes through the 3 points
+    double cx =
+        (std::pow(x_2, 2) * (-y_0 + y_1) + std::pow(x_1, 2) * (y_0 - y_2) -
+         (std::pow(x_0, 2) + (y_0 - y_1) * (y_0 - y_2)) * (y_1 - y_2)) /
+        (2 * (x_2 * (-y_0 + y_1) + x_1 * (y_0 - y_2) + x_0 * (-y_1 + y_2)));
+    double cy =
+        (-(std::pow(x_1, 2) * x_2) + std::pow(x_0, 2) * (-x_1 + x_2) +
+         x_2 * (std::pow(y_0, 2) - std::pow(y_1, 2)) +
+         x_0 * (std::pow(x_1, 2) - std::pow(x_2, 2) + std::pow(y_1, 2) -
+                std::pow(y_2, 2)) +
+         x_1 * (std::pow(x_2, 2) - std::pow(y_0, 2) + std::pow(y_2, 2))) /
+        (2 * (x_2 * (y_0 - y_1) + x_0 * (y_1 - y_2) + x_1 * (-y_0 + y_2)));
+
+    // Curvature = 1/Radius
+    double radius = std::sqrt(std::pow(x_0 - cx, 2) + std::pow(y_0 - cy, 2));
+
+    double ki = std::min(1. / radius, max_curvature_);
+
+    curvature_sum += ki * length;
+  }
+  return ob::Cost(curvature_sum);
 }

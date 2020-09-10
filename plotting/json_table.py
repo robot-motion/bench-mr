@@ -5,7 +5,7 @@ import sys
 def json_table(results_filename: str,
                 planners='all',
                 row_label: str = '',
-                metrics: [str] = ['path_found', 'planning_time', 'path_length', 'curvature', 'mean_clearing_distance',
+                metrics: [str] = ['path_found', 'planning_time', 'path_length', 'max_curvature', 'mean_clearing_distance',
                                   'cusps'],
                 time_limit: float = 3) -> str:
     for metric in metrics:
@@ -48,7 +48,7 @@ def json_table(results_filename: str,
     if row_label != '':
         output += '\\rowlabel{%s}\n\\\\\n' % row_label
 
-    check = ['time', 'path_length', 'curvature', 'clearance', 'cusps']
+    check = ['time', 'path_length', 'max_curvature', 'clearance', 'cusps']
 
     id = 1
     max_sol = 0

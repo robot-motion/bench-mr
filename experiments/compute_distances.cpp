@@ -1,9 +1,8 @@
+#include "base/PlannerSettings.h"
+#include "base/environments/GridMaze.h"
 #include "utils/Log.h"
 #include "utils/ScenarioLoader.h"
 #include "utils/Stopwatch.hpp"
-
-#include "base/GridMaze.h"
-#include "base/PlannerSettings.h"
 
 namespace og = ompl::geometric;
 
@@ -34,7 +33,7 @@ int main(int argc, char **argv) {
       distance_computation::BRUTE_FORCE;
   // create environment
   Stopwatch watch1;
-  auto *grid1 =
+  auto grid1 =
       GridMaze::createFromMovingAiScenario(scenarioLoader.scenarios().front());
   watch1.start();
   grid1->computeDistances();
@@ -48,7 +47,7 @@ int main(int argc, char **argv) {
       distance_computation::DEAD_RECKONING;
   // create environment
   Stopwatch watch2;
-  auto *grid2 =
+  auto grid2 =
       GridMaze::createFromMovingAiScenario(scenarioLoader.scenarios().front());
   watch2.start();
   grid2->computeDistances();

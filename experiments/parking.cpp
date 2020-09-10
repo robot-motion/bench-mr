@@ -1,8 +1,6 @@
 #include "base/PlannerSettings.h"
-#include "base/PolygonMaze.h"
-
+#include "base/environments/PolygonMaze.h"
 #include "planners/OMPLPlanner.hpp"
-
 #include "utils/PathEvaluation.hpp"
 #include "utils/ScenarioLoader.h"
 
@@ -23,7 +21,7 @@ int main(int argc, char **argv) {
   const std::string maze_filename = argv[1];
   const std::string robot_filename = argv[2];
 
-  auto *maze = PolygonMaze::loadFromSvg(maze_filename);
+  auto maze = PolygonMaze::loadFromSvg(maze_filename);
   maze->setStart({0.0, -2.27});
   maze->setGoal({7.72, -7.72});
   maze->setThetas(0, -M_PI_2);

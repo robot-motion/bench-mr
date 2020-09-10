@@ -25,8 +25,7 @@ def retrieve_useful_stats_from_result(result: dict):
             # key_2 is also run id??
             for key_2 in result[key_0][key_1]:
                 # get curvature
-                useful[key_0][key_1]["curvature"] = result[key_0][key_1][key_2]["curvature"]
-                # print(key_0, key_1, useful[key_0][key_1]["curvature"])
+                useful[key_0][key_1]["max_curvature"] = result[key_0][key_1][key_2]["max_curvature"]
 
                 # get path length
                 useful[key_0][key_1]["path_length"] = result[key_0][key_1][key_2]["path_length"]

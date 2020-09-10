@@ -1,5 +1,6 @@
-#include "Primitives.h"
-#include "PlannerSettings.h"
+#include "base/Primitives.h"
+
+#include "base/PlannerSettings.h"
 #include "utils/PlannerUtils.hpp"
 
 ompl::base::State *base::StateFromXYT(double x, double y, double theta) {

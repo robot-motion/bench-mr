@@ -12,6 +12,10 @@
         25.0,
         30.0
       ],
+      "control_planners_on": false,
+      "forward_propagations": [
+        0
+      ],
       "log_file": "",
       "moving_ai": {
         "active": false,
@@ -26,6 +30,11 @@
         "cforest": true,
         "est": true,
         "fmt": false,
+        "fpest": true,
+        "fpkpiece": true,
+        "fppdst": true,
+        "fprrt": true,
+        "fpsst": true,
         "informed_rrt_star": true,
         "kpiece": true,
         "pdst": true,
@@ -106,16 +115,25 @@
     "evaluate_clearing": true,
     "exact_goal_radius": 0.01,
     "fast_odf_threshold": 10000,
+    "forwardpropagation": {
+      "car_length": 1.1,
+      "car_turning_radius": 4.0,
+      "dt": 0.1,
+      "forward_propagation_type": 0,
+      "sampling_resolution": 0.005
+    },
     "interpolation_limit": 500,
     "log_env_distances": false,
     "max_path_length": 10000.0,
     "max_planning_time": 15.0,
     "ompl": {
       "cost_threshold": 100.0,
+      "optimization_objective": "min_pathlength",
       "rrt_star": {
         "goal_bias": 0.05,
         "max_distance": 0.0
       },
+      "sampler": "iid",
       "seed": 1,
       "state_equality_tolerance": 0.0001
     },

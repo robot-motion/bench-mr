@@ -1,22 +1,25 @@
 #pragma once
 
-#include "Environment.h"
-#include "PlannerSettings.h"
-#include "utils/SvgPolygonLoader.hpp"
-
 #include <collision2d/sat.hpp>
+#include <memory>
+
+#include "base/Environment.h"
+#include "base/PlannerSettings.h"
+#include "utils/SvgPolygonLoader.hpp"
 
 /**
  * Implements a maze consisting of convex shapes as obstacles.
  */
 class PolygonMaze : public Environment {
  public:
+  PolygonMaze() : Environment() {}
+
   std::string name() const override { return _name; }
 
   const std::vector<Polygon> &obstacles() const { return _obstacles; }
 
-  static PolygonMaze *loadFromSvg(const std::string &filename) {
-    auto *maze = new PolygonMaze;
+  static std::shared_ptr<PolygonMaze> loadFromSvg(const std::string &filename) {
+    auto maze = std::make_shared<PolygonMaze>();
     maze->_name += " " + filename;
     maze->_obstacles = SvgPolygonLoader::load(filename);
     if (maze->_obstacles.empty()) {
@@ -91,8 +94,6 @@ class PolygonMaze : public Environment {
   double unit() const override { return .2; }
 
  private:
-  PolygonMaze() : Environment() {}
-
   std::string _name{"polygon_maze"};
   std::vector<Polygon> _obstacles;
 };

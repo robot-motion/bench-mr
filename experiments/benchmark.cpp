@@ -1,15 +1,12 @@
 #include <chrono>
 #include <ctime>
 
-#include "base/GridMaze.h"
 #include "base/PlannerSettings.h"
-
+#include "base/environments/GridMaze.h"
 #include "planners/OMPLControlPlanner.hpp"
 #include "planners/OMPLPlanner.hpp"
-
 #include "planners/sbpl/SbplPlanner.h"
 #include "planners/thetastar/ThetaStar.h"
-
 #include "utils/PathEvaluation.hpp"
 #include "utils/ScenarioLoader.h"
 
@@ -171,7 +168,6 @@ int main(int argc, char **argv) {
                 << std::endl;
 
       auto &scenario = scenarioLoader.scenarios()[id];
-      delete global::settings.environment;
       global::settings.environment =
           GridMaze::createFromMovingAiScenario(scenario);
       global::settings.env.collision.initializeCollisionModel();

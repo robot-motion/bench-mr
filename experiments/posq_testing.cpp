@@ -1,10 +1,8 @@
 #include "base/PlannerSettings.h"
-#include "base/GridMaze.h"
-
+#include "base/environments/GridMaze.h"
 #include "planners/OMPLPlanner.hpp"
 #include "planners/sbpl/SbplPlanner.h"
 #include "planners/thetastar/ThetaStar.h"
-
 #include "utils/PathEvaluation.hpp"
 
 namespace og = ompl::geometric;
@@ -13,7 +11,6 @@ int main(int argc, char **argv) {
   Log::instantiateRun();
 
   for (unsigned int i = 0; i < 4; ++i) {
-    delete global::settings.environment;
     global::settings.environment =
         GridMaze::createRandomCorridor(50, 50, 4, 30, i + 1);
 

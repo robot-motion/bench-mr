@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 
 project(mpb)
 
-set(CMAKE_CXX_STANDARD 14)  # C++14 because of OMPL
+set(CMAKE_CXX_STANDARD 17)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -67,7 +67,7 @@ endif (USE_G1)
 
 include_directories(${PROJECT_SOURCE_DIR})
 
-file(GLOB Base base/*)
+file(GLOB_RECURSE Base base/*)
 file(GLOB Utils utils/*)
 file(GLOB_RECURSE Steer steer_functions/*)
 file(GLOB_RECURSE ForwardPropagation fp_models/*)

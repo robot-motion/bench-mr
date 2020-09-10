@@ -1,5 +1,7 @@
 #include "AbstractPlanner.h"
 
+#include "base/EnvironmentStateValidityChecker.h"
+
 std::string AbstractPlanner::LastCreatedPlannerName = "";
 
 AbstractPlanner::AbstractPlanner(const std::string &name) {
@@ -18,6 +20,16 @@ AbstractPlanner::AbstractPlanner(const std::string &name) {
   delete ss_c;
 
   control_based_ = global::settings.benchmark.control_planners_on;
+
+  // check if collision model is valid
+  if (global::settings.env.collision.collision_model != robot::ROBOT_POINT &&
+      global::settings.env.collision.robot_shape.value().points.size() < 3) {
+    OMPL_ERROR(
+        "Robot shape is empty or not convex. Cannot perform "
+        "polygon-based "
+        "collision detection.");
+    return;
+  }
 
   if (control_based_) {
     ss_c = new oc::SimpleSetup(global::settings.ompl.control_space);
@@ -44,14 +56,6 @@ AbstractPlanner::AbstractPlanner(const std::string &name) {
       }
 
     } else {
-      if (global::settings.env.collision.robot_shape.value().points.size() <
-          3) {
-        OMPL_ERROR(
-            "Robot shape is empty or not convex. Cannot perform polygon-based "
-            "collision detection.");
-        return;
-      }
-
       if (global::settings.forwardpropagation.forward_propagation_type ==
           ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR) {
         ss_c->setStateValidityChecker([&](const ob::State *state) -> bool {
@@ -76,28 +80,12 @@ AbstractPlanner::AbstractPlanner(const std::string &name) {
       }
     }
   } else {
-    ss = new og::SimpleSetup(global::settings.ompl.state_space);
+    ss = new og::SimpleSetup(global::settings.ompl.space_info);
+    auto &si = global::settings.ompl.space_info;
 
-    if (global::settings.env.collision.collision_model == robot::ROBOT_POINT) {
-      ss->setStateValidityChecker([&](const ob::State *state) -> bool {
-        const auto *s = state->as<ob::SE2StateSpace::StateType>();
-        const double x = s->getX(), y = s->getY();
-        return !global::settings.environment->collides(x, y);
-      });
-    } else {
-      if (global::settings.env.collision.robot_shape.value().points.size() <
-          3) {
-        OMPL_ERROR(
-            "Robot shape is empty or not convex. Cannot perform polygon-based "
-            "collision detection.");
-        return;
-      }
-      ss->setStateValidityChecker([&](const ob::State *state) -> bool {
-        return !global::settings.environment->collides(
-            global::settings.env.collision.robot_shape.value().transformed(
-                state));
-      });
-    }
+    ss->setStateValidityChecker(
+        std::make_shared<EnvironmentStateValidityChecker>(
+            global::settings.ompl.space_info, global::settings.environment));
   }
 
   if (!control_based_) {

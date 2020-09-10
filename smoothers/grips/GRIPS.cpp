@@ -1,4 +1,5 @@
 #include "GRIPS.h"
+
 #include <base/PathStatistics.hpp>
 
 #if QT_SUPPORT
@@ -317,7 +318,7 @@ void GRIPS::endRound(const ompl::geometric::PathGeometric &path) {
   roundStats.stopWatch.stop();
   roundStats.time = roundStats.stopWatch.elapsed();
   roundStats.path_length = path.length();
-  roundStats.max_curvature = CurvatureMetric::evaluate(path);
+  roundStats.max_curvature = MaxCurvatureMetric::evaluate(path);
   roundStats.nodes = (int)path.getStateCount();
   nodeDistances.clear();
   for (auto i = 0u; i < path.getStateCount(); ++i)

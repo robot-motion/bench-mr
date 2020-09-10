@@ -1,13 +1,13 @@
 #pragma once
 
 #include <chomp/Chomp.h>
+#include <ompl/control/ODESolver.h>
 
+#include <memory>
 #include <params.hpp>
 
-#include <ompl/control/ODESolver.h>
-#include "Environment.h"
+#include "base/Environment.h"
 #include "fp_models/ForwardPropagation.h"
-
 #include "steer_functions/Steering.h"
 
 using namespace params;
@@ -52,7 +52,7 @@ struct StateSettings : public Group {
  */
 struct GlobalSettings : public Group {
   using Group::Group;
-  Environment *environment{nullptr};
+  std::shared_ptr<Environment> environment;
 
   struct EnvironmentSettings : public Group {
     using Group::Group;
@@ -314,8 +314,9 @@ struct GlobalSettings : public Group {
     ompl::control::SpaceInformationPtr control_space_info{nullptr};
     ompl::base::OptimizationObjectivePtr objective{nullptr};
 
-    // stopwatch to measure time for state space interpolation (steering function) and
-    // propagating the control dynamics for forward-propagating planners
+    // stopwatch to measure time for state space interpolation (steering
+    // function) and propagating the control dynamics for forward-propagating
+    // planners
     Stopwatch steering_timer;
 
     Property<double> state_equality_tolerance{1e-4, "state_equality_tolerance",
@@ -325,11 +326,20 @@ struct GlobalSettings : public Group {
     Property<unsigned int> seed{1, "seed", this};
 
     /**
-     * The sampler used by OMPL. 
-     * 
+     * The sampler used by OMPL.
+     *
      * Currently supported: "iid", "halton"
      */
     Property<std::string> sampler{"iid", "sampler", this};
+
+    /**
+     * The optimization objective used by OMPL.
+     *
+     * Currently supported: "min_pathlength", "max_minclearance",
+     * "max_smoothness", "min_curvature"
+     */
+    Property<std::string> optimization_objective{
+        "min_pathlength", "optimization_objective", this};
 
     struct RRTstarSettings : public Group {
       using Group::Group;
@@ -345,9 +355,8 @@ struct GlobalSettings : public Group {
       Property<double> max_distance{0., "max_distance", this};
     } rrt_star{"rrt_star", this};
 
-
     /**
-     * Sets the OMPL sampler based on the state space (steering function) and 
+     * Sets the OMPL sampler based on the state space (steering function) and
      * selected sampler.
      */
     void initializeSampler() const;
@@ -561,7 +570,6 @@ struct GlobalSettings : public Group {
      */
     Property<int> number_edges{10, "number_edges", this};
   } thetaStar{"theta_star", this};
-
 
   GlobalSettings() : Group("settings") {}
 
