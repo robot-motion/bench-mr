@@ -23,10 +23,8 @@ class NormalizedCurvatureMetric : public TMetric<NormalizedCurvatureMetric> {
    */
   static inline double max_curvature = std::numeric_limits<double>::max();
 
-  static double evaluateMetric(const ompl::geometric::PathGeometric &trajectory,
-                               double, bool visualize = false) {
-    const auto path = Point::fromPath(trajectory);
-
+  static double evMetric(const std::vector<Point>& path,
+                         bool visualize = false) {
     double x1, x2, x3, y1, y2, y3, v1x, v2x, v1y, v2y, v1, v2;
     double infinity = std::numeric_limits<double>::max();
     double normalized_k = 0;
@@ -111,6 +109,18 @@ class NormalizedCurvatureMetric : public TMetric<NormalizedCurvatureMetric> {
     }
 
     return normalized_k;
+  }
+
+  static double evaluateMetric(const ompl::geometric::PathGeometric& trajectory,
+                               double, bool visualize = false) {
+    const auto path = Point::fromPath(trajectory);
+    return evMetric(path, visualize);
+  }
+
+  static double evaluateMetric(const ompl::control::PathControl& trajectory,
+                               double, bool visualize = false) {
+    const auto path = Point::fromPath(trajectory);
+    return evMetric(path, visualize);
   }
 
   static const bool MoreIsBetter = false;

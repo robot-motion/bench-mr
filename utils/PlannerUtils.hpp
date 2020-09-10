@@ -1,8 +1,8 @@
 #pragma once
 
+#include <ompl/control/PathControl.h>
 #include <cmath>
 #include <iomanip>
-
 #include "base/PlannerSettings.h"
 #include "base/Primitives.h"
 
@@ -55,8 +55,11 @@ class PlannerUtils {
    * Point-based (!) collision check of the path.
    */
   static bool collides(const std::vector<Point> &path) {
+    std::cout << "Starting.. " << std::endl;
+
     for (const auto &point : path) {
       if (global::settings.environment->collides(point)) {
+        std::cout << "check.. " << std::endl;
         //         || global::settings.environment->bilinearDistance(path[i].x,
         //         path[i].y) < 1.5) {
         return true;
@@ -167,6 +170,37 @@ class PlannerUtils {
                path.getStateCount(), path.length());
 #endif
     path.interpolate(global::settings.interpolation_limit);
+    return path;
+  }
+
+  static ompl::control::PathControl interpolated(
+      ompl::control::PathControl path) {
+    if (path.getStateCount() < 2) {
+#if DEBUG
+      OMPL_WARN("Tried to interpolate an empty path.");
+#endif
+      return path;
+    }
+    if (path.getStateCount() > global::settings.interpolation_limit) {
+#if DEBUG
+      OMPL_WARN(
+          "Cannot interpolate path with %d nodes (maximal %d are allowed).",
+          path.getStateCount(), global::settings.interpolation_limit.value());
+#endif
+      return path;
+    }
+    if (path.length() > global::settings.max_path_length) {
+#if DEBUG
+      OMPL_WARN("Cannot interpolate path of length %f (maximal %f is allowed).",
+                path.length(), global::settings.max_path_length.value());
+#endif
+      return path;
+    }
+#if DEBUG
+    OMPL_DEBUG("Interpolating path with %d nodes and length %f.",
+               path.getStateCount(), path.length());
+#endif
+    path.interpolate();
     return path;
   }
 

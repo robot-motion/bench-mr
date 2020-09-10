@@ -4,9 +4,8 @@
 #include <nlohmann/json.hpp>
 
 #include <base/Primitives.h>
-
+#include <ompl/control/PathControl.h>
 #include "base/PathStatistics.hpp"
-
 
 class Log {
  public:
@@ -25,6 +24,9 @@ class Log {
       const std::vector<Point> &path);
   static std::vector<std::array<double, 3>> serializeTrajectory(
       const ompl::geometric::PathGeometric &traj, bool interpolate = true);
+
+  static std::vector<std::array<double, 3>> serializeTrajectory(
+      const ompl::control::PathControl &traj, bool interpolate = true);
 
  private:
   static nlohmann::json _json;

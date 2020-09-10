@@ -1,11 +1,13 @@
 #pragma once
 
 #include <chomp/Chomp.h>
+#include <ompl/control/ODESolver.h>
 
 #include <memory>
 #include <params.hpp>
 
 #include "base/Environment.h"
+#include "fp_models/ForwardPropagation.h"
 #include "steer_functions/Steering.h"
 
 using namespace params;
@@ -67,7 +69,8 @@ struct GlobalSettings : public Group {
     struct GridSettings : public Group {
       using Group::Group;
       /**
-       * Generator for grid environments ("corridor", "random", "moving_ai").
+       * Generator for grid environments ("corridor", "random", "moving_ai",
+       * "image").
        */
       Property<std::string> generator{"corridor", "generator", this};
       Property<unsigned int> width{50, "width", this};
@@ -84,6 +87,15 @@ struct GlobalSettings : public Group {
         using Group::Group;
         Property<double> obstacle_ratio{0.1, "obstacle_ratio", this};
       } random{"random", this};
+
+      struct ImageSettings : public Group {
+        using Group::Group;
+        Property<std::string> source{"image_mazes/intel-lab.png", "source",
+                                     this};
+        Property<double> occupancy_threshold{0.5, "occupancy_threshold", this};
+        Property<int> desired_width{0, "desired_width", this};
+        Property<int> desired_height{0, "desired_height", this};
+      } image{"image", this};
     } grid{"grid", this};
 
     struct PolygonSettings : public Group {
@@ -200,6 +212,13 @@ struct GlobalSettings : public Group {
         "steer_functions",
         this};
 
+    Property<bool> control_planners_on{false, "control_planners_on", this};
+    Property<std::vector<ForwardPropagation::ForwardPropagationType>>
+        forward_propagations{
+            {ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR},
+            "forward_propagations",
+            this};
+
     /**
      * Time intervals used for the anytime planner benchmark.
      */
@@ -275,6 +294,11 @@ struct GlobalSettings : public Group {
       Property<bool> spars{true, "spars", this};
       Property<bool> spars2{true, "spars2", this};
       Property<bool> pdst{true, "pdst", this};
+      Property<bool> fpkpiece{true, "fpkpiece", this};
+      Property<bool> fpest{true, "fpest", this};
+      Property<bool> fpsst{true, "fpsst", this};
+      Property<bool> fprrt{true, "fprrt", this};
+      Property<bool> fppdst{true, "fppdst", this};
     } planning{"planning", this};
   } benchmark{"benchmark", this};
 
@@ -285,9 +309,15 @@ struct GlobalSettings : public Group {
     using Group::Group;
 
     ompl::base::StateSpacePtr state_space{nullptr};
+    ompl::control::ControlSpacePtr control_space{nullptr};
     ompl::base::SpaceInformationPtr space_info{nullptr};
+    ompl::control::SpaceInformationPtr control_space_info{nullptr};
     ompl::base::OptimizationObjectivePtr objective{nullptr};
-    Stopwatch state_space_timer;
+
+    // stopwatch to measure time for state space interpolation (steering
+    // function) and propagating the control dynamics for forward-propagating
+    // planners
+    Stopwatch steering_timer;
 
     Property<double> state_equality_tolerance{1e-4, "state_equality_tolerance",
                                               this};
@@ -382,6 +412,40 @@ struct GlobalSettings : public Group {
       Property<double> dt{0.1, "dt", this};
     } posq{"posq", this};
   } steer{"steer", this};
+
+  struct ForwardPropagationSettings : public Group {
+    using Group::Group;
+
+    /**
+     * Initializes OMPL state space for forward propagation, space information
+     * and optimization objective for the given model function global::settings.
+     */
+    void initializeForwardPropagation() const;
+
+    Property<ForwardPropagation::ForwardPropagationType>
+        forward_propagation_type{
+            ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR,
+            "forward_propagation_type", this};
+
+    Property<double> car_turning_radius{4, "car_turning_radius", this};
+
+    /**
+     * Distance between states sampled using the forward propagation for
+     * collision detection, rendering and evaluation.
+     */
+    Property<double> sampling_resolution{0.005, "sampling_resolution", this};
+
+    /**
+     * Length of the wheel axis.
+     */
+    Property<double> car_length{1.1, "car_length", this};
+
+    /**
+     * Integration time step.
+     */
+    Property<double> dt{0.1, "dt", this};
+
+  } forwardpropagation{"forwardpropagation", this};
 
   struct SbplSettings : public Group {
     using Group::Group;

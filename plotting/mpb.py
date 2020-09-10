@@ -71,17 +71,22 @@ class MPB:
         """
         Update planners, smoothers, steer functions from config.
         """
-        self._planners = [planner for planner, used in self["benchmark.planning"].items() if used]  # type: [str]
-        self._smoothers = [smoother for smoother, used in self["benchmark.smoothing"].items() if used]  # type: [str]
-        self._steer_functions = [steer_functions[index] for index in self["benchmark.steer_functions"]]  # type: [str]
+        self._planners = [planner for planner, used in self["benchmark.planning"].items(
+        ) if used]  # type: [str]
+        self._smoothers = [smoother for smoother,
+                           used in self["benchmark.smoothing"].items() if used]  # type: [str]
+        self._steer_functions = [steer_functions[index]
+                                 for index in self["benchmark.steer_functions"]]  # type: [str]
+        self._robot_models = [robot_models[index]
+                              for index in self["benchmark.forward_propagations"]]
 
     @staticmethod
     def get_config(config_file: str = os.path.join(MPB_BINARY_DIR, 'benchmark_template.json')) -> dict:
         if not os.path.exists(config_file):
             raise Exception('Could not find configuration template file at %s. ' % os.path.abspath(
                 os.path.join(MPB_BINARY_DIR, 'benchmark_template.json')) +
-                            'Make sure you run the benchmark binary without CLI arguments to generate ' +
-                            'benchmark_template.json.')
+                'Make sure you run the benchmark binary without CLI arguments to generate ' +
+                'benchmark_template.json.')
         with open(config_file, 'r') as f:
             config = json.load(f)["settings"]  # type: dict
         return config
@@ -112,8 +117,37 @@ class MPB:
         self["env.grid.corridor.branches"] = branches
         self["env.grid.corridor.radius"] = radius
 
+    def set_image_grid_env(self,
+                           filename: str,
+                           desired_width: int = 0,
+                           desired_height: int = 0,
+                           occupancy_threshold: float = 0.5):
+        self["env.type"] = "grid"
+        self["env.grid.generator"] = "image"
+        self["env.grid.image.source"] = filename
+        self["env.grid.image.desired_width"] = desired_width
+        self["env.grid.image.desired_height"] = desired_height
+        self["env.grid.image.occupancy_threshold"] = occupancy_threshold
+
+    def set_start(self,
+                  x: float,
+                  y: float,
+                  theta: float):
+        self["env.start.x"] = x
+        self["env.start.y"] = y
+        self["env.start.theta"] = theta
+
+    def set_goal(self,
+                 x: float,
+                 y: float,
+                 theta: float):
+        self["env.goal.x"] = x
+        self["env.goal.y"] = y
+        self["env.goal.theta"] = theta
+
     def set_planners(self, planners: [str]):
-        planners = list(set(itertools.chain.from_iterable(map(parse_planners, planners))))
+        planners = list(
+            set(itertools.chain.from_iterable(map(parse_planners, planners))))
         self._planners = []
         for p in self["benchmark.planning"].keys():
             if p in planners:
@@ -128,12 +162,28 @@ class MPB:
                   file=sys.stderr)
 
     def set_steer_functions(self, steerings: [str]):
-        self._steer_functions = list(set(itertools.chain.from_iterable(map(parse_steer_functions, steerings))))
+        self._steer_functions = list(
+            set(itertools.chain.from_iterable(map(parse_steer_functions, steerings))))
         self["benchmark.steer_functions"] = self._steer_functions
+        self["benchmark.control_planners_on"] = False
         if len(steerings) != len(self._steer_functions):
             print("Error: Some steer function could not be unified. Selected steer functions:",
                   [steer_functions[index] for index in self._steer_functions],
                   file=sys.stderr)
+
+    def set_robot_models_functions(self, robot_models: [str]):
+        self._robot_models = list(
+            set(itertools.chain.from_iterable(map(parse_robot_models, robot_models))))
+        self["benchmark.forward_propagations"] = self._robot_models
+        self["benchmark.control_planners_on"] = True
+        if len(robot_models) != len(self._robot_models):
+            print("Error: Some robot models could not be unified. Selected robot models:",
+                  [robot_models[index] for index in self._robot_models],
+                  file=sys.stderr)
+
+    def set_exact_goal_radius(self, radius: float = 0.1):
+        print(radius)
+        self["exact_goal_radius"] = radius
 
     def set_smoothers(self, smoothers: [str]):
         self._smoothers = []
@@ -158,8 +208,10 @@ class MPB:
         self.id = id
 
     def set_subfolder(self, subfolder: str = ''):
-        self.config_filename = os.path.join(subfolder, self.id) + "_config.json"
-        self.results_filename = os.path.join(subfolder, self.id) + "_results.json"
+        self.config_filename = os.path.join(
+            subfolder, self.id) + "_config.json"
+        self.results_filename = os.path.join(
+            subfolder, self.id) + "_results.json"
         self["benchmark.log_file"] = os.path.abspath(self.results_filename)
 
     @staticmethod
@@ -185,16 +237,19 @@ class MPB:
             runs = self["benchmark.runs"]
         ts = time.time()
         if not id:
-            id = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H-%M-%S')
+            id = datetime.datetime.fromtimestamp(
+                ts).strftime('%Y-%m-%d_%H-%M-%S')
         self.set_id(id)
         self.set_subfolder(subfolder)
         log_filename = os.path.join(subfolder, self.id + ".log")
         logfile = open(log_filename, 'w')
-        print("Running MPB with ID %s (log file at %s)..." % (self.id, log_filename))
+        print("Running MPB with ID %s (log file at %s)..." %
+              (self.id, log_filename))
         num_planners = len(self._planners)
         total_iterations = num_planners * len(self._steer_functions) * runs
         if show_progress_bar:
-            pbar = tqdm_notebook(range(total_iterations), desc=self.id, ncols='100%')
+            pbar = tqdm_notebook(range(total_iterations),
+                                 desc=self.id, ncols='100%')
         success = True
         code = 0
         results_filenames = []
@@ -212,14 +267,16 @@ class MPB:
                     pbar.display('%s (%i / %i) [run %i / %i]' % (
                         convert_planner_name(planner), ip + 1, num_planners, min(run + 1, runs), runs))
                 else:
-                    pbar.display('%s (%i / %i)' % (convert_planner_name(planner), ip + 1, num_planners))
+                    pbar.display(
+                        '%s (%i / %i)' % (convert_planner_name(planner), ip + 1, num_planners))
 
             pbar_prompt()
 
             if ip == 0:
                 results_filename = self.results_filename
             else:
-                results_filename = os.path.join(subfolder, self.id + "_results_%s.json" % planner)
+                results_filename = os.path.join(
+                    subfolder, self.id + "_results_%s.json" % planner)
             self["benchmark.log_file"] = os.path.abspath(results_filename)
             for p in self["benchmark.planning"].keys():
                 self["benchmark.planning." + p] = p == planner
@@ -248,7 +305,8 @@ class MPB:
                         success = False
                         code = -9
 
-                kill_timer = Timer(self["max_planning_time"] * self["benchmark.runs"] * 2, kill_process)
+                kill_timer = Timer(
+                    self["max_planning_time"] * self["benchmark.runs"] * 2, kill_process)
                 kill_timer.start()
             while True:
                 line = tsk.stdout.readline()
@@ -270,12 +328,13 @@ class MPB:
             if code is not None and code != 0:
                 print("Error (%i) occurred for MPB with ID %s using planner %s." % (
                     code, self.id, convert_planner_name(planner)),
-                      file=sys.stderr)
+                    file=sys.stderr)
                 success = False
                 continue
             if ip > 0:
                 results_filenames.append(results_filename)
-                MPB.merge([self.results_filename, results_filename], self.results_filename, silence=True)
+                MPB.merge([self.results_filename, results_filename],
+                          self.results_filename, silence=True)
             # if show_progress_bar:
             #     pbar.update(1)
             if kill_timer is not None:
@@ -288,7 +347,8 @@ class MPB:
             try:
                 os.remove(results_filename)
             except:
-                print("Error: results %s do not exist." % results_filename, file=sys.stderr)
+                print("Error: results %s do not exist." %
+                      results_filename, file=sys.stderr)
         return code
 
     def print_info(self):
@@ -331,6 +391,31 @@ class MPB:
         from plot_stats import plot_smoother_stats
         plot_smoother_stats(self.results_filename, **kwargs)
 
+
+    def plot_planner_timings(self, **kwargs):
+        import matplotlib.pyplot as plt
+        import json
+        import numpy as np
+        data = json.load(open(self.results_filename, "r"))
+        for run_id in range(len(data["runs"])):
+            plt.figure("Run %i" % run_id)
+            planners, total_times, steering_times, collision_times = [], [], [], []
+            for planner, plan in data["runs"][0]["plans"].items():
+                planners.append(planner)
+                total_times.append(plan["stats"]["planning_time"])
+                steering_times.append(plan["stats"]["steering_time"])
+                collision_times.append(plan["stats"]["collision_time"])
+
+            xs = np.arange(len(planners)) + 0.5
+            plt.title("Run %i" % run_id)
+            plt.bar(xs, total_times, width=0.75, edgecolor="black", linewidth=2, linestyle="-", label="Total time")
+            plt.bar(xs, np.array(collision_times) + np.array(steering_times), width=0.7, label="Steering")
+            plt.bar(xs, collision_times, width=0.7, label="Collision")
+            plt.legend()
+            plt.xticks(xs, [convert_planner_name(p) for p in planners], rotation=0, fontsize=14)
+            plt.gca().set_xlim([0, len(planners)])
+            plt.show()
+
     @staticmethod
     def merge(mpbs, target_filename: str, make_separate_runs: bool = False, silence: bool = False,
               plan_names: [str] = None):
@@ -344,7 +429,8 @@ class MPB:
             elif type(m) == str:
                 results_filenames.append(m)
             else:
-                raise TypeError("MPB.merge requires list of MPB instances or filenames.")
+                raise TypeError(
+                    "MPB.merge requires list of MPB instances or filenames.")
 
         plan_index = 0
         target = None
@@ -397,7 +483,8 @@ class MPB:
                                 else:
                                     target["runs"][run_id]["plans"][planner] = plan
                 except json.decoder.JSONDecodeError:
-                    print("Error while decoding JSON file %s." % results_filenames[i], file=sys.stderr)
+                    print("Error while decoding JSON file %s." %
+                          results_filenames[i], file=sys.stderr)
 
             if 'mpb.MPB' in str(type(m)):
                 plan_index += len(m._planners)
@@ -405,7 +492,8 @@ class MPB:
         with open(target_filename, "w") as target_file:
             json.dump(target, target_file, indent=2)
             if not silence:
-                print("Successfully merged [%s] into %s." % (", ".join(results_filenames), target_filename))
+                print("Successfully merged [%s] into %s." % (
+                    ", ".join(results_filenames), target_filename))
 
 
 class MultipleMPB:
@@ -441,9 +529,11 @@ class MultipleMPB:
         if code == 0:
             print("Benchmark %i (%s) finished successfully." % (index, mpb_id))
         elif code is not None:
-            print("Benchmark %i (%s) failed. Return code: %i." % (index, mpb_id, code), file=sys.stderr)
+            print("Benchmark %i (%s) failed. Return code: %i." %
+                  (index, mpb_id, code), file=sys.stderr)
         else:
-            print("Benchmark %i (%s) failed. Unknown return code." % (index, mpb_id), file=sys.stderr)
+            print("Benchmark %i (%s) failed. Unknown return code." %
+                  (index, mpb_id), file=sys.stderr)
         return code
 
     def run_parallel(self,
@@ -458,14 +548,16 @@ class MultipleMPB:
             print("Available memory: %.2f GB, limiting each MPB process to %.1f%% usage (%.2f GB)." %
                   (MPB.get_memory() / 1e6, MEMORY_LIMIT_FRACTION * 100, MPB.get_memory() / 1e6 * MEMORY_LIMIT_FRACTION))
             soft, hard = resource.getrlimit(resource.RLIMIT_AS)
-            memory_limit = (MPB.get_memory() * 1024 * MEMORY_LIMIT_FRACTION, hard)
+            memory_limit = (MPB.get_memory() * 1024 *
+                            MEMORY_LIMIT_FRACTION, hard)
 
         self["benchmark.runs"] = runs
         ts = time.time()
         if id:
             self.id = id
         else:
-            self.id = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H-%M-%S')
+            self.id = datetime.datetime.fromtimestamp(
+                ts).strftime('%Y-%m-%d_%H-%M-%S')
         if use_subfolder:
             if not os.path.exists(self.id):
                 os.mkdir(self.id)
@@ -481,7 +573,8 @@ class MultipleMPB:
                 mpb.set_id("%s_%i" % (self.id, i))
                 log_files.append("%s_%i.log" % (subfolder_id, i))
             else:
-                filename = os.path.join(self.subfolder, mpb.id + "_config.json")
+                filename = os.path.join(
+                    self.subfolder, mpb.id + "_config.json")
                 log_files.append(os.path.join(self.subfolder, mpb.id + ".log"))
             mpb.save_settings(filename)
             config_files.append(filename)
@@ -504,7 +597,8 @@ class MultipleMPB:
                     import matplotlib.pyplot as plt
                     from plot_aggregate import plot_aggregate_stats
                     from utils import get_aggregate_stats
-                    f, (a0, a1) = plt.subplots(1, 2, gridspec_kw={'width_ratios': [1, 4]}, figsize=(10, 3))
+                    f, (a0, a1) = plt.subplots(1, 2, gridspec_kw={
+                        'width_ratios': [1, 4]}, figsize=(10, 3))
                     plt.title(self.id, loc="left", fontweight="bold")
                     plt.title(str(datetime.datetime.now()), loc="right")
                     counts = {}
@@ -516,13 +610,15 @@ class MultipleMPB:
                         if code is None:
                             code_name = "unknown error"
                         else:
-                            code_name = known_codes.get(code, "error %d" % code)
+                            code_name = known_codes.get(
+                                code, "error %d" % code)
                         counts[code_name] = counts.get(code_name, 0) + 1
                     total = sum(counts.values())
                     a0.pie(list(counts.values()), labels=list(counts.keys()),
                            autopct=lambda p: '{:.0f}'.format(p * total / 100))
 
-                    aggregate = get_aggregate_stats([m.results_filename for m in self.benchmarks])
+                    aggregate = get_aggregate_stats(
+                        [m.results_filename for m in self.benchmarks])
                     plot_aggregate_stats(a1,
                                          aggregate["total"],
                                          aggregate["found"],
@@ -532,12 +628,14 @@ class MultipleMPB:
                     plt.tight_layout()
                     plt.subplots_adjust(0., 0.1, 1, 0.9, 0.3, 0.4)
                 except Exception as e:
-                    print("Error while plotting benchmark progress overview:", e, file=sys.stderr)
+                    print(
+                        "Error while plotting benchmark progress overview:", e, file=sys.stderr)
 
             if all([r == 0 for r in results]):
                 print("All benchmarks succeeded.")
             else:
-                print("Error(s) occurred, not all benchmarks succeeded.", file=sys.stderr)
+                print("Error(s) occurred, not all benchmarks succeeded.",
+                      file=sys.stderr)
                 for i, code in enumerate(results):
                     if code == 0:
                         continue
@@ -580,7 +678,7 @@ class MultipleMPB:
 
     def plot_planner_stats(self, **kwargs):
         import matplotlib.pyplot as plt
-        for i, m in enumerate(self.benchmarks):
+        for m in self.benchmarks:
             m.plot_planner_stats(**kwargs)
             plt.suptitle(m.id, fontsize=24, y=1.05)
             plt.tight_layout()

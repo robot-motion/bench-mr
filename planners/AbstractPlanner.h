@@ -1,14 +1,16 @@
 #pragma once
 
-#include <utility>
-
+#include <ompl/base/StateValidityChecker.h>
 #include <ompl/base/spaces/DubinsStateSpace.h>
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
 #include <ompl/base/spaces/SE2StateSpace.h>
+#include <ompl/control/Control.h>
+#include <ompl/control/PathControl.h>
+#include <ompl/control/SimpleSetup.h>
 #include <ompl/geometric/PathGeometric.h>
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/SORRTstar.h>
-
+#include <utility>
 #ifdef G1_AVAILABLE
 #include "steer_functions/G1Clothoid/ClothoidSteering.hpp"
 #include "steer_functions/G1Clothoid/G1ClothoidStateSpace.h"
@@ -16,8 +18,11 @@
 
 #include "steer_functions/POSQ/POSQStateSpace.h"
 
+#include <ompl/control/ODESolver.h>
+
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
+namespace oc = ompl::control;
 
 class AbstractPlanner {
  public:
@@ -48,6 +53,17 @@ class AbstractPlanner {
 
   std::vector<IntermediarySolution> intermediarySolutions;
 
+  struct IntermediaryControlSolution {
+    double time{std::numeric_limits<double>::quiet_NaN()};
+    double cost{std::numeric_limits<double>::quiet_NaN()};
+    oc::PathControl solution;
+    IntermediaryControlSolution(double time, double cost,
+                                const oc::PathControl &solution)
+        : time(time), cost(cost), solution(solution) {}
+  };
+
+  std::vector<IntermediaryControlSolution> intermediaryControlSolutions;
+
   /**
    * Returns the solution of the planner, which is a sparse PathGeometric.
    */
@@ -58,26 +74,44 @@ class AbstractPlanner {
 
  public:
   bool isValid(const ob::State *state) const {
-    return ss->getStateValidityChecker()->isValid(state);
+    std::cout << "Checking if the state is valid .. " << std::endl;
+    return getCurrStateValidityCheckerPtr()->isValid(state);
   }
   bool isValid(og::PathGeometric &path) const {
     for (const auto *state : path.getStates())
-      if (!ss->getStateValidityChecker()->isValid(state)) return false;
+      if (!getCurrStateValidityCheckerPtr()->isValid(state)) return false;
     return true;
   }
   bool isValid(og::PathGeometric &path, std::vector<Point> &collisions) const {
     collisions.clear();
     for (const auto *state : path.getStates())
-      if (!ss->getStateValidityChecker()->isValid(state))
+      if (!getCurrStateValidityCheckerPtr()->isValid(state))
         collisions.emplace_back(state);
     return collisions.empty();
   }
 
+  bool isValid(ompl::control::PathControl &path,
+               std::vector<Point> &collisions) const {
+    collisions.clear();
+    for (const auto *state : path.getStates())
+      if (!getCurrStateValidityCheckerPtr()->isValid(state))
+        collisions.emplace_back(state);
+    return collisions.empty();
+  }
   og::SimpleSetup *simpleSetup() const { return ss; }
+
+  ob::StateValidityCheckerPtr getCurrStateValidityCheckerPtr() const {
+    if (control_based_) {
+      return ss_c->getStateValidityChecker();
+    } else {
+      return ss->getStateValidityChecker();
+    }
+  }
 
  protected:
   og::SimpleSetup *ss{nullptr};
-
+  oc::SimpleSetup *ss_c{nullptr};
+  bool control_based_{false};
   explicit AbstractPlanner(const std::string &name);
 
  public:

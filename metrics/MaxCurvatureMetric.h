@@ -17,11 +17,7 @@ class MaxCurvatureMetric : public TMetric<MaxCurvatureMetric> {
    * @param trajectory The trajectory to evaluate.
    * @return Maximum curvature.
    */
-  static double evaluateMetric(const ompl::geometric::PathGeometric &trajectory,
-                               double, bool visualize = false) {
-    //        return evaluateMetricOLD(trajectory, 0.1);
-    const auto path = Point::fromPath(trajectory);
-
+  static double evMetric(std::vector<Point> path, bool visualize = false) {
     double x1, x2, x3, y1, y2, y3, v1x, v2x, v1y, v2y, v1, v2;
     double infinity = std::numeric_limits<double>::max();
     double maxK = 0;
@@ -105,7 +101,30 @@ class MaxCurvatureMetric : public TMetric<MaxCurvatureMetric> {
     return maxK;
   }
 
-  // TODO: can this be deleted? doesn't seem to be used anywhere?
+  /**
+   * Computes the maximum curvature of the given trajectory.
+   * @param trajectory The trajectory to evaluate.
+   * @return Maximum curvature.
+   */
+  static double evaluateMetric(const ompl::geometric::PathGeometric &trajectory,
+                               double, bool visualize = false) {
+    //        return evaluateMetricOLD(trajectory, 0.1);
+    const auto path = Point::fromPath(trajectory);
+    return evMetric(path, visualize);
+  }
+
+  /**
+   * Computes the maximum curvature of the given trajectory.
+   * @param trajectory The trajectory to evaluate.
+   * @return Maximum curvature.
+   */
+  static double evaluateMetric(const ompl::control::PathControl &trajectory,
+                               double, bool visualize = false) {
+    //        return evaluateMetricOLD(trajectory, 0.1);
+    const auto path = Point::fromPath(trajectory);
+    return evMetric(path, visualize);
+  }
+
   static double evaluateMetric(std::vector<double> traj_x,
                                std::vector<double> traj_y) {
     double x1, x2, x3, y1, y2, y3, v1x, v2x, v1y, v2y, v1, v2, k_i;

@@ -58,3 +58,6 @@ plotting/*.pdf
 
 # Build folder
 build
+
+# Jupyter checkpoints
+.ipynb_checkpoints

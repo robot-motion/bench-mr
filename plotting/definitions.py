@@ -24,16 +24,16 @@ metric_properties = {
     },
     'path_length': {
         'show_std': True
-    },    
+    },
     'mean_clearing_distance': {
         'show_std': True
-    },    
+    },
     'min_clearing_distance': {
         'show_std': True
-    },    
+    },
     'max_clearing_distance': {
         'show_std': True
-    },    
+    },
     'median_clearing_distance': {
         'show_std': True
     },
@@ -73,6 +73,16 @@ steer_functions = [
     'cc_reeds_shepp'
 ]
 
+robot_models = [
+    'kinematic_car',
+    'kinematic_single_track'
+]
+
+robot_models_names = {
+    'kinematic_car': 'Kinematic Car',
+    'kinematic_single_track': 'Kinematic Single Track'
+}
+
 smoother_names = {
     'grips': 'GRIPS',
     'ompl_bspline': 'B-Spline',
@@ -82,10 +92,13 @@ smoother_names = {
 
 smoothers = list(smoother_names.values())
 
-sampling_planners = ['rrt', 'est', 'sbl', 'prm', 'theta_star', 'sst', 'kpiece', 'pdst', 'stride']
+sampling_planners = ['rrt', 'est', 'sbl', 'prm',
+                     'theta_star', 'sst', 'kpiece', 'pdst', 'stride']
 anytime_planners = ['rrt_star', 'rrt_sharp', 'informed_rrt_star', 'sorrt_star', 'prm_star', 'fmt', 'bfmt', 'cforest',
                     'bit_star', 'spars', 'spars2']
-sbpl_planners = ['sbpl_adstar', 'sbpl_anastar', 'sbpl_arastar', 'sbpl_lazy_ara', 'sbpl_mha']
+controlbased_planners = ['fpkpiece', 'fpest', 'fpsst', 'fprrt', 'fppdst']
+sbpl_planners = ['sbpl_adstar', 'sbpl_anastar',
+                 'sbpl_arastar', 'sbpl_lazy_ara', 'sbpl_mha']
 all_planners = sampling_planners + anytime_planners + sbpl_planners
 
 # Mapping internal planner names to their printable counterparts
@@ -114,7 +127,12 @@ planner_names = {
     'sbpl_anastar': 'SBPL ANA*',
     'sbpl_arastar': 'SBPL ARA*',
     'sbpl_lazy_ara': 'SBPL Lazy ARA*',
-    'sbpl_mha': 'SBPL MHA*'    
+    'sbpl_mha': 'SBPL MHA*',
+    'fpkpiece': 'FP KPIECE',
+    'fpest': 'FP EST',
+    'fpsst': 'FP SST',
+    'fprrt': 'FP RRT',
+    'fppdst': 'FP PDST'
 }
 
 # Names internally used by MPB/OMPL to appear in the "plans" dictionary of the results files
@@ -143,5 +161,10 @@ planner_internal_names = {
     'sbpl_anastar': 'SBPL_ANAstar',
     'sbpl_arastar': 'SBPL_ARAstar',
     'sbpl_lazy_ara': 'SBPL_Lazy_ARA',
-    'sbpl_mha': 'SBPL_MHA'
+    'sbpl_mha': 'SBPL_MHA',
+    'fpkpiece': 'FP KPIECE',
+    'fpest': 'FP EST',
+    'fpsst': 'FP SST',
+    'fprrt': 'FP RRT',
+    'fppdst': 'FP PDST'
 }

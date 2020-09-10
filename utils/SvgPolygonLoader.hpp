@@ -15,6 +15,11 @@ class SvgPolygonLoader {
     std::ifstream input_file(filename);
     std::string line;
     std::vector<Polygon> polygons;
+    if (input_file.fail()) {
+      std::cerr << "Cannot load SVG file from " << filename
+                << ". Make sure the file exists." << std::endl;
+      return polygons;
+    }
     while (getline(input_file, line)) {
       trim(line);
       if (line.substr(0, 2) == "d=")
