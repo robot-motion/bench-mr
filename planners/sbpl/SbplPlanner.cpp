@@ -93,6 +93,16 @@ SbplPlanner<PlannerT>::SbplPlanner()
 
   OMPL_DEBUG("Initialized %s Planner", name().c_str());
 
+  double min_x = global::settings.environment->getBounds().low[0];
+  double min_y = global::settings.environment->getBounds().low[1];
+
+  double max_x = global::settings.environment->getBounds().high[0];
+  double max_y = global::settings.environment->getBounds().high[1];
+
+  std::cout << "Reportig bounds" << std::endl;
+  std::cout << min_x << " " << max_x << ", " << min_y << " " << max_y
+            << std::endl;
+
   int startTheta = 0, goalTheta = 0;
   double fraction = global::settings.sbpl.num_theta_dirs / (2. * M_PI);
   startTheta = static_cast<int>(std::round(
@@ -109,40 +119,51 @@ SbplPlanner<PlannerT>::SbplPlanner()
             << (global::settings.environment->goalTheta() * 180. / M_PI)
             << " deg   " << goalTheta << std::endl;
 
-  std::cout
-      << "SBPL start_x "
-      << static_cast<int>(std::round(global::settings.environment->start().x *
-                                     global::settings.sbpl.scaling))
-      << ", start y:"
-      << static_cast<int>(std::round(global::settings.environment->start().y *
-                                     global::settings.sbpl.scaling))
-      << std::endl;
+  std::cout << "Start in real world " << global::settings.environment->start().x
+            << " " << global::settings.environment->start().y << std::endl;
 
-  std::cout
-      << "SBPL goal_x "
-      << static_cast<int>(std::round(global::settings.environment->goal().x *
-                                     global::settings.sbpl.scaling))
-      << ", goal_y:"
-      << static_cast<int>(std::round(global::settings.environment->goal().y *
-                                     global::settings.sbpl.scaling))
-      << std::endl;
+  std::cout << "Goal in real world " << global::settings.environment->goal().x
+            << " " << global::settings.environment->goal().y << std::endl;
+
+  std::cout << "SBPL start_x "
+            << static_cast<int>(std::round(
+                   (global::settings.environment->start().x - min_x) *
+                   global::settings.sbpl.scaling))
+            << ", start y:"
+            << static_cast<int>(std::round(
+                   (global::settings.environment->start().y - min_y) *
+                   global::settings.sbpl.scaling))
+            << std::endl;
+
+  std::cout << "SBPL goal_x "
+            << static_cast<int>(
+                   std::round((global::settings.environment->goal().x - min_x) *
+                              global::settings.sbpl.scaling))
+            << ", goal_y:"
+            << static_cast<int>(
+                   std::round((global::settings.environment->goal().y - min_y) *
+                              global::settings.sbpl.scaling))
+            << std::endl;
 
   std::cout << "We are using a scaling factor of "
             << global::settings.sbpl.scaling;
 
   _sbPlanner->set_start(_env->GetStateFromCoord(
-      static_cast<int>(std::round(global::settings.environment->start().x *
-                                  global::settings.sbpl.scaling)),
-      static_cast<int>(std::round(global::settings.environment->start().y *
-                                  global::settings.sbpl.scaling)),
+      static_cast<int>(
+          std::round((global::settings.environment->start().x - min_x) *
+                     global::settings.sbpl.scaling)),
+      static_cast<int>(
+          std::round((global::settings.environment->start().y - min_y) *
+                     global::settings.sbpl.scaling)),
       startTheta));
   _sbPlanner->set_goal(_env->GetStateFromCoord(
-      static_cast<int>(std::round(global::settings.environment->goal().x *
-                                  global::settings.sbpl.scaling)),
-      static_cast<int>(std::round(global::settings.environment->goal().y *
-                                  global::settings.sbpl.scaling)),
+      static_cast<int>(
+          std::round((global::settings.environment->goal().x - min_x) *
+                     global::settings.sbpl.scaling)),
+      static_cast<int>(
+          std::round((global::settings.environment->goal().y - min_y) *
+                     global::settings.sbpl.scaling)),
       goalTheta));
-
 
   _sbPlanner->set_search_mode(
       global::settings.sbpl.search_until_first_solution);

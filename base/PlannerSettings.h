@@ -484,7 +484,7 @@ struct GlobalSettings : public Group {
      * Scale environment to accommodate extents of SBPL's motion primitives.
      * Intuition: the smaller this number the larger the turning radius.
      */
-    Property<double> scaling{6, "scaling", this};
+    Property<double> scaling{1, "scaling", this};
 
     /**
      * These tolerances are most likely ignored by SPBL at the moment.

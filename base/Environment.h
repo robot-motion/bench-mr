@@ -105,6 +105,8 @@ class Environment {
   ompl::base::ScopedState<ob::SE2StateSpace> startScopedState() const;
   ompl::base::ScopedState<ob::SE2StateSpace> goalScopedState() const;
 
+  ob::RealVectorBounds getBounds() const {return _bounds;} 
+
   double startTheta() const { return _start_theta; }
   double goalTheta() const { return _goal_theta; }
 
