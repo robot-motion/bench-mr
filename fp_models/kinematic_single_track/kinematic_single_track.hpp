@@ -12,7 +12,7 @@ namespace ob = ompl::base;
 namespace kinematicSingleTrack {
 // as in
 // https://gitlab.lrz.de/tum-cps/commonroad-vehicle-models/blob/master/vehicleModels_commonRoad.pdf
-void kinematicSingleTrackODE(const oc::ODESolver::StateType& q,
+inline void kinematicSingleTrackODE(const oc::ODESolver::StateType& q,
                              const oc::Control* control,
                              oc::ODESolver::StateType& qdot) {
   global::settings.ompl.steering_timer.resume();
@@ -33,7 +33,7 @@ void kinematicSingleTrackODE(const oc::ODESolver::StateType& q,
 
 // as in
 // https://gitlab.lrz.de/tum-cps/commonroad-vehicle-models/blob/master/vehicleModels_commonRoad.pdf
-void kinematicSingleTrackPostIntegration(const ob::State* state,
+inline void kinematicSingleTrackPostIntegration(const ob::State* state,
                                          const oc::Control* /*control*/,
                                          const double /*duration*/,
                                          ob::State* result) {
@@ -44,7 +44,7 @@ void kinematicSingleTrackPostIntegration(const ob::State* state,
   SO2.enforceBounds(se2state->as<ob::SO2StateSpace::StateType>(1));
 }
 
-void propagate(const oc::SpaceInformation* si, const ob::State* state,
+inline void propagate(const oc::SpaceInformation* si, const ob::State* state,
                const oc::Control* control, const double duration,
                ob::State* result) {
   global::settings.ompl.steering_timer.resume();
