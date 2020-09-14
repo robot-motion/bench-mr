@@ -341,6 +341,14 @@ struct GlobalSettings : public Group {
     Property<std::string> optimization_objective{
         "min_pathlength", "optimization_objective", this};
 
+    /**
+     * Planner settings for all planners.
+     *
+     * Keys are planners names, values are key:value pairs of planner
+     * parameters. Populated with default params in constructor.
+     */
+    Property<nlohmann::json> planner_settings{{}, "planner_settings", this};
+
     struct RRTstarSettings : public Group {
       using Group::Group;
 
