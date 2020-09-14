@@ -109,10 +109,26 @@ SbplPlanner<PlannerT>::SbplPlanner()
             << (global::settings.environment->goalTheta() * 180. / M_PI)
             << " deg   " << goalTheta << std::endl;
 
-  _sbPlanner->set_search_mode(
-      global::settings.sbpl.search_until_first_solution);
-  _sbPlanner->set_initialsolution_eps(
-      global::settings.sbpl.initial_solution_eps);
+  std::cout
+      << "SBPL start_x "
+      << static_cast<int>(std::round(global::settings.environment->start().x *
+                                     global::settings.sbpl.scaling))
+      << ", start y:"
+      << static_cast<int>(std::round(global::settings.environment->start().y *
+                                     global::settings.sbpl.scaling))
+      << std::endl;
+
+  std::cout
+      << "SBPL goal_x "
+      << static_cast<int>(std::round(global::settings.environment->goal().x *
+                                     global::settings.sbpl.scaling))
+      << ", goal_y:"
+      << static_cast<int>(std::round(global::settings.environment->goal().y *
+                                     global::settings.sbpl.scaling))
+      << std::endl;
+
+  std::cout << "We are using a scaling factor of "
+            << global::settings.sbpl.scaling;
 
   _sbPlanner->set_start(_env->GetStateFromCoord(
       static_cast<int>(std::round(global::settings.environment->start().x *
@@ -126,6 +142,12 @@ SbplPlanner<PlannerT>::SbplPlanner()
       static_cast<int>(std::round(global::settings.environment->goal().y *
                                   global::settings.sbpl.scaling)),
       goalTheta));
+
+
+  _sbPlanner->set_search_mode(
+      global::settings.sbpl.search_until_first_solution);
+  _sbPlanner->set_initialsolution_eps(
+      global::settings.sbpl.initial_solution_eps);
 }
 
 template <sbpl::Planner PlannerT>
