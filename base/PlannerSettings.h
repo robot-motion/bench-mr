@@ -308,6 +308,11 @@ struct GlobalSettings : public Group {
   struct OmplSettings : public Group {
     using Group::Group;
 
+    /**
+     * Custom constructor to expose planner settings and their default values.
+     */
+    OmplSettings(const char *name, Group *parent = nullptr);
+
     ompl::base::StateSpacePtr state_space{nullptr};
     ompl::control::ControlSpacePtr control_space{nullptr};
     ompl::base::SpaceInformationPtr space_info{nullptr};
@@ -342,12 +347,38 @@ struct GlobalSettings : public Group {
         "min_pathlength", "optimization_objective", this};
 
     /**
-     * Planner settings for all planners.
+     * Retrieve available parameters and defaults for geometric planners.
+     */
+    void retrieveGeometricPlannerParams();
+
+    /**
+     * Planner settings for geometric planners.
+     *
+     * Geometric and control planners are split since planner names are not
+     * unique across these two namespaces.
+     *
+     * Keys are planners names, values are key:value pairs of planner
+     * parameters.
+     */
+    Property<nlohmann::json> geometric_planner_settings{
+        {}, "geometric_planner_settings", this};
+
+    /**
+     * Retrieve available parameters and defaults for control planners.
+     */
+    void retrieveControlPlannerParams();
+
+    /**
+     * Planner settings for control planners.
+     *
+     * Geometric and control planners are split since planner names are not
+     * unique across these two namespaces.
      *
      * Keys are planners names, values are key:value pairs of planner
      * parameters. Populated with default params in constructor.
      */
-    Property<nlohmann::json> planner_settings{{}, "planner_settings", this};
+    Property<nlohmann::json> control_planner_settings{
+        {}, "control_planner_settings", this};
 
     struct RRTstarSettings : public Group {
       using Group::Group;
