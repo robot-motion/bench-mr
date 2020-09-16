@@ -28,11 +28,6 @@ class PlannerConfigurator {
               global::settings.ompl.control_planner_settings.value());
   }
 
-  static void configure(og::RRTstar &planner) {
-    planner.setGoalBias(global::settings.ompl.rrt_star.goal_bias);
-    planner.setRange(global::settings.ompl.rrt_star.max_distance);
-  }
-
  private:
   static void configure(ob::Planner &planner, const nlohmann::json &settings) {
     const auto name = planner.getName();

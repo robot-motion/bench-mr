@@ -380,20 +380,6 @@ struct GlobalSettings : public Group {
     Property<nlohmann::json> control_planner_settings{
         {}, "control_planner_settings", this};
 
-    struct RRTstarSettings : public Group {
-      using Group::Group;
-
-      /**
-       * Probability of selecting the goal state during the exploration.
-       */
-      Property<double> goal_bias{0.05, "goal_bias", this};
-
-      /**
-       * Maximum length of a motion to be added to the tree.
-       */
-      Property<double> max_distance{0., "max_distance", this};
-    } rrt_star{"rrt_star", this};
-
     /**
      * Sets the OMPL sampler based on the state space (steering function) and
      * selected sampler.
