@@ -32,9 +32,9 @@ class PlannerConfigurator {
   static void configure(ob::Planner &planner, const nlohmann::json &settings) {
     const auto name = planner.getName();
     auto params = planner.params();
-    if (settings.contains(name)) {
-      for (auto &[key, value] : settings[name].items()) {
-        params.setParam(key, value);
+    if (settings.find(name) != settings.end()) {
+      for (auto it = settings[name].begin(); it!= settings[name].end(); ++it) {
+        params.setParam(it.key(), it.value());
       }
     }
   }
