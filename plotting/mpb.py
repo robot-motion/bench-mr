@@ -7,6 +7,7 @@ import os
 import sys
 import psutil
 import resource
+import json
 from typing import Optional, Union
 from threading import Timer
 from copy import deepcopy
@@ -128,6 +129,13 @@ class MPB:
         self["env.grid.image.desired_width"] = desired_width
         self["env.grid.image.desired_height"] = desired_height
         self["env.grid.image.occupancy_threshold"] = occupancy_threshold
+
+    def set_polygon_env(self,
+                        filename: str,
+                        scaling: float = 1.):
+        self["env.type"] = "polygon"
+        self["env.polygon.source"] = filename
+        self["env.polygon.scaling"] = scaling
 
     def set_start(self,
                   x: float,
@@ -391,7 +399,6 @@ class MPB:
         from plot_stats import plot_smoother_stats
         plot_smoother_stats(self.results_filename, **kwargs)
 
-
     def plot_planner_timings(self, **kwargs):
         import matplotlib.pyplot as plt
         import json
@@ -408,11 +415,14 @@ class MPB:
 
             xs = np.arange(len(planners)) + 0.5
             plt.title("Run %i" % run_id)
-            plt.bar(xs, total_times, width=0.75, edgecolor="black", linewidth=2, linestyle="-", label="Total time")
-            plt.bar(xs, np.array(collision_times) + np.array(steering_times), width=0.7, label="Steering")
+            plt.bar(xs, total_times, width=0.75, edgecolor="black",
+                    linewidth=2, linestyle="-", label="Total time")
+            plt.bar(xs, np.array(collision_times) +
+                    np.array(steering_times), width=0.7, label="Steering")
             plt.bar(xs, collision_times, width=0.7, label="Collision")
             plt.legend()
-            plt.xticks(xs, [convert_planner_name(p) for p in planners], rotation=0, fontsize=14)
+            plt.xticks(xs, [convert_planner_name(p)
+                            for p in planners], rotation=0, fontsize=14)
             plt.gca().set_xlim([0, len(planners)])
             plt.show()
 
@@ -465,11 +475,11 @@ class MPB:
                         if i == 0:
                             target["runs"].append(deepcopy(run))
                             target["runs"][run_id]["plans"] = {}
-                            
+
                         if run_id >= len(target["runs"]) and i != 0:
                             if not silence:
                                 print("Run #%i does not exist in %s but in %s. Skipping."
-                                        % (run_id, results_filenames[i - 1], results_filenames[i]), file=sys.stderr)
+                                      % (run_id, results_filenames[i - 1], results_filenames[i]), file=sys.stderr)
                         else:
                             for pi, (planner, plan) in enumerate(run["plans"].items()):
                                 if plan_names:
@@ -478,8 +488,8 @@ class MPB:
                                 if planner in target["runs"][run_id]["plans"]:
                                     if not silence:
                                         print("Planner %s already exists in %s and in %s. Skipping."
-                                                % (planner, results_filenames[i - 1], results_filenames[i]),
-                                                file=sys.stderr)
+                                              % (planner, results_filenames[i - 1], results_filenames[i]),
+                                              file=sys.stderr)
                                 else:
                                     target["runs"][run_id]["plans"][planner] = plan
                 except json.decoder.JSONDecodeError:
