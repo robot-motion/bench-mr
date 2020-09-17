@@ -7,15 +7,17 @@
 #include <ompl/base/spaces/DubinsStateSpace.h>
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
 #include <ompl/base/spaces/SE2StateSpace.h>
+#include <ompl/base/spaces/SO2StateSpace.h>
 #include <ompl/control/ODESolver.h>
 #include <ompl/control/spaces/RealVectorControlSpace.h>
-#include <ompl/base/spaces/SO2StateSpace.h>
 #include <utils/OptimizationObjective.h>
 
 #include <steering_functions/include/ompl_state_spaces/CurvatureStateSpace.hpp>
 
 #include "base/environments/GridMaze.h"
 #include "base/environments/PolygonMaze.h"
+#include "planners/OMPLControlPlanner.hpp"
+#include "planners/OMPLPlanner.hpp"
 #include "steer_functions/POSQ/POSQStateSpace.h"
 
 #ifdef G1_AVAILABLE
@@ -131,11 +133,9 @@ void PlannerSettings::GlobalSettings::ForwardPropagationSettings::
             std::make_shared<
                 ForwardPropagation::KinematicSingleTrackProjectionEvaluator>(
                 global::settings.ompl.state_space.get()));
-
-    }
   }
+}
 
-  
 void PlannerSettings::GlobalSettings::OmplSettings::initializeSampler() const {
   const auto &space_ptr = global::settings.ompl.state_space;
   const auto &steering_type = global::settings.steer.steering_type;
@@ -320,4 +320,79 @@ void PlannerSettings::GlobalSettings::EnvironmentSettings::CollisionSettings::
                 robot_shape.value().min().x, robot_shape.value().min().y,
                 robot_shape.value().max().x, robot_shape.value().max().y);
   }
+}
+
+PlannerSettings::GlobalSettings::OmplSettings::OmplSettings(const char *name,
+                                                            Group *parent)
+    : Group(name, parent) {
+  retrieveGeometricPlannerParams();
+  retrieveControlPlannerParams();
+}
+
+void PlannerSettings::GlobalSettings::OmplSettings::retrieveGeometricPlannerParams() {
+  // Create dummy state space to create dummy planners for param retrieval
+  auto space_ptr = std::make_shared<ob::SE2StateSpace>();
+  auto space_info_ptr = std::make_shared<ob::SpaceInformation>(space_ptr);
+
+  // Createa all geometric planners
+  std::vector<std::shared_ptr<ob::Planner>> planners;
+  planners.emplace_back(std::make_shared<og::RRT>(space_info_ptr));
+  planners.emplace_back(std::make_shared<og::SST>(space_info_ptr));
+  planners.emplace_back(std::make_shared<og::RRTstar>(space_info_ptr));
+  planners.emplace_back(std::make_shared<og::RRTsharp>(space_info_ptr));
+  planners.emplace_back(std::make_shared<og::InformedRRTstar>(space_info_ptr));
+  planners.emplace_back(std::make_shared<og::SORRTstar>(space_info_ptr));
+  planners.emplace_back(std::make_shared<og::BITstar>(space_info_ptr));
+  planners.emplace_back(std::make_shared<og::FMT>(space_info_ptr));
+  planners.emplace_back(std::make_shared<og::BFMT>(space_info_ptr));
+  planners.emplace_back(std::make_shared<og::PRM>(space_info_ptr));
+  planners.emplace_back(std::make_shared<og::SBL>(space_info_ptr));
+  planners.emplace_back(std::make_shared<og::PRMstar>(space_info_ptr));
+  planners.emplace_back(std::make_shared<og::CForest>(space_info_ptr));
+  planners.emplace_back(std::make_shared<og::EST>(space_info_ptr));
+  planners.emplace_back(std::make_shared<og::KPIECE1>(space_info_ptr));
+  planners.emplace_back(std::make_shared<og::STRIDE>(space_info_ptr));
+  planners.emplace_back(std::make_shared<og::SPARS>(space_info_ptr));
+  planners.emplace_back(std::make_shared<og::SPARStwo>(space_info_ptr));
+  planners.emplace_back(std::make_shared<og::PDST>(space_info_ptr));
+
+  // Temporarily decrease log level, to suppress warnings about params not being
+  // used anymore.
+  ompl::msg::setLogLevel(ompl::msg::LOG_ERROR);
+  for (auto planner : planners) {
+    const auto &param_map = planner->params().getParams();
+    for (const auto &[key, value_ptr] : param_map) {
+      geometric_planner_settings.value()[planner->getName()][key] =
+          value_ptr->getValue();
+    }
+  }
+  ompl::msg::setLogLevel(ompl::msg::LOG_INFO);
+}
+
+void PlannerSettings::GlobalSettings::OmplSettings::retrieveControlPlannerParams() {
+  auto space_ptr = std::make_shared<ob::SE2StateSpace>();
+  auto control_space_ptr_ =
+      std::make_shared<oc::RealVectorControlSpace>(space_ptr, 2);
+  auto control_space_info_ptr =
+      std::make_shared<oc::SpaceInformation>(space_ptr, control_space_ptr_);
+
+  // Create all control planners
+  std::vector<std::shared_ptr<ob::Planner>> planners;
+  planners.emplace_back(std::make_shared<oc::KPIECE1>(control_space_info_ptr));
+  planners.emplace_back(std::make_shared<oc::EST>(control_space_info_ptr));
+  planners.emplace_back(std::make_shared<oc::SST>(control_space_info_ptr));
+  planners.emplace_back(std::make_shared<oc::RRT>(control_space_info_ptr));
+  planners.emplace_back(std::make_shared<oc::PDST>(control_space_info_ptr));
+
+  // Temporarily decrease log level, to suppress warnings about params not being
+  // used anymore.
+  ompl::msg::setLogLevel(ompl::msg::LOG_ERROR);
+  for (auto planner : planners) {
+    const auto &param_map = planner->params().getParams();
+    for (const auto &[key, value_ptr] : param_map) {
+      control_planner_settings.value()[planner->getName()][key] =
+          value_ptr->getValue();
+    }
+  }
+  ompl::msg::setLogLevel(ompl::msg::LOG_INFO);
 }
