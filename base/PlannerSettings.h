@@ -110,7 +110,7 @@ struct GlobalSettings : public Group {
       /**
        * Scale polygons from InkScape.
        */
-      Property<double> scaling{1. / 22., "scaling", this};
+      Property<double> scaling{1., "scaling", this};
 
     } polygon{"polygon", this};
 
@@ -308,6 +308,11 @@ struct GlobalSettings : public Group {
   struct OmplSettings : public Group {
     using Group::Group;
 
+    /**
+     * Custom constructor to expose planner settings and their default values.
+     */
+    OmplSettings(const char *name, Group *parent = nullptr);
+
     ompl::base::StateSpacePtr state_space{nullptr};
     ompl::control::ControlSpacePtr control_space{nullptr};
     ompl::base::SpaceInformationPtr space_info{nullptr};
@@ -341,19 +346,39 @@ struct GlobalSettings : public Group {
     Property<std::string> optimization_objective{
         "min_pathlength", "optimization_objective", this};
 
-    struct RRTstarSettings : public Group {
-      using Group::Group;
+    /**
+     * Retrieve available parameters and defaults for geometric planners.
+     */
+    void retrieveGeometricPlannerParams();
 
-      /**
-       * Probability of selecting the goal state during the exploration.
-       */
-      Property<double> goal_bias{0.05, "goal_bias", this};
+    /**
+     * Planner settings for geometric planners.
+     *
+     * Geometric and control planners are split since planner names are not
+     * unique across these two namespaces.
+     *
+     * Keys are planners names, values are key:value pairs of planner
+     * parameters.
+     */
+    Property<nlohmann::json> geometric_planner_settings{
+        {}, "geometric_planner_settings", this};
 
-      /**
-       * Maximum length of a motion to be added to the tree.
-       */
-      Property<double> max_distance{0., "max_distance", this};
-    } rrt_star{"rrt_star", this};
+    /**
+     * Retrieve available parameters and defaults for control planners.
+     */
+    void retrieveControlPlannerParams();
+
+    /**
+     * Planner settings for control planners.
+     *
+     * Geometric and control planners are split since planner names are not
+     * unique across these two namespaces.
+     *
+     * Keys are planners names, values are key:value pairs of planner
+     * parameters. Populated with default params in constructor.
+     */
+    Property<nlohmann::json> control_planner_settings{
+        {}, "control_planner_settings", this};
 
     /**
      * Sets the OMPL sampler based on the state space (steering function) and

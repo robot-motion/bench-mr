@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fstream>
+#include <sstream>
 
 #include "base/Primitives.h"
 
@@ -20,11 +21,23 @@ class SvgPolygonLoader {
                 << ". Make sure the file exists." << std::endl;
       return polygons;
     }
+    double offset_x = 0, offset_y = 0;
     while (getline(input_file, line)) {
       trim(line);
-      if (line.substr(0, 2) == "d=")
-        polygons.emplace_back(
-            Polygon::loadFromSvgPathStr(line.substr(3, line.length() - 3)));
+      if (line.substr(0, 21) == "transform=\"translate(") {
+        std::stringstream ss(line.substr(21, line.length() - 21));
+        ss >> offset_x;
+        char c;
+        ss >> c;
+        ss >> offset_y;
+        std::cout << "SVG group: using offset_x=" << offset_x
+                  << "  offset_y=" << offset_y << std::endl;
+      } else if (line.substr(0, 2) == "d=") {
+        auto poly =
+            Polygon::loadFromSvgPathStr(line.substr(3, line.length() - 3));
+        poly.translate(Point(offset_x, -offset_y));  // flip offset y
+        polygons.emplace_back(poly);
+      }
     }
     return polygons;
   }

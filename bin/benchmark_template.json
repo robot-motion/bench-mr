@@ -101,7 +101,7 @@
         "width": 50
       },
       "polygon": {
-        "scaling": 0.045454545454545456,
+        "scaling": 1.0,
         "source": "polygon_mazes/parking1.svg"
       },
       "start": {

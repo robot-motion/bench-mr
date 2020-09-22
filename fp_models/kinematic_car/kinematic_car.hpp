@@ -12,7 +12,7 @@ namespace ob = ompl::base;
 namespace KinematicCar {
 // as in
 // https://ompl.kavrakilab.org/RigidBodyPlanningWithODESolverAndControls_8cpp_source.html
-void kinematicCarODE(const oc::ODESolver::StateType& q,
+inline void kinematicCarODE(const oc::ODESolver::StateType& q,
                      const oc::Control* control,
                      oc::ODESolver::StateType& qdot) {
   global::settings.ompl.steering_timer.resume();
@@ -29,7 +29,7 @@ void kinematicCarODE(const oc::ODESolver::StateType& q,
 
 // as in
 // https://ompl.kavrakilab.org/RigidBodyPlanningWithODESolverAndControls_8cpp_source.html
-void kinematicCarPostIntegration(const ob::State* /*state*/,
+inline void kinematicCarPostIntegration(const ob::State* /*state*/,
                                  const oc::Control* /*control*/,
                                  const double /*duration*/, ob::State* result) {
   // Normalize orientation between 0 and 2*pi
@@ -38,7 +38,7 @@ void kinematicCarPostIntegration(const ob::State* /*state*/,
                         ->as<ob::SO2StateSpace::StateType>(1));
 }
 
-void propagate(const oc::SpaceInformation* si, const ob::State* state,
+inline void propagate(const oc::SpaceInformation* si, const ob::State* state,
                const oc::Control* control, const double duration,
                ob::State* result) {
   global::settings.ompl.steering_timer.resume();

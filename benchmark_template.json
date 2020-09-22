@@ -12,7 +12,7 @@
         25.0,
         30.0
       ],
-      "control_planners_on": true,
+      "control_planners_on": false,
       "forward_propagations": [
         0
       ],
