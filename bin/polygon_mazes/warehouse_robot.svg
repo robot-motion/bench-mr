@@ -9,12 +9,12 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="83.426743mm"
-   height="79.647018mm"
-   viewBox="0 0 83.426742 79.647018"
+   width="3.7918193mm"
+   height="3.6202493mm"
+   viewBox="0 0 3.7918193 3.6202493"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="warehouse_robot.svg">
   <sodipodi:namedview
      id="base"
@@ -24,15 +24,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.12374369"
-     inkscape:cx="1872.8089"
-     inkscape:cy="2510.0067"
+     inkscape:cx="203.04831"
+     inkscape:cy="2366.3346"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="2493"
-     inkscape:window-height="1385"
-     inkscape:window-x="2627"
-     inkscape:window-y="27"
+     inkscape:window-width="1920"
+     inkscape:window-height="1043"
+     inkscape:window-x="0"
+     inkscape:window-y="174"
      inkscape:window-maximized="1"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -55,14 +55,14 @@
     </rdf:RDF>
   </metadata>
   <g
-     transform="translate(-408.34503,-1025.8546)"
+     transform="translate(-448.1625,-1063.8681)"
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
     <path
        inkscape:connector-curvature="0"
        id="path1896"
-       d="m 423.89955,1026.0015 h 52.31772 l 6.0085,1.2071 4.89626,3.2958 3.2958,4.8963 1.20709,6.0085 v 48.5379 l -1.20709,6.0085 -3.2958,4.8963 -4.89626,3.2958 -6.0085,1.2071 h -52.31772 l -6.00851,-1.2071 -4.89626,-3.2958 -3.2958,-4.8963 -1.20709,-6.0085 v -48.5379 l 1.20709,-6.0085 3.2958,-4.8963 4.89626,-3.2958 6.00851,-1.2071 v 0"
-       style="fill:#c7c7c7;fill-opacity:1;stroke:#1b0202;stroke-width:0.29371506;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
+       d="m 448.86949,1063.8748 h 2.37784 l 0.27308,0.055 0.22254,0.1498 0.14979,0.2225 0.0549,0.2731 v 2.2061 l -0.0549,0.2731 -0.14979,0.2225 -0.22254,0.1498 -0.27308,0.055 h -2.37784 l -0.27309,-0.055 -0.22254,-0.1498 -0.14979,-0.2225 -0.0549,-0.2731 v -2.2061 l 0.0549,-0.2731 0.14979,-0.2225 0.22254,-0.1498 0.27309,-0.055 v 0"
+       style="fill:#c7c7c7;fill-opacity:1;stroke:#1b0202;stroke-width:0.01334935;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
   </g>
 </svg>

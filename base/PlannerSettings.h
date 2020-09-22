@@ -110,7 +110,7 @@ struct GlobalSettings : public Group {
       /**
        * Scale polygons from InkScape.
        */
-      Property<double> scaling{1. / 22., "scaling", this};
+      Property<double> scaling{1., "scaling", this};
 
     } polygon{"polygon", this};
 

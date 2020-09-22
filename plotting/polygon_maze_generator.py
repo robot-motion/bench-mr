@@ -33,9 +33,12 @@ class PolygonMazeGenerator:
         ax = plt.gca()
         ax.add_collection(PatchCollection(polygons, color='lightgray', edgecolor='gray', alpha=0.8))
         pmin, pmax = PolygonMazeGenerator.get_limits(obstacles)
-        ax.set_xlim([pmin[0], pmax[0]])
-        ax.set_ylim([pmin[1], pmax[1]])
-        plt.axis('equal')
+        width = pmax[0] - pmin[0]
+        height = pmax[1] - pmin[1]
+        ax.set_xlim([pmin[0] - width/50, pmax[0] + width/50])
+        ax.set_ylim([pmin[1] - height/50, pmax[1] + height/50])
+        ax.autoscale(False)
+        ax.set_aspect('equal', 'box')
         plt.grid()
 
     @staticmethod
