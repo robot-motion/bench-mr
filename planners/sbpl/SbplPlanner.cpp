@@ -1,4 +1,5 @@
 #include "SbplPlanner.h"
+
 #include <utils/PlannerUtils.hpp>
 #include <utils/Stopwatch.hpp>
 
@@ -23,7 +24,7 @@ SbplPlanner<PlannerT>::SbplPlanner()
 
   OMPL_DEBUG("Constructing %s Planner", name().c_str());
 
-  std::cout << "Motion primitive filename: "
+  std::cout << "SBPL motion primitive filename: "
             << global::settings.sbpl.motion_primitive_filename << std::endl;
 
   const auto cells_x = static_cast<int>(global::settings.environment->width() *
@@ -51,15 +52,35 @@ SbplPlanner<PlannerT>::SbplPlanner()
     delete _env;
     throw;
   }
+
+  double min_x = global::settings.environment->getBounds().low[0];
+  double min_y = global::settings.environment->getBounds().low[1];
+
+  double max_x = global::settings.environment->getBounds().high[0];
+  double max_y = global::settings.environment->getBounds().high[1];
+
+  // convert SBPL cell coordinates to environment coordinates
+  auto index2env = [&min_x, &min_y](int ix, int iy, double *x, double *y) {
+    *x = ix / global::settings.sbpl.scaling + min_x;
+    *y = iy / global::settings.sbpl.scaling + min_y;
+  };
+  // convert environment coordinates to SBPL cell coordinates
+  auto env2index = [&min_x, &min_y](double x, double y, int *ix, int *iy) {
+    *ix = (x - min_x) * global::settings.sbpl.scaling;
+    *iy = (y - min_y) * global::settings.sbpl.scaling;
+  };
+
+  double env_x, env_y;
   for (int ix = 0; ix < cells_x; ++ix) {
     for (int iy = 0; iy < cells_y; ++iy) {
-      const bool collides = global::settings.environment->collides(
-          ix / global::settings.sbpl.scaling,
-          iy / global::settings.sbpl.scaling);
+      index2env(ix, iy, &env_x, &env_y);
+      const bool collides =
+          global::settings.environment->collides(env_x, env_y);
       _env->UpdateCost(ix, iy, static_cast<unsigned char>(collides ? 20u : 1u));
     }
   }
-  OMPL_DEBUG("Initialized SBPL environment");
+  std::cout << "Initialized " << cells_x << "x" << cells_y
+            << " SBPL environment.\n";
 
   // Initialize MDP Info
   MDPConfig MDPCfg{};
@@ -93,13 +114,7 @@ SbplPlanner<PlannerT>::SbplPlanner()
 
   OMPL_DEBUG("Initialized %s Planner", name().c_str());
 
-  double min_x = global::settings.environment->getBounds().low[0];
-  double min_y = global::settings.environment->getBounds().low[1];
-
-  double max_x = global::settings.environment->getBounds().high[0];
-  double max_y = global::settings.environment->getBounds().high[1];
-
-  std::cout << "Reportig bounds" << std::endl;
+  std::cout << "Environment bounds: ";
   std::cout << min_x << " " << max_x << ", " << min_y << " " << max_y
             << std::endl;
 
@@ -119,51 +134,28 @@ SbplPlanner<PlannerT>::SbplPlanner()
             << (global::settings.environment->goalTheta() * 180. / M_PI)
             << " deg   " << goalTheta << std::endl;
 
-  std::cout << "Start in real world " << global::settings.environment->start().x
-            << " " << global::settings.environment->start().y << std::endl;
+  std::cout << "Start in real world: "
+            << global::settings.environment->start().x << ", "
+            << global::settings.environment->start().y << std::endl;
 
-  std::cout << "Goal in real world " << global::settings.environment->goal().x
-            << " " << global::settings.environment->goal().y << std::endl;
+  std::cout << "Goal in real world: " << global::settings.environment->goal().x
+            << ", " << global::settings.environment->goal().y << std::endl;
 
-  std::cout << "SBPL start_x "
-            << static_cast<int>(std::round(
-                   (global::settings.environment->start().x - min_x) *
-                   global::settings.sbpl.scaling))
-            << ", start y:"
-            << static_cast<int>(std::round(
-                   (global::settings.environment->start().y - min_y) *
-                   global::settings.sbpl.scaling))
+  std::cout << "SBPL scaling factor: " << global::settings.sbpl.scaling
             << std::endl;
 
-  std::cout << "SBPL goal_x "
-            << static_cast<int>(
-                   std::round((global::settings.environment->goal().x - min_x) *
-                              global::settings.sbpl.scaling))
-            << ", goal_y:"
-            << static_cast<int>(
-                   std::round((global::settings.environment->goal().y - min_y) *
-                              global::settings.sbpl.scaling))
-            << std::endl;
+  int start_x, start_y;
+  env2index(global::settings.environment->start().x,
+            global::settings.environment->start().y, &start_x, &start_y);
+  int goal_x, goal_y;
+  env2index(global::settings.environment->goal().x,
+            global::settings.environment->goal().y, &goal_x, &goal_y);
 
-  std::cout << "We are using a scaling factor of "
-            << global::settings.sbpl.scaling;
+  _sbPlanner->set_start(_env->GetStateFromCoord(start_x, start_y, startTheta));
+  _sbPlanner->set_goal(_env->GetStateFromCoord(goal_x, goal_y, goalTheta));
 
-  _sbPlanner->set_start(_env->GetStateFromCoord(
-      static_cast<int>(
-          std::round((global::settings.environment->start().x - min_x) *
-                     global::settings.sbpl.scaling)),
-      static_cast<int>(
-          std::round((global::settings.environment->start().y - min_y) *
-                     global::settings.sbpl.scaling)),
-      startTheta));
-  _sbPlanner->set_goal(_env->GetStateFromCoord(
-      static_cast<int>(
-          std::round((global::settings.environment->goal().x - min_x) *
-                     global::settings.sbpl.scaling)),
-      static_cast<int>(
-          std::round((global::settings.environment->goal().y - min_y) *
-                     global::settings.sbpl.scaling)),
-      goalTheta));
+  std::cout << "SBPL start: " << start_x << ", " << start_y << std::endl;
+  std::cout << "SBPL goal:  " << goal_x << ", " << goal_y << std::endl;
 
   _sbPlanner->set_search_mode(
       global::settings.sbpl.search_until_first_solution);
@@ -206,16 +198,17 @@ ob::PlannerStatus SbplPlanner<PlannerT>::run() {
   _planningTime = stopwatch.stop();
   if (result) {
     OMPL_INFORM("%s found a solution!", name().c_str());
+
+    double min_x = global::settings.environment->getBounds().low[0];
+    double min_y = global::settings.environment->getBounds().low[1];
+    double scale =
+        1. / global::settings.sbpl.resolution / global::settings.sbpl.scaling;
     std::vector<sbpl_xy_theta_pt_t> xythetaPath;
     _env->ConvertStateIDPathintoXYThetaPath(&stateIDs, &xythetaPath);
     for (auto &xyt : xythetaPath) {
       if (std::abs(xyt.x) < 1e-3 && std::abs(xyt.y) < 1e-3) continue;
-      _solution.append(
-          base::StateFromXYT(xyt.x / global::settings.sbpl.resolution /
-                                 global::settings.sbpl.scaling,
-                             xyt.y / global::settings.sbpl.resolution /
-                                 global::settings.sbpl.scaling,
-                             xyt.theta));
+      _solution.append(base::StateFromXYT(xyt.x * scale + min_x,
+                                          xyt.y * scale + min_y, xyt.theta));
     }
   } else {
     OMPL_WARN("%s found no solution.", name().c_str());
