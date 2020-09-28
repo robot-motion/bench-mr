@@ -20,6 +20,8 @@
 
 #include <ompl/control/ODESolver.h>
 
+#include <nlohmann/json.hpp>
+
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
 namespace oc = ompl::control;
@@ -116,4 +118,5 @@ class AbstractPlanner {
 
  public:
   virtual ob::Planner *omplPlanner() { return nullptr; }
+  virtual nlohmann::json getSettings() const { return {};}
 };

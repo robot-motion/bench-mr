@@ -36,8 +36,6 @@ class PlannerConfigurator {
       for (auto it = settings[name].begin(); it != settings[name].end(); ++it) {
         if (it.value() != "") {
           params.setParam(it.key(), it.value());
-          std::cout << "Setting param " << it.key() << " to " << it.value()
-                    << std::endl;
         }
       }
     } else {

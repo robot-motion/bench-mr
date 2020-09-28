@@ -29,6 +29,7 @@ struct PathEvaluation {
     j["stats"] = nlohmann::json(empty_stats)["stats"];
     j["trajectory"] = {};
     j["intermediary_solutions"] = {};
+    j["params"] = {};
   }
 
  public:
@@ -58,6 +59,7 @@ struct PathEvaluation {
     stats.collision_time = global::settings.environment->elapsedCollisionTime();
     stats.steering_time = global::settings.ompl.steering_timer.elapsed();
     stats.planner = planner->name();
+    stats.planner_settings = planner->getSettings();
     if (path.getStateCount() < 2) {
       stats.path_found = false;
       stats.exact_goal_path = false;
@@ -107,6 +109,7 @@ struct PathEvaluation {
     stats.collision_time = global::settings.environment->elapsedCollisionTime();
     stats.steering_time = global::settings.ompl.steering_timer.elapsed();
     stats.planner = planner->name();
+    stats.planner_settings = planner->getSettings();
     if (path.getStateCount() < 2) {
       stats.path_found = false;
       stats.exact_goal_path = false;
