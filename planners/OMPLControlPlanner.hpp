@@ -143,6 +143,15 @@ class OMPLControlPlanner : public AbstractPlanner {
 
   ob::Planner *omplPlanner() override { return _omplPlanner.get(); }
 
+  virtual nlohmann::json getSettings() const override {
+    nlohmann::json settings;
+    const auto &param_map = _omplPlanner->params().getParams();
+    for (const auto &[key, value_ptr] : param_map) {
+      settings[key] = value_ptr->getValue();;
+    }
+    return settings;
+  }
+
   ob::PlannerTerminationCondition approxSolnPlannerTerminationCondition(
       const ompl::base::ProblemDefinitionPtr &pdef) {
     return ob::PlannerTerminationCondition(

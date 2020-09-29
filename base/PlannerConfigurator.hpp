@@ -33,9 +33,14 @@ class PlannerConfigurator {
     const auto name = planner.getName();
     auto params = planner.params();
     if (settings.find(name) != settings.end()) {
-      for (auto it = settings[name].begin(); it!= settings[name].end(); ++it) {
-        params.setParam(it.key(), it.value());
+      for (auto it = settings[name].begin(); it != settings[name].end(); ++it) {
+        if (it.value() != "") {
+          params.setParam(it.key(), it.value());
+        }
       }
+    } else {
+      std::cout << "Warning: Could not find planner name in settings json: "
+                << name << std::endl;
     }
   }
 };

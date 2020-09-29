@@ -362,8 +362,7 @@ void PlannerSettings::GlobalSettings::OmplSettings::retrieveGeometricPlannerPara
   for (auto planner : planners) {
     const auto &param_map = planner->params().getParams();
     for (const auto &[key, value_ptr] : param_map) {
-      geometric_planner_settings.value()[planner->getName()][key] =
-          value_ptr->getValue();
+      geometric_planner_settings.value()[planner->getName()][key] = "";
     }
   }
   ompl::msg::setLogLevel(ompl::msg::LOG_INFO);
@@ -390,8 +389,7 @@ void PlannerSettings::GlobalSettings::OmplSettings::retrieveControlPlannerParams
   for (auto planner : planners) {
     const auto &param_map = planner->params().getParams();
     for (const auto &[key, value_ptr] : param_map) {
-      control_planner_settings.value()[planner->getName()][key] =
-          value_ptr->getValue();
+      control_planner_settings.value()[planner->getName()][key] = "";
     }
   }
   ompl::msg::setLogLevel(ompl::msg::LOG_INFO);
