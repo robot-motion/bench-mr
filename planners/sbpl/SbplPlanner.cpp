@@ -12,12 +12,16 @@ SbplPlanner<PlannerT>::SbplPlanner()
   // define the robot shape
   vector<sbpl_2Dpt_t> perimeterptsV;
 
+  const double sbpl_zoom = global::settings.sbpl.scaling;
+
   if (global::settings.env.collision.collision_model == robot::ROBOT_POLYGON) {
     sbpl_2Dpt_t shape_point;
     const Polygon robot = global::settings.env.collision.robot_shape.value();
     for (const auto &point : robot.points) {
-      shape_point.x = point.x;
-      shape_point.y = point.y;
+      shape_point.x = point.x * global::settings.sbpl.resolution *
+                      global::settings.sbpl.scaling;
+      shape_point.y = point.y * global::settings.sbpl.resolution *
+                      global::settings.sbpl.scaling;
       perimeterptsV.push_back(shape_point);
     }
   }
@@ -60,14 +64,16 @@ SbplPlanner<PlannerT>::SbplPlanner()
   double max_y = global::settings.environment->getBounds().high[1];
 
   // convert SBPL cell coordinates to environment coordinates
-  auto index2env = [&min_x, &min_y](int ix, int iy, double *x, double *y) {
-    *x = ix / global::settings.sbpl.scaling + min_x;
-    *y = iy / global::settings.sbpl.scaling + min_y;
+  auto index2env = [&min_x, &min_y, &sbpl_zoom](int ix, int iy, double *x,
+                                                double *y) {
+    *x = ix / sbpl_zoom + min_x;
+    *y = iy / sbpl_zoom + min_y;
   };
   // convert environment coordinates to SBPL cell coordinates
-  auto env2index = [&min_x, &min_y](double x, double y, int *ix, int *iy) {
-    *ix = (x - min_x) * global::settings.sbpl.scaling;
-    *iy = (y - min_y) * global::settings.sbpl.scaling;
+  auto env2index = [&min_x, &min_y, &sbpl_zoom](double x, double y, int *ix,
+                                                int *iy) {
+    *ix = (x - min_x) * sbpl_zoom;
+    *iy = (y - min_y) * sbpl_zoom;
   };
 
   double env_x, env_y;
