@@ -12,16 +12,15 @@ SbplPlanner<PlannerT>::SbplPlanner()
   // define the robot shape
   vector<sbpl_2Dpt_t> perimeterptsV;
 
-  const double sbpl_zoom = global::settings.sbpl.scaling;
+  const double sbpl_zoom = global::settings.sbpl.scaling / global::settings.sbpl.resolution;
 
   if (global::settings.env.collision.collision_model == robot::ROBOT_POLYGON) {
     sbpl_2Dpt_t shape_point;
     const Polygon robot = global::settings.env.collision.robot_shape.value();
     for (const auto &point : robot.points) {
-      shape_point.x = point.x * global::settings.sbpl.resolution *
-                      global::settings.sbpl.scaling;
-      shape_point.y = point.y * global::settings.sbpl.resolution *
-                      global::settings.sbpl.scaling;
+      // The points in the environments should not be scaled up
+      shape_point.x = point.x  * global::settings.sbpl.resolution ;
+      shape_point.y = point.y  * global::settings.sbpl.resolution ;
       perimeterptsV.push_back(shape_point);
     }
   }
@@ -31,10 +30,12 @@ SbplPlanner<PlannerT>::SbplPlanner()
   std::cout << "SBPL motion primitive filename: "
             << global::settings.sbpl.motion_primitive_filename << std::endl;
 
-  const auto cells_x = static_cast<int>(global::settings.environment->width() *
-                                        global::settings.sbpl.scaling);
-  const auto cells_y = static_cast<int>(global::settings.environment->height() *
-                                        global::settings.sbpl.scaling);
+  const auto cells_x = static_cast<int>(global::settings.environment->width() * sbpl_zoom); //          global::settings.sbpl.scaling);
+  const auto cells_y = static_cast<int>(global::settings.environment->height() * sbpl_zoom); // global::settings.sbpl.scaling);
+
+  std::cout << "Environment, W: " << global::settings.environment->width() << ", H: " << global::settings.environment->height() << std::endl;
+  std::cout << "Environment, cells_x: " << cells_x << ", cells_y: " << cells_y << std::endl;
+
 
   try {
     _env->InitializeEnv(
@@ -157,6 +158,33 @@ SbplPlanner<PlannerT>::SbplPlanner()
   env2index(global::settings.environment->goal().x,
             global::settings.environment->goal().y, &goal_x, &goal_y);
 
+
+  // try{
+  //   int ret = _env->SetStart(global::settings.environment->start().x + min_x, global::settings.environment->start().y + min_y, global::settings.environment->startTheta() );
+  //   if(ret < 0 || _sbPlanner->set_start(ret) == 0){
+  //     std::cout << "ERROR: failed to set start state" << std::endl;
+  //     // return false;
+  //   }
+  // }
+  // catch(SBPL_Exception *e){
+  //   std::cout << "SBPL_Exception: failed to set start state" << std::endl;
+  //   // return false;
+  // }
+
+  // try{
+  //   int ret = _env->SetGoal(global::settings.environment->goal().x + min_x, global::settings.environment->goal().y  + min_y, global::settings.environment->goalTheta() );
+  //   if(ret < 0 || _sbPlanner->set_goal(ret) == 0){
+  //     std::cout << "ERROR: failed to set goal state" << std::endl;
+  //     // return false;
+  //   }
+  // }
+  // catch(SBPL_Exception *e){
+  //     std::cout << "SBPL_Exception: failed to set goal state" << std::endl;
+  //   // return false;
+  // }
+  
+  
+
   _sbPlanner->set_start(_env->GetStateFromCoord(start_x, start_y, startTheta));
   _sbPlanner->set_goal(_env->GetStateFromCoord(goal_x, goal_y, goalTheta));
 
@@ -213,8 +241,12 @@ ob::PlannerStatus SbplPlanner<PlannerT>::run() {
     _env->ConvertStateIDPathintoXYThetaPath(&stateIDs, &xythetaPath);
     for (auto &xyt : xythetaPath) {
       if (std::abs(xyt.x) < 1e-3 && std::abs(xyt.y) < 1e-3) continue;
-      _solution.append(base::StateFromXYT(xyt.x * scale + min_x,
-                                          xyt.y * scale + min_y, xyt.theta));
+      double env_x, env_y;
+      env_x = xyt.x / global::settings.sbpl.scaling / global::settings.sbpl.resolution + min_x;
+      env_y = xyt.y / global::settings.sbpl.scaling / global::settings.sbpl.resolution + min_y;
+      std::cout << "Grid: " << xyt.x << " " << xyt.y << " , World: " << env_x << " " << env_y << std::endl;
+      _solution.append(base::StateFromXYT(xyt.x + min_x ,
+                                          xyt.y + min_y, xyt.theta));
     }
   } else {
     OMPL_WARN("%s found no solution.", name().c_str());
