@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <nlohmann/json.hpp>
 #include <params.hpp>
 #include <string>
 #include <utility>
@@ -40,6 +41,7 @@ struct PathStatistics : public Group {
   Property<double> max_clearing_distance{
       std::numeric_limits<double>::quiet_NaN(), "max_clearing_distance", this};
   Property<std::string> planner{"UNKNOWN", "planner", this};
+  Property<nlohmann::json> planner_settings{{}, "planner_settings", this};
   Property<std::vector<Point>> cusps{{}, "cusps", this};
   Property<std::vector<Point>> collisions{{}, "collisions", this};
 

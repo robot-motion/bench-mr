@@ -129,171 +129,171 @@
     "ompl": {
       "control_planner_settings": {
         "EST": {
-          "goal_bias": "0.05",
-          "range": "0"
+          "goal_bias": "",
+          "range": ""
         },
         "KPIECE1": {
-          "bad_score_factor": "0.45",
-          "border_fraction": "0.8",
-          "goal_bias": "0.05",
-          "good_score_factor": "0.9",
-          "max_close_samples": "30"
+          "bad_score_factor": "",
+          "border_fraction": "",
+          "goal_bias": "",
+          "good_score_factor": "",
+          "max_close_samples": ""
         },
         "PDST": {
-          "goal_bias": "0.05"
+          "goal_bias": ""
         },
         "RRT": {
-          "goal_bias": "0.05",
-          "intermediate_states": "0"
+          "goal_bias": "",
+          "intermediate_states": ""
         },
         "SST": {
-          "goal_bias": "0.05",
-          "pruning_radius": "0.1",
-          "selection_radius": "0.2"
+          "goal_bias": "",
+          "pruning_radius": "",
+          "selection_radius": ""
         }
       },
       "cost_threshold": 100.0,
       "geometric_planner_settings": {
         "BFMT": {
-          "balanced": "0",
-          "cache_cc": "1",
-          "extended_fmt": "1",
-          "heuristics": "1",
-          "nearest_k": "1",
-          "num_samples": "1000",
-          "optimality": "1",
-          "radius_multiplier": "1"
+          "balanced": "",
+          "cache_cc": "",
+          "extended_fmt": "",
+          "heuristics": "",
+          "nearest_k": "",
+          "num_samples": "",
+          "optimality": "",
+          "radius_multiplier": ""
         },
         "BITstar": {
-          "delay_rewiring_to_first_solution": "0",
-          "drop_unconnected_samples_on_prune": "0",
-          "find_approximate_solutions": "0",
-          "prune_threshold_as_fractional_cost_change": "0.05",
-          "rewire_factor": "1.1",
-          "samples_per_batch": "100",
-          "stop_on_each_solution_improvement": "0",
-          "use_graph_pruning": "1",
-          "use_just_in_time_sampling": "0",
-          "use_k_nearest": "1",
-          "use_strict_queue_ordering": "1"
+          "delay_rewiring_to_first_solution": "",
+          "drop_unconnected_samples_on_prune": "",
+          "find_approximate_solutions": "",
+          "prune_threshold_as_fractional_cost_change": "",
+          "rewire_factor": "",
+          "samples_per_batch": "",
+          "stop_on_each_solution_improvement": "",
+          "use_graph_pruning": "",
+          "use_just_in_time_sampling": "",
+          "use_k_nearest": "",
+          "use_strict_queue_ordering": ""
         },
         "CForest": {
-          "focus_search": "1",
-          "num_threads": "12"
+          "focus_search": "",
+          "num_threads": ""
         },
         "EST": {
-          "goal_bias": "0.5",
-          "range": "0"
+          "goal_bias": "",
+          "range": ""
         },
         "FMT": {
-          "cache_cc": "1",
-          "extended_fmt": "1",
-          "heuristics": "0",
-          "nearest_k": "1",
-          "num_samples": "1000",
-          "radius_multiplier": "1.1"
+          "cache_cc": "",
+          "extended_fmt": "",
+          "heuristics": "",
+          "nearest_k": "",
+          "num_samples": "",
+          "radius_multiplier": ""
         },
         "InformedRRTstar": {
-          "delay_collision_checking": "1",
-          "goal_bias": "0.05",
-          "number_sampling_attempts": "100",
-          "ordered_sampling": "0",
-          "ordering_batch_size": "1",
-          "prune_threshold": "0.05",
-          "range": "0",
-          "rewire_factor": "1.1",
-          "use_k_nearest": "1"
+          "delay_collision_checking": "",
+          "goal_bias": "",
+          "number_sampling_attempts": "",
+          "ordered_sampling": "",
+          "ordering_batch_size": "",
+          "prune_threshold": "",
+          "range": "",
+          "rewire_factor": "",
+          "use_k_nearest": ""
         },
         "KPIECE1": {
-          "border_fraction": "0.9",
-          "failed_expansion_score_factor": "0.5",
-          "goal_bias": "0.05",
-          "min_valid_path_fraction": "0.2",
-          "range": "0"
+          "border_fraction": "",
+          "failed_expansion_score_factor": "",
+          "goal_bias": "",
+          "min_valid_path_fraction": "",
+          "range": ""
         },
         "PDST": {
-          "goal_bias": "0.05"
+          "goal_bias": ""
         },
         "PRM": {
-          "max_nearest_neighbors": "0"
+          "max_nearest_neighbors": ""
         },
         "RRT": {
-          "goal_bias": "0.05",
-          "intermediate_states": "0",
-          "range": "0"
+          "goal_bias": "",
+          "intermediate_states": "",
+          "range": ""
         },
         "RRT#": {
-          "goal_bias": "0.05",
-          "informed_sampling": "0",
-          "number_sampling_attempts": "100",
-          "range": "0",
-          "rejection_variant": "0",
-          "rejection_variant_alpha": "1",
-          "rewire_factor": "1.1",
-          "sample_rejection": "0",
-          "update_children": "1",
-          "use_k_nearest": "1"
+          "goal_bias": "",
+          "informed_sampling": "",
+          "number_sampling_attempts": "",
+          "range": "",
+          "rejection_variant": "",
+          "rejection_variant_alpha": "",
+          "rewire_factor": "",
+          "sample_rejection": "",
+          "update_children": "",
+          "use_k_nearest": ""
         },
         "RRTstar": {
-          "delay_collision_checking": "1",
-          "focus_search": "0",
-          "goal_bias": "0.05",
-          "informed_sampling": "0",
-          "new_state_rejection": "0",
-          "number_sampling_attempts": "100",
-          "ordered_sampling": "0",
-          "ordering_batch_size": "1",
-          "prune_threshold": "0.05",
-          "pruned_measure": "0",
-          "range": "0",
-          "rewire_factor": "1.1",
-          "sample_rejection": "0",
-          "tree_pruning": "0",
-          "use_admissible_heuristic": "1",
-          "use_k_nearest": "1"
+          "delay_collision_checking": "",
+          "focus_search": "",
+          "goal_bias": "",
+          "informed_sampling": "",
+          "new_state_rejection": "",
+          "number_sampling_attempts": "",
+          "ordered_sampling": "",
+          "ordering_batch_size": "",
+          "prune_threshold": "",
+          "pruned_measure": "",
+          "range": "",
+          "rewire_factor": "",
+          "sample_rejection": "",
+          "tree_pruning": "",
+          "use_admissible_heuristic": "",
+          "use_k_nearest": ""
         },
         "SBL": {
-          "range": "0"
+          "range": ""
         },
         "SORRTstar": {
-          "delay_collision_checking": "1",
-          "goal_bias": "0.05",
-          "number_sampling_attempts": "100",
-          "ordered_sampling": "1",
-          "ordering_batch_size": "100",
-          "prune_threshold": "0.05",
-          "range": "0",
-          "rewire_factor": "1.1",
-          "use_k_nearest": "1"
+          "delay_collision_checking": "",
+          "goal_bias": "",
+          "number_sampling_attempts": "",
+          "ordered_sampling": "",
+          "ordering_batch_size": "",
+          "prune_threshold": "",
+          "range": "",
+          "rewire_factor": "",
+          "use_k_nearest": ""
         },
         "SPARS": {
-          "dense_delta_fraction": "0.001",
-          "max_failures": "1000",
-          "sparse_delta_fraction": "0.25",
-          "stretch_factor": "3"
+          "dense_delta_fraction": "",
+          "max_failures": "",
+          "sparse_delta_fraction": "",
+          "stretch_factor": ""
         },
         "SPARStwo": {
-          "dense_delta_fraction": "0.001",
-          "max_failures": "5000",
-          "sparse_delta_fraction": "0.25",
-          "stretch_factor": "3"
+          "dense_delta_fraction": "",
+          "max_failures": "",
+          "sparse_delta_fraction": "",
+          "stretch_factor": ""
         },
         "SST": {
-          "goal_bias": "0.05",
-          "pruning_radius": "3",
-          "range": "5",
-          "selection_radius": "5"
+          "goal_bias": "",
+          "pruning_radius": "",
+          "range": "",
+          "selection_radius": ""
         },
         "STRIDE": {
-          "degree": "16",
-          "estimated_dimension": "3",
-          "goal_bias": "0.05",
-          "max_degree": "18",
-          "max_pts_per_leaf": "6",
-          "min_degree": "12",
-          "min_valid_path_fraction": "0.2",
-          "range": "0",
-          "use_projected_distance": "0"
+          "degree": "",
+          "estimated_dimension": "",
+          "goal_bias": "",
+          "max_degree": "",
+          "max_pts_per_leaf": "",
+          "min_degree": "",
+          "min_valid_path_fraction": "",
+          "range": "",
+          "use_projected_distance": ""
         }
       },
       "optimization_objective": "min_pathlength",
