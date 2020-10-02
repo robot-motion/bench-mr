@@ -3,6 +3,15 @@
 #include <utils/PlannerUtils.hpp>
 #include <utils/Stopwatch.hpp>
 
+#define SAVE_SBPL_MAZE_IMAGE
+
+#ifdef SAVE_SBPL_MAZE_IMAGE
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <third_party/stb/stb_image_write.h>
+
+#include <ctime>
+#endif
+
 template <sbpl::Planner PlannerT>
 SbplPlanner<PlannerT>::SbplPlanner()
     : AbstractPlanner(name()),
@@ -12,15 +21,16 @@ SbplPlanner<PlannerT>::SbplPlanner()
   // define the robot shape
   vector<sbpl_2Dpt_t> perimeterptsV;
 
-  const double sbpl_zoom = global::settings.sbpl.scaling / global::settings.sbpl.resolution;
+  const double sbpl_zoom =
+      global::settings.sbpl.scaling / global::settings.sbpl.resolution;
 
   if (global::settings.env.collision.collision_model == robot::ROBOT_POLYGON) {
     sbpl_2Dpt_t shape_point;
     const Polygon robot = global::settings.env.collision.robot_shape.value();
     for (const auto &point : robot.points) {
       // The points in the environments should not be scaled up
-      shape_point.x = point.x  * global::settings.sbpl.resolution ;
-      shape_point.y = point.y  * global::settings.sbpl.resolution ;
+      shape_point.x = point.x * global::settings.sbpl.resolution;
+      shape_point.y = point.y * global::settings.sbpl.resolution;
       perimeterptsV.push_back(shape_point);
     }
   }
@@ -30,12 +40,17 @@ SbplPlanner<PlannerT>::SbplPlanner()
   std::cout << "SBPL motion primitive filename: "
             << global::settings.sbpl.motion_primitive_filename << std::endl;
 
-  const auto cells_x = static_cast<int>(global::settings.environment->width() * sbpl_zoom); //          global::settings.sbpl.scaling);
-  const auto cells_y = static_cast<int>(global::settings.environment->height() * sbpl_zoom); // global::settings.sbpl.scaling);
+  const auto cells_x =
+      static_cast<int>(global::settings.environment->width() *
+                       sbpl_zoom);  //          global::settings.sbpl.scaling);
+  const auto cells_y =
+      static_cast<int>(global::settings.environment->height() *
+                       sbpl_zoom);  // global::settings.sbpl.scaling);
 
-  std::cout << "Environment, W: " << global::settings.environment->width() << ", H: " << global::settings.environment->height() << std::endl;
-  std::cout << "Environment, cells_x: " << cells_x << ", cells_y: " << cells_y << std::endl;
-
+  std::cout << "Environment, W: " << global::settings.environment->width()
+            << ", H: " << global::settings.environment->height() << std::endl;
+  std::cout << "Environment, cells_x: " << cells_x << ", cells_y: " << cells_y
+            << std::endl;
 
   try {
     _env->InitializeEnv(
@@ -77,6 +92,12 @@ SbplPlanner<PlannerT>::SbplPlanner()
     *iy = (y - min_y) * sbpl_zoom;
   };
 
+#ifdef SAVE_SBPL_MAZE_IMAGE
+  unsigned char maze_data[cells_x * cells_y];
+  // XXX flip maze image vertically to appear the same as the SVG
+  stbi_flip_vertically_on_write(1);
+#endif
+
   double env_x, env_y;
   for (int ix = 0; ix < cells_x; ++ix) {
     for (int iy = 0; iy < cells_y; ++iy) {
@@ -84,10 +105,24 @@ SbplPlanner<PlannerT>::SbplPlanner()
       const bool collides =
           global::settings.environment->collides(env_x, env_y);
       _env->UpdateCost(ix, iy, static_cast<unsigned char>(collides ? 20u : 1u));
+#ifdef SAVE_SBPL_MAZE_IMAGE
+      maze_data[iy * cells_x + ix] = collides ? 127u : 255u;
+#endif
     }
   }
   std::cout << "Initialized " << cells_x << "x" << cells_y
             << " SBPL environment.\n";
+
+#ifdef SAVE_SBPL_MAZE_IMAGE
+  std::string maze_image_filename =
+      "sbpl_" + std::to_string(std::time(0)) + ".bmp";
+  if (!stbi_write_bmp(maze_image_filename.c_str(), cells_x, cells_y, 1,
+                      maze_data)) {
+    OMPL_ERROR("Failed to save SBPL maze as Bitmap file.");
+  } else {
+    std::cout << "Saved SBPL maze at " << maze_image_filename << std::endl;
+  }
+#endif
 
   // Initialize MDP Info
   MDPConfig MDPCfg{};
@@ -158,10 +193,11 @@ SbplPlanner<PlannerT>::SbplPlanner()
   env2index(global::settings.environment->goal().x,
             global::settings.environment->goal().y, &goal_x, &goal_y);
 
-
   // try{
-  //   int ret = _env->SetStart(global::settings.environment->start().x + min_x, global::settings.environment->start().y + min_y, global::settings.environment->startTheta() );
-  //   if(ret < 0 || _sbPlanner->set_start(ret) == 0){
+  //   int ret = _env->SetStart(global::settings.environment->start().x + min_x,
+  //   global::settings.environment->start().y + min_y,
+  //   global::settings.environment->startTheta() ); if(ret < 0 ||
+  //   _sbPlanner->set_start(ret) == 0){
   //     std::cout << "ERROR: failed to set start state" << std::endl;
   //     // return false;
   //   }
@@ -172,8 +208,10 @@ SbplPlanner<PlannerT>::SbplPlanner()
   // }
 
   // try{
-  //   int ret = _env->SetGoal(global::settings.environment->goal().x + min_x, global::settings.environment->goal().y  + min_y, global::settings.environment->goalTheta() );
-  //   if(ret < 0 || _sbPlanner->set_goal(ret) == 0){
+  //   int ret = _env->SetGoal(global::settings.environment->goal().x + min_x,
+  //   global::settings.environment->goal().y  + min_y,
+  //   global::settings.environment->goalTheta() ); if(ret < 0 ||
+  //   _sbPlanner->set_goal(ret) == 0){
   //     std::cout << "ERROR: failed to set goal state" << std::endl;
   //     // return false;
   //   }
@@ -182,8 +220,6 @@ SbplPlanner<PlannerT>::SbplPlanner()
   //     std::cout << "SBPL_Exception: failed to set goal state" << std::endl;
   //   // return false;
   // }
-  
-  
 
   _sbPlanner->set_start(_env->GetStateFromCoord(start_x, start_y, startTheta));
   _sbPlanner->set_goal(_env->GetStateFromCoord(goal_x, goal_y, goalTheta));
@@ -242,11 +278,16 @@ ob::PlannerStatus SbplPlanner<PlannerT>::run() {
     for (auto &xyt : xythetaPath) {
       if (std::abs(xyt.x) < 1e-3 && std::abs(xyt.y) < 1e-3) continue;
       double env_x, env_y;
-      env_x = xyt.x / global::settings.sbpl.scaling / global::settings.sbpl.resolution + min_x;
-      env_y = xyt.y / global::settings.sbpl.scaling / global::settings.sbpl.resolution + min_y;
-      std::cout << "Grid: " << xyt.x << " " << xyt.y << " , World: " << env_x << " " << env_y << std::endl;
-      _solution.append(base::StateFromXYT(xyt.x + min_x ,
-                                          xyt.y + min_y, xyt.theta));
+      env_x = xyt.x / global::settings.sbpl.scaling /
+                  global::settings.sbpl.resolution +
+              min_x;
+      env_y = xyt.y / global::settings.sbpl.scaling /
+                  global::settings.sbpl.resolution +
+              min_y;
+      std::cout << "Grid: " << xyt.x << " " << xyt.y << " , World: " << env_x
+                << " " << env_y << std::endl;
+      _solution.append(
+          base::StateFromXYT(xyt.x + min_x, xyt.y + min_y, xyt.theta));
     }
   } else {
     OMPL_WARN("%s found no solution.", name().c_str());
