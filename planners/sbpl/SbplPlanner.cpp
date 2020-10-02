@@ -21,16 +21,13 @@ SbplPlanner<PlannerT>::SbplPlanner()
   // define the robot shape
   vector<sbpl_2Dpt_t> perimeterptsV;
 
-  const double sbpl_zoom =
-      global::settings.sbpl.scaling / global::settings.sbpl.resolution;
-
   if (global::settings.env.collision.collision_model == robot::ROBOT_POLYGON) {
     sbpl_2Dpt_t shape_point;
     const Polygon robot = global::settings.env.collision.robot_shape.value();
     for (const auto &point : robot.points) {
       // The points in the environments should not be scaled up
-      shape_point.x = point.x * global::settings.sbpl.resolution;
-      shape_point.y = point.y * global::settings.sbpl.resolution;
+      shape_point.x = point.x / global::settings.sbpl.scaling;
+      shape_point.y = point.y / global::settings.sbpl.scaling;
       perimeterptsV.push_back(shape_point);
     }
   }
@@ -40,12 +37,12 @@ SbplPlanner<PlannerT>::SbplPlanner()
   std::cout << "SBPL motion primitive filename: "
             << global::settings.sbpl.motion_primitive_filename << std::endl;
 
-  const auto cells_x =
-      static_cast<int>(global::settings.environment->width() *
-                       sbpl_zoom);  //          global::settings.sbpl.scaling);
-  const auto cells_y =
-      static_cast<int>(global::settings.environment->height() *
-                       sbpl_zoom);  // global::settings.sbpl.scaling);
+  const auto cells_x = static_cast<int>(global::settings.environment->width() /
+                                        global::settings.sbpl.resolution /
+                                        global::settings.sbpl.scaling);
+  const auto cells_y = static_cast<int>(global::settings.environment->height() /
+                                        global::settings.sbpl.resolution /
+                                        global::settings.sbpl.scaling);
 
   std::cout << "Environment, W: " << global::settings.environment->width()
             << ", H: " << global::settings.environment->height() << std::endl;
@@ -80,16 +77,19 @@ SbplPlanner<PlannerT>::SbplPlanner()
   double max_y = global::settings.environment->getBounds().high[1];
 
   // convert SBPL cell coordinates to environment coordinates
-  auto index2env = [&min_x, &min_y, &sbpl_zoom](int ix, int iy, double *x,
-                                                double *y) {
-    *x = ix / sbpl_zoom + min_x;
-    *y = iy / sbpl_zoom + min_y;
+  auto index2env = [&min_x, &min_y](int ix, int iy, double *x, double *y) {
+    *x = ix * global::settings.sbpl.resolution * global::settings.sbpl.scaling +
+         min_x;
+    *y = iy * global::settings.sbpl.resolution * global::settings.sbpl.scaling +
+         min_y;
   };
   // convert environment coordinates to SBPL cell coordinates
-  auto env2index = [&min_x, &min_y, &sbpl_zoom](double x, double y, int *ix,
+  auto env2index = [&min_x, &min_y](double x, double y, int *ix,
                                                 int *iy) {
-    *ix = (x - min_x) * sbpl_zoom;
-    *iy = (y - min_y) * sbpl_zoom;
+    *ix = (x - min_x) / global::settings.sbpl.resolution /
+          global::settings.sbpl.scaling;
+    *iy = (y - min_y) / global::settings.sbpl.resolution /
+          global::settings.sbpl.scaling;
   };
 
 #ifdef SAVE_SBPL_MAZE_IMAGE
@@ -271,8 +271,6 @@ ob::PlannerStatus SbplPlanner<PlannerT>::run() {
 
     double min_x = global::settings.environment->getBounds().low[0];
     double min_y = global::settings.environment->getBounds().low[1];
-    double scale =
-        1. / global::settings.sbpl.resolution / global::settings.sbpl.scaling;
     std::vector<sbpl_xy_theta_pt_t> xythetaPath;
     _env->ConvertStateIDPathintoXYThetaPath(&stateIDs, &xythetaPath);
     for (auto &xyt : xythetaPath) {
@@ -286,8 +284,9 @@ ob::PlannerStatus SbplPlanner<PlannerT>::run() {
               min_y;
       std::cout << "Grid: " << xyt.x << " " << xyt.y << " , World: " << env_x
                 << " " << env_y << std::endl;
-      _solution.append(
-          base::StateFromXYT(xyt.x + min_x, xyt.y + min_y, xyt.theta));
+      _solution.append(base::StateFromXYT(
+          xyt.x * global::settings.sbpl.scaling + min_x,
+          xyt.y * global::settings.sbpl.scaling + min_y, xyt.theta));
     }
   } else {
     OMPL_WARN("%s found no solution.", name().c_str());
