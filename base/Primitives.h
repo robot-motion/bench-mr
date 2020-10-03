@@ -283,31 +283,9 @@ struct Polygon {
     return m;
   }
 
-  bool isConvex() const {
-    // reference:
-    // http://csharphelper.com/blog/2014/07/determine-whether-a-polygon-is-convex-in-c/
-    bool got_negative = false;
-    bool got_positive = false;
-    int num_points = static_cast<int>(points.size());
-    for (int i = 0; i < num_points; i++) {
-      int j = (i + 1) % num_points;
-      int k = (j + 1) % num_points;
-      double jix = points[i].x - points[j].x;
-      double jiy = points[i].y - points[j].y;
-      double jkx = points[k].x - points[j].x;
-      double jky = points[k].y - points[j].y;
-      double cross_product = jix * jky - jiy * jkx;
-      if (cross_product < 0.) {
-        got_negative = true;
-      } else if (cross_product > 0.) {
-        got_positive = true;
-      }
-      if (got_negative && got_positive) {
-        return false;
-      }
-    }
-    return true;
-  }
+  bool isConvex() const;
+
+  Polygon convexHull() const;
 
   /**
    * Cast to the polygon format compatible with the `collision2d` library.

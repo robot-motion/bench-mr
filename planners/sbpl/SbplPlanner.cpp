@@ -282,8 +282,8 @@ ob::PlannerStatus SbplPlanner<PlannerT>::run() {
       env_y = xyt.y / global::settings.sbpl.scaling /
                   global::settings.sbpl.resolution +
               min_y;
-      std::cout << "Grid: " << xyt.x << " " << xyt.y << " , World: " << env_x
-                << " " << env_y << std::endl;
+      // std::cout << "Grid: " << xyt.x << " " << xyt.y << " , World: " << env_x
+      //           << " " << env_y << std::endl;
       _solution.append(base::StateFromXYT(
           xyt.x * global::settings.sbpl.scaling + min_x,
           xyt.y * global::settings.sbpl.scaling + min_y, xyt.theta));

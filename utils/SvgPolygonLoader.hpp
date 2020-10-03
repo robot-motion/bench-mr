@@ -35,17 +35,19 @@ class SvgPolygonLoader {
         std::cout << "SVG group: using offset_x=" << offset_x
                   << "  offset_y=" << offset_y << std::endl;
       } else if (line.substr(0, 2) == "d=") {
-        auto poly =
+        Polygon poly =
             Polygon::loadFromSvgPathStr(line.substr(3, line.length() - 3));
         poly.translate(Point(offset_x, -offset_y));  // flip offset y
-        polygons.emplace_back(poly);
         if (!poly.isConvex()) {
-          std::cerr << "Warning: not all polygons in " << filename
-                    << " are convex. Collision detection might lead incorrect "
-                       "results."
+          std::cerr << "Warning: found nonconvex polygon in " << filename
+                    << ". Using its convex hull instead." << std::endl;
+          poly = poly.convexHull();
+          // std::cout << poly << std::endl;
+          std::cerr << std::boolalpha << "Hull is convex? " << poly.isConvex()
                     << std::endl;
-          assert(0);
+          assert(poly.isConvex());
         }
+        polygons.emplace_back(poly);
       }
     }
     return polygons;
