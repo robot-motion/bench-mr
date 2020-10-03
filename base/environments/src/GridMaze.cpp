@@ -19,7 +19,6 @@
 
 #ifdef QT_SUPPORT
 #include "gui/QtVisualizer.h"
-
 #endif
 
 #if XML_SUPPORT

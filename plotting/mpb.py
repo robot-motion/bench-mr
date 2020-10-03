@@ -32,8 +32,8 @@ class MPB:
             raise Exception('Error: Could not find benchmark binary file at %s. ' % bin_path +
                             'Make sure you have built it and set the correct MPB_BINARY_DIR variable in %s.' % __file__)
         self.config = MPB.get_config(config_file)  # type: dict
-        if not config_file.endswith("benchmark_template.json"):
-            print("Created MPB from config %s." % config_file)
+        # if not config_file.endswith("benchmark_template.json"):
+        #     print("Created MPB from config %s." % config_file)
         self.output_path = output_path  # type: str
         self.id = None  # type: Optional[str]
         self._update_pss()
@@ -238,7 +238,7 @@ class MPB:
 
     def run(self, id: str = None, runs: Optional[int] = None, subfolder: str = '',
             show_progress_bar: bool = True, shuffle_planners: bool = True,
-            kill_after_timeout: bool = True) -> int:
+            kill_after_timeout: bool = True, silence: bool = False) -> int:
         if runs:
             self["benchmark.runs"] = runs
         else:
@@ -251,8 +251,9 @@ class MPB:
         self.set_subfolder(subfolder)
         log_filename = os.path.join(subfolder, self.id + ".log")
         logfile = open(log_filename, 'w')
-        print("Running MPB with ID %s (log file at %s)..." %
-              (self.id, log_filename))
+        if not silence:
+            print("Running MPB with ID %s (log file at %s)..." %
+                  (self.id, log_filename))
         num_planners = len(self._planners)
         total_iterations = num_planners * len(self._steer_functions) * runs
         if show_progress_bar:
@@ -504,6 +505,10 @@ class MPB:
             if not silence:
                 print("Successfully merged [%s] into %s." % (
                     ", ".join(results_filenames), target_filename))
+        m = MPB()
+        m.results_filename = target_filename
+        m.set_id(os.path.basename(os.path.splitext(target_filename)[0]))
+        return m
 
 
 class MultipleMPB:
@@ -528,28 +533,32 @@ class MultipleMPB:
 
     @staticmethod
     def run_(arg) -> int:
-        config_filename, index, mpb_id, subfolder, memory_limit, runs = arg
+        config_filename, index, mpb_id, subfolder, memory_limit, runs, silence = arg
         if memory_limit != 0:
             resource.setrlimit(resource.RLIMIT_AS, memory_limit)
         mpb = MPB(config_file=config_filename)
         code = mpb.run(id=mpb_id,
                        runs=runs,
                        subfolder=subfolder,
-                       show_progress_bar=True)
-        if code == 0:
-            print("Benchmark %i (%s) finished successfully." % (index, mpb_id))
-        elif code is not None:
-            print("Benchmark %i (%s) failed. Return code: %i." %
-                  (index, mpb_id, code), file=sys.stderr)
-        else:
-            print("Benchmark %i (%s) failed. Unknown return code." %
-                  (index, mpb_id), file=sys.stderr)
+                       show_progress_bar=not silence,
+                       silence=silence)
+        if not silence:
+            if code == 0:
+                print("Benchmark %i (%s) finished successfully." %
+                      (index, mpb_id))
+            elif code is not None:
+                print("Benchmark %i (%s) failed. Return code: %i." %
+                      (index, mpb_id, code), file=sys.stderr)
+            else:
+                print("Benchmark %i (%s) failed. Unknown return code." %
+                      (index, mpb_id), file=sys.stderr)
         return code
 
     def run_parallel(self,
                      id: str = None,
                      use_subfolder: bool = True,
                      runs: int = 1,
+                     silence: bool = False,
                      processes: int = os.cpu_count(),
                      limit_memory: bool = True,
                      show_plot: bool = True) -> bool:
@@ -600,7 +609,8 @@ class MultipleMPB:
                                    ids,
                                    [self.subfolder] * len(self.benchmarks),
                                    [memory_limit] * len(self.benchmarks),
-                                   [runs] * len(self.benchmarks)))
+                                   [runs] * len(self.benchmarks),
+                                   [silence] * len(self.benchmarks)))
 
             if show_plot:
                 try:

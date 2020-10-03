@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <fstream>
 #include <sstream>
 
@@ -19,6 +20,7 @@ class SvgPolygonLoader {
     if (input_file.fail()) {
       std::cerr << "Cannot load SVG file from " << filename
                 << ". Make sure the file exists." << std::endl;
+      assert(0);
       return polygons;
     }
     double offset_x = 0, offset_y = 0;
@@ -37,6 +39,13 @@ class SvgPolygonLoader {
             Polygon::loadFromSvgPathStr(line.substr(3, line.length() - 3));
         poly.translate(Point(offset_x, -offset_y));  // flip offset y
         polygons.emplace_back(poly);
+        if (!poly.isConvex()) {
+          std::cerr << "Warning: not all polygons in " << filename
+                    << " are convex. Collision detection might lead incorrect "
+                       "results."
+                    << std::endl;
+          assert(0);
+        }
       }
     }
     return polygons;
