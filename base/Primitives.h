@@ -283,6 +283,10 @@ struct Polygon {
     return m;
   }
 
+  bool isConvex() const;
+
+  Polygon convexHull() const;
+
   /**
    * Cast to the polygon format compatible with the `collision2d` library.
    */

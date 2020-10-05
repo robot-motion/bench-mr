@@ -310,7 +310,7 @@
       "motion_primitive_filename": "./sbpl_mprim/unicycle_0.25.mprim",
       "num_theta_dirs": 16,
       "resolution": 0.25,
-      "scaling": 6.0,
+      "scaling": 1.0,
       "search_until_first_solution": false,
       "time_to_turn_45_degs_in_place": 0.6
     },

@@ -101,7 +101,7 @@
         "width": 50
       },
       "polygon": {
-        "scaling": 0.045454545454545456,
+        "scaling": 1.0,
         "source": "polygon_mazes/parking1.svg"
       },
       "start": {
@@ -127,11 +127,176 @@
     "max_path_length": 10000.0,
     "max_planning_time": 15.0,
     "ompl": {
-      "cost_threshold": 100.0,
-      "rrt_star": {
-        "goal_bias": 0.05,
-        "max_distance": 0.0
+      "control_planner_settings": {
+        "EST": {
+          "goal_bias": "0.05",
+          "range": "0"
+        },
+        "KPIECE1": {
+          "bad_score_factor": "0.45",
+          "border_fraction": "0.8",
+          "goal_bias": "0.05",
+          "good_score_factor": "0.9",
+          "max_close_samples": "30"
+        },
+        "PDST": {
+          "goal_bias": "0.05"
+        },
+        "RRT": {
+          "goal_bias": "0.05",
+          "intermediate_states": "0"
+        },
+        "SST": {
+          "goal_bias": "0.05",
+          "pruning_radius": "0.1",
+          "selection_radius": "0.2"
+        }
       },
+      "cost_threshold": 100.0,
+      "geometric_planner_settings": {
+        "BFMT": {
+          "balanced": "0",
+          "cache_cc": "1",
+          "extended_fmt": "1",
+          "heuristics": "1",
+          "nearest_k": "1",
+          "num_samples": "1000",
+          "optimality": "1",
+          "radius_multiplier": "1"
+        },
+        "BITstar": {
+          "delay_rewiring_to_first_solution": "0",
+          "drop_unconnected_samples_on_prune": "0",
+          "find_approximate_solutions": "0",
+          "prune_threshold_as_fractional_cost_change": "0.05",
+          "rewire_factor": "1.1",
+          "samples_per_batch": "100",
+          "stop_on_each_solution_improvement": "0",
+          "use_graph_pruning": "1",
+          "use_just_in_time_sampling": "0",
+          "use_k_nearest": "1",
+          "use_strict_queue_ordering": "1"
+        },
+        "CForest": {
+          "focus_search": "1",
+          "num_threads": "12"
+        },
+        "EST": {
+          "goal_bias": "0.5",
+          "range": "0"
+        },
+        "FMT": {
+          "cache_cc": "1",
+          "extended_fmt": "1",
+          "heuristics": "0",
+          "nearest_k": "1",
+          "num_samples": "1000",
+          "radius_multiplier": "1.1"
+        },
+        "InformedRRTstar": {
+          "delay_collision_checking": "1",
+          "goal_bias": "0.05",
+          "number_sampling_attempts": "100",
+          "ordered_sampling": "0",
+          "ordering_batch_size": "1",
+          "prune_threshold": "0.05",
+          "range": "0",
+          "rewire_factor": "1.1",
+          "use_k_nearest": "1"
+        },
+        "KPIECE1": {
+          "border_fraction": "0.9",
+          "failed_expansion_score_factor": "0.5",
+          "goal_bias": "0.05",
+          "min_valid_path_fraction": "0.2",
+          "range": "0"
+        },
+        "PDST": {
+          "goal_bias": "0.05"
+        },
+        "PRM": {
+          "max_nearest_neighbors": "0"
+        },
+        "RRT": {
+          "goal_bias": "0.05",
+          "intermediate_states": "0",
+          "range": "0"
+        },
+        "RRT#": {
+          "goal_bias": "0.05",
+          "informed_sampling": "0",
+          "number_sampling_attempts": "100",
+          "range": "0",
+          "rejection_variant": "0",
+          "rejection_variant_alpha": "1",
+          "rewire_factor": "1.1",
+          "sample_rejection": "0",
+          "update_children": "1",
+          "use_k_nearest": "1"
+        },
+        "RRTstar": {
+          "delay_collision_checking": "1",
+          "focus_search": "0",
+          "goal_bias": "0.05",
+          "informed_sampling": "0",
+          "new_state_rejection": "0",
+          "number_sampling_attempts": "100",
+          "ordered_sampling": "0",
+          "ordering_batch_size": "1",
+          "prune_threshold": "0.05",
+          "pruned_measure": "0",
+          "range": "0",
+          "rewire_factor": "1.1",
+          "sample_rejection": "0",
+          "tree_pruning": "0",
+          "use_admissible_heuristic": "1",
+          "use_k_nearest": "1"
+        },
+        "SBL": {
+          "range": "0"
+        },
+        "SORRTstar": {
+          "delay_collision_checking": "1",
+          "goal_bias": "0.05",
+          "number_sampling_attempts": "100",
+          "ordered_sampling": "1",
+          "ordering_batch_size": "100",
+          "prune_threshold": "0.05",
+          "range": "0",
+          "rewire_factor": "1.1",
+          "use_k_nearest": "1"
+        },
+        "SPARS": {
+          "dense_delta_fraction": "0.001",
+          "max_failures": "1000",
+          "sparse_delta_fraction": "0.25",
+          "stretch_factor": "3"
+        },
+        "SPARStwo": {
+          "dense_delta_fraction": "0.001",
+          "max_failures": "5000",
+          "sparse_delta_fraction": "0.25",
+          "stretch_factor": "3"
+        },
+        "SST": {
+          "goal_bias": "0.05",
+          "pruning_radius": "3",
+          "range": "5",
+          "selection_radius": "5"
+        },
+        "STRIDE": {
+          "degree": "16",
+          "estimated_dimension": "3",
+          "goal_bias": "0.05",
+          "max_degree": "18",
+          "max_pts_per_leaf": "6",
+          "min_degree": "12",
+          "min_valid_path_fraction": "0.2",
+          "range": "0",
+          "use_projected_distance": "0"
+        }
+      },
+      "optimization_objective": "min_pathlength",
       "sampler": "iid",
       "seed": 1,
       "state_equality_tolerance": 0.0001
@@ -145,7 +310,7 @@
       "motion_primitive_filename": "./sbpl_mprim/unicycle_0.25.mprim",
       "num_theta_dirs": 16,
       "resolution": 0.25,
-      "scaling": 6.0,
+      "scaling": 1.0,
       "search_until_first_solution": false,
       "time_to_turn_45_degs_in_place": 0.6
     },

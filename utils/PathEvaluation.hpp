@@ -66,21 +66,12 @@ struct PathEvaluation {
     } else {
       stats.path_found = true;
       auto solution = path;
-
-      // assume if SBPL has found a solution, it does not collide and is exact
-      if (planner->name().rfind("SBPL", 0) == 0) {
-        // do not interpolate the path returned by SBPL (it uses its own steer
-        // function)
-        stats.path_collides = false;
-        stats.exact_goal_path = true;
-      } else {
-        solution = PlannerUtils::interpolated(path);
-        stats.path_collides = !planner->isValid(solution, stats.collisions);
-        stats.exact_goal_path =
-            Point(solution.getStates().back())
-                .distance(global::settings.environment->goal()) <=
-            global::settings.exact_goal_radius;
-      }
+      solution = PlannerUtils::interpolated(path);
+      stats.path_collides = !planner->isValid(solution, stats.collisions);
+      stats.exact_goal_path =
+          Point(solution.getStates().back())
+              .distance(global::settings.environment->goal()) <=
+          global::settings.exact_goal_radius;
       stats.path_length = PathLengthMetric::evaluate(solution);
       stats.max_curvature = MaxCurvatureMetric::evaluate(solution);
       stats.normalized_curvature =
@@ -193,7 +184,13 @@ struct PathEvaluation {
     std::cout << "Steer function: "
               << Steering::to_string(global::settings.steer.steering_type)
               << std::endl;
-    j["trajectory"] = Log::serializeTrajectory(planner.solution());
+    // do not interpolate SBPL solutions since they do not use OMPL steer
+    // functions
+    if (planner.name().rfind("SBPL", 0) == 0) {
+      j["trajectory"] = Log::serializeTrajectory(planner.solution(), false);
+    } else {
+      j["trajectory"] = Log::serializeTrajectory(planner.solution());
+    }
     j["stats"] = nlohmann::json(stats)["stats"];
 
     // add intermediary solutions
@@ -439,7 +436,11 @@ struct PathEvaluation {
     }
 
     j["intermediary_solutions"] = intermediaries;
-    j["trajectory"] = Log::serializeTrajectory(planner.solution());
+    if (planner.name().rfind("SBPL", 0) == 0) {
+      j["trajectory"] = Log::serializeTrajectory(planner.solution(), false);
+    } else {
+      j["trajectory"] = Log::serializeTrajectory(planner.solution());
+    }
     j["stats"] = nlohmann::json(stats)["stats"];
     // restore global time limit
     global::settings.max_planning_time = cached_time_limit;

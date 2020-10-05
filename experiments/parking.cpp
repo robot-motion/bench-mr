@@ -3,6 +3,7 @@
 #include "planners/OMPLPlanner.hpp"
 #include "utils/PathEvaluation.hpp"
 #include "utils/ScenarioLoader.h"
+#include "planners/sbpl/SbplPlanner.h"
 
 namespace og = ompl::geometric;
 
@@ -51,7 +52,11 @@ int main(int argc, char **argv) {
   //  PathEvaluation::evaluate<RRTPlanner>(info);
   //  PathEvaluation::evaluate<RRTstarPlanner>(info);
   //  PathEvaluation::evaluate<RRTsharpPlanner>(info);
-  PathEvaluation::evaluate<InformedRRTstarPlanner>(info);
+  PathEvaluation::evaluate<SbplPlanner<sbpl::SBPL_ARASTAR>>(info);
+  PathEvaluation::evaluate<SbplPlanner<sbpl::SBPL_ADSTAR>>(info);
+  PathEvaluation::evaluate<SbplPlanner<sbpl::SBPL_MHA>>(info);
+
+  // PathEvaluation::evaluate<InformedRRTstarPlanner>(info);
   //  PathEvaluation::evaluate<SORRTstarPlanner>(info);
   //  PathEvaluation::evaluate<CForestPlanner>(info);
   //  PathEvaluation::evaluate<SbplPlanner>(info);

@@ -54,20 +54,16 @@ void evaluatePlanners(nlohmann::json &info) {
       PathEvaluation::evaluate<FPKPIECEPlanner>(info);
   }
 
-  if (global::settings.env.type.value() == "grid") {
-    if (global::settings.benchmark.planning.sbpl_arastar)
-      PathEvaluation::evaluateSmoothers<SbplPlanner<sbpl::SBPL_ARASTAR>>(info);
-    if (global::settings.benchmark.planning.sbpl_anastar)
-      PathEvaluation::evaluateSmoothers<SbplPlanner<sbpl::SBPL_ANASTAR>>(info);
-    if (global::settings.benchmark.planning.sbpl_adstar)
-      PathEvaluation::evaluateSmoothers<SbplPlanner<sbpl::SBPL_ADSTAR>>(info);
-    if (global::settings.benchmark.planning.sbpl_lazy_ara)
-      PathEvaluation::evaluateSmoothers<SbplPlanner<sbpl::SBPL_LAZY_ARA>>(info);
-    if (global::settings.benchmark.planning.sbpl_mha)
-      PathEvaluation::evaluateSmoothers<SbplPlanner<sbpl::SBPL_MHA>>(info);
-  } else {
-    std::cerr << "SBPL planners are only supported for grid environments!\n";
-  }
+  if (global::settings.benchmark.planning.sbpl_arastar)
+    PathEvaluation::evaluateSmoothers<SbplPlanner<sbpl::SBPL_ARASTAR>>(info);
+  if (global::settings.benchmark.planning.sbpl_anastar)
+    PathEvaluation::evaluateSmoothers<SbplPlanner<sbpl::SBPL_ANASTAR>>(info);
+  if (global::settings.benchmark.planning.sbpl_adstar)
+    PathEvaluation::evaluateSmoothers<SbplPlanner<sbpl::SBPL_ADSTAR>>(info);
+  if (global::settings.benchmark.planning.sbpl_lazy_ara)
+    PathEvaluation::evaluateSmoothers<SbplPlanner<sbpl::SBPL_LAZY_ARA>>(info);
+  if (global::settings.benchmark.planning.sbpl_mha)
+    PathEvaluation::evaluateSmoothers<SbplPlanner<sbpl::SBPL_MHA>>(info);
 
   if (global::settings.benchmark.planning.sorrt_star)
     PathEvaluation::evaluateSmoothers<SORRTstarPlanner>(info);
