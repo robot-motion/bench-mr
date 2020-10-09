@@ -125,7 +125,7 @@ class OMPLControlPlanner : public AbstractPlanner {
     }
   }
 
-  std::string name() const override { return _omplPlanner->getName(); }
+  std::string name() const override { return "FP " + _omplPlanner->getName(); }
 
   og::PathGeometric solution() const override {
     // og::PathGeometric path(_solution);
