@@ -18,6 +18,8 @@ def retrieve_planner_stats_by_run(json_file: str, planners: str = 'all', run_id:
         for planner in planners:
             if planner in run["plans"]:
                 plan = run["plans"][planner]
+                if plan is None or "stats" not in plan:
+                    continue
                 result[run_id][planner] = plan["stats"]
                 result[run_id][planner]["steer_function"] = run["settings"]["steer"]["steering_type"]
                 result[run_id][planner]["planner"] = planner
