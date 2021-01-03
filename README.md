@@ -20,7 +20,7 @@ The provided CHOMP implementation requires, GLUT and other OpenGL libraries to b
 
 Optionally, to support visual debugging, Qt5 with the `Charts` and `Svg` modules needs to be installed.
 
-The Python front-end dependencies are defined in `[plotting/requirements.txt](plotting/requirements.txt)` which can be installed through
+The Python front-end dependencies are defined in [`plotting/requirements.txt`](plotting/requirements.txt) which can be installed through
 ```
 pip install -r plotting/requirements.txt
 ```
