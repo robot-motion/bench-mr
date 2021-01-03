@@ -14,7 +14,7 @@ from copy import deepcopy
 
 from utils import *
 from multiprocessing import Pool
-from tqdm import tqdm_notebook
+from tqdm.notebook import tqdm
 
 MPB_BINARY = './benchmark'
 MPB_BINARY_DIR = '../bin'
@@ -257,8 +257,7 @@ class MPB:
         num_planners = len(self._planners)
         total_iterations = num_planners * len(self._steer_functions) * runs
         if show_progress_bar:
-            pbar = tqdm_notebook(range(total_iterations),
-                                 desc=self.id, ncols='100%')
+            pbar = tqdm(range(total_iterations), desc=self.id) #, ncols='100%')
         success = True
         code = 0
         results_filenames = []

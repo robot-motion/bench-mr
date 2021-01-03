@@ -2,6 +2,7 @@
 import json
 import click
 import math
+import sys
 
 from color import get_color
 
@@ -34,7 +35,7 @@ def plot_convergence(json_file: str, run_id: str = 'all',
 
     stat_keys = parse_metrics(metrics)
 
-    if headless:
+    if headless and 'matplotlib' not in sys.modules:
         import matplotlib
         matplotlib.use('Agg')
         click.echo("Running headless")
