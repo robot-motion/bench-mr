@@ -27,15 +27,16 @@ Optionally, to support visual debugging, Qt5 with the `Charts` and `Svg` modules
     docker build -t mpb .
     ```
 
-2. Run the image
+2. Run the image to be able to access the Jupyter Lab instance on port 8888 in your browser from where you can run and evaluate benchmarks:
     ```bash
     docker run -p 8888:8888 -it mpb
     ```
-   Optionally, you can mount your local `mpb` copy to it respective folder inside the docker via
+   Optionally, you can mount your local `mpb` copy to its respective folder inside the docker via
    ```bash
    docker run -p 8888:8888 -v $(pwd):/root/code/mpb -it mpb
+   # use %cd% in place of $(pwd) on Windows
    ```
-   Now you can edit files from outside the docker and use docker to build and run the experiments.
+   Now you can edit files from outside the docker and use this container to build and run the experiments.
 
    You can connect multiple times to this same running docker, for example if you want to access it from multiple shell instances via
    ```bash
@@ -64,11 +65,15 @@ Optionally, to support visual debugging, Qt5 with the `Charts` and `Svg` modules
     not be found, you can ignore this message as this dependency is optional.
 
 ## Getting started
-This project contains several build targets under the `experiments/` folder.
+This project contains several build targets in the `experiments/` folder.
 The main application for benchmarking is the `benchmark` executable that gets built
-to the `bin/` folder in the project directory.
+in the `bin/` folder in the project directory.
 
 ### Running a benchmark
+> ⚠ **It is recommended to run the benchmarks from the Jupyter front-end.**
+> Run `jupyter lab` from the project folder and navigate to the `plotting/` directory where you can find several notebooks that can execute experiments and allow you to plot and analyze the benchmark results.
+
+Alternatively, you have the option to manually start benchmarks via JSON configuration files that define which planners to execute, and many other settings concerning environments, steer functions, etc.
 In the `bin/` folder, start a benchmark via
 ```bash
 ./benchmark configuration.json
