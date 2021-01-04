@@ -31,7 +31,7 @@ class AOLMetric : public TMetric<AOLMetric> {
    *
    * @param trajectory The trajectory to evaluate.
    * @param visualize
-   * @return Normalized curvature.
+   * @return AOL.
    */
   static inline double max_curvature = std::numeric_limits<double>::max();
 
