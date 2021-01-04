@@ -57,10 +57,10 @@ struct Point {
   }
 
   static std::vector<Point> fromPath(const ompl::geometric::PathGeometric &p,
-                                     bool interpolate = true);
+                                     bool interpolate = false);
 
   static std::vector<Point> fromPath(const ompl::control::PathControl &p,
-                                     bool interpolate = true);
+                                     bool interpolate = false);
 
   static Point centroid(const std::vector<Point> &points) {
     double x = 0, y = 0;

@@ -41,17 +41,35 @@ struct PathEvaluation {
   static void computeCusps(PathStatistics &stats,
                            const std::vector<Point> path) {
     std::vector<Point> &cusps = stats.cusps.value();
-    for (std::size_t i = 1; i < path.size() - 1; ++i) {
-      // TODO: skip duplicate
-      const double yaw_prev =
-          std::fmod(PlannerUtils::slope(path[i - 1], path[i]), 2. * M_PI);
-      const double yaw_next =
-          std::fmod(PlannerUtils::slope(path[i], path[i + 1]), 2. * M_PI);
 
-      // TODO fix bug
-      if (std::fmod(std::abs(yaw_next - yaw_prev), 2. * M_PI) >
-          global::settings.cusp_angle_threshold)
-        cusps.emplace_back(path[i]);
+    auto prev = path.begin();
+    auto current = prev;
+    auto next = prev;
+    while (next != path.end()) {
+      // advance until current point != prev point, i.e., skip duplicates
+      if (prev->distance(*current) <= 0) {
+        ++current;
+        ++next;
+      }
+      else if (current->distance(*next) <= 0) {
+        ++next;
+      }
+      else {
+        const double yaw_prev = PlannerUtils::slope(*prev, *current);
+        const double yaw_next = PlannerUtils::slope(*current, *next);
+
+        // compute angle difference in [0, pi)
+        // close to pi -> cusp; 0 -> straight line; inbetween -> curve
+        const double yaw_change =
+            std::abs(PlannerUtils::normalizeAngle(yaw_next - yaw_prev));
+
+        if (yaw_change > global::settings.cusp_angle_threshold) {
+          cusps.emplace_back(*current);
+        }
+        prev = current;
+        current = next;
+        ++next;
+      }
     }
   }
 
