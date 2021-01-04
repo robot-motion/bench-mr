@@ -29,6 +29,8 @@ struct PathStatistics : public Group {
                                  "max_curvature", this};
   Property<double> normalized_curvature{
       std::numeric_limits<double>::quiet_NaN(), "normalized_curvature", this};
+  Property<double> aol{
+      std::numeric_limits<double>::quiet_NaN(), "aol", this};
   Property<double> smoothness{std::numeric_limits<double>::quiet_NaN(),
                               "smoothness", this};
   Property<double> mean_clearing_distance{

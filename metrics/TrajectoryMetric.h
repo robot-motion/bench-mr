@@ -1,8 +1,10 @@
 #pragma once
 
-#include "utils/PlannerUtils.hpp"
+#include <ompl/control/PathControl.h>
+#include <ompl/geometric/PathGeometric.h>
 
 #include "steer_functions/Steering.h"
+#include "utils/PlannerUtils.hpp"
 
 template <class METRIC, bool MoreIsBetter = false>
 class TMetric {

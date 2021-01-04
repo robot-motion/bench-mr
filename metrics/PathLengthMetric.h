@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "TrajectoryMetric.h"
+#include "utils/PlannerUtils.hpp"
 
 class PathLengthMetric : public TMetric<PathLengthMetric> {
  public:
