@@ -481,6 +481,8 @@ class MPB:
                                 print("Run #%i does not exist in %s but in %s. Skipping."
                                       % (run_id, results_filenames[i - 1], results_filenames[i]), file=sys.stderr)
                         else:
+                            if "plans" not in run or run["plans"] is None:
+                                continue
                             for pi, (planner, plan) in enumerate(run["plans"].items()):
                                 if plan_names:
                                     target["runs"][run_id]["plans"][plan_names[plan_index + pi]] = plan
