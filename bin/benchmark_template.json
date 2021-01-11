@@ -68,7 +68,7 @@
         7
       ]
     },
-    "cusp_angle_threshold": 1.0471975511965976,
+    "cusp_angle_threshold": 1.0471975511966,
     "distance_computation_method": 0,
     "env": {
       "collision": {
@@ -303,7 +303,7 @@
     },
     "sbpl": {
       "forward_velocity": 0.2,
-      "goal_tolerance_theta": 6.283185307179586,
+      "goal_tolerance_theta": 6.28318530717959,
       "goal_tolerance_x": 1.0,
       "goal_tolerance_y": 1.0,
       "initial_solution_eps": 3.0,

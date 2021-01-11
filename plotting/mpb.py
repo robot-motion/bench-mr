@@ -14,7 +14,7 @@ from copy import deepcopy
 
 from utils import *
 from multiprocessing import Pool
-from tqdm import tqdm_notebook
+from tqdm.notebook import tqdm
 
 MPB_BINARY = './benchmark'
 MPB_BINARY_DIR = '../bin'
@@ -257,8 +257,7 @@ class MPB:
         num_planners = len(self._planners)
         total_iterations = num_planners * len(self._steer_functions) * runs
         if show_progress_bar:
-            pbar = tqdm_notebook(range(total_iterations),
-                                 desc=self.id, ncols='100%')
+            pbar = tqdm(range(total_iterations), desc=self.id) #, ncols='100%')
         success = True
         code = 0
         results_filenames = []
@@ -482,6 +481,8 @@ class MPB:
                                 print("Run #%i does not exist in %s but in %s. Skipping."
                                       % (run_id, results_filenames[i - 1], results_filenames[i]), file=sys.stderr)
                         else:
+                            if "plans" not in run or run["plans"] is None:
+                                continue
                             for pi, (planner, plan) in enumerate(run["plans"].items()):
                                 if plan_names:
                                     target["runs"][run_id]["plans"][plan_names[plan_index + pi]] = plan

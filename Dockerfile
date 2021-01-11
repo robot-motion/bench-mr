@@ -39,8 +39,8 @@ RUN \
     nano \
     htop
 
-# Set up Node.js 10.x repo
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
+# Set up Node.js 15.x repo
+RUN curl -sL https://deb.nodesource.com/setup_15.x | bash -
 RUN \
   DEBIAN_FRONTEND=noninteractive apt-get install -y \
     nodejs

@@ -3,6 +3,7 @@ import json
 import click
 import math
 import numpy as np
+import sys
 
 from color import get_colors
 
@@ -51,7 +52,7 @@ def plot_planner_stats(json_file: str,
                        ticks_rotation=90,
                        fig_width: float = 6,
                        fig_height: float = 6,
-                       metrics='path_length, normalized_curvature, max_curvature, planning_time, mean_clearing_distance, cusps, aggregate',
+                       metrics='path_length, normalized_curvature, planning_time, mean_clearing_distance, cusps, aggregate',
                        dpi: int = 200,
                        scatter_mark_size=40, **kwargs):
     kwargs.update(locals())
@@ -60,7 +61,7 @@ def plot_planner_stats(json_file: str,
 
     stat_keys = parse_metrics(metrics)
 
-    if headless:
+    if headless and 'matplotlib' not in sys.modules:
         import matplotlib
         matplotlib.use('Agg')
         click.echo("Running headless")
@@ -223,7 +224,7 @@ def plot_smoother_stats(json_file: str,
 
     stat_keys = parse_metrics(metrics)
 
-    if headless:
+    if headless and 'matplotlib' not in sys.modules:
         import matplotlib
         matplotlib.use('Agg')
         click.echo("Running headless")

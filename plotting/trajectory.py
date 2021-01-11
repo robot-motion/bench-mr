@@ -70,7 +70,7 @@ def visualize(json_file: str,
     if not silence:
         click.echo("Visualizing %s" % click.format_filename(json_file))
 
-    if headless:
+    if headless and 'matplotlib' not in sys.modules:
         import matplotlib
         matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -289,7 +289,7 @@ def visualize_grid(json_file: str,
     if not silence:
         click.echo("Visualizing %s" % click.format_filename(json_file))
 
-    if headless:
+    if headless and 'matplotlib' not in sys.modules:
         import matplotlib
         matplotlib.use('Agg')
     import matplotlib.pyplot as plt

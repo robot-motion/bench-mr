@@ -2,6 +2,7 @@
 import json
 import click
 import math
+import sys
 
 from plot_env import plot_env, plot_env_options
 from plot_trajectory import plot_trajectory, plot_nodes, plot_trajectory_options
@@ -57,7 +58,7 @@ def visualize_traj_convergence(json_file: str, run_id: str = 'all',
     if not silence:
         click.echo("Visualizing %s..." % click.format_filename(json_file))
 
-    if headless:
+    if headless and 'matplotlib' not in sys.modules:
         import matplotlib
         matplotlib.use('Agg')
         click.echo("Running headless")

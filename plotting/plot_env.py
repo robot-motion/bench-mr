@@ -4,6 +4,7 @@ import numpy as np
 import math
 import click
 import json
+import sys
 from bitarray import bitarray
 
 from utils import add_options
@@ -140,7 +141,7 @@ def plot_env(env, run_id: int = -1, colors=('b', 'r'),
 @click.option('--dpi', default=200, type=int)
 def main(json_file: str, run_id: str, draw_start_goal=True, draw_start_goal_thetas=True,
          set_title=True, show_distances=True, headless=False, save_file: str = None, dpi: int = 200):
-    if headless:
+    if headless and 'matplotlib' not in sys.modules:
         import matplotlib
         matplotlib.use('Agg')
     import matplotlib.pyplot as plt
