@@ -1,0 +1,6 @@
+/*! \mainpage Bench-MR
+ *
+ * Benchmarking motion planners for wheeled mobile robots in cluttered environments on scenarios close to real-world autonomous driving settings.
+ * 
+ * This documentation targets the C++ backend of Bench-MR. Consult https://robot-motion.github.io/bench-mr for the Python front-end documentation.
+ */
