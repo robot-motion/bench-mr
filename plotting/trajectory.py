@@ -131,7 +131,7 @@ def visualize(json_file: str,
                 color_ids[planner] = len(plot_labels)
                 plot_labels.append(convert_planner_name(planner))
             if show_smoother and "smoothing" in plan and plan["smoothing"] is not None:
-                for smoother, smoothing in enumerate(plan["smoothing"].items()):
+                for smoother, smoothing in plan["smoothing"].items():
                     if smoothing["name"] in ignore_smoothers:
                         continue
                     plot_label = "%s (%s)" % (convert_planner_name(planner), smoother_names[smoother])
