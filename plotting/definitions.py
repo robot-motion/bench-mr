@@ -8,10 +8,8 @@ stat_names = {
     'path_length': 'Path Length',
     'smoothness': 'Smoothness',
     'planning_time': 'Computation Time',
-    'cost': 'Path Length',
     'cusps': 'Cusps',
     'aggregate': 'Aggregate',
-    'exact_solutions': 'Exact Solutions'
 }
 
 metric_properties = {
