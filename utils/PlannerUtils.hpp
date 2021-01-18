@@ -252,6 +252,12 @@ class PlannerUtils {
     return collides(path, collisions);
   }
 
+  /**
+   * Interpolate path based on its associated state space.
+   *
+   * @param The geometric path to interpolate.
+   * @returns The interpolated path.
+   */
   static ompl::geometric::PathGeometric interpolated(
       ompl::geometric::PathGeometric path) {
     if (path.getStateCount() < 2) {
@@ -283,6 +289,11 @@ class PlannerUtils {
     return path;
   }
 
+  /**
+   * \overload
+   *
+   * \param The control path to interpolate.
+   */
   static ompl::control::PathControl interpolated(
       ompl::control::PathControl path) {
     if (path.getStateCount() < 2) {
@@ -399,6 +410,14 @@ class PlannerUtils {
     }
   }
 
+  /**
+   * Linearly interpolate between two points.
+   *
+   * @param a The first point.
+   * @param b The last point.
+   * @param dt The step to take (where \f$t\f$ parametrizes the line, i.e., \f$t\in[0,1]\f$).
+   * @returns The points on the line from \p a to \p b, including both of these points.
+   */
   static std::vector<Point> linearInterpolate(const Point &a, const Point &b,
                                               double dt = 0.1) {
     std::vector<Point> points;
@@ -418,6 +437,16 @@ class PlannerUtils {
     return points;
   }
 
+  /**
+   * \overload
+   * 
+   * This does not take into account yaw and returns a list of xy points.
+   *
+   * @param a The first state.
+   * @param b The last state.
+   * @param dt The step to take (where \f$t\f$ parametrizes the line, i.e., \f$t\in[0,1]\f$).
+   * @returns The points on the line from \p a to \p b, including both of these points.
+   */
   static std::vector<Point> linearInterpolate(ompl::base::State *a,
                                               ompl::base::State *b,
                                               double dt = 0.1) {
@@ -426,6 +455,16 @@ class PlannerUtils {
         Point(b->as<State>()->getX(), b->as<State>()->getY()), dt);
   }
 
+  /**
+   * Find closest collision-free point in an ordered set of points.
+   *
+   * The closest point will be converted to a state, whose yaw is computed 
+   * based on neighboring points.
+   *
+   * @param x The reference point.
+   * @param points The collection of points to check.
+   * @returns The state closest to \p x.
+   */
   static ompl::base::State *closestPoint(Point x,
                                          const std::vector<Point> &points) {
     if (points.size() == 1) return points[0].toState();
@@ -448,6 +487,15 @@ class PlannerUtils {
     return points[closest].toState(theta);
   }
 
+  /**
+   * Compute total length of a path.
+   *
+   * The length between two points is calculated as Euclidean distance.
+   * The total length is computed as the sum of pairwise distances.
+   * 
+   * @param path The ordered points along the path.
+   * @returns The total length of the path as the sum of pairwise Euclidean distances.
+   */
   static double totalLength(const std::vector<Point> &path) {
     double l = 0;
     for (size_t i = 1; i < path.size(); ++i) {
@@ -456,6 +504,13 @@ class PlannerUtils {
     return l;
   }
 
+  /**
+   * Compute equidistance samples along path.
+   *
+   * @param path The input path.
+   * @param targetSize The number of equdistant samples on the output path.
+   * @returns The path of size targetSize with equidistant samples.
+   */
   static std::vector<Point> equidistantSampling(const std::vector<Point> &path,
                                                 size_t targetSize) {
     std::vector<Point> result;
