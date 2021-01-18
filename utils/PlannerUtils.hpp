@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ompl/geometric/PathGeometric.h>
 #include <ompl/control/PathControl.h>
 #include <cmath>
 #include <iomanip>

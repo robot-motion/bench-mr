@@ -52,7 +52,7 @@ def plot_planner_stats(json_file: str,
                        ticks_rotation=90,
                        fig_width: float = 6,
                        fig_height: float = 6,
-                       metrics='path_length, normalized_curvature, planning_time, mean_clearing_distance, cusps, aggregate',
+                       metrics='path_length, normalized_curvature, aol, planning_time, mean_clearing_distance, cusps, aggregate',
                        dpi: int = 200,
                        scatter_mark_size=40, **kwargs):
     kwargs.update(locals())

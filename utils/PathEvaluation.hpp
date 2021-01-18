@@ -4,6 +4,7 @@
 #include <metrics/MaxCurvatureMetric.h>
 #include <metrics/NormalizedCurvatureMetric.h>
 #include <metrics/PathLengthMetric.h>
+#include <metrics/AOLMetric.h>
 #include <smoothers/chomp/CHOMP.h>
 
 #include <smoothers/ompl/OmplSmoother.hpp>
@@ -40,15 +41,35 @@ struct PathEvaluation {
   static void computeCusps(PathStatistics &stats,
                            const std::vector<Point> path) {
     std::vector<Point> &cusps = stats.cusps.value();
-    for (std::size_t i = 1; i < path.size() - 1; ++i) {
-      const double yaw_prev =
-          std::fmod(PlannerUtils::slope(path[i - 1], path[i]), 2. * M_PI);
-      const double yaw_next =
-          std::fmod(PlannerUtils::slope(path[i], path[i + 1]), 2. * M_PI);
 
-      if (std::fmod(std::abs(yaw_next - yaw_prev), 2. * M_PI) >
-          global::settings.cusp_angle_threshold)
-        cusps.emplace_back(path[i]);
+    auto prev = path.begin();
+    auto current = prev;
+    auto next = prev;
+    while (next != path.end()) {
+      // advance until current point != prev point, i.e., skip duplicates
+      if (prev->distance(*current) <= 0) {
+        ++current;
+        ++next;
+      }
+      else if (current->distance(*next) <= 0) {
+        ++next;
+      }
+      else {
+        const double yaw_prev = PlannerUtils::slope(*prev, *current);
+        const double yaw_next = PlannerUtils::slope(*current, *next);
+
+        // compute angle difference in [0, pi)
+        // close to pi -> cusp; 0 -> straight line; inbetween -> curve
+        const double yaw_change =
+            std::abs(PlannerUtils::normalizeAngle(yaw_next - yaw_prev));
+
+        if (yaw_change > global::settings.cusp_angle_threshold) {
+          cusps.emplace_back(*current);
+        }
+        prev = current;
+        current = next;
+        ++next;
+      }
     }
   }
 
@@ -76,6 +97,7 @@ struct PathEvaluation {
       stats.max_curvature = MaxCurvatureMetric::evaluate(solution);
       stats.normalized_curvature =
           NormalizedCurvatureMetric::evaluate(solution);
+      stats.aol = AOLMetric::evaluate(solution);
       // This is not implemented in OMPL for ompl::control
       // stats.smoothness = solution.smoothness();
 
@@ -126,6 +148,7 @@ struct PathEvaluation {
       stats.max_curvature = MaxCurvatureMetric::evaluate(solution);
       stats.normalized_curvature =
           NormalizedCurvatureMetric::evaluate(solution);
+      stats.aol = AOLMetric::evaluate(solution);
       stats.smoothness = solution.smoothness();
 
       if (global::settings.evaluate_clearing &&

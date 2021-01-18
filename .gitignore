@@ -61,3 +61,6 @@ build
 
 # Jupyter checkpoints
 .ipynb_checkpoints
+
+# Compile commands (since they are user specific)
+compile_commands.json

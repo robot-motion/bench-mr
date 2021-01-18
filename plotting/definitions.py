@@ -1,6 +1,7 @@
 stat_names = {
     'max_curvature': 'Maximum Curvature',
     'normalized_curvature': 'Normalized Curvature',
+    'aol': 'AOL',
     'max_clearing_distance': 'Maximum Clearing',
     'mean_clearing_distance': 'Mean Clearing',
     'median_clearing_distance': 'Median Clearing',
@@ -40,6 +41,10 @@ metric_properties = {
         'minimize': True
     },
     'normalized_curvature': {
+        'show_std': True,
+        'minimize': True
+    },
+    'aol': {
         'show_std': True,
         'minimize': True
     },
