@@ -14,10 +14,27 @@
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
 
+/**
+ * Helper for common operations during planning and evaluation.
+ *
+ * Contains static functions for collision checking, and other path evaluations.
+ */
 class PlannerUtils {
  public:
   PlannerUtils() = delete;
 
+  /**
+   * Compute the angular slope between two points.
+   *
+   * The slope will be zero, for example, for a line from \f$(0,0)\f$ to \f$(1,0)\f$.
+   * The slope will be \f$\frac{\pi}{2}\f$, for example, for a line from \f$(0,0)\f$ to \f$(0,1)\f$.
+   *
+   * @param x1 X-coordinate of first point.
+   * @param y1 Y-coordinate of first point.
+   * @param x2 X-coorindate of second point.
+   * @param y2 Y-coordinate of second point.
+   * @returns Angular slope of the line in the interval \f$(-\pi,\pi]\f$
+   */
   template <typename N>
   static double slope(const N &x1, const N &y1, const N &x2, const N &y2) {
     const auto dy = y2 - y1;
@@ -25,18 +42,40 @@ class PlannerUtils {
     return normalizeAngle(std::atan2(dy, dx));
   }
 
+  /**
+   * \overload
+   * @param a The first point.
+   * @param b The second point.
+   */
   static double slope(const Point &a, const Point &b) {
     const auto dy = b.y - a.y;
     const auto dx = b.x - a.x;
     return normalizeAngle(std::atan2(dy, dx));
   }
 
+  /**
+   * \overload
+   * @param a The state containing the first point.
+   * @param b The state containing the second point.
+   */
   static double slope(const ompl::base::State *a, const ompl::base::State *b) {
     const auto dy = b->as<State>()->getY() - a->as<State>()->getY();
     const auto dx = b->as<State>()->getX() - a->as<State>()->getX();
     return normalizeAngle(std::atan2(dy, dx));
   }
 
+  /**
+   * Check whether two states are equal (up to some tolerance).
+   *
+   * Check compares x, y, and yaw difference. All have to be within tolerance
+   * for states to be considered equal. 
+   * Tolerance is set in 
+   * PlannerSettings::GlobalSettings::OmplSettings::state_equality_tolerance.
+   *
+   * @param a The first state.
+   * @param b The second state.
+   * @returns True if the states are equal, false otherwise.
+   */
   static bool equals(const ompl::base::State *a, const ompl::base::State *b) {
     const auto dy = b->as<State>()->getY() - a->as<State>()->getY();
     const auto dx = b->as<State>()->getX() - a->as<State>()->getX();
@@ -53,7 +92,14 @@ class PlannerUtils {
   }
 
   /**
-   * Point-based (!) collision check of the path.
+   * Check whether points on a path collide with the environment.
+   *
+   * This function does not consider the collision model, since points only
+   * contain x and y coordinates.
+   * The environment is set through PlannerSettings::GlobalSettings::environment.
+   *
+   * @param path The points on the path.
+   * @returns True if the path collides with the environment, false otherwise.
    */
   static bool collides(const std::vector<Point> &path) {
     std::cout << "Starting.. " << std::endl;
@@ -70,7 +116,16 @@ class PlannerUtils {
   }
 
   /**
-   * Collision check that respects the collision_model set in global::settings.
+   * Collision check that respects the collision model. 
+   *
+   * No additional interpolation along the path is performed prior to collision checking.
+   *
+   * The collision model is set in 
+   * PlannerSettings::GlobalSettings::EnvironmentSettings::CollisionSettings::collision_model.
+   * The environment is set through PlannerSettings::GlobalSettings::environment.
+   *
+   * @param The OMPL path to check.
+   * @returns True if the path collides with the environment, otherwise false.
    */
   static bool collides(const ompl::geometric::PathGeometric &path) {
     for (std::size_t i = 0; i < path.getStateCount(); ++i) {
@@ -80,6 +135,19 @@ class PlannerUtils {
     return false;
   }
 
+  /**
+   * Collision check of segment between two states.
+   *
+   * The collision model is set in 
+   * PlannerSettings::GlobalSettings::EnvironmentSettings::CollisionSettings::collision_model.
+   * The environment is set through PlannerSettings::GlobalSettings::environment.
+   * The steering function used to compute the path between the two state is defined by
+   * PlannerSettings::GlobalSettings::OmplSettings::state_space.
+   *
+   * @param a The first state of the path segment to check.
+   * @param b The last state of the path segment to check.
+   * @returns True if the segment collides with the environment, otherwise false.
+   */
   static bool collides(const ompl::base::State *a, const ompl::base::State *b) {
 #ifdef DEBUG
     OMPL_DEBUG("Checking for collision between [%f %f] and [%f %f]",
@@ -94,8 +162,24 @@ class PlannerUtils {
     return collides(p);
   }
 
+  /**
+   * Collision check that respects the collision model. 
+   *
+   * The path is interpolated prior to collision checking.
+   *
+   * The collision model is set in 
+   * PlannerSettings::GlobalSettings::EnvironmentSettings::CollisionSettings::collision_model.
+   * The environment is set through PlannerSettings::GlobalSettings::environment.
+   * Interpolation is based on the state space of the path.
+   *
+   * @param a Deprecated.
+   * @param b Deprecated.
+   * @param The OMPL path to check.
+   * @returns True if the path collides with the environment, otherwise false.
+   */
   static bool collides(const ompl::base::State *a, const ompl::base::State *b,
                        og::PathGeometric &path) {
+    // TODO this function currently behaves differently in debug mode
 #ifdef DEBUG
     OMPL_DEBUG("Checking for collision between [%f %f] and [%f %f]",
                a->as<State>()->getX(), a->as<State>()->getY(),
@@ -110,6 +194,17 @@ class PlannerUtils {
     return collides(path);
   }
 
+  /**
+   * Check whether points on a path collide with the environment.
+   *
+   * This function does not consider the collision model, since points only
+   * contain x and y coordinates.
+   * The environment is set through PlannerSettings::GlobalSettings::environment.
+   *
+   * @param path The points on the path.
+   * @param collisions Points that collide with the environment.
+   * @returns True if the path collides with the environment, false otherwise.
+   */
   static bool collides(const std::vector<Point> &path,
                        std::vector<Point> &collisions) {
     collisions.clear();
@@ -130,6 +225,20 @@ class PlannerUtils {
     return !collisions.empty();
   }
 
+  /**
+   * Collision check of segment between two states.
+   *
+   * The collision model is set in 
+   * PlannerSettings::GlobalSettings::EnvironmentSettings::CollisionSettings::collision_model.
+   * The environment is set through PlannerSettings::GlobalSettings::environment.
+   * The steering function used to compute the path between the two state is defined by
+   * PlannerSettings::GlobalSettings::OmplSettings::state_space.
+   *
+   * @param a The first state of the path segment to check.
+   * @param b The last state of the path segment to check.
+   * @param collisions Points that collide with the environment.
+   * @returns True if the segment collides with the environment, otherwise false.
+   */
   static bool collides(const ompl::base::State *a, const ompl::base::State *b,
                        std::vector<Point> &collisions) {
     ompl::geometric::PathGeometric p(global::settings.ompl.space_info, a, b);
@@ -386,7 +495,11 @@ class PlannerUtils {
   }
 
   /**
-   * Converts number to string with the given precision.
+   * Convert a number to a string with the given precision.
+   *
+   * @param v The number to convert to a string.
+   * @param precision The precision used when converting the number to a string.
+   * @returns The string containing the number.
    */
   template <typename N>
   static std::string num2str(const N &v, unsigned int precision = 3) {
@@ -396,7 +509,10 @@ class PlannerUtils {
   }
 
   /**
-   * Normalizes angles to [-pi, pi].
+   * Normalize angle in radians to the interval \f$(-\pi, \pi]\f$.
+   *
+   * @param angle The angle to normalize.
+   * @returns The normalized angle.
    */
   inline static double normalizeAngle(double angle) {
     return std::atan2(std::sin(angle), std::cos(angle));
