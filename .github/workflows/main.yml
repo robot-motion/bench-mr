@@ -40,12 +40,14 @@ jobs:
       - name: Update Bench-MR
         run: |
           rm -rf .git/
-          mkdir assets
-          cp -a doxygen assets/
+          mkdir bench-mr
+          cd bench-mr
           git init
           git config --local user.email "eric-heiden@outlook.com"
           git config --local user.name "eric-heiden"
+          git remote add origin https://eric-heiden:${{ secrets.INPUT_GITHUB_TOKEN }}@github.com/robot-motion/bench-mr.git
+          git pull
+          cp -a ../doxygen assets/
           git add assets/**
           git commit -m "Update Doxygen"
-          git remote add origin https://eric-heiden:${{ secrets.INPUT_GITHUB_TOKEN }}@github.com/robot-motion/bench-mr.git
-          git push -f origin master
+          git push origin master
