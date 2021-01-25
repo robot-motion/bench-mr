@@ -43,10 +43,10 @@ jobs:
           mkdir assets
           cp -a doxygen assets/
           git init
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "Doxygen Robot"
+          git config --local user.email "eric-heiden@outlook.com"
+          git config --local user.name "eric-heiden"
           git add assets/**
           git commit -m "Update Doxygen"
-          git remote add origin https://${GITHUB_ACTOR}:${INPUT_GITHUB_TOKEN}@github.com/robot-motion/bench-mr.git
+          git remote add origin https://eric-heiden:${INPUT_GITHUB_TOKEN}@github.com/robot-motion/bench-mr.git
           git push -u origin master
           git push origin master
