@@ -39,11 +39,11 @@ jobs:
       # Commit to Bench-MR repo
       - name: Update Bench-MR
         run: |
+          rm -rf .git/
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "Doxygen Robot"
-          mkdir -p /tmp/bench-mr/assets/
-          mv doxygen/ /tmp/bench-mr/
-          cd /tmp/bench-mr/
+          mkdir assets
+          mv doxygen/ /assets/
           git init
           git add assets/**
           git commit -m "Update Doxygen"
