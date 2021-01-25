@@ -41,8 +41,10 @@ jobs:
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "Doxygen Robot"
-          mkdir -p assets/doxygen/
-          mv docs/** assets/doxygen/
+          mkdir -p /tmp/bench-mr/assets/
+          mv doxygen/ /tmp/bench-mr/
+          cd /tmp/bench-mr/
+          git init
           git add assets/**
           git commit -m "Update Doxygen"
           git remote add origin https://${GITHUB_ACTOR}:${INPUT_GITHUB_TOKEN}@github.com/robot-motion/bench-mr.git
