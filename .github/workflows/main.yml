@@ -40,11 +40,11 @@ jobs:
       - name: Update Bench-MR
         run: |
           rm -rf .git/
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "Doxygen Robot"
           mkdir assets
           mv doxygen/ /assets/
           git init
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "Doxygen Robot"
           git add assets/**
           git commit -m "Update Doxygen"
           git remote add origin https://${GITHUB_ACTOR}:${INPUT_GITHUB_TOKEN}@github.com/robot-motion/bench-mr.git
