@@ -47,6 +47,6 @@ jobs:
           git config --local user.name "eric-heiden"
           git add assets/**
           git commit -m "Update Doxygen"
-          git remote add origin https://eric-heiden:${INPUT_GITHUB_TOKEN}@github.com/robot-motion/bench-mr.git
+          git remote add origin https://eric-heiden:${{ secrets.INPUT_GITHUB_TOKEN }}@github.com/robot-motion/bench-mr.git
           git push -u origin master
           git push origin master
