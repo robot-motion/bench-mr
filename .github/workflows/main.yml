@@ -34,7 +34,7 @@ jobs:
           # Working directory
           working-directory: '.'
           # Generate latex documentation
-          enable-latex: true
+          enable-latex: false
 
       # Commit to Bench-MR repo
       - name: Update Bench-MR
