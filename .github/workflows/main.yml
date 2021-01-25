@@ -49,5 +49,5 @@ jobs:
           git pull origin master
           cp -a ../doxygen assets/
           git add assets/**
-          git commit -m "Update Doxygen"
-          git push origin master
+          # only commit if there are changes (otherwise we would get an error code)
+          git diff-index --quiet HEAD || (git commit -m "Update Doxygen" && git push origin master)         
