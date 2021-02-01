@@ -39,11 +39,26 @@ inline std::string to_string(Method m) {
 }
 }  // namespace distance_computation
 
+/**
+ * Settings required to set up planner(s) and planning problem.
+ */
 namespace PlannerSettings {
+/**
+ * State representation.
+ */
 struct StateSettings : public Group {
   using Group::Group;
+  /**
+   * X-coordinate of the state.
+   */
   Property<double> x{0, "x", this};
+  /**
+   * Y-coordinate of the state.
+   */
   Property<double> y{0, "y", this};
+  /**
+   * Heading angle of the state.
+   */
   Property<double> theta{0, "theta", this};
 };
 
