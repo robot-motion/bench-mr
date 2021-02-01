@@ -67,20 +67,38 @@ struct StateSettings : public Group {
  */
 struct GlobalSettings : public Group {
   using Group::Group;
+  /**
+   * Environment used for planning.
+   */
   std::shared_ptr<Environment> environment;
 
   struct EnvironmentSettings : public Group {
     using Group::Group;
     /**
-     * What type of environment to load/generate ("grid"/"polygon").
+     * Environment type to load/generate ("grid"/"polygon").
      */
     Property<std::string> type{"grid", "type", this};
 
+    /**
+     * Start state for the planning problem.
+     */
     StateSettings start{"start", this};
+    /**
+     * Goal state for the planning problem.
+     */
     StateSettings goal{"goal", this};
 
+    /**
+     * Set #environment to the specified environment based on #type.
+     * 
+     * Handles all cases except grid type with moving_ai generator, which is
+     * handled separately.
+     */
     void createEnvironment();
 
+    /**
+     * Settings for grid #type.
+     */
     struct GridSettings : public Group {
       using Group::Group;
       /**
@@ -88,34 +106,90 @@ struct GlobalSettings : public Group {
        * "image").
        */
       Property<std::string> generator{"corridor", "generator", this};
+      /**
+       * Width of the grid environment as number of cells.
+       * 
+       * Property has no effect for image #generator.
+       */
       Property<unsigned int> width{50, "width", this};
+      /**
+       * Height of the grid environment as number of cells.
+       * 
+       * Property has no effect for image #generator.
+       */
       Property<unsigned int> height{50, "height", this};
+      /**
+       * Seed used to generate grid environments.
+       */
       Property<unsigned int> seed{1, "seed", this};
 
+      /**
+       * Settings for corridor #generator.
+       */
       struct CorridorSettings : public Group {
         using Group::Group;
+        /**
+         * Radius of the generated corridors.
+         */
         Property<double> radius{5, "radius", this};
+        /**
+         * Number of branches that the corridor has.
+         */
         Property<int> branches{50, "branches", this};
       } corridor{"corridor", this};
 
+      /**
+       * Settings for random #generator.
+       */
       struct RandomSettings : public Group {
         using Group::Group;
+        /**
+         * Ratio of cells that will be occupied.
+         */
         Property<double> obstacle_ratio{0.1, "obstacle_ratio", this};
       } random{"random", this};
 
+      /**
+       * Settings for image #generator.
+       */
       struct ImageSettings : public Group {
         using Group::Group;
+        /**
+         * Path of image file to convert to grid map.
+         */
         Property<std::string> source{"image_mazes/intel-lab.png", "source",
                                      this};
+
+        /**
+         * Threshold to set a pixel to occupied based of greyscale value in 
+         * image.
+         * 
+         * All pixels with \f$p_{ij}\leq t\f$ will be set to occupied, where
+         * \f$t\in[0,1]\f$. That is, the higher \f$t\f$ the more obstacles are
+         * in the map.
+         */
         Property<double> occupancy_threshold{0.5, "occupancy_threshold", this};
+
+        /**
+         * Desired width of the grid environment as number of cells after
+         * converting image to grid.
+         * 
+         * See GridMaze::createFromImage for more details.
+         */
         Property<int> desired_width{0, "desired_width", this};
+
+        /**
+         * Desired height of the grid environment as number of cells after
+         * converting image to grid.
+         * 
+         * See GridMaze::createFromImage for more details.
+         */
         Property<int> desired_height{0, "desired_height", this};
       } image{"image", this};
     } grid{"grid", this};
 
     struct PolygonSettings : public Group {
       using Group::Group;
-
       /**
        * Generator for grid environments ("corridor", "random", "moving_ai").
        */
