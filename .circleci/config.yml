@@ -47,10 +47,10 @@ jobs:
           command: 'rm -rf .git && mkdir bench-mr && cd bench-mr && git init && git remote add origin https://github.com/robot-motion/bench-mr.git && git pull origin master'
       - run:
           name: Copy benchmark results to Bench-MR website
-          command: 'cp ../plotting/corridor.md _docs/results/ && cp ../plotting/corridor_*.png assets/results/'
+          command: 'cd /root/project/bench-mr && cp /root/project/plotting/corridor.md _docs/results/ && cp /root/project/plotting/corridor_*.png assets/results/'
       - run:
           name: Git add Bench-MR results
-          command: 'git add _docs/results/corridor.md && git add assets/results/corridor_*.png'
+          command: 'cd /root/project/bench-mr && git add _docs/results/corridor.md && git add assets/results/corridor_*.png'
       - run:
           name: Commit and push Bench-MR results, if they are different
-          command: 'git diff-index --quiet HEAD || (git commit -m "[CI] Update benchmark results" && git push origin master)'
+          command: 'cd /root/project/bench-mr && git diff-index --quiet HEAD || (git commit -m "[CI] Update benchmark results" && git push origin master)'
