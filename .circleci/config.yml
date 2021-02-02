@@ -35,7 +35,7 @@ jobs:
           command: 'pushd . && cd build && make benchmark && popd'
       - run:
           name: Run benchmark_to create template file
-          command: 'pushd . && cd bin && ./benchmark && popd'
+          command: 'pushd . && cd bin && (./benchmark || true) && popd'
       - run:
           name: Install Python dependencies
           command: 'pushd . && cd plotting && pip3 install -r requirements.txt && popd'
