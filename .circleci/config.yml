@@ -44,7 +44,7 @@ jobs:
           command: 'pushd . && cd plotting && python3 benchmark_corridor.py && popd'
       - run:
           name: Clone Bench-MR repository (website)
-          command: 'rm -rf .git && mkdir bench-mr && cd bench-mr && git remote add origin https://github.com/robot-motion/bench-mr.git && git pull origin master'
+          command: 'rm -rf .git && mkdir bench-mr && cd bench-mr && git init && git remote add origin https://github.com/robot-motion/bench-mr.git && git pull origin master'
       - run:
           name: Copy benchmark results to Bench-MR website
           command: 'cp ../plotting/corridor.md _docs/results/ && cp ../plotting/corridor_*.png assets/results/'
