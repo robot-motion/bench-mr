@@ -125,6 +125,8 @@ def plot_planner_stats(json_file: str,
                     if planner not in run["plans"]:
                         continue
                     plan = run["plans"][planner]
+                    if plan is None:
+                        continue
                     if planner not in stats:
                         stats[planner] = []
                     if planner not in valid_planners:

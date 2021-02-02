@@ -166,6 +166,8 @@ def visualize(json_file: str,
         for planner, plan in run["plans"].items():
             if planner.lower() in ignore_planners:
                 continue
+            if plan is None:
+                continue
 
             if not show_only_smoother:
                 color_id = color_ids[planner]

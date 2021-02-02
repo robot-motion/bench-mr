@@ -11,7 +11,7 @@ jobs:
           command: 'apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*'
       - run:
           name: Installing GCC
-          command: 'apt-get update && sudo apt-get install -y gcc g++ build-essential wget unzip git python-dev autotools-dev m4 libicu-dev build-essential libbz2-dev libasio-dev libeigen3-dev freeglut3-dev expat libcairo2-dev'
+          command: 'apt-get update && sudo apt-get install -y gcc g++ build-essential wget unzip git python-dev python3-pip python3 cython3 autotools-dev m4 libicu-dev build-essential libbz2-dev libasio-dev libeigen3-dev freeglut3-dev expat libcairo2-dev'
       - run:
           name: Install CMAKE and Boost
           command: 'apt-get update && sudo apt-get install -y cmake libboost-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-filesystem-dev nlohmann-json-dev'
@@ -32,7 +32,25 @@ jobs:
           command: 'cmake -H. -Bbuild'
       - run:
           name: Build mpb
-          command: 'pushd . && cd build && make && popd'
+          command: 'pushd . && cd build && make benchmark && popd'
       - run:
-          name: Run benchmark_corridors
-          command: 'pushd . && cd bin && ./benchmark_corridors && popd'
+          name: Run benchmark_to create template file
+          command: 'pushd . && cd bin && ./benchmark && popd'
+      - run:
+          name: Install Python dependencies
+          command: 'pushd . && cd plotting && pip3 install -r requirements.txt && popd'
+      - run:
+          name: Run corridor benchmark
+          command: 'pushd . && cd plotting && python3 benchmark_corridor.py && popd'
+      - run:
+          name: Clone Bench-MR repository (website)
+          command: 'rm -rf .git && mkdir bench-mr && cd bench-mr && git remote add origin https://eric-heiden@github.com/robot-motion/bench-mr.git git pull origin master'
+      - run:
+          name: Copy benchmark results to Bench-MR website
+          command: 'cp ../plotting/corridor.md _docs/results/ && cp ../plotting/corridor_*.png assets/results/'
+      - run:
+          name: Git add Bench-MR results
+          command: 'git add _docs/results/corridor.md && git add assets/results/corridor_*.png'
+      - run:
+          name: Commit and push Bench-MR results, if they are different
+          command: 'git diff-index --quiet HEAD || (git commit -m "[CI] Update benchmark results" && git push origin master)'

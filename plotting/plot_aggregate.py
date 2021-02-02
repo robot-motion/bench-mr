@@ -15,6 +15,8 @@ def plot_aggregate(ax, runs, planners: [str], ticks_rotation=90, **kwargs):
             planner = convert_planner_name(planner)
             if planner not in planners:
                 continue
+            if plan is None or "stats" not in plan or plan["stats"] is None:
+                continue
 
             if plan["stats"]["path_found"]:
                 found[planner] += 1
