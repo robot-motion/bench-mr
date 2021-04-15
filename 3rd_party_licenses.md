@@ -13,7 +13,7 @@ such Third Party IP, are set forth below.
       - [License](#license)
     - [<a name="sbpl">SBPL</a>](#sbpl)
       - [License](#license-1)
-    - [<a name="astar-algorithm-cpp</a>](#astar-algorithm-cpp)
+    - [<a name="astar-algorithm-cpp">astar-algorithm-cpp</a>](#astar-algorithm-cpp)
       - [License](#license-2)
     - [<a name="theta_star">theta_star</a>](#theta_star)
       - [License](#license-3)
