@@ -9,7 +9,7 @@ Benchmarking motion planners for wheeled mobile robots in cluttered environments
 * [OMPL](https://github.com/ompl/ompl) - included as submodule, needs to be installed first
 * [nlohmann/json](https://github.com/nlohmann/json) - not provided, needs to be installed first
 * [SBPL](https://github.com/sbpl/sbpl) - not provided, needs to be installed
-* [Jupyter Lab](https://github.com/jupyterlab/jupyterlab) with [Python 3 kernel](https://ipython.readthedocs.io/en/latest/install/kernel_install.html#kernels-for-python-2-and-3) for plotting and evaluation (see [plotting/README.md](plotting/README.md))
+* [Jupyter Lab](https://github.com/jupyterlab/jupyterlab) with [Python 3 kernel](https://ipython.readthedocs.io/en/latest/install/kernel_install.html#kernels-for-python-2-and-3) for plotting and evaluation (see [python/README.md](python/README.md))
 
 The following boost libraries (version 1.58+) need to be installed:
 * `boost_serialization`
@@ -21,9 +21,9 @@ The provided CHOMP implementation requires, GLUT and other OpenGL libraries to b
 
 Optionally, to support visual debugging, Qt5 with the `Charts` and `Svg` modules needs to be installed.
 
-The Python front-end dependencies are defined in [`plotting/requirements.txt`](plotting/requirements.txt) which can be installed through
+The Python front-end dependencies are defined in [`python/requirements.txt`](python/requirements.txt) which can be installed through
 ```
-pip install -r plotting/requirements.txt
+pip install -r python/requirements.txt
 ```
 
 ## Using Docker
@@ -78,7 +78,7 @@ in the `bin/` folder in the project directory.
 ### Running a benchmark
 > ⚠ **It is recommended to run the benchmarks from the Jupyter front-end.**
 > 
-> Run `jupyter lab` from the project folder and navigate to the `plotting/` directory where you can find several notebooks that can execute experiments and allow you to plot and analyze the benchmark results.
+> Run `jupyter lab` from the project folder and navigate to the `python/` directory where you can find several notebooks that can execute experiments and allow you to plot and analyze the benchmark results.
 
 Alternatively, you have the option to manually run benchmarks via JSON configuration files that define which planners to execute, and many other settings concerning environments, steer functions, etc.
 
@@ -103,7 +103,7 @@ Info:    Saved path statistics log file <...>
 ```
 
 The resulting JSON log file can be used for visualizing the planning results and plotting
-the statistics. To get started, check out the Jupyter notebooks inside the `plotting/` folder 
+the statistics. To get started, check out the Jupyter notebooks inside the `python/` folder 
 where all the plotting tools are provided.
 
 ## Third-party libraries

@@ -55,6 +55,7 @@ plotting/*.pdf
 
 # Visual Studio Code
 .vscode
+.history
 
 # Build folder
 build/
