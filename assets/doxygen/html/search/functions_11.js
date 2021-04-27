@@ -1,11 +1,16 @@
 var searchData=
 [
-  ['unicyclecontrol_1109',['UnicycleControl',['../structUnicycleControl.html#a0391c8b4a32482577ad8f10caeb9885c',1,'UnicycleControl::UnicycleControl(double vv=0, double ww=0)'],['../structUnicycleControl.html#a47a47ccacb21abb8d317c301c1d304c7',1,'UnicycleControl::UnicycleControl(const double *p)'],['../structUnicycleControl.html#a079fbfa9b76867d9dd2979e769ee1b0a',1,'UnicycleControl::UnicycleControl(const UnicycleControl &amp;copy)']]],
-  ['unicyclestate_1110',['UnicycleState',['../structUnicycleState.html#a9d80b857b75070c7b050df3a48fb3872',1,'UnicycleState::UnicycleState()'],['../structUnicycleState.html#a53d2a0965c8d57d6663a8f9eeb600b63',1,'UnicycleState::UnicycleState(double xx, double yy, double zz)'],['../structUnicycleState.html#abed77f64e056d5c688b7a25d0c06eabb',1,'UnicycleState::UnicycleState(double *p)'],['../structUnicycleState.html#ae5f91ae8148432108a939bd68917d2e4',1,'UnicycleState::UnicycleState(const UnicycleState &amp;copy)']]],
-  ['unit_1111',['unit',['../classEnvironment.html#a9009799ef65180efe9e281a11d8e6fba',1,'Environment::unit()'],['../classPolygonMaze.html#a421ac6ebce53b273f31c716a9519f5a3',1,'PolygonMaze::unit()']]],
-  ['updateangles_1112',['updateAngles',['../classPlannerUtils.html#a65540d3d07d552eef0f6f5b5ed1ddbaa',1,'PlannerUtils']]],
-  ['updatevertex_1113',['UpdateVertex',['../classThetaStarSearch.html#a4b2647e7b6f46cb08fcbdd24ecc6c3c5',1,'ThetaStarSearch']]],
-  ['updatevertexgrandparent_1114',['UpdateVertexGrandParent',['../classThetaStarSearch.html#a1d54cfe214e38e3c8564cd9382255769',1,'ThetaStarSearch']]],
-  ['use_5fconnectgrandparent_1115',['use_connectGrandParent',['../classThetaStarSearch.html#a57a7ebe8c12feea9d15c20337662dccc',1,'ThetaStarSearch']]],
-  ['useastar_1116',['useAstar',['../classThetaStarSearch.html#a0736bfcfecf0350f19c2dcad3387f83e',1,'ThetaStarSearch']]]
+  ['table_1218',['Table',['../classTable.html#aa25a5cd0505e7922eff674b001ae1f2b',1,'Table']]],
+  ['thetasdefined_1219',['thetasDefined',['../classEnvironment.html#a16435f40def514723e13094b084bf214',1,'Environment']]],
+  ['thetastar_1220',['ThetaStar',['../classThetaStar.html#a43aa0f9483b97f947ae77b30d29d4485',1,'ThetaStar::ThetaStar()'],['../classThetaStar.html#ac575237b7b60a40650a4cc8017be4b20',1,'ThetaStar::ThetaStar(bool astar, std::string name)']]],
+  ['thetastarsearch_1221',['ThetaStarSearch',['../classThetaStarSearch.html#a3d75cfeeb824af05dfdb32a8c5fd22f9',1,'ThetaStarSearch::ThetaStarSearch()'],['../classThetaStarSearch.html#af9d436110bfebc3501cc6a416688a9f4',1,'ThetaStarSearch::ThetaStarSearch(bool euclideanCostChoice)'],['../classThetaStarSearch.html#addc15530e802d7597fc70b6816d85975',1,'ThetaStarSearch::ThetaStarSearch(int MaxNodes)']]],
+  ['timedresult_1222',['TimedResult',['../classTimedResult.html#a77ac57d00c6a679a95d27ccd40eb8665',1,'TimedResult']]],
+  ['to_5fjson_1223',['to_json',['../classEnvironment.html#a31cc095177466fd2cd3bc5c7bf3ac142',1,'Environment::to_json()'],['../classGridMaze.html#aebf4684230a681e8596c3c05a35a5fab',1,'GridMaze::to_json()'],['../classPolygonMaze.html#a18b851b5b529af51a04c050003b47507',1,'PolygonMaze::to_json()'],['../Primitives_8h.html#a80d3540d395e3c9ea77edcf68f56e5c5',1,'to_json(nlohmann::json &amp;j, const Polygon &amp;p):&#160;Primitives.h'],['../Primitives_8h.html#ad34f3893812dceef558ff9dbbcb21638',1,'to_json(nlohmann::json &amp;j, const Point &amp;p):&#160;Primitives.h']]],
+  ['to_5fstring_1224',['to_string',['../namespaceSteering.html#a390d6cd77efa8ab7d4b0316632c60eac',1,'Steering::to_string()'],['../namespaceForwardPropagation.html#a63c88055fb184d6f43bf65f38da8df47',1,'ForwardPropagation::to_string()'],['../namespacedistance__computation.html#a5f62f67b8e9347cf1b293c515e48607a',1,'distance_computation::to_string()']]],
+  ['tostate_1225',['toState',['../classGNode__base.html#a61bf9c1b151a5c01501c399ed968d7da',1,'GNode_base::toState()'],['../structPoint.html#ae2e10498fdf16bdad1b2e302578fed04',1,'Point::toState()']]],
+  ['tosteeredpoints_1226',['toSteeredPoints',['../classPlannerUtils.html#a183543f860f981d0669d910f73d720c1',1,'PlannerUtils']]],
+  ['totallength_1227',['totalLength',['../classPlannerUtils.html#a62d0c3b9b40329d478de76aca774ccd6',1,'PlannerUtils']]],
+  ['transformed_1228',['transformed',['../structPolygon.html#a69e17310c815dad2a09affd568ddfb7b',1,'Polygon']]],
+  ['translate_1229',['translate',['../structPolygon.html#a8d26b4b7459b05c004ea5888a1965353',1,'Polygon']]],
+  ['typename_1230',['typeName',['../structGRIPS_1_1RoundStats.html#a3a38950f60a849aaac655e1c5b0429e4',1,'GRIPS::RoundStats']]]
 ];

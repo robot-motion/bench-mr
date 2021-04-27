@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['steeringtype_1451',['SteeringType',['../namespaceSteering.html#ab4a3ce68acd4959a4d04752e963fd6f9',1,'Steering']]]
+  ['roundtype_1584',['RoundType',['../classGRIPS.html#a88afb5811b3148c1666c9c6c5227f889',1,'GRIPS']]]
 ];

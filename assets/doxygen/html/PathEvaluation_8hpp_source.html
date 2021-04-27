@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Bench-MR: utils/PathEvaluation.hpp Source File</title>
+<title>Bench-MR: src/utils/PathEvaluation.hpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -69,7 +69,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_cbdb8362360e11eafe2fa3bc74cf0ffd.html">utils</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_313caf1132e152dd9b58bea13a4052ca.html">utils</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -79,11 +79,11 @@ $(function() {
 <div class="contents">
 <a href="PathEvaluation_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160; </div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;metrics/ClearingMetric.h&gt;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;metrics/MaxCurvatureMetric.h&gt;</span></div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;metrics/NormalizedCurvatureMetric.h&gt;</span></div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &lt;metrics/PathLengthMetric.h&gt;</span></div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &lt;metrics/AOLMetric.h&gt;</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="ClearingMetric_8h.html">metrics/ClearingMetric.h</a>&gt;</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="MaxCurvatureMetric_8h.html">metrics/MaxCurvatureMetric.h</a>&gt;</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="NormalizedCurvatureMetric_8h.html">metrics/NormalizedCurvatureMetric.h</a>&gt;</span></div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="PathLengthMetric_8h.html">metrics/PathLengthMetric.h</a>&gt;</span></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="AOLMetric_8h.html">metrics/AOLMetric.h</a>&gt;</span></div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="CHOMP_8h.html">smoothers/chomp/CHOMP.h</a>&gt;</span></div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="OmplSmoother_8hpp.html">smoothers/ompl/OmplSmoother.hpp</a>&gt;</span></div>
@@ -163,17 +163,17 @@ $(function() {
 <div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;          <a class="code" href="structPoint.html">Point</a>(solution.getStates().back())</div>
 <div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;              .<a class="code" href="structPoint.html#a7f57e184b4eebb62455d6f90cfb352c7">distance</a>(<a class="code" href="structglobal.html#afd04176685b5122a0cd9341ca2013dab">global::settings</a>.environment-&gt;goal()) &lt;=</div>
 <div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;          <a class="code" href="structglobal.html#afd04176685b5122a0cd9341ca2013dab">global::settings</a>.<a class="code" href="structPlannerSettings_1_1GlobalSettings.html#a0111567086754d5aa065f6973baaf3a2">exact_goal_radius</a>;</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;      stats.<a class="code" href="structPathStatistics.html#aaa00f599952d5287bb2b6dbf96ae8c64">path_length</a> = PathLengthMetric::evaluate(solution);</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;      stats.<a class="code" href="structPathStatistics.html#a2ae221bbf32da04cdc9e2b28f570a72a">max_curvature</a> = MaxCurvatureMetric::evaluate(solution);</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;      stats.<a class="code" href="structPathStatistics.html#aaa00f599952d5287bb2b6dbf96ae8c64">path_length</a> = <a class="code" href="classTMetric.html#a07a8c9a5b3fd0bd168527f384c578ab7">PathLengthMetric::evaluate</a>(solution);</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;      stats.<a class="code" href="structPathStatistics.html#a2ae221bbf32da04cdc9e2b28f570a72a">max_curvature</a> = <a class="code" href="classTMetric.html#a07a8c9a5b3fd0bd168527f384c578ab7">MaxCurvatureMetric::evaluate</a>(solution);</div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;      stats.<a class="code" href="structPathStatistics.html#a1ed419524a02e5bd220531f938de2632">normalized_curvature</a> =</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;          NormalizedCurvatureMetric::evaluate(solution);</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;      stats.<a class="code" href="structPathStatistics.html#a3307eb61bd39cbb1f3138d83a6f58b0a">aol</a> = AOLMetric::evaluate(solution);</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;          <a class="code" href="classTMetric.html#a07a8c9a5b3fd0bd168527f384c578ab7">NormalizedCurvatureMetric::evaluate</a>(solution);</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;      stats.<a class="code" href="structPathStatistics.html#a3307eb61bd39cbb1f3138d83a6f58b0a">aol</a> = <a class="code" href="classTMetric.html#a07a8c9a5b3fd0bd168527f384c578ab7">AOLMetric::evaluate</a>(solution);</div>
 <div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;      <span class="comment">// This is not implemented in OMPL for ompl::control</span></div>
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;      <span class="comment">// stats.smoothness = solution.smoothness();</span></div>
 <div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160; </div>
 <div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;      <span class="keywordflow">if</span> (<a class="code" href="structglobal.html#afd04176685b5122a0cd9341ca2013dab">global::settings</a>.evaluate_clearing &amp;&amp;</div>
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;          <a class="code" href="structglobal.html#afd04176685b5122a0cd9341ca2013dab">global::settings</a>.environment-&gt;distance(0., 0.) &gt;= 0.) {</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;        <span class="keyword">const</span> <span class="keyword">auto</span> clearings = ClearingMetric::clearingDistances(solution);</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;        <span class="keyword">const</span> <span class="keyword">auto</span> clearings = <a class="code" href="classClearingMetric.html#a747eb4f6e4a8d6932ede49aa7b1f22a9">ClearingMetric::clearingDistances</a>(solution);</div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;        stats.<a class="code" href="structPathStatistics.html#aaeeeed6b013ab65cc6548146ec92618d">mean_clearing_distance</a> = <a class="code" href="namespacestat.html#ae3d58878ce2e62af98f59c4744329e03">stat::mean</a>(clearings);</div>
 <div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;        stats.<a class="code" href="structPathStatistics.html#ae5f8447fff1398901af0401eb761cb3c">median_clearing_distance</a> = <a class="code" href="namespacestat.html#ad1bcaac4a47d5682997083b4c3a2027c">stat::median</a>(clearings);</div>
 <div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;        stats.<a class="code" href="structPathStatistics.html#a7064de07c10997422cbe840f4f31f604">min_clearing_distance</a> = <a class="code" href="namespacestat.html#a435bc5d1c22d16fe5ebda7183cb5b953">stat::min</a>(clearings);</div>
@@ -214,16 +214,16 @@ $(function() {
 <div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;                .<a class="code" href="structPoint.html#a7f57e184b4eebb62455d6f90cfb352c7">distance</a>(<a class="code" href="structglobal.html#afd04176685b5122a0cd9341ca2013dab">global::settings</a>.environment-&gt;goal()) &lt;=</div>
 <div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;            <a class="code" href="structglobal.html#afd04176685b5122a0cd9341ca2013dab">global::settings</a>.<a class="code" href="structPlannerSettings_1_1GlobalSettings.html#a0111567086754d5aa065f6973baaf3a2">exact_goal_radius</a>;</div>
 <div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;      }</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;      stats.<a class="code" href="structPathStatistics.html#aaa00f599952d5287bb2b6dbf96ae8c64">path_length</a> = PathLengthMetric::evaluate(solution);</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;      stats.<a class="code" href="structPathStatistics.html#a2ae221bbf32da04cdc9e2b28f570a72a">max_curvature</a> = MaxCurvatureMetric::evaluate(solution);</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;      stats.<a class="code" href="structPathStatistics.html#aaa00f599952d5287bb2b6dbf96ae8c64">path_length</a> = <a class="code" href="classTMetric.html#a07a8c9a5b3fd0bd168527f384c578ab7">PathLengthMetric::evaluate</a>(solution);</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;      stats.<a class="code" href="structPathStatistics.html#a2ae221bbf32da04cdc9e2b28f570a72a">max_curvature</a> = <a class="code" href="classTMetric.html#a07a8c9a5b3fd0bd168527f384c578ab7">MaxCurvatureMetric::evaluate</a>(solution);</div>
 <div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;      stats.<a class="code" href="structPathStatistics.html#a1ed419524a02e5bd220531f938de2632">normalized_curvature</a> =</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;          NormalizedCurvatureMetric::evaluate(solution);</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;      stats.<a class="code" href="structPathStatistics.html#a3307eb61bd39cbb1f3138d83a6f58b0a">aol</a> = AOLMetric::evaluate(solution);</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;          <a class="code" href="classTMetric.html#a07a8c9a5b3fd0bd168527f384c578ab7">NormalizedCurvatureMetric::evaluate</a>(solution);</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;      stats.<a class="code" href="structPathStatistics.html#a3307eb61bd39cbb1f3138d83a6f58b0a">aol</a> = <a class="code" href="classTMetric.html#a07a8c9a5b3fd0bd168527f384c578ab7">AOLMetric::evaluate</a>(solution);</div>
 <div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;      stats.<a class="code" href="structPathStatistics.html#a0e38547aabdc8af28b3d6ea45cee5f1b">smoothness</a> = solution.smoothness();</div>
 <div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160; </div>
 <div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;      <span class="keywordflow">if</span> (<a class="code" href="structglobal.html#afd04176685b5122a0cd9341ca2013dab">global::settings</a>.evaluate_clearing &amp;&amp;</div>
 <div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;          <a class="code" href="structglobal.html#afd04176685b5122a0cd9341ca2013dab">global::settings</a>.environment-&gt;distance(0., 0.) &gt;= 0.) {</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;        <span class="keyword">const</span> <span class="keyword">auto</span> clearings = ClearingMetric::clearingDistances(solution);</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;        <span class="keyword">const</span> <span class="keyword">auto</span> clearings = <a class="code" href="classClearingMetric.html#a747eb4f6e4a8d6932ede49aa7b1f22a9">ClearingMetric::clearingDistances</a>(solution);</div>
 <div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;        stats.<a class="code" href="structPathStatistics.html#aaeeeed6b013ab65cc6548146ec92618d">mean_clearing_distance</a> = <a class="code" href="namespacestat.html#ae3d58878ce2e62af98f59c4744329e03">stat::mean</a>(clearings);</div>
 <div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;        stats.<a class="code" href="structPathStatistics.html#ae5f8447fff1398901af0401eb761cb3c">median_clearing_distance</a> = <a class="code" href="namespacestat.html#ad1bcaac4a47d5682997083b4c3a2027c">stat::median</a>(clearings);</div>
 <div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;        stats.<a class="code" href="structPathStatistics.html#a7064de07c10997422cbe840f4f31f604">min_clearing_distance</a> = <a class="code" href="namespacestat.html#a435bc5d1c22d16fe5ebda7183cb5b953">stat::min</a>(clearings);</div>
@@ -537,11 +537,16 @@ $(function() {
 <div class="line"><a name="l00472"></a><span class="lineno">  472</span>&#160; </div>
 <div class="line"><a name="l00473"></a><span class="lineno"><a class="line" href="structPathEvaluation.html#aaea354ac82a096af3e51148706a8ed52">  473</a></span>&#160;  <a class="code" href="structPathEvaluation.html#aaea354ac82a096af3e51148706a8ed52">PathEvaluation</a>() = <span class="keyword">delete</span>;</div>
 <div class="line"><a name="l00474"></a><span class="lineno">  474</span>&#160;};</div>
+<div class="ttc" id="aAOLMetric_8h_html"><div class="ttname"><a href="AOLMetric_8h.html">AOLMetric.h</a></div></div>
 <div class="ttc" id="aAbstractPlanner_8h_html"><div class="ttname"><a href="AbstractPlanner_8h.html">AbstractPlanner.h</a></div></div>
 <div class="ttc" id="aCHOMP_8h_html"><div class="ttname"><a href="CHOMP_8h.html">CHOMP.h</a></div></div>
+<div class="ttc" id="aClearingMetric_8h_html"><div class="ttname"><a href="ClearingMetric_8h.html">ClearingMetric.h</a></div></div>
 <div class="ttc" id="aGRIPS_8h_html"><div class="ttname"><a href="GRIPS_8h.html">GRIPS.h</a></div></div>
 <div class="ttc" id="aLog_8h_html"><div class="ttname"><a href="Log_8h.html">Log.h</a></div></div>
+<div class="ttc" id="aMaxCurvatureMetric_8h_html"><div class="ttname"><a href="MaxCurvatureMetric_8h.html">MaxCurvatureMetric.h</a></div></div>
+<div class="ttc" id="aNormalizedCurvatureMetric_8h_html"><div class="ttname"><a href="NormalizedCurvatureMetric_8h.html">NormalizedCurvatureMetric.h</a></div></div>
 <div class="ttc" id="aOmplSmoother_8hpp_html"><div class="ttname"><a href="OmplSmoother_8hpp.html">OmplSmoother.hpp</a></div></div>
+<div class="ttc" id="aPathLengthMetric_8h_html"><div class="ttname"><a href="PathLengthMetric_8h.html">PathLengthMetric.h</a></div></div>
 <div class="ttc" id="aPathStatistics_8hpp_html"><div class="ttname"><a href="PathStatistics_8hpp.html">PathStatistics.hpp</a></div></div>
 <div class="ttc" id="aPlannerConfigurator_8hpp_html"><div class="ttname"><a href="PlannerConfigurator_8hpp.html">PlannerConfigurator.hpp</a></div></div>
 <div class="ttc" id="aclassAbstractPlanner_html"><div class="ttname"><a href="classAbstractPlanner.html">AbstractPlanner</a></div><div class="ttdef"><b>Definition:</b> AbstractPlanner.h:29</div></div>
@@ -555,6 +560,7 @@ $(function() {
 <div class="ttc" id="aclassCHOMP_html_aa27eabc6e268491126971740b45071ab"><div class="ttname"><a href="classCHOMP.html#aa27eabc6e268491126971740b45071ab">CHOMP::solutionPath</a></div><div class="ttdeci">std::vector&lt; Point &gt; solutionPath() const</div><div class="ttdef"><b>Definition:</b> CHOMP.cpp:127</div></div>
 <div class="ttc" id="aclassCHOMP_html_acedbb77157f72b23d06a1b669a64df9d"><div class="ttname"><a href="classCHOMP.html#acedbb77157f72b23d06a1b669a64df9d">CHOMP::solution</a></div><div class="ttdeci">og::PathGeometric solution() const</div><div class="ttdef"><b>Definition:</b> CHOMP.cpp:121</div></div>
 <div class="ttc" id="aclassCHOMP_html_ae5b5a2ea8ea4d6a04c44d702166ed086"><div class="ttname"><a href="classCHOMP.html#ae5b5a2ea8ea4d6a04c44d702166ed086">CHOMP::planningTime</a></div><div class="ttdeci">double planningTime() const</div><div class="ttdef"><b>Definition:</b> CHOMP.cpp:129</div></div>
+<div class="ttc" id="aclassClearingMetric_html_a747eb4f6e4a8d6932ede49aa7b1f22a9"><div class="ttname"><a href="classClearingMetric.html#a747eb4f6e4a8d6932ede49aa7b1f22a9">ClearingMetric::clearingDistances</a></div><div class="ttdeci">static std::vector&lt; double &gt; clearingDistances(const ompl::geometric::PathGeometric &amp;trajectory)</div><div class="ttdef"><b>Definition:</b> ClearingMetric.h:8</div></div>
 <div class="ttc" id="aclassGRIPS_html_a65a7eb13f392ae5084884b64872a575d"><div class="ttname"><a href="classGRIPS.html#a65a7eb13f392ae5084884b64872a575d">GRIPS::insertedNodes</a></div><div class="ttdeci">static int insertedNodes</div><div class="ttdef"><b>Definition:</b> GRIPS.h:74</div></div>
 <div class="ttc" id="aclassGRIPS_html_a91a7d079663538d3cbc047652673606c"><div class="ttname"><a href="classGRIPS.html#a91a7d079663538d3cbc047652673606c">GRIPS::smooth</a></div><div class="ttdeci">static bool smooth(ompl::geometric::PathGeometric &amp;path, const std::vector&lt; Point &gt; &amp;originalPathIntermediaries)</div><div class="ttdef"><b>Definition:</b> GRIPS.cpp:17</div></div>
 <div class="ttc" id="aclassGRIPS_html_aa8e881a73592113f33d3a0cc75413552"><div class="ttname"><a href="classGRIPS.html#aa8e881a73592113f33d3a0cc75413552">GRIPS::pruningRounds</a></div><div class="ttdeci">static int pruningRounds</div><div class="ttdef"><b>Definition:</b> GRIPS.h:75</div></div>
@@ -571,6 +577,7 @@ $(function() {
 <div class="ttc" id="aclassPlannerUtils_html_af37e2dabc6e20c7e3f876b40b34d6ead"><div class="ttname"><a href="classPlannerUtils.html#af37e2dabc6e20c7e3f876b40b34d6ead">PlannerUtils::normalizeAngle</a></div><div class="ttdeci">static double normalizeAngle(double angle)</div><div class="ttdoc">Normalize angle in radians to the interval .</div><div class="ttdef"><b>Definition:</b> PlannerUtils.hpp:572</div></div>
 <div class="ttc" id="aclassStopwatch_html_a42c7014e7fffcf4c56ca6fb07f8eb31c"><div class="ttname"><a href="classStopwatch.html#a42c7014e7fffcf4c56ca6fb07f8eb31c">Stopwatch::reset</a></div><div class="ttdeci">void reset()</div><div class="ttdoc">Stops the timer and sets elapsed time to zero.</div><div class="ttdef"><b>Definition:</b> Stopwatch.hpp:23</div></div>
 <div class="ttc" id="aclassStopwatch_html_a8cbc2e349066e81edc46b70347756909"><div class="ttname"><a href="classStopwatch.html#a8cbc2e349066e81edc46b70347756909">Stopwatch::elapsed</a></div><div class="ttdeci">double elapsed() const</div><div class="ttdoc">Elapsed time in seconds.</div><div class="ttdef"><b>Definition:</b> Stopwatch.hpp:41</div></div>
+<div class="ttc" id="aclassTMetric_html_a07a8c9a5b3fd0bd168527f384c578ab7"><div class="ttname"><a href="classTMetric.html#a07a8c9a5b3fd0bd168527f384c578ab7">TMetric&lt; PathLengthMetric &gt;::evaluate</a></div><div class="ttdeci">static double evaluate(const ompl::geometric::PathGeometric &amp;trajectory, double dt=0.1)</div><div class="ttdef"><b>Definition:</b> TrajectoryMetric.h:14</div></div>
 <div class="ttc" id="aclassTimedResult_html"><div class="ttname"><a href="classTimedResult.html">TimedResult</a></div><div class="ttdef"><b>Definition:</b> TimedResult.hpp:9</div></div>
 <div class="ttc" id="aclassTimedResult_html_a5ba60c3cfe0e908a8fc1e5294590f484"><div class="ttname"><a href="classTimedResult.html#a5ba60c3cfe0e908a8fc1e5294590f484">TimedResult::trajectory</a></div><div class="ttdeci">ompl::geometric::PathGeometric trajectory</div><div class="ttdef"><b>Definition:</b> TimedResult.hpp:11</div></div>
 <div class="ttc" id="anamespaceSteering_html_a390d6cd77efa8ab7d4b0316632c60eac"><div class="ttname"><a href="namespaceSteering.html#a390d6cd77efa8ab7d4b0316632c60eac">Steering::to_string</a></div><div class="ttdeci">std::string to_string(Steering::SteeringType t)</div><div class="ttdef"><b>Definition:</b> Steering.h:17</div></div>

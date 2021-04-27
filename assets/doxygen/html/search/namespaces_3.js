@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['robot_797',['robot',['../namespacerobot.html',1,'']]]
+  ['kinematiccar_880',['KinematicCar',['../namespaceKinematicCar.html',1,'']]],
+  ['kinematicsingletrack_881',['kinematicSingleTrack',['../namespacekinematicSingleTrack.html',1,'']]]
 ];

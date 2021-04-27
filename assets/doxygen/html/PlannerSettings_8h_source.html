@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Bench-MR: base/PlannerSettings.h Source File</title>
+<title>Bench-MR: src/base/PlannerSettings.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -69,7 +69,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_e914ee4d4a44400f1fdb170cb4ead18a.html">base</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_0af1587c8378955de40f48b4bd1869f0.html">base</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -86,7 +86,7 @@ $(function() {
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &lt;params.hpp&gt;</span></div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="Environment_8h.html">base/Environment.h</a>&quot;</span></div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &quot;fp_models/ForwardPropagation.h&quot;</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="ForwardPropagation_8h.html">fp_models/ForwardPropagation.h</a>&quot;</span></div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="Steering_8h.html">steer_functions/Steering.h</a>&quot;</span></div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">using namespace </span>params;</div>
@@ -236,7 +236,7 @@ $(function() {
 <div class="line"><a name="l00304"></a><span class="lineno"><a class="line" href="structPlannerSettings_1_1GlobalSettings_1_1BenchmarkSettings.html#abac6576bedc5d5541b69250633686205">  304</a></span>&#160;    Property&lt;bool&gt; control_planners_on{<span class="keyword">false</span>, <span class="stringliteral">&quot;control_planners_on&quot;</span>, <span class="keyword">this</span>};</div>
 <div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    Property&lt;std::vector&lt;ForwardPropagation::ForwardPropagationType&gt;&gt;</div>
 <div class="line"><a name="l00306"></a><span class="lineno"><a class="line" href="structPlannerSettings_1_1GlobalSettings_1_1BenchmarkSettings.html#ae16f078cff5523cad487584122156a8f">  306</a></span>&#160;        forward_propagations{</div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;            {ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR},</div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;            {<a class="code" href="namespaceForwardPropagation.html#a8a7c409c831327f60c4f03c493c7f27fa335467a0fe382204458af29fe5b3e554">ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR</a>},</div>
 <div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;            <span class="stringliteral">&quot;forward_propagations&quot;</span>,</div>
 <div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;            <span class="keyword">this</span>};</div>
 <div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160; </div>
@@ -380,7 +380,7 @@ $(function() {
 <div class="line"><a name="l00538"></a><span class="lineno">  538</span>&#160; </div>
 <div class="line"><a name="l00539"></a><span class="lineno">  539</span>&#160;    Property&lt;ForwardPropagation::ForwardPropagationType&gt;</div>
 <div class="line"><a name="l00540"></a><span class="lineno"><a class="line" href="structPlannerSettings_1_1GlobalSettings_1_1ForwardPropagationSettings.html#a1c33252dafb571f565dbf6a4e39ceaf5">  540</a></span>&#160;        forward_propagation_type{</div>
-<div class="line"><a name="l00541"></a><span class="lineno">  541</span>&#160;            ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR,</div>
+<div class="line"><a name="l00541"></a><span class="lineno">  541</span>&#160;            <a class="code" href="namespaceForwardPropagation.html#a8a7c409c831327f60c4f03c493c7f27fa335467a0fe382204458af29fe5b3e554">ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR</a>,</div>
 <div class="line"><a name="l00542"></a><span class="lineno">  542</span>&#160;            <span class="stringliteral">&quot;forward_propagation_type&quot;</span>, <span class="keyword">this</span>};</div>
 <div class="line"><a name="l00543"></a><span class="lineno">  543</span>&#160; </div>
 <div class="line"><a name="l00544"></a><span class="lineno"><a class="line" href="structPlannerSettings_1_1GlobalSettings_1_1ForwardPropagationSettings.html#a3710ed1c9251bdff7af5d0db1ee733bd">  544</a></span>&#160;    Property&lt;double&gt; car_turning_radius{4, <span class="stringliteral">&quot;car_turning_radius&quot;</span>, <span class="keyword">this</span>};</div>
@@ -491,8 +491,10 @@ $(function() {
 <div class="line"><a name="l00698"></a><span class="lineno"><a class="line" href="structglobal.html#afd04176685b5122a0cd9341ca2013dab">  698</a></span>&#160;  <span class="keyword">static</span> <a class="code" href="structPlannerSettings_1_1GlobalSettings.html">PlannerSettings::GlobalSettings</a> <a class="code" href="structglobal.html#afd04176685b5122a0cd9341ca2013dab">settings</a>;</div>
 <div class="line"><a name="l00699"></a><span class="lineno">  699</span>&#160;};</div>
 <div class="ttc" id="aEnvironment_8h_html"><div class="ttname"><a href="Environment_8h.html">Environment.h</a></div></div>
+<div class="ttc" id="aForwardPropagation_8h_html"><div class="ttname"><a href="ForwardPropagation_8h.html">ForwardPropagation.h</a></div></div>
 <div class="ttc" id="aSteering_8h_html"><div class="ttname"><a href="Steering_8h.html">Steering.h</a></div></div>
 <div class="ttc" id="aclassStopwatch_html"><div class="ttname"><a href="classStopwatch.html">Stopwatch</a></div><div class="ttdoc">Stopwatch implementation to measure elapsed time.</div><div class="ttdef"><b>Definition:</b> Stopwatch.hpp:8</div></div>
+<div class="ttc" id="anamespaceForwardPropagation_html_a8a7c409c831327f60c4f03c493c7f27fa335467a0fe382204458af29fe5b3e554"><div class="ttname"><a href="namespaceForwardPropagation.html#a8a7c409c831327f60c4f03c493c7f27fa335467a0fe382204458af29fe5b3e554">ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR</a></div><div class="ttdeci">@ FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR</div><div class="ttdef"><b>Definition:</b> ForwardPropagation.h:9</div></div>
 <div class="ttc" id="anamespacePlannerSettings_html"><div class="ttname"><a href="namespacePlannerSettings.html">PlannerSettings</a></div><div class="ttdoc">Settings required to set up planner(s) and planning problem.</div><div class="ttdef"><b>Definition:</b> PlannerSettings.h:45</div></div>
 <div class="ttc" id="anamespaceSteering_html_ab4a3ce68acd4959a4d04752e963fd6f9a0601d87218ac41e383845cf06be96d79"><div class="ttname"><a href="namespaceSteering.html#ab4a3ce68acd4959a4d04752e963fd6f9a0601d87218ac41e383845cf06be96d79">Steering::STEER_TYPE_CC_REEDS_SHEPP</a></div><div class="ttdeci">@ STEER_TYPE_CC_REEDS_SHEPP</div><div class="ttdef"><b>Definition:</b> Steering.h:14</div></div>
 <div class="ttc" id="anamespaceSteering_html_ab4a3ce68acd4959a4d04752e963fd6f9a77068a46961260cb773fc539ec5018d4"><div class="ttname"><a href="namespaceSteering.html#ab4a3ce68acd4959a4d04752e963fd6f9a77068a46961260cb773fc539ec5018d4">Steering::STEER_TYPE_REEDS_SHEPP</a></div><div class="ttdeci">@ STEER_TYPE_REEDS_SHEPP</div><div class="ttdef"><b>Definition:</b> Steering.h:7</div></div>

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['movingaisettings_753',['MovingAiSettings',['../structPlannerSettings_1_1GlobalSettings_1_1BenchmarkSettings_1_1MovingAiSettings.html',1,'PlannerSettings::GlobalSettings::BenchmarkSettings']]]
+  ['legendentry_822',['LegendEntry',['../structLegendEntry.html',1,'']]],
+  ['log_823',['Log',['../classLog.html',1,'']]]
 ];

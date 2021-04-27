@@ -1,8 +1,6 @@
 var searchData=
 [
-  ['thetastar_787',['ThetaStar',['../classThetaStar.html',1,'']]],
-  ['thetastarsearch_788',['ThetaStarSearch',['../classThetaStarSearch.html',1,'']]],
-  ['thetastarsettings_789',['ThetaStarSettings',['../structPlannerSettings_1_1GlobalSettings_1_1ThetaStarSettings.html',1,'PlannerSettings::GlobalSettings']]],
-  ['thetastarstate_790',['ThetaStarState',['../classThetaStarState.html',1,'']]],
-  ['timedresult_791',['TimedResult',['../classTimedResult.html',1,'']]]
+  ['randomsettings_849',['RandomSettings',['../structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings_1_1RandomSettings.html',1,'PlannerSettings::GlobalSettings::EnvironmentSettings::GridSettings']]],
+  ['rectangle_850',['Rectangle',['../structRectangle.html',1,'']]],
+  ['roundstats_851',['RoundStats',['../structGRIPS_1_1RoundStats.html',1,'GRIPS']]]
 ];

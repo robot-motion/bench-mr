@@ -1,8 +1,11 @@
 var searchData=
 [
-  ['name_996',['name',['../classEnvironment.html#a57907efc9215ca7e4183f7f68a3157e9',1,'Environment::name()'],['../classGridMaze.html#a7c5c264d3f348767c22f547951eb942f',1,'GridMaze::name() const override'],['../classGridMaze.html#a2adcd84426c3cd80cda90314e1c9ea73',1,'GridMaze::name()'],['../classPolygonMaze.html#ae36afec4114a8b69e7186e1f7b933a21',1,'PolygonMaze::name()'],['../classAbstractPlanner.html#a8e5ee4c13c52c9b7234e7255baf10e6a',1,'AbstractPlanner::name()'],['../classOMPLAnytimePathShortening.html#a57ee8bfa9e9573272777f4094037727e',1,'OMPLAnytimePathShortening::name()'],['../classOMPLControlPlanner.html#a23a241d3f2bb957056e1ca1d317bc28f',1,'OMPLControlPlanner::name()'],['../classOMPLPlanner.html#aac14a8250b1efc201d619a0fdff73478',1,'OMPLPlanner::name()'],['../classOMPLSimplifier.html#a3816ad6c0d30466942b6b26753ae7943',1,'OMPLSimplifier::name()'],['../classSbplPlanner.html#a9dd87bd78c5d2a67cfc34358683dc2e4',1,'SbplPlanner::name()'],['../classThetaStar.html#ac21f7d54f95c4030f5483e82747d2e07',1,'ThetaStar::name()']]],
-  ['node_997',['Node',['../classThetaStarSearch_1_1Node.html#aae51c32a7bbd734a1842db47753efc22',1,'ThetaStarSearch::Node']]],
-  ['normalizeangle_998',['normalizeAngle',['../classPlannerUtils.html#af37e2dabc6e20c7e3f876b40b34d6ead',1,'PlannerUtils']]],
-  ['normangle_999',['normAngle',['../classPOSQ.html#afd1f20106b7248cf3589ce457de6f485',1,'POSQ']]],
-  ['num2str_1000',['num2str',['../classPlannerUtils.html#a3e49a56a5e82ef2a006689886c315d79',1,'PlannerUtils']]]
+  ['mapdata_1098',['mapData',['../classGridMaze.html#ab6fa65e90dbcec2475d066f511ba378f',1,'GridMaze']]],
+  ['mapdistances_1099',['mapDistances',['../classGridMaze.html#a458681d99b0262d9dbdcad881842bc7e',1,'GridMaze']]],
+  ['mapstring_1100',['mapString',['../classGridMaze.html#a0d9a7419dc76f102d6ce9f690506f06f',1,'GridMaze']]],
+  ['max_1101',['max',['../structPolygon.html#acb74e8ca43347bca2abea9d18cbad982',1,'Polygon::max()'],['../namespacestat.html#a0ab49f61a4253fa687c38dd3d38d4f09',1,'stat::max(const std::vector&lt; double &gt; &amp;values)']]],
+  ['mean_1102',['mean',['../namespacestat.html#ae3d58878ce2e62af98f59c4744329e03',1,'stat']]],
+  ['median_1103',['median',['../namespacestat.html#ad1bcaac4a47d5682997083b4c3a2027c',1,'stat']]],
+  ['min_1104',['min',['../structPolygon.html#ae432bd276f6fb938d7efa645072de1c7',1,'Polygon::min()'],['../namespacestat.html#a435bc5d1c22d16fe5ebda7183cb5b953',1,'stat::min()']]],
+  ['motioncost_1105',['motionCost',['../classSmoothnessOptimizationObjective.html#a6606e4b4c2f3bee8e6e5efdc7df922c3',1,'SmoothnessOptimizationObjective::motionCost()'],['../classCurvatureOptimizationObjective.html#aa8cc91e69349b6de2854bbee222c66b9',1,'CurvatureOptimizationObjective::motionCost()']]]
 ];

@@ -1,5 +1,5 @@
-<map id="planners/smooth_thetastar/SmoothThetaStar.h" name="planners/smooth_thetastar/SmoothThetaStar.h">
-<area shape="rect" id="node1" title=" " alt="" coords="106,5,282,47"/>
+<map id="src/planners/smooth_thetastar/SmoothThetaStar.h" name="src/planners/smooth_thetastar/SmoothThetaStar.h">
+<area shape="rect" id="node1" title=" " alt="" coords="96,5,292,47"/>
 <area shape="rect" id="node2" title=" " alt="" coords="5,95,217,121"/>
 <area shape="rect" id="node3" title=" " alt="" coords="241,95,315,121"/>
 </map>

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Bench-MR: planners/OMPLControlPlanner.hpp Source File</title>
+<title>Bench-MR: src/planners/OMPLControlPlanner.hpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -69,7 +69,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_e5c1b1d8bab0718c16d961f31ff6f438.html">planners</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_865f42b4e9125b67e73acae54b4d94df.html">planners</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -102,8 +102,8 @@ $(function() {
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#include &lt;ompl/control/planners/sst/SST.h&gt;</span></div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="PlannerSettings_8h.html">base/PlannerSettings.h</a>&quot;</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#include &quot;fp_models/kinematic_car/kinematic_car.hpp&quot;</span></div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#include &quot;fp_models/kinematic_single_track/kinematic_single_track.hpp&quot;</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="kinematic__car_8hpp.html">fp_models/kinematic_car/kinematic_car.hpp</a>&quot;</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="kinematic__single__track_8hpp.html">fp_models/kinematic_single_track/kinematic_single_track.hpp</a>&quot;</span></div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; </div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="AbstractPlanner_8h.html">planners/AbstractPlanner.h</a>&quot;</span></div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
@@ -177,26 +177,26 @@ $(function() {
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160; </div>
 <div class="line"><a name="l00103"></a><span class="lineno"><a class="line" href="classOMPLControlPlanner.html#a5bc3f523e2a38bb06196d15f1050c86b">  103</a></span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classOMPLControlPlanner.html#a5bc3f523e2a38bb06196d15f1050c86b">setStatePropagator</a>() {</div>
 <div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="structglobal.html#afd04176685b5122a0cd9341ca2013dab">global::settings</a>.forwardpropagation.forward_propagation_type ==</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;        ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR) {</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;        <a class="code" href="namespaceForwardPropagation.html#a8a7c409c831327f60c4f03c493c7f27fa335467a0fe382204458af29fe5b3e554">ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR</a>) {</div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;      std::cout &lt;&lt; <span class="stringliteral">&quot;Setting KinematicCar&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;      <span class="keyword">auto</span> odeSolver(std::make_shared&lt;oc::ODEBasicSolver&lt;&gt;&gt;(</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;          <a class="code" href="classAbstractPlanner.html#a0f23bcf68f3ed597be56eaf120d05dc2">ss_c</a>-&gt;getSpaceInformation(), &amp;KinematicCar::kinematicCarODE));</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;          <a class="code" href="classAbstractPlanner.html#a0f23bcf68f3ed597be56eaf120d05dc2">ss_c</a>-&gt;getSpaceInformation(), &amp;<a class="code" href="namespaceKinematicCar.html#a9d0ccda48c873aac4449fbfdbc763827">KinematicCar::kinematicCarODE</a>));</div>
 <div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160; </div>
 <div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;      <a class="code" href="classAbstractPlanner.html#a0f23bcf68f3ed597be56eaf120d05dc2">ss_c</a>-&gt;setStatePropagator(oc::ODESolver::getStatePropagator(</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;          odeSolver, &amp;KinematicCar::kinematicCarPostIntegration));</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;          odeSolver, &amp;<a class="code" href="namespaceKinematicCar.html#ad7199cc87b141597ca6d554c232bfd32">KinematicCar::kinematicCarPostIntegration</a>));</div>
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    }</div>
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160; </div>
 <div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="structglobal.html#afd04176685b5122a0cd9341ca2013dab">global::settings</a>.forwardpropagation.forward_propagation_type ==</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;        ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_SINGLE_TRACK) {</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;        <a class="code" href="namespaceForwardPropagation.html#a8a7c409c831327f60c4f03c493c7f27fa31637fa18ab8f2996c8edc07d01eb61f">ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_SINGLE_TRACK</a>) {</div>
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;      std::cout &lt;&lt; <span class="stringliteral">&quot;Setting kinematicSingleTrackODE&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160; </div>
 <div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;      <span class="keyword">auto</span> odeSolver(std::make_shared&lt;oc::ODEBasicSolver&lt;&gt;&gt;(</div>
 <div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;          <a class="code" href="classAbstractPlanner.html#a0f23bcf68f3ed597be56eaf120d05dc2">ss_c</a>-&gt;getSpaceInformation(),</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;          &amp;kinematicSingleTrack::kinematicSingleTrackODE));</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;          &amp;<a class="code" href="namespacekinematicSingleTrack.html#ac3438f5ca7fb6cc1fd05277d649c6645">kinematicSingleTrack::kinematicSingleTrackODE</a>));</div>
 <div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160; </div>
 <div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;      <a class="code" href="classAbstractPlanner.html#a0f23bcf68f3ed597be56eaf120d05dc2">ss_c</a>-&gt;setStatePropagator(oc::ODESolver::getStatePropagator(</div>
 <div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;          odeSolver,</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;          &amp;kinematicSingleTrack::kinematicSingleTrackPostIntegration));</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;          &amp;<a class="code" href="namespacekinematicSingleTrack.html#af2bcfefeb5ad311662a332469c053b9f">kinematicSingleTrack::kinematicSingleTrackPostIntegration</a>));</div>
 <div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    }</div>
 <div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;  }</div>
 <div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160; </div>
@@ -271,6 +271,14 @@ $(function() {
 <div class="ttc" id="aclassStopwatch_html"><div class="ttname"><a href="classStopwatch.html">Stopwatch</a></div><div class="ttdoc">Stopwatch implementation to measure elapsed time.</div><div class="ttdef"><b>Definition:</b> Stopwatch.hpp:8</div></div>
 <div class="ttc" id="aclassStopwatch_html_a6d01ecc80c92f1d5210cd9c3eb72883d"><div class="ttname"><a href="classStopwatch.html#a6d01ecc80c92f1d5210cd9c3eb72883d">Stopwatch::start</a></div><div class="ttdeci">void start()</div><div class="ttdoc">Starts the timer.</div><div class="ttdef"><b>Definition:</b> Stopwatch.hpp:15</div></div>
 <div class="ttc" id="aclassStopwatch_html_a8cbc2e349066e81edc46b70347756909"><div class="ttname"><a href="classStopwatch.html#a8cbc2e349066e81edc46b70347756909">Stopwatch::elapsed</a></div><div class="ttdeci">double elapsed() const</div><div class="ttdoc">Elapsed time in seconds.</div><div class="ttdef"><b>Definition:</b> Stopwatch.hpp:41</div></div>
+<div class="ttc" id="akinematic__car_8hpp_html"><div class="ttname"><a href="kinematic__car_8hpp.html">kinematic_car.hpp</a></div></div>
+<div class="ttc" id="akinematic__single__track_8hpp_html"><div class="ttname"><a href="kinematic__single__track_8hpp.html">kinematic_single_track.hpp</a></div></div>
+<div class="ttc" id="anamespaceForwardPropagation_html_a8a7c409c831327f60c4f03c493c7f27fa31637fa18ab8f2996c8edc07d01eb61f"><div class="ttname"><a href="namespaceForwardPropagation.html#a8a7c409c831327f60c4f03c493c7f27fa31637fa18ab8f2996c8edc07d01eb61f">ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_SINGLE_TRACK</a></div><div class="ttdeci">@ FORWARD_PROPAGATION_TYPE_KINEMATIC_SINGLE_TRACK</div><div class="ttdef"><b>Definition:</b> ForwardPropagation.h:10</div></div>
+<div class="ttc" id="anamespaceForwardPropagation_html_a8a7c409c831327f60c4f03c493c7f27fa335467a0fe382204458af29fe5b3e554"><div class="ttname"><a href="namespaceForwardPropagation.html#a8a7c409c831327f60c4f03c493c7f27fa335467a0fe382204458af29fe5b3e554">ForwardPropagation::FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR</a></div><div class="ttdeci">@ FORWARD_PROPAGATION_TYPE_KINEMATIC_CAR</div><div class="ttdef"><b>Definition:</b> ForwardPropagation.h:9</div></div>
+<div class="ttc" id="anamespaceKinematicCar_html_a9d0ccda48c873aac4449fbfdbc763827"><div class="ttname"><a href="namespaceKinematicCar.html#a9d0ccda48c873aac4449fbfdbc763827">KinematicCar::kinematicCarODE</a></div><div class="ttdeci">void kinematicCarODE(const oc::ODESolver::StateType &amp;q, const oc::Control *control, oc::ODESolver::StateType &amp;qdot)</div><div class="ttdef"><b>Definition:</b> kinematic_car.hpp:15</div></div>
+<div class="ttc" id="anamespaceKinematicCar_html_ad7199cc87b141597ca6d554c232bfd32"><div class="ttname"><a href="namespaceKinematicCar.html#ad7199cc87b141597ca6d554c232bfd32">KinematicCar::kinematicCarPostIntegration</a></div><div class="ttdeci">void kinematicCarPostIntegration(const ob::State *, const oc::Control *, const double, ob::State *result)</div><div class="ttdef"><b>Definition:</b> kinematic_car.hpp:32</div></div>
+<div class="ttc" id="anamespacekinematicSingleTrack_html_ac3438f5ca7fb6cc1fd05277d649c6645"><div class="ttname"><a href="namespacekinematicSingleTrack.html#ac3438f5ca7fb6cc1fd05277d649c6645">kinematicSingleTrack::kinematicSingleTrackODE</a></div><div class="ttdeci">void kinematicSingleTrackODE(const oc::ODESolver::StateType &amp;q, const oc::Control *control, oc::ODESolver::StateType &amp;qdot)</div><div class="ttdef"><b>Definition:</b> kinematic_single_track.hpp:15</div></div>
+<div class="ttc" id="anamespacekinematicSingleTrack_html_af2bcfefeb5ad311662a332469c053b9f"><div class="ttname"><a href="namespacekinematicSingleTrack.html#af2bcfefeb5ad311662a332469c053b9f">kinematicSingleTrack::kinematicSingleTrackPostIntegration</a></div><div class="ttdeci">void kinematicSingleTrackPostIntegration(const ob::State *state, const oc::Control *, const double, ob::State *result)</div><div class="ttdef"><b>Definition:</b> kinematic_single_track.hpp:36</div></div>
 <div class="ttc" id="anamespacesbpl_html_ad9682151b1adf7d11586eaf02cdc1215"><div class="ttname"><a href="namespacesbpl.html#ad9682151b1adf7d11586eaf02cdc1215">sbpl::Planner</a></div><div class="ttdeci">Planner</div><div class="ttdef"><b>Definition:</b> PlannerSettings.h:16</div></div>
 <div class="ttc" id="astructAbstractPlanner_1_1IntermediaryControlSolution_html"><div class="ttname"><a href="structAbstractPlanner_1_1IntermediaryControlSolution.html">AbstractPlanner::IntermediaryControlSolution</a></div><div class="ttdef"><b>Definition:</b> AbstractPlanner.h:58</div></div>
 <div class="ttc" id="astructPlannerSettings_1_1GlobalSettings_1_1OmplSettings_html_a510b9962f89b45c1afc7d486dfca2803"><div class="ttname"><a href="structPlannerSettings_1_1GlobalSettings_1_1OmplSettings.html#a510b9962f89b45c1afc7d486dfca2803">PlannerSettings::GlobalSettings::OmplSettings::control_space_info</a></div><div class="ttdeci">ompl::control::SpaceInformationPtr control_space_info</div><div class="ttdef"><b>Definition:</b> PlannerSettings.h:408</div></div>
