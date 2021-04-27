@@ -53,4 +53,4 @@ jobs:
           command: 'cd /root/project/bench-mr && git add _docs/results/corridor.md && git add assets/results/corridor_*.png'
       - run:
           name: Commit and push Bench-MR results, if they are different
-          command: 'cd /root/project/bench-mr && git diff-index --quiet HEAD || (git commit -m "[CI] Update benchmark results" && git push origin docs)'
+          command: 'cd /root/project/bench-mr && git diff-index --quiet HEAD || (git commit -m "[CI] Update benchmark results" && git push origin HEAD:docs)'
