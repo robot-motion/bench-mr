@@ -6,7 +6,7 @@ Benchmarking motion planners for wheeled mobile robots in cluttered environments
 
 ## Dependencies
 * [libccd-1.4+](https://github.com/danfis/libccd/releases/tag/v1.4) (because of the `chomp` implementation used here), included as submodule and automatically built
-* [OMPL](https://github.com/ompl/ompl) - included as submodule, needs to be installed first
+* [OMPL-1.5](https://github.com/ompl/ompl) - included as submodule, needs to be installed first
 * [nlohmann/json](https://github.com/nlohmann/json) - not provided, needs to be installed first
 * [SBPL](https://github.com/sbpl/sbpl) - not provided, needs to be installed
 * [Jupyter Lab](https://github.com/jupyterlab/jupyterlab) with [Python 3 kernel](https://ipython.readthedocs.io/en/latest/install/kernel_install.html#kernels-for-python-2-and-3) for plotting and evaluation (see [python/README.md](python/README.md))
@@ -107,7 +107,7 @@ the statistics. To get started, check out the Jupyter notebooks inside the `pyth
 where all the plotting tools are provided.
 
 ## Third-party libraries
-This project uses forks from some of the following repositories which are integrated into this project as submodules:
+This project uses forks from some of the following repositories:
 
 * [Open Motion Planning Library (OMPL)](http://ompl.kavrakilab.org/)
 * [Search-Based Planning Library (SBPL)](https://github.com/sbpl/sbpl/)
