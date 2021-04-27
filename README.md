@@ -1,5 +1,5 @@
-[![CircleCI](https://circleci.com/gh/eric-heiden/mpb.svg?style=svg&circle-token=331e9015b5539b432e663cb7591ba92a38a338d9)](https://circleci.com/gh/eric-heiden/mpb)
-![Doxygen](https://github.com/eric-heiden/mpb/workflows/Doxygen/badge.svg)
+[![CircleCI](https://circleci.com/gh/eric-heiden/mpb.svg?style=svg&circle-token=331e9015b5539b432e663cb7591ba92a38a338d9)](https://circleci.com/gh/robot-motion/bench-mr)
+![Doxygen](https://github.com/robot-motion/bench-mr/workflows/Doxygen/badge.svg)
 
 # Motion Planning Benchmark
 Benchmarking motion planners for wheeled mobile robots in cluttered environments on scenarios close to real-world autonomous driving settings.
@@ -109,7 +109,7 @@ where all the plotting tools are provided.
 ## Third-party libraries
 This project uses forks from some of the following repositories which are integrated into this project as submodules:
 
-* [The Open Motion Planning Library (OMPL)](http://ompl.kavrakilab.org/)
+* [Open Motion Planning Library (OMPL)](http://ompl.kavrakilab.org/)
 * [Search-Based Planning Library (SBPL)](https://github.com/sbpl/sbpl/)
 * [hbanzhaf/steering_functions](https://github.com/hbanzhaf/steering_functions)
 
@@ -121,3 +121,18 @@ for providing the [`2D Pathfinding "MovingAI" Datasets`](https://www.movingai.co
 * Luigi Palmieri (Robert Bosch GmbH, Corporate Research, Stuttgart, Germany)
 * Leonard Bruns (KTH Royal Institute of Technology, Stockholm, Sweden)
 * Ziang Liu (University of Southern California, Los Angeles, USA)
+
+## Citation
+Please consider citing our corresponding [article](https://ieeexplore.ieee.org/document/9387068):
+
+```
+@article{heiden2021benchmr,
+  author={Heiden, Eric and Palmieri, Luigi and Bruns, Leonard and Arras, Kai O. and Sukhatme, Gaurav S. and Koenig, Sven},
+  journal={IEEE Robotics and Automation Letters}, 
+  title={Bench-MR: A Motion Planning Benchmark for Wheeled Mobile Robots}, 
+  year={2021},
+  volume={6},
+  number={3},
+  pages={4536-4543},
+  doi={10.1109/LRA.2021.3068913}}
+```
