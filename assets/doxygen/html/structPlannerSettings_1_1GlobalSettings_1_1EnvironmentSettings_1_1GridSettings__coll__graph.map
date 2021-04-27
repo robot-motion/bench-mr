@@ -1,0 +1,7 @@
+<map id="PlannerSettings::GlobalSettings::EnvironmentSettings::GridSettings" name="PlannerSettings::GlobalSettings::EnvironmentSettings::GridSettings">
+<area shape="rect" id="node1" title="Settings for grid type." alt="" coords="433,86,660,127"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,84,63,110"/>
+<area shape="rect" id="node3" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings_1_1RandomSettings.html" title="Settings for random generator." alt="" coords="112,38,339,94"/>
+<area shape="rect" id="node4" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings_1_1CorridorSettings.html" title="Settings for corridor generator." alt="" coords="112,118,339,174"/>
+<area shape="rect" id="node5" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings_1_1ImageSettings.html" title="Settings for image generator." alt="" coords="112,198,339,254"/>
+</map>

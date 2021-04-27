@@ -1,0 +1,6 @@
+<map id="PolygonMaze" name="PolygonMaze">
+<area shape="rect" id="node1" title="Implements a maze consisting of convex shapes as obstacles." alt="" coords="59,185,158,212"/>
+<area shape="rect" id="node2" href="$classEnvironment.html" title=" " alt="" coords="61,109,156,136"/>
+<area shape="rect" id="node3" href="$classStopwatch.html" title="Stopwatch implementation to measure elapsed time." alt="" coords="5,5,89,32"/>
+<area shape="rect" id="node4" href="$structPoint.html" title=" " alt="" coords="145,5,197,32"/>
+</map>

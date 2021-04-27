@@ -1,0 +1,5 @@
+<map id="PlannerSettings::GlobalSettings::OmplSettings" name="PlannerSettings::GlobalSettings::OmplSettings">
+<area shape="rect" id="node1" title="Settings related to OMPL." alt="" coords="5,95,211,136"/>
+<area shape="rect" id="node2" title=" " alt="" coords="33,5,90,32"/>
+<area shape="rect" id="node3" href="$classStopwatch.html" title="Stopwatch implementation to measure elapsed time." alt="" coords="114,5,198,32"/>
+</map>

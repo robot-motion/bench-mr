@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>Motion Planning Benchmark</title>
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		<link rel="stylesheet" type="text/css" href="home.css">
+		
+		<script>
+            var scenario_list;
+
+			function show_graph(selected_graph){
+				document.getElementById("plots_area").innerHTML = "";
+				if(selected_graph != "None"){
+					document.getElementById("plots_area").innerHTML = "<img src='" + selected_graph + ".png" + "' style='width: 90%; height: 95%'>";
+				}
+			}
+
+			function get_result(){
+				document.getElementById("home_message").style.display = "none";
+				var scenario_selection = document.getElementById("scenario_select");
+				var steer_selection = document.getElementById("steer_select");
+				var radios = document.getElementsByName("binary");
+				var merged_string = "";
+				if (radios[1].checked) {
+					merged_string = "_separated";
+				}
+				
+				var selected_graph = "img/" + scenario_selection.options[scenario_selection.selectedIndex].text + 
+										"_" + steer_selection.options[steer_selection.selectedIndex].text
+										+ "_smoother_stats" + merged_string;
+				show_graph(selected_graph);
+            }
+            
+            function load_list_file(callback) {  
+				var xmlr = new XMLHttpRequest();
+                    xmlr.overrideMimeType("application/json");
+                var fPath = 'scenario_list.json';
+
+				xmlr.open('GET', fPath, false); // Replace fPath with the path to your file
+				xmlr.onreadystatechange = function () {
+					if (xmlr.readyState == 4 && xmlr.status == "200") {
+						// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+						callback(xmlr.responseText);
+					}
+				};
+				xmlr.send(null);  
+			}
+
+			function get_scenario_list() {
+				load_list_file(function(response) {
+					// Parse JSON string into object
+					scenario_list = JSON.parse(response);
+					scenario_list.sort();
+				});
+			}
+            get_scenario_list();
+			console.log(scenario_list);
+            console.log(scenario_list.length);
+            
+
+		</script>
+	</head>
+	
+	<body>
+		<!-- header -->
+		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		  	<a class="navbar-brand" href="index.html">MPB</a>
+		  	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+		    	<span class="navbar-toggler-icon"></span>
+		  	</button>
+		
+		  	<div class="collapse navbar-collapse" id="navbarSupportedContent">
+		    	<ul class="navbar-nav mr-auto">
+		      		<li class="nav-item">
+		        		<a class="nav-link" href="index.html">Overview</a>
+		      		</li>
+		      		<li class="nav-item">
+		      			<a class="nav-link" href="planners.html">Planners</a>
+					</li>
+					<li class="nav-item active">
+						<a class="nav-link" href="smoothers.html">Smoothers<span class="sr-only">(current)</span></a>
+					</li>
+		      		<!-- <li class="nav-item dropdown">
+		        		<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		          		Dropdown
+		        		</a>
+		        		<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+		          			<a class="dropdown-item" href="#">Action</a>
+		         			<a class="dropdown-item" href="#">Another action</a>
+		         	 		<div class="dropdown-divider"></div>
+		         	 		<a class="dropdown-item" href="#">Something else here</a>
+		       	 		</div>
+		      		</li>
+		     		<li class="nav-item">
+		      	  		<a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+		      		</li> -->
+		    	</ul>
+		    	<!-- <form class="form-inline my-2 my-lg-0">
+		     	 	<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+		     	 	<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+		   		</form> -->
+		  	</div>
+		</nav>
+		
+		
+		<div id="content">
+			<div class="container-fluid col-xs-3">
+				<div class="row">
+					<div class="col-xs-4" id="select_box">
+						<!-- select form -->
+						<form>
+						  	<div class="form-group">
+						    	<label for="overview_scenario_select">Scenario</label>
+						    	<select class="form-control" id="scenario_select">
+                                        <script>
+                                            var scenario_select = document.getElementById('scenario_select');
+                                            for(var i=0; i<scenario_list.length; i++){
+												// skip parking & warehouse
+												if (scenario_list[i].substring(0, 7) == "polygon") {
+													continue;
+												}
+                                                scenario_select.innerHTML += '<option value="' + (i+1) + '">' + scenario_list[i] + '</option>';
+                                            }
+                                        </script>
+						    	</select>
+							</div>
+							<label for="overview_steer_select">Steer Function</label>
+							<select class="form-control" id="steer_select">
+								<option value="1">cc_reeds_shepp</option>
+								<option value="2">dubins</option>
+								<option value="3">posq</option>
+								<option value="4">reeds_shepp</option>
+							</select>
+                            <input type="radio" name="binary" value="merged" checked>&nbsp Merged &nbsp</input>
+                            <input type="radio" name="binary" value="seperated">&nbsp Seperated by Planners</input>
+							<button type="button" onclick="get_result()" class="btn btn-primary" id="submit_button">Get Result</button>				
+						</form>
+					</div>
+					
+					<!-- home page get started tag -->
+					<div class="card" id="home_message">
+						<div class="card-header" style="background-color:  #83888d; color: white; font-size: 20px;">
+							Get Started
+						</div>
+						<div class="card-body" style="font-size: 20px;">
+							<p>Please choose from the panel and click on "Get Result".</p>
+						</div>
+					</div>
+					<!-- images -->
+					<div class="col" id="plots_area"></div>
+				</div>
+			</div>
+		</div>
+		
+		<footer class="fixed-bottom">
+	      	<div class="container" id="text_box">
+	        	<span class="text-muted" style="color: white">University of Southern California</span>
+	      	</div>
+	    </footer>
+    	
+		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	</body>
+</html>

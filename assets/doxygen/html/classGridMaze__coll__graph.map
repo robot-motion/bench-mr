@@ -1,0 +1,6 @@
+<map id="GridMaze" name="GridMaze">
+<area shape="rect" id="node1" title=" " alt="" coords="70,185,147,212"/>
+<area shape="rect" id="node2" href="$classEnvironment.html" title=" " alt="" coords="61,109,156,136"/>
+<area shape="rect" id="node3" href="$classStopwatch.html" title="Stopwatch implementation to measure elapsed time." alt="" coords="5,5,89,32"/>
+<area shape="rect" id="node4" href="$structPoint.html" title=" " alt="" coords="145,5,197,32"/>
+</map>

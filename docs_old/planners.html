@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Motion Planning Benchmark</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link href="https://unpkg.com/tabulator-tables@4.5.3/dist/css/tabulator.min.css" rel="stylesheet">
+        <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.5.3/dist/js/tabulator.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="home.css">
+		
+		<script>
+            var myData;
+            var stdData;
+			var planner_count = 0;
+            var filled = false;
+            var scenario_list;
+
+            // Tabular table variables
+            var tabledata = [];
+            var table;
+			var max_sol = 0;
+			var max_t = 0;
+			var max_pl = 0;
+			var max_curv = 0;
+			var max_clear = 0;
+			var max_cusps = 0;
+            
+			function loadJSON(callback, fPath) {  
+                console.log('In loadJSON: ' + fPath); 
+				var xmlr = new XMLHttpRequest();
+                    xmlr.overrideMimeType("application/json");
+
+				xmlr.open('GET', fPath, false); // Replace fPath with the path to your file
+				xmlr.onreadystatechange = function () {
+					if (xmlr.readyState == 4 && xmlr.status == "200") {
+						// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+						callback(xmlr.responseText);
+					}
+				};
+				xmlr.send(null);  
+			}
+
+			function getData(scenarioName) {
+                console.log('In getData: ' + scenarioName);
+                loadJSON(function(response) {
+                    tabledata = JSON.parse(response);
+                }, 'table_json/' + scenarioName + '_table.json');
+				max_sol = tabledata[tabledata.length - 1]['max_sol'];
+				max_t = tabledata[tabledata.length - 1]['max_t'];
+				max_pl = tabledata[tabledata.length - 1]['max_pl'];
+				max_curv = tabledata[tabledata.length - 1]['max_curv'];
+				max_clear = tabledata[tabledata.length - 1]['max_clear'];
+				max_cusps = tabledata[tabledata.length - 1]['max_cusps'];
+
+				tabledata = tabledata.slice(0, tabledata.length-1);
+				console.log('max_sol: ' + max_sol);
+				console.log('json length: ' + tabledata.length);
+                console.log('Finished loading: ' + tabledata);
+			}
+
+            function load_list_file(callback) {  
+				var xmlr = new XMLHttpRequest();
+                    xmlr.overrideMimeType("application/json");
+                var fPath = 'results_list.json';
+
+				xmlr.open('GET', fPath, false); // Replace fPath with the path to your file
+				xmlr.onreadystatechange = function () {
+					if (xmlr.readyState == 4 && xmlr.status == "200") {
+						// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+						callback(xmlr.responseText);
+					}
+				};
+				xmlr.send(null);  
+			}
+
+			function get_scenario_list() {
+				load_list_file(function(response) {
+					// Parse JSON string into object
+					scenario_list = JSON.parse(response);
+					scenario_list.sort();
+				});
+			}
+            get_scenario_list();
+			console.log(scenario_list);
+			console.log(scenario_list.length);
+
+            function get_result() {
+                document.getElementById("home_message").style.display = "none";
+				document.getElementById("data_table_area").style.display = "block";
+                var scenario_selection = document.getElementById("scenario_select");
+				var selected_scenario_text = scenario_selection.options[scenario_selection.selectedIndex].text;
+                getData(selected_scenario_text);
+                document.getElementById("data_table_area").style.display = "block";
+				table = new Tabulator("#data_table", {
+                    height:610, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
+                    data:tabledata, //assign data to table
+                    layout:"fitColumns", //fit columns to width of table (optional)
+                    columns:[ //Define Table Columns
+                        {title:"Planner", field:"planner", align:"center", width:150},
+                        {title:"Solutions", field:"solutions", align:"left", sorter:"number", formatter:"progress", formatterParams:{
+                            min:0.0,
+                            max:max_sol,
+                            color:["#85e085"],
+                            legend: function(value) {
+                                return (value + " / " + max_sol);
+                            },
+                            legendColor:"#000000",
+                            legendAlign:"center",
+                        }},
+                        {title:"Time [s]", field:"time", sorter:"number", align:"left",formatter:"progress", formatterParams:{
+                            min:0.0,
+                            max:max_t,
+                            color:function(value) {
+								if (value[0] >= '0' && value[0] <= '9') {
+									return "#ffbf80";
+								} else {
+									return "transparent";
+								}
+							},
+                            legend: function(value) {
+                                return value;
+                            },
+                            legendColor:"#000000",
+                            legendAlign:"center",
+                        }},
+                        {title:"Path Length", field:"path_length", sorter:"number", align:"left",formatter:"progress", formatterParams:{
+                            min:0.0,
+                            max:max_pl,
+                            color:function(value) {
+								if (value[0] >= '0' && value[0] <= '9') {
+									return "#ffbf80";
+								} else {
+									return "transparent";
+								}
+							},
+                            legend: function(value) {
+                                return value;
+                            },
+                            legendColor:"#000000",
+                            legendAlign:"center",
+                        }},
+                        {title:"Curvature", field:"curvature", sorter:"number", align:"left",formatter:"progress", formatterParams:{
+                            min:0.0,
+                            max:max_curv,
+                            color:function(value) {
+								if (value[0] >= '0' && value[0] <= '9') {
+									return "#ffbf80";
+								} else {
+									return "transparent";
+								}
+							},
+                            legend: function(value) {
+                                return value;
+                            },
+                            legendColor:"#000000",
+                            legendAlign:"center",
+                        }},
+                        {title:"Clearance", field:"clearance", sorter:"number", align:"left",formatter:"progress", formatterParams:{
+                            min:0.0,
+                            max:max_clear,
+                            color:function(value) {
+								if (value[0] >= '0' && value[0] <= '9') {
+									return "#ffbf80";
+								} else {
+									return "transparent";
+								}
+							},
+                            legend: function(value) {
+                                return value;
+                            },
+                            legendColor:"#000000",
+                            legendAlign:"center",
+                        }},
+                        {title:"Cusps", field:"cusps", sorter:"number", align:"left",formatter:"progress", formatterParams:{
+                            min:0.0,
+                            max:max_cusps,
+                            color:function(value) {
+								if (value[0] >= '0' && value[0] <= '9') {
+									return "#ffbf80";
+								} else {
+									return "transparent";
+								}
+							},
+                            legend: function(value) {
+                                return value;
+                            },
+                            legendColor:"#000000",
+                            legendAlign:"center",
+                        }},
+                    ],
+                    rowClick:function(e, row){ //trigger an alert message when the row is clicked
+                        alert("Row " + row.getData().id + " Clicked!!!!");
+                    },
+                });
+                table.redraw(true);
+            }
+
+		</script>
+	</head>
+    
+	<!-- <body onload="getData('grid_corridor_50')"> -->
+    <body>
+		<!-- header -->
+		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		  	<a class="navbar-brand" href="index.html">MPB</a>
+		  	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+		    	<span class="navbar-toggler-icon"></span>
+		  	</button>
+		
+		  	<div class="collapse navbar-collapse" id="navbarSupportedContent">
+		    	<ul class="navbar-nav mr-auto">
+		      		<li class="nav-item">
+		        		<a class="nav-link" href="index.html">Overview</a>
+		      		</li>
+		      		<li class="nav-item active">
+		      			<a class="nav-link" href="planners.html">Planners<span class="sr-only">(current)</span></a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="smoothers.html">Smoothers</a>
+					</li>
+		    	</ul>
+		  	</div>
+		</nav>
+		
+		
+		<div id="content">
+			<div class="container-fluid col-xs-3">
+				<div class="row">
+					<div class="col-xs-4" id="select_box">
+						<!-- select form -->
+						<form>
+						  	<div class="form-group">
+						    	<label for="scenario_select">Scenarios</label>
+						    	<select class="form-control" id="scenario_select">
+									<script>
+										var scenario_select = document.getElementById('scenario_select');
+										for(var i=0; i<scenario_list.length; i++){
+											scenario_select.innerHTML += '<option value="' + (i+1) + '">' + scenario_list[i].replace('.json', '') + '</option>';
+										}
+									</script>
+						    	</select>
+						  	</div>
+							
+							<button type="button" onclick="get_result()" class="btn btn-primary" id="submit_button">Get Result</button>				
+						</form>
+                    </div>
+                    
+                    <!-- home page get started tag -->
+					<div class="card" id="home_message">
+						<div class="card-header" style="background-color:  #83888d; color: white; font-size: 20px;">
+							Get Started
+						</div>
+						<div class="card-body" style="font-size: 20px;">
+							<p>Please choose from the panel and click on "Get Result".</p>
+						</div>
+					</div>
+
+					<!-- table to display data -->
+                    <div class="col" id="data_table_area">
+                        <div id="data_table"></div>
+                    </div>
+                    <!-- <script>
+                        //create Tabulator on DOM element with id "new_table"
+                        table = new Tabulator("#data_table", {
+                            height:610, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
+                            data:tabledata, //assign data to table
+                            layout:"fitColumns", //fit columns to width of table (optional)
+                            columns:[ //Define Table Columns
+                                {title:"Planner", field:"planner", width:150},
+                                {title:"Solutions", field:"solutions", align:"left", sorter:"number", formatter:"progress", formatterParams:{
+                                    min:0.0,
+                                    max:max_sol,
+                                    color:["cyan"],
+                                    legend: function(value) {
+                                        return (value + " / " + max_sol);
+                                    },
+                                    legendColor:"#000000",
+                                    legendAlign:"center",
+                                }},
+                                {title:"Time [s]", field:"time", sorter:"number",},
+                                {title:"Path Length", field:"path_length", sorter:"number",},
+                                {title:"Curvature", field:"curvature", sorter:"number",},
+                                {title:"Clearance", field:"clearance", sorter:"number",},
+                                {title:"Cusps", field:"cusps", sorter:"number",},
+                            ],
+                            rowClick:function(e, row){ //trigger an alert message when the row is clicked
+                                alert("Row " + row.getData().id + " Clicked!!!!");
+                            },
+                        });
+                        // table.redraw(true);
+                        // document.getElementById("data_table_area").style.display = "block";
+                    </script> -->
+                </div>
+			</div>
+		</div>
+		
+		<footer class="fixed-bottom">
+	      	<div class="container" id="text_box">
+	        	<span class="text-muted" style="color: white">University of Southern California</span>
+	      	</div>
+	    </footer>
+    	
+		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	</body>
+</html>

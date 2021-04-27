@@ -1,0 +1,4 @@
+<map id="PolygonMaze" name="PolygonMaze">
+<area shape="rect" id="node1" title="Implements a maze consisting of convex shapes as obstacles." alt="" coords="5,80,104,107"/>
+<area shape="rect" id="node2" href="$classEnvironment.html" title=" " alt="" coords="7,5,102,32"/>
+</map>

@@ -1,0 +1,23 @@
+[
+	{"id":1, "planner":"BFMT", "solutions":"50", "time":"1.39 ± 3.89 ", "path_length":"369.51 ± 8.72 ", "curvature":"1.13 ± 0.96 ", "clearance":"8.82 ± 2.87 ", "cusps":"204"},
+	{"id":1, "planner":"kBITstar", "solutions":"13", "time":"90.05 ± 0.09 ", "path_length":"362.10 ± 6.34 ", "curvature":"1.27 ± 1.01 ", "clearance":"7.94 ± 2.11 ", "cusps":"159"},
+	{"id":1, "planner":"CForest", "solutions":"5", "time":"90.04 ± 0.07 ", "path_length":"347.10 ± 5.54 ", "curvature":"0.56 ± 0.73 ", "clearance":"7.05 ± 1.83 ", "cusps":"70"},
+	{"id":1, "planner":"EST", "solutions":"46", "time":"2.19 ± 12.47 ", "path_length":"566.35 ± 116.92 ", "curvature":"1.70 ± 0.43 ", "clearance":"11.16 ± 1.57 ", "cusps":"769"},
+	{"id":1, "planner":"InformedRRTstar", "solutions":"13", "time":"90.01 ± 0.01 ", "path_length":"350.08 ± 5.89 ", "curvature":"0.35 ± 0.33 ", "clearance":"7.68 ± 2.02 ", "cusps":"67"},
+	{"id":1, "planner":"KPIECE1", "solutions":"45", "time":"1.03 ± 6.95 ", "path_length":"1077.02 ± 344.55 ", "curvature":"1.17 ± 0.51 ", "clearance":"11.22 ± 1.38 ", "cusps":"1791"},
+	{"id":1, "planner":"PDST", "solutions":"43", "time":"3.40 ± 13.55 ", "path_length":"580.61 ± 143.46 ", "curvature":"1.42 ± 0.61 ", "clearance":"11.32 ± 1.74 ", "cusps":"555"},
+	{"id":1, "planner":"PRM", "solutions":"24", "time":"90.08 ± 0.07 ", "path_length":"364.16 ± 10.69 ", "curvature":"1.21 ± 1.12 ", "clearance":"8.80 ± 2.40 ", "cusps":"329"},
+	{"id":1, "planner":"PRMstar", "solutions":"33", "time":"90.07 ± 0.06 ", "path_length":"357.09 ± 8.46 ", "curvature":"0.67 ± 0.83 ", "clearance":"8.99 ± 2.51 ", "cusps":"156"},
+	{"id":1, "planner":"RRT", "solutions":"48", "time":"4.08 ± 17.43 ", "path_length":"475.59 ± 70.71 ", "curvature":"1.93 ± 0.53 ", "clearance":"11.00 ± 1.44 ", "cusps":"636"},
+	{"id":1, "planner":"RRT#", "solutions":"26", "time":"90.09 ± 0.47 ", "path_length":"346.96 ± 14.78 ", "curvature":"0.58 ± 0.75 ", "clearance":"7.36 ± 1.97 ", "cusps":"90"},
+	{"id":1, "planner":"RRTstar", "solutions":"18", "time":"90.01 ± 0.01 ", "path_length":"347.58 ± 12.50 ", "curvature":"0.44 ± 0.55 ", "clearance":"7.31 ± 1.94 ", "cusps":"80"},
+	{"id":1, "planner":"SBPL_ADstar", "solutions":"0", "time":"N / A", "path_length":"N / A", "curvature":"N / A", "clearance":"N / A", "cusps":"N / A"},
+	{"id":1, "planner":"SBPL_ARstar", "solutions":"0", "time":"N / A", "path_length":"N / A", "curvature":"N / A", "clearance":"N / A", "cusps":"N / A"},
+	{"id":1, "planner":"SBPL_MHA", "solutions":"2", "time":"0.86 ± 0.45 ", "path_length":"401.42 ± 0.22 ", "curvature":"0.72 ± 0.00 ", "clearance":"14.30 ± 0.55 ", "cusps":"5"},
+	{"id":1, "planner":"SORRTstar", "solutions":"21", "time":"90.01 ± 0.01 ", "path_length":"350.00 ± 5.64 ", "curvature":"0.44 ± 0.59 ", "clearance":"7.44 ± 1.89 ", "cusps":"75"},
+	{"id":1, "planner":"SPARS", "solutions":"46", "time":"90.33 ± 0.43 ", "path_length":"471.09 ± 100.80 ", "curvature":"1.68 ± 0.71 ", "clearance":"11.05 ± 0.95 ", "cusps":"586"},
+	{"id":1, "planner":"SPARStwo", "solutions":"44", "time":"90.01 ± 0.01 ", "path_length":"410.60 ± 41.50 ", "curvature":"2.07 ± 0.56 ", "clearance":"10.26 ± 2.46 ", "cusps":"490"},
+	{"id":1, "planner":"SST", "solutions":"48", "time":"90.01 ± 0.01 ", "path_length":"506.46 ± 77.41 ", "curvature":"2.03 ± 0.52 ", "clearance":"9.43 ± 1.61 ", "cusps":"1348"},
+	{"id":1, "planner":"Theta*", "solutions":"0", "time":"N / A", "path_length":"N / A", "curvature":"N / A", "clearance":"N / A", "cusps":"N / A"},
+	{"max_sol":51, "max_t":90.33, "max_pl":1077.02,  "max_curv":2.07, "max_clear":14.30, "max_cusps": 1791.00}
+]

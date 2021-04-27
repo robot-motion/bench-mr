@@ -1,0 +1,11 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classAbstractPlanner.html" title=" " alt="" coords="15,122,130,149"/>
+<area shape="rect" id="node2" href="$classOMPLControlPlanner.html" title=" " alt="" coords="210,5,355,47"/>
+<area shape="rect" id="node3" href="$classOMPLPlanner.html" title=" " alt="" coords="188,71,377,98"/>
+<area shape="rect" id="node5" href="$classOMPLSimplifier.html" title="Derived from AbstractPlanner, this class is intended to simplify existing (hand&#45;crafted) trajectories..." alt="" coords="226,122,339,149"/>
+<area shape="rect" id="node6" href="$classSbplPlanner.html" title=" " alt="" coords="199,173,366,199"/>
+<area shape="rect" id="node7" href="$classThetaStar.html" title=" " alt="" coords="243,223,322,250"/>
+<area shape="rect" id="node4" href="$classOMPLAnytimePathShortening.html" title=" " alt="" coords="425,64,621,105"/>
+<area shape="rect" id="node8" href="$classAStar.html" title=" " alt="" coords="496,223,551,250"/>
+<area shape="rect" id="node9" title=" " alt="" coords="5,223,140,250"/>
+</map>
