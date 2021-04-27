@@ -1,5 +1,5 @@
 [![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=svg)](https://circleci.com/gh/robot-motion/bench-mr)
-![Doxygen](https://github.com/robot-motion/bench-mr/workflows/Doxygen/badge.svg)
+[![Doxygen](https://github.com/robot-motion/bench-mr/actions/workflows/main.yml/badge.svg)](https://github.com/robot-motion/bench-mr/actions/workflows/main.yml)
 
 # Motion Planning Benchmark
 Benchmarking motion planners for wheeled mobile robots in cluttered environments on scenarios close to real-world autonomous driving settings.
