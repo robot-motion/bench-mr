@@ -5,10 +5,10 @@
 Benchmarking motion planners for wheeled mobile robots in cluttered environments on scenarios close to real-world autonomous driving settings.
 
 ## Dependencies
-* [libccd-1.4+](https://github.com/danfis/libccd/releases/tag/v1.4) (because of the `chomp` implementation used here), included as submodule and automatically built
-* [OMPL-1.5](https://github.com/ompl/ompl) - included as submodule, needs to be installed first
+* [libccd 1.4+](https://github.com/danfis/libccd/releases/tag/v1.4) (because of the `chomp` implementation used here), included as submodule and automatically built
+* [OMPL 1.5](https://github.com/ompl/ompl/tree/1.5.0) - included as submodule, needs to be installed first
 * [nlohmann/json](https://github.com/nlohmann/json) - not provided, needs to be installed first
-* [SBPL](https://github.com/sbpl/sbpl) - not provided, needs to be installed
+* [SBPL 1.3.1](https://github.com/sbpl/sbpl/tree/1.3.1) - not provided, needs to be installed
 * [Jupyter Lab](https://github.com/jupyterlab/jupyterlab) with [Python 3 kernel](https://ipython.readthedocs.io/en/latest/install/kernel_install.html#kernels-for-python-2-and-3) for plotting and evaluation (see [python/README.md](python/README.md))
 
 The following boost libraries (version 1.58+) need to be installed:
