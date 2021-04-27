@@ -45,9 +45,9 @@ jobs:
           git init
           git config --local user.email "eric-heiden@outlook.com"
           git config --local user.name "eric-heiden"
-          git remote add origin https://eric-heiden:${{ secrets.INPUT_GITHUB_TOKEN }}@github.com/robot-motion/bench-mr.git
-          git pull origin master
+          git remote add origin https://eric-heiden:${{ secrets.GITHUB_TOKEN }}@github.com/robot-motion/bench-mr.git
+          git pull origin docs
           cp -a ../doxygen assets/
           git add assets/**
           # only commit if there are changes (otherwise we would get an error code)
-          git diff-index --quiet HEAD || (git commit -m "Update Doxygen" && git push origin master)         
+          git diff-index --quiet HEAD || (git commit -m "Update Doxygen" && git push origin docs)         
