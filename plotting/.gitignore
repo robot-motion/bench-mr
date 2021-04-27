@@ -1,6 +1,0 @@
-*.png
-*.pdf
-*.log
-*.json
-__pycache__
-.ipynb_checkpoints
