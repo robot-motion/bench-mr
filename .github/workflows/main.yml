@@ -50,4 +50,4 @@ jobs:
           cp -a ../doxygen assets/
           git add assets/**
           # only commit if there are changes (otherwise we would get an error code)
-          git diff-index --quiet HEAD || (git commit -m "Update Doxygen" && git push origin docs)         
+          git diff-index --quiet HEAD || (git commit -m "Update Doxygen" && git push origin HEAD:docs)         
