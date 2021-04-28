@@ -43,9 +43,9 @@ jobs:
           mkdir bench-mr
           cd bench-mr
           git init
-          git config --local user.email "eric-heiden@outlook.com"
-          git config --local user.name "eric-heiden"
-          git remote add origin https://eric-heiden:${{ secrets.GITHUB_TOKEN }}@github.com/robot-motion/bench-mr.git
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions"
+          git remote add origin https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/robot-motion/bench-mr.git
           git pull origin docs
           cp -a ../doxygen assets/
           git add assets/**
