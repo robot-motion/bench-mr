@@ -4,6 +4,10 @@ jobs:
   build:
     docker:
       - image: "ubuntu:18.04"
+    filters:
+      branches:
+        only:
+          - master
     steps:
       - checkout
       - run:
