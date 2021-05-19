@@ -124,4 +124,4 @@ plot_planner_stats('comparison_extend_functions_with_sst.json', num_colors=10)
     
 ![png]({{ site.baseurl }}/assets/frontend/extendfun/output_10_1.png)
     
-[View Jupyter Notebook](https://github.com/eric-heiden/mpb/blob/master/plotting/Steering%20and%20Forward%20Propagation.ipynb){: .btn .btn-green }
+[View Jupyter Notebook](https://github.com/robot-motion/bench-mr/blob/master/python/Steering%20and%20Forward%20Propagation.ipynb){: .btn .btn-green }

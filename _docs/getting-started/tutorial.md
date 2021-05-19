@@ -10,7 +10,7 @@ nav_order: 1
 
 This page demonstrates the Python frontend of Bench-MR.
 
-[View Jupyter Notebook](https://github.com/eric-heiden/mpb/blob/master/plotting/Frontend.ipynb){: .btn .btn-green }
+[View Jupyter Notebook](https://github.com/robot-motion/bench-mr/blob/master/python/Frontend.ipynb){: .btn .btn-green }
 
 ## Construct MPB Instance
 
@@ -184,4 +184,4 @@ pool.visualize_trajectories(run_id='1')
     
 
 
-[View Jupyter Notebook](https://github.com/eric-heiden/mpb/blob/master/plotting/Frontend.ipynb){: .btn .btn-green }
+[View Jupyter Notebook](https://github.com/robot-motion/bench-mr/blob/master/python/Frontend.ipynb){: .btn .btn-green }

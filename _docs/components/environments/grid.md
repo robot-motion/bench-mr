@@ -41,7 +41,7 @@ mpb.visualize_trajectories(fig_width=5, fig_height=5)
 ```
 ![png]({{ site.baseurl }}/assets/frontend/environments-image/output_11_1.png)
 
-[View Jupyter Notebook](https://github.com/eric-heiden/mpb/blob/master/plotting/Image%20Grid%20Maze.ipynb){: .btn .btn-green }
+[View Jupyter Notebook](https://github.com/robot-motion/bench-mr/blob/master/python/Image%20Grid%20Maze.ipynb){: .btn .btn-green }
 
 ## Procedurally Generated Corridors
 
@@ -80,7 +80,7 @@ for i, parameter in enumerate(parameters):
 ```
 ![png]({{ site.baseurl }}/assets/frontend/environments-corridor/output_2_1.png)
 
-[View Jupyter Notebook](https://github.com/eric-heiden/mpb/blob/master/plotting/Corridors.ipynb){: .btn .btn-green }
+[View Jupyter Notebook](https://github.com/robot-motion/bench-mr/blob/master/python/Corridors.ipynb){: .btn .btn-green }
 
 ## Random Grids
 
@@ -120,4 +120,4 @@ plt.savefig("obstacle_ratios.pdf", bbox_inches='tight')
 
 ![png]({{ site.baseurl }}/assets/frontend/environments-corridor/output_4_1.png)
 
-[View Jupyter Notebook](https://github.com/eric-heiden/mpb/blob/master/plotting/Corridors.ipynb){: .btn .btn-green }
+[View Jupyter Notebook](https://github.com/robot-motion/bench-mr/blob/master/python/Corridors.ipynb){: .btn .btn-green }

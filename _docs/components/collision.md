@@ -62,4 +62,4 @@ m.visualize_trajectories(draw_start_goal_thetas=True, plot_every_nth_polygon=10,
 
 ![png]({{ site.baseurl }}/assets/frontend/collision/output_7_2.png)
 
-[View Jupyter Notebook](https://github.com/eric-heiden/mpb/blob/master/plotting/Collision%20Detection.ipynb){: .btn .btn-green }
+[View Jupyter Notebook](https://github.com/robot-motion/bench-mr/blob/master/python/Collision%20Detection.ipynb){: .btn .btn-green }

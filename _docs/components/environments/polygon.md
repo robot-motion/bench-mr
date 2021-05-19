@@ -10,7 +10,7 @@ grand_parent: Components
 
 Mazes of this type consist of convex shapes that are stored as paths in a SVG file. We used Inkscape to provide the following example mazes:
 
-[View Jupyter Notebook](https://github.com/eric-heiden/mpb/blob/master/plotting/Polygon%20Mazes.ipynb){: .btn .btn-green }
+[View Jupyter Notebook](https://github.com/robot-motion/bench-mr/blob/master/python/Polygon%20Mazes.ipynb){: .btn .btn-green }
     
 ![png]({{ site.baseurl }}/assets/frontend/environments-randompolygon/output_1_7.png)
 
@@ -82,7 +82,7 @@ if m.run(id="test", runs=1) == 0:
  
 ![png]({{ site.baseurl }}/assets/frontend/environments-randompolygon/output_3_2.png)
 
-[View Jupyter Notebook](https://github.com/eric-heiden/mpb/blob/master/plotting/Polygon%20Maze%20Generation.ipynb){: .btn .btn-green }
+[View Jupyter Notebook](https://github.com/robot-motion/bench-mr/blob/master/python/Polygon%20Maze%20Generation.ipynb){: .btn .btn-green }
 
 ## Load Maze from SVG File
 
@@ -123,5 +123,5 @@ m.visualize_trajectories(ignore_planners='cforest, bfmt',
     
 ![png]({{ site.baseurl }}/assets/frontend/environments-polygon/output_7_0.png)
 
-[View Jupyter Notebook](https://github.com/eric-heiden/mpb/blob/master/plotting/Polygon%20Worlds%20Testing.ipynb){: .btn .btn-green }
+[View Jupyter Notebook](https://github.com/robot-motion/bench-mr/blob/master/python/Polygon%20Worlds%20Testing.ipynb){: .btn .btn-green }
     

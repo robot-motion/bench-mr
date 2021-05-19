@@ -61,4 +61,4 @@ mpb.plot_planner_timings()
     
 ![png]({{ site.baseurl }}/assets/frontend/metrics/output_9_0.png) | ![png]({{ site.baseurl }}/assets/frontend/metrics/output_9_1.png) | ![png]({{ site.baseurl }}/assets/frontend/metrics/output_9_2.png)
     
-[View Jupyter Notebook](https://github.com/eric-heiden/mpb/blob/master/plotting/Metrics.ipynb){: .btn .btn-green }
+[View Jupyter Notebook](https://github.com/robot-motion/bench-mr/blob/master/python/Metrics.ipynb){: .btn .btn-green }

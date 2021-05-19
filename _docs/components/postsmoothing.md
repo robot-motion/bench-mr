@@ -59,4 +59,4 @@ mpb.plot_smoother_stats();
     
 ![png]({{ site.baseurl }}/assets/frontend/smoothers/output_4_1.png)
 
-[View Jupyter Notebook](https://github.com/eric-heiden/mpb/blob/master/plotting/Smoothing.ipynb){: .btn .btn-green }
+[View Jupyter Notebook](https://github.com/robot-motion/bench-mr/blob/master/python/Smoothing.ipynb){: .btn .btn-green }

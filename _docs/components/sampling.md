@@ -60,4 +60,4 @@ plot_planner_stats('samplers/samplers.json')
     
 ![png]({{ site.baseurl }}/assets/frontend/sampling/output_4_1.png)
 
-[View Jupyter Notebook](https://github.com/eric-heiden/mpb/blob/master/plotting/Random%20vs%20Deterministic.ipynb){: .btn .btn-green }
+[View Jupyter Notebook](https://github.com/robot-motion/bench-mr/blob/master/python/Random%20vs%20Deterministic.ipynb){: .btn .btn-green }

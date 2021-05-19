@@ -71,4 +71,4 @@ plot_planner_stats('optimization_objectives/optimization_objectives.json', num_c
 
 <img src="{{ site.baseurl }}/assets/frontend/objectives/output_4_1.png" style="width:100% !important;max-height:none"/>
 
-[View Jupyter Notebook](https://github.com/eric-heiden/mpb/blob/master/plotting/Optimization%20Objective.ipynb){: .btn .btn-green }
+[View Jupyter Notebook](https://github.com/robot-motion/bench-mr/blob/master/python/Optimization%20Objective.ipynb){: .btn .btn-green }
