@@ -1,7 +1,7 @@
 ---
 layout: default
 title:  "Corridor Results"
-date:   2021-01-04 13:20:59 +0100
+date:   2021-05-22T20:12:57 +0000
 parent: "Results"
 nav_order: 1
 ---
@@ -11,15 +11,15 @@ nav_order: 1
 These results have been automatically generated from our Continuous Integration (CI) system.
 {: .fs-6 .fw-300 }
 
-## Time stamp: <b>2021-04-28 22:11:01.268619</b>
+### Time stamp: <b>2021-05-22T20:12:57 +0000</b>
 {: .no_toc }
 
 ## Trajectories
 
-![png]({{ site.baseurl }}/assets/results/corridor_trajectories.png)
+<img src="{{ site.baseurl }}/assets/results/corridor_trajectories.png" style="width:100%;max-height:none"/>
 
 
 ## Planning Statistics
 
-![png]({{ site.baseurl }}/assets/results/corridor_stats.png)
+<img src="{{ site.baseurl }}/assets/results/corridor_stats.png" style="width:100%;max-height:none"/>
 
