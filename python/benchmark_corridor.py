@@ -21,7 +21,9 @@ with open("corridor.md", "w") as f:
 	f.write('''---
 layout: default
 title:  "Corridor Results"
-date:   2021-01-04 13:20:59 +0100
+date:   ''')
+	f.write(datetime.datetime.now().astimezone().strftime("%Y-%m-%dT%H:%M:%S %z"))
+	f.write('''
 parent: "Results"
 nav_order: 1
 ---
@@ -32,17 +34,17 @@ These results have been automatically generated from our Continuous Integration 
 {: .fs-6 .fw-300 }
 ''')
 	f.write(f'''
-## Time stamp: <b>{datetime.datetime.now()}</b>''')
+### Time stamp: <b>{datetime.datetime.now().astimezone().strftime("%Y-%m-%dT%H:%M:%S %z")}</b>''')
 	f.write('''
 {: .no_toc }
 
 ## Trajectories
 
-![png]({{ site.baseurl }}/assets/results/corridor_trajectories.png)
+<img src="{{ site.baseurl }}/assets/results/corridor_trajectories.png" style="width:100%;max-height:none"/>
 
 
 ## Planning Statistics
 
-![png]({{ site.baseurl }}/assets/results/corridor_stats.png)
+<img src="{{ site.baseurl }}/assets/results/corridor_stats.png" style="width:100%;max-height:none"/>
 
 ''')
