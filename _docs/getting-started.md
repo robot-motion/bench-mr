@@ -16,7 +16,7 @@ in the `bin/` folder in the project directory.
 
 ### Python Frontend (Jupyter Notebooks)
 
-Run `jupyter lab` from the project folder and navigate to the `plotting/` directory where you can find several notebooks that can execute experiments and allow you to plot and analyze the benchmark results.
+Run `jupyter lab` from the project folder and navigate to the `python/` directory where you can find several notebooks that can execute experiments and allow you to plot and analyze the benchmark results.
 
 ![gif]({{ site.baseurl }}/assets/mpb_parallel.gif)
 
@@ -50,5 +50,5 @@ Info:    Saved path statistics log file <...>
 ```
 
 The resulting JSON log file can be used for visualizing the planning results and plotting
-the statistics. To get started, check out the Jupyter notebooks inside the `plotting/` folder 
+the statistics. To get started, check out the Jupyter notebooks inside the `python/` folder 
 where all the plotting tools are provided.

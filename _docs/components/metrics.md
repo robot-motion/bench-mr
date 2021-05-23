@@ -19,6 +19,7 @@ The following statistics are gathered for each benchmark in Bench-MR:
 |:----------------|:-------------------|
 | `max_curvature`	|	Maximum Curvature |
 | `normalized_curvature`	|	Normalized Curvature |
+| `aol`	|	AOL |
 | `max_clearing_distance`	|	Maximum Clearing |
 | `mean_clearing_distance`	|	Mean Clearing |
 | `median_clearing_distance`	|	Median Clearing |
@@ -29,7 +30,7 @@ The following statistics are gathered for each benchmark in Bench-MR:
 | `cusps`	|	Cusps |
 | `aggregate`	|	Aggregate |
 
-This mapping is defined in the `stat_names` dictionary in `plotting/definitions.py`.
+This mapping is defined in the `stat_names` dictionary in `python/definitions.py`.
 
 ## Visualize Statistics
 

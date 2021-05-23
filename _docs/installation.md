@@ -16,7 +16,7 @@ Bench-MR is known to work on UNIX-based operating systems and uses CMake to find
 * [OMPL](https://github.com/ompl/ompl) - included as submodule, needs to be installed first
 * [nlohmann/json](https://github.com/nlohmann/json) - not provided, needs to be installed first
 * [SBPL](https://github.com/sbpl/sbpl) - not provided, needs to be installed
-* [Jupyter Lab](https://github.com/jupyterlab/jupyterlab) with [Python 3 kernel](https://ipython.readthedocs.io/en/latest/install/kernel_install.html#kernels-for-python-2-and-3) for plotting and evaluation (see [plotting/README.md](plotting/README.md))
+* [Jupyter Lab](https://github.com/jupyterlab/jupyterlab) with [Python 3 kernel](https://ipython.readthedocs.io/en/latest/install/kernel_install.html#kernels-for-python-2-and-3) for plotting and evaluation (see [python/README.md](python/README.md))
 
 The following boost libraries (version 1.58+) need to be installed:
 * `boost_serialization`
@@ -36,7 +36,7 @@ The following system-wide dependencies need to be set up:
 * PIP 3 (install via `apt install python3-pip`)
 * Jupyter Lab
 
-The Python frontend dependencies are defined in `plotting/requirements.txt` which can be installed through
+The Python frontend dependencies are defined in `python/requirements.txt` which can be installed through
 ```
-pip install -r plotting/requirements.txt
+pip install -r python/requirements.txt
 ```
