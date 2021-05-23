@@ -407,7 +407,7 @@ class MPB:
         for run_id in range(len(data["runs"])):
             plt.figure("Run %i" % run_id)
             planners, total_times, steering_times, collision_times = [], [], [], []
-            for planner, plan in data["runs"][0]["plans"].items():
+            for planner, plan in data["runs"][run_id]["plans"].items():
                 planners.append(planner)
                 total_times.append(plan["stats"]["planning_time"])
                 steering_times.append(plan["stats"]["steering_time"])
