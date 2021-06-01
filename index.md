@@ -4,7 +4,7 @@
 
 layout: default
 title: Bench-MR
-description: "Just the Docs is a responsive Jekyll theme with built-in search that is easily customizable and hosted on GitHub Pages."
+description: "A Motion Planning Benchmark for Wheeled Mobile Robots"
 ---
 
 ## Bench-MR: <br/> A Motion Planning Benchmark for Wheeled Mobile Robots
