@@ -70,7 +70,8 @@ RUN git clone https://github.com/sbpl/sbpl.git && cd sbpl && git checkout 1.3.1 
 
 # Build and install OMPL
 WORKDIR /root/code/bench-mr
-RUN cd ompl && mkdir build && cd build && cmake .. && make -j4 && make install
+RUN git clone https://github.com/ompl/ompl.git && cd ompl && mkdir build && cd build && cmake .. && make -j4 && make install
+
 
 # Creating Build Files
 WORKDIR /root/code/bench-mr
