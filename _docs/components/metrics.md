@@ -19,7 +19,7 @@ The following statistics are gathered for each benchmark in Bench-MR:
 |:----------------|:-------------------|
 | `max_curvature`	|	Maximum Curvature |
 | `normalized_curvature`	|	Normalized Curvature |
-| `aol`	|	AOL |
+| `aol`	|	Angle-over-length (AOL), an alternative measure of smoothness |
 | `max_clearing_distance`	|	Maximum Clearing |
 | `mean_clearing_distance`	|	Mean Clearing |
 | `median_clearing_distance`	|	Median Clearing |
