@@ -1,8 +1,4 @@
 <map id="Table" name="Table">
-<area shape="rect" id="node1" title=" " alt="" coords="613,71,668,97"/>
-<area shape="rect" id="node2" title=" " alt="" coords="369,5,517,32"/>
-<area shape="rect" id="node3" title=" " alt="" coords="365,56,521,112"/>
-<area shape="rect" id="node4" title=" " alt="" coords="363,136,523,163"/>
-<area shape="rect" id="node5" title=" " alt="" coords="179,136,257,163"/>
-<area shape="rect" id="node6" title=" " alt="" coords="5,129,129,170"/>
+<area shape="rect" id="node1" title=" " alt="" coords="52,80,107,107"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,5,153,32"/>
 </map>

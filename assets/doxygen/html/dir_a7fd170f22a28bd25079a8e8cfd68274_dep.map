@@ -1,10 +1,10 @@
 <map id="src/planners/thetastar" name="src/planners/thetastar">
 <area shape="rect" id="node1" href="dir_a7fd170f22a28bd25079a8e8cfd68274.html" title="thetastar" alt="" coords="42,52,115,100"/>
 <area shape="rect" id="node2" href="dir_0af1587c8378955de40f48b4bd1869f0.html" title="base" alt="" coords="5,148,77,196"/>
-<area shape="rect" id="edge2-headlabel" href="dir_000014_000001.html" title="4" alt="" coords="61,127,69,142"/>
+<area shape="rect" id="edge3-headlabel" href="dir_000014_000001.html" title="4" alt="" coords="61,127,69,142"/>
 <area shape="rect" id="node3" href="dir_313caf1132e152dd9b58bea13a4052ca.html" title="utils" alt="" coords="5,244,77,292"/>
-<area shape="rect" id="edge3-headlabel" href="dir_000014_000021.html" title="4" alt="" coords="76,227,84,242"/>
+<area shape="rect" id="edge4-headlabel" href="dir_000014_000021.html" title="4" alt="" coords="76,227,84,242"/>
 <area shape="rect" id="edge1-headlabel" href="dir_000001_000021.html" title="8" alt="" coords="37,218,45,233"/>
-<area shape="rect" id="edge4-headlabel" href="dir_000021_000001.html" title="7" alt="" coords="38,208,46,222"/>
+<area shape="rect" id="edge2-headlabel" href="dir_000021_000001.html" title="7" alt="" coords="38,208,46,222"/>
 <area shape="rect" id="clust1" href="dir_865f42b4e9125b67e73acae54b4d94df.html" title="planners" alt="" coords="31,16,127,111"/>
 </map>

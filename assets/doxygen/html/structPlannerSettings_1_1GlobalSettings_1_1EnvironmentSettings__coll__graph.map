@@ -1,11 +1,11 @@
 <map id="PlannerSettings::GlobalSettings::EnvironmentSettings" name="PlannerSettings::GlobalSettings::EnvironmentSettings">
-<area shape="rect" id="node1" title=" " alt="" coords="984,169,1189,211"/>
-<area shape="rect" id="node2" title=" " alt="" coords="5,234,63,261"/>
-<area shape="rect" id="node3" href="$structPlannerSettings_1_1StateSettings.html" title="State representation." alt="" coords="387,107,586,134"/>
-<area shape="rect" id="node4" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1CollisionSettings.html" title="Settings pertaining to the collision checker." alt="" coords="635,169,885,211"/>
-<area shape="rect" id="node5" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1PolygonSettings.html" title=" " alt="" coords="363,205,611,247"/>
-<area shape="rect" id="node6" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings.html" title="Settings for grid type." alt="" coords="647,317,873,359"/>
-<area shape="rect" id="node7" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings_1_1RandomSettings.html" title="Settings for random generator." alt="" coords="112,310,339,366"/>
-<area shape="rect" id="node8" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings_1_1CorridorSettings.html" title="Settings for corridor generator." alt="" coords="112,390,339,446"/>
-<area shape="rect" id="node9" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings_1_1ImageSettings.html" title="Settings for image generator." alt="" coords="112,470,339,526"/>
+<area shape="rect" id="node1" title=" " alt="" coords="981,173,1187,214"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,161,63,188"/>
+<area shape="rect" id="node3" href="$structPlannerSettings_1_1StateSettings.html" title="State representation." alt="" coords="389,23,587,49"/>
+<area shape="rect" id="node4" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings.html" title="Settings for grid type." alt="" coords="648,173,875,214"/>
+<area shape="rect" id="node5" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings_1_1CorridorSettings.html" title="Settings for corridor generator." alt="" coords="112,116,339,172"/>
+<area shape="rect" id="node6" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings_1_1RandomSettings.html" title="Settings for random generator." alt="" coords="112,196,339,252"/>
+<area shape="rect" id="node7" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings_1_1ImageSettings.html" title="Settings for image generator." alt="" coords="112,276,339,332"/>
+<area shape="rect" id="node8" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1PolygonSettings.html" title=" " alt="" coords="637,253,885,294"/>
+<area shape="rect" id="node9" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1CollisionSettings.html" title="Settings pertaining to the collision checker." alt="" coords="363,394,613,435"/>
 </map>

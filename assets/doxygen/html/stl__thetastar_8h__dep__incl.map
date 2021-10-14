@@ -1,10 +1,10 @@
 <map id="src/planners/thetastar/stl_thetastar.h" name="src/planners/thetastar/stl_thetastar.h">
 <area shape="rect" id="node1" title=" " alt="" coords="406,5,554,47"/>
-<area shape="rect" id="node2" href="$gnode_8h.html" title=" " alt="" coords="350,95,498,136"/>
-<area shape="rect" id="node3" href="$ThetaStar_8h.html" title=" " alt="" coords="406,184,554,225"/>
-<area shape="rect" id="node4" href="$GridMaze_8cpp.html" title=" " alt="" coords="5,273,160,315"/>
-<area shape="rect" id="node5" href="$Environment_8cpp.html" title=" " alt="" coords="184,281,379,307"/>
-<area shape="rect" id="node6" href="$AStar_8hpp.html" title=" " alt="" coords="403,281,557,307"/>
-<area shape="rect" id="node7" href="$ThetaStar_8cpp.html" title=" " alt="" coords="582,273,730,315"/>
-<area shape="rect" id="node8" href="$CHOMP_8cpp.html" title=" " alt="" coords="754,273,902,315"/>
+<area shape="rect" id="node2" href="$ThetaStar_8h.html" title=" " alt="" coords="406,184,554,225"/>
+<area shape="rect" id="node8" href="$gnode_8h.html" title=" " alt="" coords="462,95,610,136"/>
+<area shape="rect" id="node3" href="$GridMaze_8cpp.html" title=" " alt="" coords="5,273,160,315"/>
+<area shape="rect" id="node4" href="$Environment_8cpp.html" title=" " alt="" coords="184,281,379,307"/>
+<area shape="rect" id="node5" href="$AStar_8hpp.html" title=" " alt="" coords="403,281,557,307"/>
+<area shape="rect" id="node6" href="$ThetaStar_8cpp.html" title=" " alt="" coords="582,273,730,315"/>
+<area shape="rect" id="node7" href="$CHOMP_8cpp.html" title=" " alt="" coords="754,273,902,315"/>
 </map>

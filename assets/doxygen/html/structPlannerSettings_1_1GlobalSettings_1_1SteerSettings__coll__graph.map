@@ -1,6 +1,6 @@
 <map id="PlannerSettings::GlobalSettings::SteerSettings" name="PlannerSettings::GlobalSettings::SteerSettings">
 <area shape="rect" id="node1" title=" " alt="" coords="411,35,616,76"/>
 <area shape="rect" id="node2" title=" " alt="" coords="5,42,63,69"/>
-<area shape="rect" id="node3" href="$structPlannerSettings_1_1GlobalSettings_1_1SteerSettings_1_1PosqSettings.html" title="Settings related to the POSQ steer function." alt="" coords="115,35,321,76"/>
-<area shape="rect" id="node4" href="$structPlannerSettings_1_1GlobalSettings_1_1SteerSettings_1_1HC__CC__Settings.html" title=" " alt="" coords="112,100,324,141"/>
+<area shape="rect" id="node3" href="$structPlannerSettings_1_1GlobalSettings_1_1SteerSettings_1_1HC__CC__Settings.html" title=" " alt="" coords="112,35,324,76"/>
+<area shape="rect" id="node4" href="$structPlannerSettings_1_1GlobalSettings_1_1SteerSettings_1_1PosqSettings.html" title="Settings related to the POSQ steer function." alt="" coords="115,100,321,141"/>
 </map>

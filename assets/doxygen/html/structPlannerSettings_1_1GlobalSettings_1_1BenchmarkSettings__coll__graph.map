@@ -2,6 +2,6 @@
 <area shape="rect" id="node1" title="Settings related to benchmarking." alt="" coords="483,80,688,121"/>
 <area shape="rect" id="node2" title=" " alt="" coords="5,79,63,106"/>
 <area shape="rect" id="node3" href="$structPlannerSettings_1_1GlobalSettings_1_1BenchmarkSettings_1_1MovingAiSettings.html" title=" " alt="" coords="116,47,367,88"/>
-<area shape="rect" id="node4" href="$structPlannerSettings_1_1GlobalSettings_1_1BenchmarkSettings_1_1PlanningSettings.html" title="Select certain planning algorithms to be evaluated." alt="" coords="118,112,365,153"/>
-<area shape="rect" id="node5" href="$structPlannerSettings_1_1GlobalSettings_1_1BenchmarkSettings_1_1SmoothingSettings.html" title="Select certain smoothing algorithms to be evaluated." alt="" coords="112,177,371,219"/>
+<area shape="rect" id="node4" href="$structPlannerSettings_1_1GlobalSettings_1_1BenchmarkSettings_1_1SmoothingSettings.html" title="Select certain smoothing algorithms to be evaluated." alt="" coords="112,112,371,153"/>
+<area shape="rect" id="node5" href="$structPlannerSettings_1_1GlobalSettings_1_1BenchmarkSettings_1_1PlanningSettings.html" title="Select certain planning algorithms to be evaluated." alt="" coords="118,177,365,219"/>
 </map>

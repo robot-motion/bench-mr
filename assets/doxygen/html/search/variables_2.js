@@ -1,10 +1,10 @@
 var searchData=
 [
-  ['b_1278',['B',['../classPOSQ.html#a4ded52649d8c2c5ddf4b746fbfc143b2',1,'POSQ']]],
-  ['benchmark_1279',['benchmark',['../structPlannerSettings_1_1GlobalSettings.html#a695a5e9837c194e2607242c2a5eef0bb',1,'PlannerSettings::GlobalSettings']]],
-  ['bfmt_1280',['bfmt',['../structPlannerSettings_1_1GlobalSettings_1_1BenchmarkSettings_1_1PlanningSettings.html#ae9c823d676c94f70ef9256eba08b3ad6',1,'PlannerSettings::GlobalSettings::BenchmarkSettings::PlanningSettings']]],
-  ['bit_5fstar_1281',['bit_star',['../structPlannerSettings_1_1GlobalSettings_1_1BenchmarkSettings_1_1PlanningSettings.html#a618a30586f768f5fea2e067de6f57208',1,'PlannerSettings::GlobalSettings::BenchmarkSettings::PlanningSettings']]],
-  ['branches_1282',['branches',['../structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings_1_1CorridorSettings.html#afd04cf0f864e932daef9b51a58addede',1,'PlannerSettings::GlobalSettings::EnvironmentSettings::GridSettings::CorridorSettings']]],
-  ['bspline_5fepsilon_1283',['bspline_epsilon',['../structPlannerSettings_1_1GlobalSettings_1_1SmoothingSettings_1_1OmplSettings.html#ac045a536ba322b01d3f23110cd1219b9',1,'PlannerSettings::GlobalSettings::SmoothingSettings::OmplSettings']]],
-  ['bspline_5fmax_5fsteps_1284',['bspline_max_steps',['../structPlannerSettings_1_1GlobalSettings_1_1SmoothingSettings_1_1OmplSettings.html#aaecbeb7d828cfae39c1be1b395362110',1,'PlannerSettings::GlobalSettings::SmoothingSettings::OmplSettings']]]
+  ['b_0',['B',['../classPOSQ.html#a4ded52649d8c2c5ddf4b746fbfc143b2',1,'POSQ']]],
+  ['benchmark_1',['benchmark',['../structPlannerSettings_1_1GlobalSettings.html#a695a5e9837c194e2607242c2a5eef0bb',1,'PlannerSettings::GlobalSettings']]],
+  ['bfmt_2',['bfmt',['../structPlannerSettings_1_1GlobalSettings_1_1BenchmarkSettings_1_1PlanningSettings.html#ae9c823d676c94f70ef9256eba08b3ad6',1,'PlannerSettings::GlobalSettings::BenchmarkSettings::PlanningSettings']]],
+  ['bit_5fstar_3',['bit_star',['../structPlannerSettings_1_1GlobalSettings_1_1BenchmarkSettings_1_1PlanningSettings.html#a618a30586f768f5fea2e067de6f57208',1,'PlannerSettings::GlobalSettings::BenchmarkSettings::PlanningSettings']]],
+  ['branches_4',['branches',['../structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings_1_1CorridorSettings.html#afd04cf0f864e932daef9b51a58addede',1,'PlannerSettings::GlobalSettings::EnvironmentSettings::GridSettings::CorridorSettings']]],
+  ['bspline_5fepsilon_5',['bspline_epsilon',['../structPlannerSettings_1_1GlobalSettings_1_1SmoothingSettings_1_1OmplSettings.html#ac045a536ba322b01d3f23110cd1219b9',1,'PlannerSettings::GlobalSettings::SmoothingSettings::OmplSettings']]],
+  ['bspline_5fmax_5fsteps_6',['bspline_max_steps',['../structPlannerSettings_1_1GlobalSettings_1_1SmoothingSettings_1_1OmplSettings.html#aaecbeb7d828cfae39c1be1b395362110',1,'PlannerSettings::GlobalSettings::SmoothingSettings::OmplSettings']]]
 ];
