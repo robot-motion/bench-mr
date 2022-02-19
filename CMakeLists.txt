@@ -79,7 +79,7 @@ file(GLOB_RECURSE Smoothers src/smoothers/*)
 
 set(EXTRA_SRC ${EXTRA_SRC} third_party/chomp/chomp/Map2D.cpp)
 if (Qt5_FOUND)
-    file(GLOB GUI_SRC gui/*.?pp)
+    file(GLOB GUI_SRC src/gui/*.?pp)
     set(EXTRA_SRC ${EXTRA_SRC} ${GUI_SRC})
 else (Qt5_FOUND)
     set(EXTRA_SRC ${EXTRA_SRC})
