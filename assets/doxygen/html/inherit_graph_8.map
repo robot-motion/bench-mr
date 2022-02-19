@@ -1,4 +1,29 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" title=" " alt="" coords="5,5,168,47"/>
-<area shape="rect" id="node2" href="$classEnvironmentStateValidityChecker.html" title=" " alt="" coords="216,5,383,47"/>
+<area shape="rect" id="node1" title=" " alt="" coords="5,825,63,852"/>
+<area shape="rect" id="node2" href="$structGRIPS_1_1RoundStats.html" title=" " alt="" coords="171,5,309,32"/>
+<area shape="rect" id="node3" href="$structPathStatistics.html" title=" " alt="" coords="188,56,292,83"/>
+<area shape="rect" id="node4" href="$structPlannerSettings_1_1GlobalSettings.html" title="Global settings." alt="" coords="137,107,343,133"/>
+<area shape="rect" id="node5" href="$structPlannerSettings_1_1GlobalSettings_1_1BenchmarkSettings.html" title="Settings related to benchmarking." alt="" coords="137,158,343,199"/>
+<area shape="rect" id="node6" href="$structPlannerSettings_1_1GlobalSettings_1_1BenchmarkSettings_1_1MovingAiSettings.html" title=" " alt="" coords="115,223,365,265"/>
+<area shape="rect" id="node7" href="$structPlannerSettings_1_1GlobalSettings_1_1BenchmarkSettings_1_1PlanningSettings.html" title="Select certain planning algorithms to be evaluated." alt="" coords="117,289,363,330"/>
+<area shape="rect" id="node8" href="$structPlannerSettings_1_1GlobalSettings_1_1BenchmarkSettings_1_1SmoothingSettings.html" title="Select certain smoothing algorithms to be evaluated." alt="" coords="111,354,369,395"/>
+<area shape="rect" id="node9" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings.html" title=" " alt="" coords="137,419,343,461"/>
+<area shape="rect" id="node10" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1CollisionSettings.html" title="Settings pertaining to the collision checker." alt="" coords="115,485,365,526"/>
+<area shape="rect" id="node11" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings.html" title="Settings for grid type." alt="" coords="127,550,353,591"/>
+<area shape="rect" id="node12" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings_1_1CorridorSettings.html" title="Settings for corridor generator." alt="" coords="127,615,353,671"/>
+<area shape="rect" id="node13" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings_1_1ImageSettings.html" title="Settings for image generator." alt="" coords="127,695,353,751"/>
+<area shape="rect" id="node14" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings_1_1RandomSettings.html" title="Settings for random generator." alt="" coords="127,775,353,831"/>
+<area shape="rect" id="node15" href="$structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1PolygonSettings.html" title=" " alt="" coords="116,854,364,895"/>
+<area shape="rect" id="node16" href="$structPlannerSettings_1_1GlobalSettings_1_1ForwardPropagationSettings.html" title=" " alt="" coords="137,919,343,961"/>
+<area shape="rect" id="node17" href="$structPlannerSettings_1_1GlobalSettings_1_1OmplSettings.html" title="Settings related to OMPL." alt="" coords="137,985,343,1026"/>
+<area shape="rect" id="node18" href="$structPlannerSettings_1_1GlobalSettings_1_1SbplSettings.html" title=" " alt="" coords="137,1050,343,1091"/>
+<area shape="rect" id="node19" href="$structPlannerSettings_1_1GlobalSettings_1_1SmoothingSettings.html" title=" " alt="" coords="137,1115,343,1157"/>
+<area shape="rect" id="node20" href="$structPlannerSettings_1_1GlobalSettings_1_1SmoothingSettings_1_1ChompSettings.html" title=" " alt="" coords="123,1181,357,1222"/>
+<area shape="rect" id="node21" href="$structPlannerSettings_1_1GlobalSettings_1_1SmoothingSettings_1_1GripsSettings.html" title=" " alt="" coords="129,1246,351,1287"/>
+<area shape="rect" id="node22" href="$structPlannerSettings_1_1GlobalSettings_1_1SmoothingSettings_1_1OmplSettings.html" title=" " alt="" coords="129,1311,351,1353"/>
+<area shape="rect" id="node23" href="$structPlannerSettings_1_1GlobalSettings_1_1SteerSettings.html" title=" " alt="" coords="137,1377,343,1418"/>
+<area shape="rect" id="node24" href="$structPlannerSettings_1_1GlobalSettings_1_1SteerSettings_1_1HC__CC__Settings.html" title=" " alt="" coords="134,1442,346,1483"/>
+<area shape="rect" id="node25" href="$structPlannerSettings_1_1GlobalSettings_1_1SteerSettings_1_1PosqSettings.html" title="Settings related to the POSQ steer function." alt="" coords="137,1507,343,1549"/>
+<area shape="rect" id="node26" href="$structPlannerSettings_1_1GlobalSettings_1_1ThetaStarSettings.html" title=" " alt="" coords="137,1573,343,1614"/>
+<area shape="rect" id="node27" href="$structPlannerSettings_1_1StateSettings.html" title="State representation." alt="" coords="141,1639,339,1665"/>
 </map>

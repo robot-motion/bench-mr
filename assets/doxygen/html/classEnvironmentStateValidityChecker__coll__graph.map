@@ -1,4 +1,8 @@
 <map id="EnvironmentStateValidityChecker" name="EnvironmentStateValidityChecker">
-<area shape="rect" id="node1" title=" " alt="" coords="5,80,172,121"/>
-<area shape="rect" id="node2" title=" " alt="" coords="7,5,170,32"/>
+<area shape="rect" id="node1" title=" " alt="" coords="25,288,191,329"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,199,168,225"/>
+<area shape="rect" id="node3" title=" " alt="" coords="193,199,394,225"/>
+<area shape="rect" id="node4" href="$classEnvironment.html" title=" " alt="" coords="246,109,341,136"/>
+<area shape="rect" id="node5" href="$structPoint.html" title=" " alt="" coords="222,5,274,32"/>
+<area shape="rect" id="node6" href="$classStopwatch.html" title="Stopwatch implementation to measure elapsed time." alt="" coords="298,5,382,32"/>
 </map>
