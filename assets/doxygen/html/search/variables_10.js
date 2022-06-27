@@ -3,7 +3,7 @@ var searchData=
   ['radius_0',['radius',['../structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings_1_1CorridorSettings.html#a4e43ae8b556f2d514c2e0efd921c2fcc',1,'PlannerSettings::GlobalSettings::EnvironmentSettings::GridSettings::CorridorSettings']]],
   ['random_1',['random',['../structPlannerSettings_1_1GlobalSettings_1_1EnvironmentSettings_1_1GridSettings.html#afbe202ac6ac0ca1a151a5bf641c03a8c',1,'PlannerSettings::GlobalSettings::EnvironmentSettings::GridSettings']]],
   ['read_5for_2',['READ_OR',['../classGNode__base.html#ac411e634e63b91c6caa02225eb329481',1,'GNode_base']]],
-  ['resolution_3',['resolution',['../structPlannerSettings_1_1GlobalSettings_1_1SbplSettings.html#a786c2aacbc2afadf2b3a12ed97bb817d',1,'PlannerSettings::GlobalSettings::SbplSettings']]],
+  ['resolution_3',['resolution',['../structPlannerSettings_1_1GlobalSettings_1_1SteerSettings_1_1HC__CC__Settings.html#a04a22fb846303d8ccf31b59169616a28',1,'PlannerSettings::GlobalSettings::SteerSettings::HC_CC_Settings::resolution()'],['../structPlannerSettings_1_1GlobalSettings_1_1SbplSettings.html#a786c2aacbc2afadf2b3a12ed97bb817d',1,'PlannerSettings::GlobalSettings::SbplSettings::resolution()']]],
   ['result_5f_4',['result_',['../classPOSQ.html#a97c7fbd50dfb0fb7b6747352d755d276',1,'POSQ']]],
   ['rho_5',['rho',['../structPlannerSettings_1_1GlobalSettings_1_1SteerSettings_1_1PosqSettings.html#a71894d55aa3e10c93e415b60d06e096f',1,'PlannerSettings::GlobalSettings::SteerSettings::PosqSettings']]],
   ['rho_5fend_5fcondition_6',['rho_end_condition',['../structPlannerSettings_1_1GlobalSettings_1_1SteerSettings_1_1PosqSettings.html#af3383ba8cdcb792cd14642efebe7286b',1,'PlannerSettings::GlobalSettings::SteerSettings::PosqSettings']]],

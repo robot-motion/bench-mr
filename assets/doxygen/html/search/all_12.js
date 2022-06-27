@@ -9,7 +9,7 @@ var searchData=
   ['replace_6',['replace',['../Log_8cpp.html#a0159b96c217d65d379016f6aa2c4dd57',1,'Log.cpp']]],
   ['reset_7',['reset',['../classStopwatch.html#a42c7014e7fffcf4c56ca6fb07f8eb31c',1,'Stopwatch']]],
   ['resetcollisiontimer_8',['resetCollisionTimer',['../classEnvironment.html#ae8b041970e4cee20436ac5f664300103',1,'Environment']]],
-  ['resolution_9',['resolution',['../structPlannerSettings_1_1GlobalSettings_1_1SbplSettings.html#a786c2aacbc2afadf2b3a12ed97bb817d',1,'PlannerSettings::GlobalSettings::SbplSettings']]],
+  ['resolution_9',['resolution',['../structPlannerSettings_1_1GlobalSettings_1_1SteerSettings_1_1HC__CC__Settings.html#a04a22fb846303d8ccf31b59169616a28',1,'PlannerSettings::GlobalSettings::SteerSettings::HC_CC_Settings::resolution()'],['../structPlannerSettings_1_1GlobalSettings_1_1SbplSettings.html#a786c2aacbc2afadf2b3a12ed97bb817d',1,'PlannerSettings::GlobalSettings::SbplSettings::resolution()']]],
   ['restorescene_10',['restoreScene',['../classQtVisualizer.html#af5635bc2e91f4bd2b1c93c3470155601',1,'QtVisualizer']]],
   ['result_5f_11',['result_',['../classPOSQ.html#a97c7fbd50dfb0fb7b6747352d755d276',1,'POSQ']]],
   ['resume_12',['resume',['../classStopwatch.html#a789461171238250633eeb26b8f3b0dce',1,'Stopwatch']]],
