@@ -205,15 +205,15 @@ void PlannerSettings::GlobalSettings::SteerSettings::initializeSteering()
   else if (steering_type == Steering::STEER_TYPE_CC_DUBINS)
     global::settings.ompl.state_space = ob::StateSpacePtr(
         new InstrumentedStateSpace<hc_cc_spaces::CCDubinsStateSpace>(
-            hc_cc.kappa, hc_cc.sigma, sampling_resolution));
+            hc_cc.kappa, hc_cc.sigma, hc_cc.resolution));
   else if (steering_type == Steering::STEER_TYPE_CC_REEDS_SHEPP)
     global::settings.ompl.state_space = ob::StateSpacePtr(
         new InstrumentedStateSpace<hc_cc_spaces::CCReedsSheppStateSpace>(
-            hc_cc.kappa, hc_cc.sigma, sampling_resolution));
+            hc_cc.kappa, hc_cc.sigma, hc_cc.resolution));
   else if (steering_type == Steering::STEER_TYPE_HC_REEDS_SHEPP)
     global::settings.ompl.state_space = ob::StateSpacePtr(
         new InstrumentedStateSpace<hc_cc_spaces::HCReedsSheppStateSpace>(
-            hc_cc.kappa, hc_cc.sigma, sampling_resolution));
+            hc_cc.kappa, hc_cc.sigma, hc_cc.resolution));
 #ifdef G1_AVAILABLE
   else if (steering_type == Steering::STEER_TYPE_CLOTHOID)
     global::settings.ompl.state_space =

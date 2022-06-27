@@ -344,7 +344,8 @@
       "car_turning_radius": 4.0,
       "hc_cc": {
         "kappa": 0.2,
-        "sigma": 0.2
+        "sigma": 0.2,
+        "resolution": 0.1
       },
       "posq": {
         "alpha": 3.0,

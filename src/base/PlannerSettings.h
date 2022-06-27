@@ -500,6 +500,7 @@ struct GlobalSettings : public Group {
 
       Property<double> kappa{0.2, "kappa", this};
       Property<double> sigma{0.2, "sigma", this};
+      Property<double> resolution{0.1, "resolution", this};
     } hc_cc{"hc_cc", this};
 
     /**
