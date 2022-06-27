@@ -35,6 +35,7 @@ RUN \
     nlohmann-json-dev \
     python3-pip \
     ffmpeg \
+    libffi-dev \
     libhdf5-dev \
     nano \
     htop
@@ -51,6 +52,7 @@ RUN mkdir -p /root/code
 COPY . /root/code/bench-mr
 WORKDIR /root/code/bench-mr
 
+RUN pip3 install --upgrade setuptools
 RUN pip3 install -r python/requirements.txt
 
 # Install ipywidgets for Jupyter Lab
